@@ -6,7 +6,5 @@
  * - "dice-pattern" (dice/domino dot faces ١–٥)
  * - "circular-arrangement" (objects on a circular ring guide)
  * - "numeral-trace" (ruled dotted numeral tracing guides ٠–٩)
- *
- * Register visual models here via `registerVisualModel(kind, renderer)`.
  */
-export {};
+export * from "@/visual-models/unit-2-models";

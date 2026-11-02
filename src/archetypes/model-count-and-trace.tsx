@@ -1,7 +1,387 @@
-/**
- * Slice file for Ticket 04 Exercise Archetype:
- * - `ModelCountAndTrace` (`عدّ ومثّل وتتبّع الرقم`)
- *
- * Register via `registerExerciseArchetype(...)`.
- */
-export {};
+import React from "react";
+import type {
+  ColorThemeId,
+  Exercise,
+  GenericArchetypeData,
+  VisualModelSpec,
+} from "@/domain/types";
+import { VisualModelView } from "@/visual-models/registry";
+import {
+  createCircularArrangementSpec,
+  createDicePatternSpec,
+  createFiveFrameSpec,
+  createNumeralTraceSpec,
+  createSnapCubesSpec,
+  createTallyMarksSpec,
+  getArabicNumberWord,
+} from "@/visual-models/unit-2-models";
+import {
+  registerExerciseArchetype,
+  type ArchetypeGeneratorContext,
+  type ArchetypeRenderProps,
+} from "@/archetypes/registry";
+import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
+
+export type Unit2ModelingKind =
+  | "five-frame"
+  | "snap-cubes"
+  | "tally-marks"
+  | "dice-pattern"
+  | "circular-arrangement";
+
+export interface ModelCountAndTraceItemSpec {
+  targetNumber: number;
+  quantityModel?: VisualModelSpec;
+  companionModel?: VisualModelSpec;
+  partWholeNoteAr?: string;
+  colorTheme?: ColorThemeId;
+  secondaryCount?: number;
+  ghostTargetCount?: number;
+}
+
+export interface ModelCountAndTraceBlueprintParams {
+  modelKind?: Unit2ModelingKind;
+  targetNumbers?: number[];
+  itemCount?: number;
+  items?: ModelCountAndTraceItemSpec[];
+  showPartWholeBreakdown?: boolean;
+  comparisonPromptAr?: string;
+  comparisonAnswerAr?: string;
+}
+
+export interface ModelCountAndTraceItem {
+  id: string;
+  targetNumber: number;
+  targetNumberAr: string;
+  numberWordAr: string;
+  partWholeNoteAr: string;
+  quantityModel: VisualModelSpec;
+  companionModel?: VisualModelSpec;
+  traceModel: VisualModelSpec;
+}
+
+export interface ModelCountAndTraceData extends GenericArchetypeData {
+  kind: "ModelCountAndTrace";
+  modelKind: Unit2ModelingKind;
+  items: ModelCountAndTraceItem[];
+  comparisonPromptAr?: string;
+  comparisonAnswerAr?: string;
+}
+
+const COLOR_CYCLE: ColorThemeId[] = [
+  "coral",
+  "sky",
+  "emerald",
+  "amber",
+  "violet",
+  "rose",
+  "teal",
+];
+
+function defaultPartWholeNote(n: number): string {
+  if (n <= 1) return "مجموعة من عنصر واحد (١)";
+  if (n === 2) return "١ و١ يساوي ٢";
+  if (n === 3) return "٢ و١ أكثر يساوي ٣";
+  if (n === 4) return "مجموعتان من ٢ (٢ و٢ يساوي ٤)";
+  if (n === 5) return "٤ و١ يساوي ٥ (حزمة خماسية كاملة)";
+  return `الكل يساوي ${formatEasternNumber(n)}`;
+}
+
+function buildDefaultQuantityModel(
+  modelKind: Unit2ModelingKind,
+  targetNumber: number,
+  colorTheme: ColorThemeId,
+  secondaryCount = 0,
+  ghostTargetCount = 0
+): VisualModelSpec {
+  const primary = Math.max(0, targetNumber - secondaryCount - ghostTargetCount);
+  if (modelKind === "five-frame") {
+    return createFiveFrameSpec({
+      count: primary,
+      secondaryCount,
+      ghostTargetCount,
+      colorTheme,
+      secondaryColorTheme: colorTheme === "sky" ? "amber" : "sky",
+      highlightEmptySlots: true,
+      showPartOutline: secondaryCount > 0,
+    });
+  }
+
+  if (modelKind === "snap-cubes") {
+    return createSnapCubesSpec({
+      count: Math.max(1, primary),
+      secondaryCount,
+      separated: secondaryCount > 0,
+      colorTheme,
+      secondaryColorTheme: colorTheme === "emerald" ? "amber" : "emerald",
+    });
+  }
+
+  if (modelKind === "tally-marks") {
+    return createTallyMarksSpec({
+      count: targetNumber,
+      variant: "tally",
+      colorTheme,
+    });
+  }
+
+  if (modelKind === "dice-pattern") {
+    return createDicePatternSpec({
+      count: primary,
+      secondaryCount,
+      colorTheme,
+      secondaryColorTheme: colorTheme === "coral" ? "sky" : "coral",
+    });
+  }
+
+  if (modelKind === "circular-arrangement") {
+    return createCircularArrangementSpec({
+      count: Math.max(1, primary),
+      secondaryCount,
+      colorTheme,
+      secondaryColorTheme: colorTheme === "violet" ? "amber" : "violet",
+    });
+  }
+
+  return {
+    kind: modelKind,
+    id: `${modelKind}-${targetNumber}`,
+    labelAr: `نموذج العدد ${formatEasternNumber(targetNumber)}`,
+    count: primary,
+    secondaryCount,
+    colorTheme,
+  };
+}
+
+function generateModelCountAndTraceExercise(
+  ctx: ArchetypeGeneratorContext
+): Exercise {
+  const params = (ctx.spec.params ?? {}) as ModelCountAndTraceBlueprintParams;
+  const modelKind: Unit2ModelingKind = params.modelKind ?? "five-frame";
+
+  const defaultItemCount =
+    ctx.difficultyLevel === "Easy"
+      ? 2
+      : ctx.difficultyLevel === "Intermediate"
+      ? 3
+      : 3;
+
+  let itemSpecs: ModelCountAndTraceItemSpec[] = [];
+
+  if (params.items && params.items.length > 0) {
+    const countToPick = params.itemCount ?? Math.min(params.items.length, defaultItemCount);
+    itemSpecs = ctx.rng.pickN(params.items, countToPick);
+  } else {
+    const candidateNumbers =
+      params.targetNumbers && params.targetNumbers.length > 0
+        ? params.targetNumbers
+        : ctx.difficultyLevel === "Easy"
+        ? [1, 2, 3]
+        : ctx.difficultyLevel === "Intermediate"
+        ? [2, 3, 4, 5]
+        : [3, 4, 5];
+
+    const pickedNumbers = ctx.rng.pickN(
+      candidateNumbers,
+      params.itemCount ?? defaultItemCount
+    );
+
+    itemSpecs = pickedNumbers.map((num, idx) => {
+      const theme = COLOR_CYCLE[(idx + num) % COLOR_CYCLE.length];
+      const useParts =
+        (params.showPartWholeBreakdown || ctx.difficultyLevel !== "Easy") &&
+        num >= 3;
+      const secondaryCount = useParts ? (num === 5 ? 1 : num === 4 ? 2 : 1) : 0;
+      return {
+        targetNumber: num,
+        colorTheme: theme,
+        secondaryCount,
+        partWholeNoteAr: defaultPartWholeNote(num),
+      };
+    });
+  }
+
+  const items: ModelCountAndTraceItem[] = itemSpecs.map((spec, idx) => {
+    const num = spec.targetNumber;
+    const theme =
+      spec.colorTheme ?? COLOR_CYCLE[(idx + num) % COLOR_CYCLE.length];
+    const quantityModel =
+      spec.quantityModel ??
+      buildDefaultQuantityModel(
+        modelKind,
+        num,
+        theme,
+        spec.secondaryCount ?? 0,
+        spec.ghostTargetCount ?? 0
+      );
+
+    const traceModel = createNumeralTraceSpec({
+      digit: num,
+      colorTheme: theme,
+    });
+
+    return {
+      id: `mct-item-${idx + 1}-n${num}`,
+      targetNumber: num,
+      targetNumberAr: formatEasternNumber(num),
+      numberWordAr: getArabicNumberWord(num),
+      partWholeNoteAr: spec.partWholeNoteAr ?? defaultPartWholeNote(num),
+      quantityModel,
+      companionModel: spec.companionModel,
+      traceModel,
+    };
+  });
+
+  const visualModels: VisualModelSpec[] = [];
+  for (const item of items) {
+    if (item.companionModel) {
+      visualModels.push(item.companionModel);
+    }
+    visualModels.push(item.quantityModel);
+    visualModels.push(item.traceModel);
+  }
+
+  const numbersListAr = items.map((i) => i.targetNumberAr).join("، ");
+  const defaultPromptAr =
+    ctx.difficultyLevel === "Easy"
+      ? `عدّ العناصر ومثّل العدد، ثم تتبّع الرقم المنقّط بدءاً من النقطة الخضراء باتجاه السهم (${numbersListAr}):`
+      : ctx.difficultyLevel === "Intermediate"
+      ? `عدّ المجموعات ولاحظ الأجزاء التي تكوّن الكل، ثم تتبّع الأرقام واكتبها (${numbersListAr}):`
+      : `مثّل الأعداد (${numbersListAr}) بالاعتماد على الأجزاء والكل، وتتبّع كل رقم واكتبه في المربع المخصّص:`;
+
+  const defaultStrategyHintAr =
+    ctx.difficultyLevel === "Easy"
+      ? `استخدم التقابل واحداً لواحد عند العدّ؛ تذكّر أن آخر عدد تنطقه يمثّل المجموعة كلها، ثم ابدأ تتبّع الرقم من نقطة البداية الخضراء.`
+      : ctx.difficultyLevel === "Intermediate"
+      ? `لاحظ كيف تتجمّع الأجزاء الصغيرة لتكوّن العدد الكلي (${numbersListAr})، وتتبّع مسار السهم لكتابة الرقم العربي الشرقي بدقة على السطر.`
+      : `اعتمد على التعرّف البصري للأجزاء والكل لتحديد الكمية بسرعة، ثم تتبّع الرقم المنقّط واكتبه بخط واضح ومرتّب.`;
+
+  const data: ModelCountAndTraceData = {
+    kind: "ModelCountAndTrace",
+    modelKind,
+    items,
+    comparisonPromptAr: params.comparisonPromptAr,
+    comparisonAnswerAr: params.comparisonAnswerAr,
+  };
+
+  return {
+    id: `${ctx.lesson.id}-${ctx.sectionId}-ex-${ctx.exerciseNumber}`,
+    exerciseNumber: ctx.exerciseNumber,
+    sectionId: ctx.sectionId,
+    archetype: "ModelCountAndTrace",
+    difficultyLevel: ctx.difficultyLevel,
+    sourceLessonId: ctx.sourceLessonId,
+    titleAr: "عدّ ومثّل وتتبّع الرقم",
+    promptAr: ctx.spec.promptAr ?? defaultPromptAr,
+    strategyHintAr: ctx.spec.strategyHintAr ?? defaultStrategyHintAr,
+    visualModels,
+    data,
+  };
+}
+
+function renderModelCountAndTraceExercise({
+  exercise,
+  mode,
+}: ArchetypeRenderProps): React.ReactElement {
+  const data = exercise.data as ModelCountAndTraceData;
+  const isAnswerKey = mode === "answer-key";
+
+  return (
+    <div className="space-y-3" data-archetype="ModelCountAndTrace">
+      <div className="grid grid-cols-1 gap-3">
+        {data.items.map((item, idx) => (
+          <div
+            key={item.id}
+            className="grid grid-cols-[1.4fr_1fr_auto] items-center gap-3 rounded-2xl border-2 border-indigo-100 bg-gradient-to-l from-white via-indigo-50/20 to-sky-50/30 p-3 shadow-2xs"
+            data-mct-item-id={toEasternArabicNumerals(item.id)}
+            data-target-number={item.targetNumberAr}
+          >
+            {/* Column 1 (Right in RTL): Visual Model(s) & Part-Whole Badge */}
+            <div className="flex flex-col items-start gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 text-xs font-extrabold text-white">
+                  {formatEasternNumber(idx + 1)}
+                </span>
+                <span className="rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-extrabold text-indigo-950">
+                  العدد المستهدف: {item.targetNumberAr} ({item.numberWordAr})
+                </span>
+                <span className="rounded-full border border-amber-300 bg-amber-50 px-2.5 py-0.5 text-[11px] font-bold text-amber-900">
+                  🧩 {toEasternArabicNumerals(item.partWholeNoteAr)}
+                </span>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3 pt-1">
+                {item.companionModel && (
+                  <VisualModelView
+                    model={item.companionModel}
+                    solved={isAnswerKey}
+                  />
+                )}
+                <VisualModelView
+                  model={item.quantityModel}
+                  solved={isAnswerKey}
+                />
+              </div>
+            </div>
+
+            {/* Column 2 (Middle): Dotted Numeral Tracing Guide */}
+            <div className="flex flex-col items-center justify-center">
+              <VisualModelView model={item.traceModel} solved={isAnswerKey} />
+            </div>
+
+            {/* Column 3 (Left in RTL): Count & Freehand Write Response Box */}
+            <div className="flex flex-col items-center gap-1.5 rounded-2xl border border-slate-200 bg-white px-3.5 py-2.5 shadow-2xs">
+              <span className="text-[11px] font-extrabold text-slate-600">
+                العدد الكلي
+              </span>
+              {isAnswerKey ? (
+                <span
+                  className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-600 text-2xl font-black text-white shadow-xs"
+                  data-solved-model-count={item.targetNumberAr}
+                  data-solved-written-digit={item.targetNumberAr}
+                >
+                  {item.targetNumberAr}
+                </span>
+              ) : (
+                <span
+                  className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border-2 border-dashed border-indigo-400 bg-indigo-50/30 text-lg font-bold text-slate-400"
+                  aria-label="مربع كتابة العدد"
+                >
+                  ؟
+                </span>
+              )}
+              <span className="text-[10px] font-bold text-slate-500">
+                {isAnswerKey ? `✓ كُتب الرقم ${item.targetNumberAr}` : "اكتب الرقم هنا"}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Optional Pedagogical Reasoning Sub-Prompt */}
+      {data.comparisonPromptAr && (
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-300 bg-amber-50/80 px-3.5 py-2 text-xs font-bold text-amber-950">
+          <span>
+            🤔 سؤال التفكير: {toEasternArabicNumerals(data.comparisonPromptAr)}
+          </span>
+          {isAnswerKey && data.comparisonAnswerAr ? (
+            <span className="rounded-lg bg-emerald-600 px-2.5 py-1 text-white">
+              الإجابة: {toEasternArabicNumerals(data.comparisonAnswerAr)}
+            </span>
+          ) : (
+            <span className="inline-block h-6 w-32 rounded-lg border-2 border-dashed border-amber-400 bg-white" />
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export const modelCountAndTraceArchetype = {
+  id: "ModelCountAndTrace" as const,
+  displayNameAr: "عدّ ومثّل وتتبّع الرقم",
+  generate: generateModelCountAndTraceExercise,
+  render: renderModelCountAndTraceExercise,
+};
+
+registerExerciseArchetype(modelCountAndTraceArchetype);
