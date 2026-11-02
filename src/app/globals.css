@@ -16,7 +16,9 @@
 }
 
 @media print {
+  html,
   body {
+    direction: ltr !important;
     background: #ffffff !important;
     margin: 0 !important;
     padding: 0 !important;
@@ -27,10 +29,17 @@
   }
 
   .a4-sheet {
+    direction: rtl !important;
     width: 210mm !important;
     min-height: 297mm !important;
     box-shadow: none !important;
     border: none !important;
     margin: 0 !important;
+  }
+
+  .break-inside-avoid,
+  [data-exercise-id] {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
   }
 }
