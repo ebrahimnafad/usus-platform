@@ -1,0 +1,111 @@
+// scripts/check-numerals.cjs
+// Deterministic check for ADR-0001: Eastern Arabic Numerals invariant.
+// Scans src/ for Western digits (0-9) in user-visible string literals and JSX text.
+// Allowed: standard codes (K.CC.3), SVG attributes, CSS values, URLs, internal IDs.
+const fs = require("fs");
+const path = require("path");
+
+function walk(dir) {
+  const files = [];
+  for (const entry of fs.readdirSync(dir)) {
+    const full = path.join(dir, entry);
+    if (fs.statSync(full).isDirectory()) files.push(...walk(full));
+    else if (/\.(ts|tsx|css)$/.test(entry)) files.push(full);
+  }
+  return files;
+}
+
+// Patterns that are allowed to contain Western digits
+const ALLOWED = [
+  /^[A-Z][A-Z0-9.]*$/, // Standard codes: K.CC.3, 1.G.3
+  /^\d+(\.\d+)?$/, // Pure numbers: 100, 3.5
+  /^https?:\/\//, // URLs
+  /^#/, // CSS hex colors
+  /^rgb/, // CSS colors
+  /^rgba/, // CSS colors
+  /^\d+px$/, // CSS pixel values
+  /^\d+%$/, // CSS percentage
+  /^\d+mm$/, // CSS mm values
+  /^\d+rem$/, // CSS rem values
+  /^\d+em$/, // CSS em values
+  /^viewBox/, // SVG viewBox
+  /^\d+(\s+\d+)*$/, // SVG coordinate lists
+  /^translate\(/, // SVG transforms
+  /^rotate\(/, // SVG transforms
+  /^scale\(/, // SVG transforms
+  /^M\s/, // SVG path data
+  /^L\s/, // SVG path data
+  /^C\s/, // SVG path data
+  /^A\s/, // SVG path data
+  /^[0-9,\s.]+$/, // SVG path coordinate data
+  /^data-/, // data attributes
+  /^K-\d+/, // Lesson IDs: K-1, K-10
+  /^[A-Z]-\d+/, // Lesson IDs: K-1, 1-2
+  /^latin/, // font names
+  /^utf-8$/, // charset
+  /^application\//, // MIME types
+  /^\.\.\//, // relative paths
+  /^@/, // alias paths
+  /^src\//, // source paths
+  /^tests\//, // test paths
+  /^node_modules/, // node_modules
+  /^\.\//, // relative paths
+  /^\/api\//, // API routes
+];
+
+let violations = 0;
+const files = walk("src");
+
+for (const file of files) {
+  const content = fs.readFileSync(file, "utf-8");
+  const lines = content.split("\n");
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    // Check 1: JSX text content with Western digits
+    // Match text between > and < that contains a Western digit
+    const jsxTextMatches = line.matchAll(/>([^<>]*[0-9][^<>]*)</g);
+    for (const m of jsxTextMatches) {
+      const text = m[1].trim();
+      if (!text) continue;
+      // Skip if it's just an expression placeholder or whitespace
+      if (text.includes("{") || text.includes("}")) continue;
+      // Skip if it contains only Eastern Arabic or no Arabic (likely CSS/HTML)
+      if (!/[\u0600-\u06FF]/.test(text)) continue;
+      // If it has Arabic AND Western digits, it's a violation
+      console.error(
+        `❌ ${file}:${i + 1}: Western digit in JSX text with Arabic: "${text}"`
+      );
+      violations++;
+    }
+
+    // Check 2: String literals containing Arabic text AND Western digits
+    const strMatches = line.matchAll(/["'`]([^"'`]*)["'`]/g);
+    for (const m of strMatches) {
+      const str = m[1];
+      if (!/[0-9]/.test(str)) continue;
+      if (!/[\u0600-\u06FF]/.test(str)) continue;
+      // Strip out template expressions ${...} before checking
+      const stripped = str.replace(/\$\{[^}]*\}/g, "");
+      if (!/[0-9]/.test(stripped)) continue;
+      // Check allowlist on the stripped version
+      if (ALLOWED.some((p) => p.test(stripped.trim()))) continue;
+      // Allow standard code references (e.g., "K.G.4" inside Arabic text)
+      if (/[A-Z]\.[A-Z0-9.]+/.test(stripped)) continue;
+      console.error(
+        `❌ ${file}:${i + 1}: Western digit in Arabic string: "${str}"`
+      );
+      violations++;
+    }
+  }
+}
+
+if (violations > 0) {
+  console.error(`\n${violations} numeral violation(s) found.`);
+  process.exit(1);
+} else {
+  console.log(
+    "✅ No Western numeral violations found in user-visible Arabic strings."
+  );
+}

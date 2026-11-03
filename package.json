@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "lint:numerals": "node scripts/check-numerals.cjs",
     "prepare": "husky"
   },
   "dependencies": {
