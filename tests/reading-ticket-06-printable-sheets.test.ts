@@ -194,6 +194,111 @@ describe("Ticket 06 — Zero-Overflow Printable A4 Reading Worksheets", () => {
     });
   });
 
+  describe("Tier-Scaled Answer Lines and Self-Assessment (Ticket 03)", () => {
+    it("renders answer lines scaled by QAR tier (1 for direct, 2 for inferential, 3 for creative) and 1 for grammar", () => {
+      const html = renderToString(
+        React.createElement(PrintableReadingSheet, {
+          level: level1,
+          story: standardStory,
+        })
+      );
+
+      // 1. Direct question: 1 answer line element
+      const directMatches = html.match(
+        /data-tier="direct"[^>]*>[\s\S]*?(?:data-answer-line|h-\[12mm\])/g
+      );
+      expect(directMatches).toBeTruthy();
+
+      // Extract each QAR question block by data-tier
+      const directBlock =
+        html.match(
+          /data-tier="direct"[\s\S]*?(?=data-tier=|<\/section>)/
+        )?.[0] ?? "";
+      const inferentialBlock =
+        html.match(
+          /data-tier="inferential"[\s\S]*?(?=data-tier=|<\/section>)/
+        )?.[0] ?? "";
+      const creativeBlock =
+        html.match(
+          /data-tier="creative"[\s\S]*?(?=data-tier=|<\/section>)/
+        )?.[0] ?? "";
+
+      const countLines = (block: string) =>
+        (block.match(/h-\[12mm\]/g) || []).length;
+
+      expect(countLines(directBlock)).toBe(1);
+      expect(countLines(inferentialBlock)).toBe(2);
+      expect(countLines(creativeBlock)).toBe(3);
+
+      // Grammar lab production prompt has exactly 1 line at 12mm
+      const grammarSection =
+        html.match(/🧩 معمل اللغة[\s\S]*?<\/section>/)?.[0] ?? "";
+      expect(countLines(grammarSection)).toBe(1);
+
+      // Old h-6 answer lines are completely replaced with h-[12mm]
+      expect(html).not.toContain("h-6 border-b border-dotted");
+
+      // Total 12mm answer lines across the sheet: 1 + 2 + 3 + 1 = 7
+      expect((html.match(/h-\[12mm\]/g) || []).length).toBe(7);
+    });
+
+    it("renders self-assessment strip in standard and transfer-test variants, but omits it in free-reading", () => {
+      // Standard variant
+      const standardHtml = renderToString(
+        React.createElement(PrintableReadingSheet, {
+          level: level1,
+          story: standardStory,
+        })
+      );
+      expect(standardHtml).toContain("كيف أحسست بأدائي؟");
+      expect(standardHtml).toContain("☆");
+      // 3 stars
+      const standardStarCount = (standardHtml.match(/☆/g) || []).length;
+      expect(standardStarCount).toBe(3);
+
+      // Transfer-test variant
+      const transferHtml = renderToString(
+        React.createElement(PrintableReadingSheet, {
+          level: level1,
+          story: transferTestStory,
+        })
+      );
+      expect(transferHtml).toContain("كيف أحسست بأدائي؟");
+      expect(transferHtml).toContain("☆");
+
+      // Free-reading variant: must NOT have self-assessment strip
+      const freeHtml = renderToString(
+        React.createElement(PrintableReadingSheet, {
+          level: level1,
+          story: freeReadingStory,
+        })
+      );
+      expect(freeHtml).not.toContain("كيف أحسست بأدائي؟");
+      expect(freeHtml).not.toContain("☆");
+
+      // Story without grammarDiscovery: self-assessment strip still renders (after QAR)
+      const storyWithoutGrammar = {
+        ...standardStory,
+        grammarDiscovery: undefined,
+      };
+      const noGrammarHtml = renderToString(
+        React.createElement(PrintableReadingSheet, {
+          level: level1,
+          story: storyWithoutGrammar,
+        })
+      );
+      expect(noGrammarHtml).not.toContain("🧩 معمل اللغة");
+      expect(noGrammarHtml).toContain("كيف أحسست بأدائي؟");
+      expect(noGrammarHtml).toContain("☆");
+
+      // Eastern Arabic Numerals invariant holds across all rendered outputs
+      expect(findWesternNumeralsInRenderedHtml(standardHtml)).toEqual([]);
+      expect(findWesternNumeralsInRenderedHtml(transferHtml)).toEqual([]);
+      expect(findWesternNumeralsInRenderedHtml(freeHtml)).toEqual([]);
+      expect(findWesternNumeralsInRenderedHtml(noGrammarHtml)).toEqual([]);
+    });
+  });
+
   describe("Page Integration", () => {
     it("includes PrintableReadingSheet inside the story cycle page", async () => {
       const pageComponent = await StoryCycleRunnerPage({

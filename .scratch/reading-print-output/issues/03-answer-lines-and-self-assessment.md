@@ -4,16 +4,16 @@
 
 **Blocked by:** 02: Colored Sections (answer lines sit inside the QAR section whose visual treatment — sky border and tinted background — is established in ticket 02).
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] A QAR question with `tier: "direct"` renders exactly 1 answer line element
-- [ ] A QAR question with `tier: "inferential"` renders exactly 2 answer line elements
-- [ ] A QAR question with `tier: "creative"` renders exactly 3 answer line elements
-- [ ] Each answer line element is 12mm tall (replacing the previous `h-6` / 24px / ~6mm)
-- [ ] The grammar lab production prompt retains its single writing line (unchanged from current behavior, but at 12mm height)
-- [ ] A self-assessment strip containing "كيف أحسست بأدائي؟" and three star characters appears after the grammar lab section (or after QAR if no grammar lab exists)
-- [ ] The self-assessment strip does NOT appear on free-reading variant printables
-- [ ] New test: render a standard story and count answer line elements per question — assert 1/2/3 by tier
-- [ ] New test: assert answer line elements carry the 12mm height class
-- [ ] New test: assert "كيف أحسست بأدائي؟" text present in standard/transfer-test variants, absent in free-reading
-- [ ] Eastern Arabic Numerals invariant holds
+- [x] A QAR question with `tier: "direct"` renders exactly 1 answer line element
+- [x] A QAR question with `tier: "inferential"` renders exactly 2 answer line elements
+- [x] A QAR question with `tier: "creative"` renders exactly 3 answer line elements
+- [x] Each answer line element is 12mm tall (replacing the previous `h-6` / 24px / ~6mm)
+- [x] The grammar lab production prompt retains its single writing line (unchanged from current behavior, but at 12mm height)
+- [x] A self-assessment strip containing "كيف أحسست بأدائي؟" and three star characters appears after the grammar lab section (or after QAR if no grammar lab exists)
+- [x] The self-assessment strip does NOT appear on free-reading variant printables
+- [x] New test: render a standard story and count answer line elements per question — assert 1/2/3 by tier
+- [x] New test: assert answer line elements carry the 12mm height class
+- [x] New test: assert "كيف أحسست بأدائي؟" text present in standard/transfer-test variants, absent in free-reading
+- [x] Eastern Arabic Numerals invariant holds

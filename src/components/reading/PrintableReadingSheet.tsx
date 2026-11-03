@@ -1,6 +1,16 @@
 import React from "react";
-import type { ReadingLevel, ReadingStory } from "@/domain/reading-types";
+import type {
+  QARTier,
+  ReadingLevel,
+  ReadingStory,
+} from "@/domain/reading-types";
 import { toEasternArabicNumerals } from "@/lib/numerals";
+
+const QAR_TIER_CONFIG: Record<QARTier, { label: string; lines: number }> = {
+  direct: { label: "مباشر", lines: 1 },
+  inferential: { label: "استنتاجي", lines: 2 },
+  creative: { label: "إبداعي", lines: 3 },
+};
 
 interface Props {
   level: ReadingLevel;
@@ -118,28 +128,40 @@ export default function PrintableReadingSheet({ level, story }: Props) {
 
             <div className="space-y-3.5">
               {story.qarQuestions.map((q, idx) => {
-                const tierName =
-                  q.tier === "direct"
-                    ? "مباشر"
-                    : q.tier === "inferential"
-                      ? "استنتاجي"
-                      : "إبداعي";
+                const tierConfig = QAR_TIER_CONFIG[q.tier] ?? {
+                  label: "مباشر",
+                  lines: 1,
+                };
 
                 return (
-                  <div key={q.id} className="text-xs space-y-1">
+                  <div
+                    key={q.id}
+                    data-tier={q.tier}
+                    className="text-xs space-y-1"
+                  >
                     <div className="flex items-start gap-1.5">
                       <span className="font-black text-slate-800">
                         {toEasternArabicNumerals(idx + 1)}.
                       </span>
                       <span className="font-black text-slate-500 text-[10px]">
-                        [{tierName}]
+                        [{tierConfig.label}]
                       </span>
                       <span className="font-bold text-slate-900">
                         {q.prompt ?? q.question}
                       </span>
                     </div>
-                    {/* Dotted Writing Answer Line */}
-                    <div className="h-6 border-b border-dotted border-slate-400 mr-4" />
+                    {/* Dotted Writing Answer Lines scaled by tier */}
+                    <div className="mr-4 space-y-1">
+                      {Array.from({ length: tierConfig.lines }).map(
+                        (_, lineIdx) => (
+                          <div
+                            key={lineIdx}
+                            data-answer-line
+                            className="h-[12mm] border-b border-dotted border-slate-400"
+                          />
+                        )
+                      )}
+                    </div>
                   </div>
                 );
               })}
@@ -181,11 +203,22 @@ export default function PrintableReadingSheet({ level, story }: Props) {
                   <span className="font-bold text-slate-900">
                     * {story.grammarDiscovery.productionPrompt}
                   </span>
-                  <div className="h-6 border-b border-dotted border-slate-400 mt-0.5" />
+                  <div
+                    data-answer-line
+                    className="h-[12mm] border-b border-dotted border-slate-400 mt-0.5"
+                  />
                 </div>
               </div>
             </section>
           )}
+
+          {/* 4. Self-Assessment Strip */}
+          <section className="flex items-center justify-between px-4 py-2 border border-dashed border-slate-200 rounded-lg bg-slate-50/50 text-xs text-slate-600 break-inside-avoid">
+            <span className="font-bold">كيف أحسست بأدائي؟</span>
+            <span className="text-base tracking-widest text-slate-400 select-none">
+              ☆ ☆ ☆
+            </span>
+          </section>
 
           {/* Print Footer */}
           <footer className="text-center text-[10px] text-slate-400 font-bold pt-1">
