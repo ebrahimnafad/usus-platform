@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import Link from "next/link";
 import type {
   GeneratedWorksheetBundle,
   Grade,
@@ -163,10 +164,37 @@ export function TeacherStudio({
     <div
       dir="rtl"
       lang="ar"
-      className="flex min-h-screen flex-col bg-slate-100 lg:flex-row"
+      className="flex min-h-screen flex-col bg-slate-100"
       data-studio-root="true"
     >
-      {/* Right Sidebar: Curriculum Browser & Generation Controls */}
+      {/* Slim Top Navigation Bar */}
+      <header
+        data-math-topbar="true"
+        className="no-print sticky top-0 z-30 flex h-12 w-full items-center justify-between border-b border-slate-200 bg-white px-4 shadow-2xs"
+      >
+        <div className="flex items-center gap-3">
+          <Link
+            href="/"
+            className="flex items-center gap-2 font-black text-indigo-950 transition hover:text-indigo-700"
+          >
+            <span className="text-base font-extrabold tracking-tight">أُسُس</span>
+          </Link>
+          <span className="text-slate-300">/</span>
+          <nav
+            aria-label="مسار التصفح"
+            className="flex items-center gap-1.5 text-xs font-semibold text-slate-500"
+          >
+            <Link href="/" className="transition hover:text-slate-800">
+              الرئيسية
+            </Link>
+            <span className="text-slate-400">&gt;</span>
+            <span className="font-bold text-indigo-900">الرياضيات</span>
+          </nav>
+        </div>
+      </header>
+
+      <div className="flex flex-1 flex-col lg:flex-row">
+        {/* Right Sidebar: Curriculum Browser & Generation Controls */}
       <aside className="no-print w-full shrink-0 border-l border-slate-200 bg-white p-4 shadow-xs lg:w-96">
         <div className="mb-4 border-b border-slate-100 pb-3">
           <h1 className="text-lg font-extrabold text-indigo-950">
@@ -506,6 +534,7 @@ export function TeacherStudio({
           />
         </div>
       </main>
+      </div>
     </div>
   );
 }
