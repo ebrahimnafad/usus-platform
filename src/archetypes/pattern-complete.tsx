@@ -23,7 +23,6 @@ import {
 } from "@/visual-models/shapes-solids-coins";
 import { VisualModelView } from "@/visual-models/registry";
 import {
-  registerExerciseArchetype,
   type ArchetypeGeneratorContext,
   type ArchetypeRenderProps,
 } from "@/archetypes/registry";
@@ -32,10 +31,7 @@ import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
 export type PatternUnitRule = "AB" | "ABC";
 export type PatternDirection = "forward" | "backward";
 export type PatternDomainMode =
-  | "everyday-objects"
-  | "shapes-2d"
-  | "solids-3d"
-  | "mixed";
+  "everyday-objects" | "shapes-2d" | "solids-3d" | "mixed";
 
 export interface PatternCompleteBlueprintParams {
   unitRule?: PatternUnitRule;
@@ -94,7 +90,9 @@ const DISTINCT_COLOR_THEMES: ColorThemeId[] = [
   "indigo",
 ];
 
-function buildCandidatePool(params: PatternCompleteBlueprintParams): VisualModelSpec[] {
+function buildCandidatePool(
+  params: PatternCompleteBlueprintParams
+): VisualModelSpec[] {
   const domainMode: PatternDomainMode = params.domainMode ?? "everyday-objects";
 
   const objectIds =
@@ -160,8 +158,12 @@ function buildFullDomainDistractorPool(
   }
   if (domainMode === "mixed") {
     return [
-      ...SHAPE_2D_CATALOG.map((s) => createShape2DSpec(s.id, { size: "medium" })),
-      ...SOLID_3D_CATALOG.map((s) => createSolid3DSpec(s.id, { size: "medium" })),
+      ...SHAPE_2D_CATALOG.map((s) =>
+        createShape2DSpec(s.id, { size: "medium" })
+      ),
+      ...SOLID_3D_CATALOG.map((s) =>
+        createSolid3DSpec(s.id, { size: "medium" })
+      ),
     ];
   }
   return EVERYDAY_OBJECT_CATALOG.map((o) =>
@@ -306,15 +308,15 @@ function generatePatternCompleteExercise(
     direction === "backward"
       ? `العنصر الأول في بداية النمط مفقود! ابدأ من نهاية النمط وارجع للخلف خطوة بخطوة لتحدّد الشكل الأول المفقود وتحوّطه:`
       : unitRule === "AB"
-      ? `تتبّع النمط الثنائي (أ، ب، أ، ب، أ، ب) من اليمين إلى اليسار، ثم حوّط العنصر الأخير المفقود لإكمال النمط:`
-      : `تتبّع النمط الثلاثي (أ، ب، ج، أ، ب، ج) من اليمين إلى اليسار، ثم حوّط العنصر الأخير المفقود لإكمال النمط:`;
+        ? `تتبّع النمط الثنائي (أ، ب، أ، ب، أ، ب) من اليمين إلى اليسار، ثم حوّط العنصر الأخير المفقود لإكمال النمط:`
+        : `تتبّع النمط الثلاثي (أ، ب، ج، أ، ب، ج) من اليمين إلى اليسار، ثم حوّط العنصر الأخير المفقود لإكمال النمط:`;
 
   const defaultStrategyHintAr =
     direction === "backward"
       ? `عندما تكون بداية النمط غير معروفة، ابدأ من النهاية (يسار الشريط) وارجع للخلف نحو اليمين (${reverseUnitNamesAr}) لتكتشف أن العنصر الأول المفقود هو «${missingItem.labelAr}».`
       : unitRule === "AB"
-      ? `اقرأ النمط من اليمين إلى اليسار (${unitNamesAr}) ولاحظ تكرار العنصرين بالتناوب (أ، ب، أ، ب، أ، ب)؛ إذن العنصر السادس والأخير هو «${missingItem.labelAr}».`
-      : `اقرأ النمط من اليمين إلى اليسار (${unitNamesAr}) وحدّد الثلاثية المتكررة (أ، ب، ج، أ، ب، ج)؛ إذن العنصر السادس والأخير هو «${missingItem.labelAr}».`;
+        ? `اقرأ النمط من اليمين إلى اليسار (${unitNamesAr}) ولاحظ تكرار العنصرين بالتناوب (أ، ب، أ، ب، أ، ب)؛ إذن العنصر السادس والأخير هو «${missingItem.labelAr}».`
+        : `اقرأ النمط من اليمين إلى اليسار (${unitNamesAr}) وحدّد الثلاثية المتكررة (أ، ب، ج، أ، ب، ج)؛ إذن العنصر السادس والأخير هو «${missingItem.labelAr}».`;
 
   const data: PatternCompleteData = {
     kind: "PatternComplete",
@@ -344,8 +346,8 @@ function generatePatternCompleteExercise(
       direction === "backward"
         ? "أكمل النمط بالرجوع للخلف"
         : unitRule === "ABC"
-        ? "أكمل النمط الثلاثي للأمام"
-        : "أكمل النمط الثنائي للأمام",
+          ? "أكمل النمط الثلاثي للأمام"
+          : "أكمل النمط الثنائي للأمام",
     promptAr: ctx.spec.promptAr ?? defaultPromptAr,
     strategyHintAr: ctx.spec.strategyHintAr ?? defaultStrategyHintAr,
     visualModels: slots.map((s) => s.item),
@@ -360,9 +362,7 @@ function renderPatternCompleteExercise({
   const data = exercise.data as PatternCompleteData;
   const isAnswerKey = mode === "answer-key";
   const ruleBadgeAr =
-    data.unitRule === "ABC"
-      ? "نمط ثلاثي: أ - ب - ج"
-      : "نمط ثنائي: أ - ب";
+    data.unitRule === "ABC" ? "نمط ثلاثي: أ - ب - ج" : "نمط ثنائي: أ - ب";
 
   return (
     <div
@@ -500,9 +500,7 @@ function renderPatternCompleteExercise({
                     : "border-dashed border-slate-300 bg-white"
                 }`}
                 data-pattern-choice-id={toEasternArabicNumerals(choice.id)}
-                {...(isSolvedCorrect
-                  ? { "data-solved-choice": "true" }
-                  : {})}
+                {...(isSolvedCorrect ? { "data-solved-choice": "true" } : {})}
               >
                 <div className="flex w-full items-center justify-between text-[10px] font-bold text-slate-500">
                   <span>خيار {formatEasternNumber(idx + 1)}</span>
@@ -546,5 +544,3 @@ export const patternCompleteArchetype = {
   generate: generatePatternCompleteExercise,
   render: renderPatternCompleteExercise,
 };
-
-registerExerciseArchetype(patternCompleteArchetype);

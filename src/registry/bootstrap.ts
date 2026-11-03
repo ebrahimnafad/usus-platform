@@ -10,16 +10,45 @@
 // worksheet-engine.ts imports this module once and never changes.
 
 // --- Visual Models ---
-import "@/visual-models/shapes-solids-coins";
-import "@/visual-models/frames-cubes-tallies-dice-circles-tracing";
-import "@/visual-models/picture-graphs";
+import { registerBuiltInVisualModels } from "@/visual-models/registry";
+import { registerShapesSolidsCoinsVisualModels } from "@/visual-models/shapes-solids-coins";
+import {
+  registerFiveFrameVisualModel,
+  registerNumeralTraceVisualModel,
+  registerSnapCubesVisualModel,
+  registerTallyMarksVisualModel,
+  registerDicePatternVisualModel,
+  registerCircularArrangementVisualModel,
+} from "@/visual-models/unit-2-models";
+import { registerPictureGraphVisualModels } from "@/visual-models/picture-graphs";
+
+registerBuiltInVisualModels();
+registerShapesSolidsCoinsVisualModels();
+registerFiveFrameVisualModel();
+registerNumeralTraceVisualModel();
+registerSnapCubesVisualModel();
+registerTallyMarksVisualModel();
+registerDicePatternVisualModel();
+registerCircularArrangementVisualModel();
+registerPictureGraphVisualModels();
 
 // --- Exercise Archetypes ---
-import "@/archetypes/connect-match";
-import "@/archetypes/classify-and-count";
-import "@/archetypes/pattern-complete";
-import "@/archetypes/model-count-and-trace";
-import "@/archetypes/graphs-sequences-subitize";
+import { registerExerciseArchetype } from "@/archetypes/registry";
+import { connectMatchArchetype } from "@/archetypes/connect-match";
+import { classifyAndCountArchetype } from "@/archetypes/classify-and-count";
+import { patternCompleteArchetype } from "@/archetypes/pattern-complete";
+import { modelCountAndTraceArchetype } from "@/archetypes/model-count-and-trace";
+import { pictureGraphReadArchetype } from "@/archetypes/picture-graph-read";
+import { sequenceAndZeroArchetype } from "@/archetypes/sequence-and-zero";
+import { subitizePartWholeArchetype } from "@/archetypes/subitize-part-whole";
+
+registerExerciseArchetype(connectMatchArchetype);
+registerExerciseArchetype(classifyAndCountArchetype);
+registerExerciseArchetype(patternCompleteArchetype);
+registerExerciseArchetype(modelCountAndTraceArchetype);
+registerExerciseArchetype(pictureGraphReadArchetype);
+registerExerciseArchetype(sequenceAndZeroArchetype);
+registerExerciseArchetype(subitizePartWholeArchetype);
 
 // --- Lesson Blueprints ---
 import "@/blueprints/grade-k/lesson-k1";

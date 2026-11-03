@@ -1,11 +1,8 @@
 import React from "react";
-import type {
-  GradeId,
-  ViewMode,
-  WorksheetDifficultyMode,
-} from "@/domain/types";
+import type { ViewMode } from "@/domain/types";
 import { generateWorksheet } from "@/engine/worksheet-engine";
 import { WorksheetSurface } from "@/components/worksheet/WorksheetSurface";
+import { resolveStudioStateFromSearchParams } from "@/lib/studio-state";
 
 interface PrintSearchParams {
   grade?: string;
@@ -22,39 +19,22 @@ export default async function PrintPage({
 }): Promise<React.ReactElement> {
   const resolved = (await searchParams) ?? {};
 
-  const validGrades: GradeId[] = ["K", "1", "2", "3", "4", "5"];
-  const grade: GradeId = validGrades.includes(resolved.grade as GradeId)
-    ? (resolved.grade as GradeId)
-    : "K";
-
-  const parsedLesson = parseInt(resolved.lesson ?? "1", 10);
-  const lessonNumber =
-    Number.isFinite(parsedLesson) && parsedLesson >= 1 && parsedLesson <= 135
-      ? parsedLesson
-      : 1;
-
-  const seed = resolved.seed?.trim() || "K1-2026";
-
-  const validDifficulties: WorksheetDifficultyMode[] = [
-    "scaffolded",
-    "Easy",
-    "Intermediate",
-    "Advanced",
-  ];
-  const difficultyLevel: WorksheetDifficultyMode = validDifficulties.includes(
-    resolved.difficulty as WorksheetDifficultyMode
-  )
-    ? (resolved.difficulty as WorksheetDifficultyMode)
-    : "scaffolded";
+  const state = resolveStudioStateFromSearchParams({
+    grade: resolved.grade,
+    lesson: resolved.lesson,
+    seed: resolved.seed,
+    difficulty: resolved.difficulty,
+    view: resolved.view,
+  });
 
   const viewMode: ViewMode =
-    resolved.view === "answer-key" ? "answer-key" : "worksheet";
+    state.viewMode === "answer-key" ? "answer-key" : "worksheet";
 
   const bundle = generateWorksheet({
-    grade,
-    lessonNumber,
-    seed,
-    difficultyLevel,
+    grade: state.grade,
+    lessonNumber: state.lessonNumber,
+    seed: state.seed,
+    difficultyLevel: state.difficultyLevel,
   });
 
   return (

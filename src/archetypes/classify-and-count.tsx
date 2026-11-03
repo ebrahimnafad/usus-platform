@@ -18,21 +18,16 @@ import {
 } from "@/visual-models/shapes-solids-coins";
 import { VisualModelView } from "@/visual-models/registry";
 import {
-  registerExerciseArchetype,
   type ArchetypeGeneratorContext,
   type ArchetypeRenderProps,
 } from "@/archetypes/registry";
 import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
 
 export type ClassifyDomainMode =
-  | "shapes-2d"
-  | "solids-3d"
-  | "mixed-shapes-solids";
+  "shapes-2d" | "solids-3d" | "mixed-shapes-solids";
 
 export type ClassifyVariationMode =
-  | "color-group"
-  | "vary-size"
-  | "vary-orientation";
+  "color-group" | "vary-size" | "vary-orientation";
 
 export interface ClassifyAndCountBlueprintParams {
   domainMode?: ClassifyDomainMode;
@@ -150,8 +145,8 @@ function generateClassifyAndCountExercise(
     (ctx.difficultyLevel === "Easy"
       ? [2, 3]
       : ctx.difficultyLevel === "Intermediate"
-      ? [2, 4]
-      : [2, 4]);
+        ? [2, 4]
+        : [2, 4]);
 
   // Build candidate category descriptors
   interface CategoryDescriptor {
@@ -222,9 +217,7 @@ function generateClassifyAndCountExercise(
   for (let idx = 0; idx < selectedDescriptors.length; idx++) {
     const raw = ctx.rng.int(minPart, maxPart);
     if (idx === 1 && raw === partCounts[0]) {
-      partCounts.push(
-        raw < maxPart ? raw + 1 : Math.max(minPart, raw - 1)
-      );
+      partCounts.push(raw < maxPart ? raw + 1 : Math.max(minPart, raw - 1));
     } else {
       partCounts.push(raw);
     }
@@ -278,8 +271,8 @@ function generateClassifyAndCountExercise(
           ? size === "small"
             ? " (صغير)"
             : size === "large"
-            ? " (كبير)"
-            : " (متوسط)"
+              ? " (كبير)"
+              : " (متوسط)"
           : "";
 
       const rotationLabelAr =
@@ -319,10 +312,10 @@ function generateClassifyAndCountExercise(
           totalCount
         )}) أكبر من كل جزء؟`
       : variationMode === "vary-orientation"
-      ? `هل يتغيّر نوع «${targetGroup.labelAr}» عندما نقوم بتدويره أو قلبه؟ وأي جزء عدده أكبر؟`
-      : `أي جزء يحتوي على عناصر أكثر؟ وأي جزء يحتوي على عناصر أقل؟ وهل المجموع الكلي (${formatEasternNumber(
-          totalCount
-        )}) أكبر من كل جزء؟`;
+        ? `هل يتغيّر نوع «${targetGroup.labelAr}» عندما نقوم بتدويره أو قلبه؟ وأي جزء عدده أكبر؟`
+        : `أي جزء يحتوي على عناصر أكثر؟ وأي جزء يحتوي على عناصر أقل؟ وهل المجموع الكلي (${formatEasternNumber(
+            totalCount
+          )}) أكبر من كل جزء؟`;
 
   const defaultComparisonAnswerAr =
     variationMode === "vary-size"
@@ -332,23 +325,23 @@ function generateClassifyAndCountExercise(
           .map((g) => `${g.labelAr}: ${formatEasternNumber(g.count)}`)
           .join("، ")})`
       : variationMode === "vary-orientation"
-      ? `لا يتغيّر نوع «${targetGroup.labelAr}» عند تدويره؛ والجزء الأكبر هو «${
-          largestGroup.labelAr
-        }» (${formatEasternNumber(largestGroup.count)}) والكل يساوي ${formatEasternNumber(
-          totalCount
-        )}`
-      : `الأكثر: «${largestGroup.labelAr}» (${formatEasternNumber(
-          largestGroup.count
-        )})، والأقل: «${smallestGroup.labelAr}» (${formatEasternNumber(
-          smallestGroup.count
-        )})، ونعم الكل (${formatEasternNumber(totalCount)}) أكبر من كل جزء بمفرده`;
+        ? `لا يتغيّر نوع «${targetGroup.labelAr}» عند تدويره؛ والجزء الأكبر هو «${
+            largestGroup.labelAr
+          }» (${formatEasternNumber(largestGroup.count)}) والكل يساوي ${formatEasternNumber(
+            totalCount
+          )}`
+        : `الأكثر: «${largestGroup.labelAr}» (${formatEasternNumber(
+            largestGroup.count
+          )})، والأقل: «${smallestGroup.labelAr}» (${formatEasternNumber(
+            smallestGroup.count
+          )})، ونعم الكل (${formatEasternNumber(totalCount)}) أكبر من كل جزء بمفرده`;
 
   const defaultPromptAr =
     variationMode === "vary-size"
       ? `صنّف وحوّط جميع أشكال «${targetGroup.labelAr}» مهما اختلف حجمها (صغير، متوسط، كبير)، ثم عدّ كل جزء واكتب المجموع الكلي:`
       : variationMode === "vary-orientation"
-      ? `صنّف وحوّط جميع أشكال «${targetGroup.labelAr}» حتى لو كانت مدوّرة أو مقلوبة، ثم عدّ كل جزء واكتب المجموع الكلي:`
-      : `صنّف الأشكال في مجموعات متماثلة، وحوّط مجموعة «${targetGroup.labelAr}»، ثم اكتب عدد كل جزء والمجموع الكلي (الكل):`;
+        ? `صنّف وحوّط جميع أشكال «${targetGroup.labelAr}» حتى لو كانت مدوّرة أو مقلوبة، ثم عدّ كل جزء واكتب المجموع الكلي:`
+        : `صنّف الأشكال في مجموعات متماثلة، وحوّط مجموعة «${targetGroup.labelAr}»، ثم اكتب عدد كل جزء والمجموع الكلي (الكل):`;
 
   const defaultStrategyHintAr =
     variationMode === "vary-size"
@@ -358,16 +351,18 @@ function generateClassifyAndCountExercise(
           targetGroup.count
         )}) ثم اجمع الأجزاء معاً لتحصل على الكل (${formatEasternNumber(totalCount)}).`
       : variationMode === "vary-orientation"
-      ? `الاتجاه والدوران لا يغيّران ماهية الشكل الهندسي؛ ابحث عن «${
-          targetGroup.labelAr
-        }» في كل الاتجاهات (${formatEasternNumber(
-          targetGroup.count
-        )}) ثم قارن الأجزاء بالكل (${formatEasternNumber(totalCount)}).`
-      : `افرز العناصر المتماثلة في النوع واللون إلى أجزاء (${groups
-          .map((g) => `${g.labelAr}: ${formatEasternNumber(g.count)}`)
-          .join("، ")})؛ تذكّر أن الأجزاء معاً تكوّن الكل (${formatEasternNumber(
-          totalCount
-        )}).`;
+        ? `الاتجاه والدوران لا يغيّران ماهية الشكل الهندسي؛ ابحث عن «${
+            targetGroup.labelAr
+          }» في كل الاتجاهات (${formatEasternNumber(
+            targetGroup.count
+          )}) ثم قارن الأجزاء بالكل (${formatEasternNumber(totalCount)}).`
+        : `افرز العناصر المتماثلة في النوع واللون إلى أجزاء (${groups
+            .map((g) => `${g.labelAr}: ${formatEasternNumber(g.count)}`)
+            .join(
+              "، "
+            )})؛ تذكّر أن الأجزاء معاً تكوّن الكل (${formatEasternNumber(
+            totalCount
+          )}).`;
 
   const data: ClassifyAndCountData = {
     kind: "ClassifyAndCount",
@@ -482,7 +477,10 @@ function renderClassifyAndCountExercise({
               className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-3 py-2 shadow-2xs"
             >
               <div className="flex items-center gap-2">
-                <VisualModelView model={group.sampleModel} solved={isAnswerKey} />
+                <VisualModelView
+                  model={group.sampleModel}
+                  solved={isAnswerKey}
+                />
                 <div>
                   <div className="text-[11px] font-extrabold text-slate-500">
                     الجزء {formatEasternNumber(idx + 1)}
@@ -543,7 +541,10 @@ function renderClassifyAndCountExercise({
 
       {/* Part-Whole & Attribute Reasoning Prompt */}
       <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-300 bg-amber-50/80 px-3.5 py-2 text-xs font-bold text-amber-950">
-        <span>🤔 سؤال التفكير (الأجزاء والكل): {toEasternArabicNumerals(data.comparisonPromptAr)}</span>
+        <span>
+          🤔 سؤال التفكير (الأجزاء والكل):{" "}
+          {toEasternArabicNumerals(data.comparisonPromptAr)}
+        </span>
         {isAnswerKey ? (
           <span className="rounded-lg bg-emerald-600 px-2.5 py-1 text-white">
             الإجابة: {toEasternArabicNumerals(data.comparisonAnswerAr)}
@@ -562,5 +563,3 @@ export const classifyAndCountArchetype = {
   generate: generateClassifyAndCountExercise,
   render: renderClassifyAndCountExercise,
 };
-
-registerExerciseArchetype(classifyAndCountArchetype);

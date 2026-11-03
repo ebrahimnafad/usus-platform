@@ -1,6 +1,10 @@
-import type { GradeId, WorksheetDifficultyMode } from "@/domain/types";
+import type {
+  GradeId,
+  ViewMode,
+  WorksheetDifficultyMode,
+} from "@/domain/types";
 
-export type ViewMode = "worksheet" | "answer-key" | "teacher-notes";
+export type { ViewMode } from "@/domain/types";
 
 export const VALID_GRADES: readonly GradeId[] = ["K", "1", "2", "3", "4", "5"];
 

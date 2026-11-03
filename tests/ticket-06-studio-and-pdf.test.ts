@@ -4,7 +4,7 @@ import { findWesternNumeralsInRenderedHtml } from "@/lib/numerals";
 import {
   applyStudioNavigationAction,
   filterUnitsForStudioSearch,
-} from "@/components/studio/TeacherStudio";
+} from "@/lib/studio-helpers";
 import { renderTeacherStudio } from "@/lib/render-teacher-studio";
 
 describe("Ticket 06 — RTL Teacher Studio: Grades K–5, 12 Units Accordion, Search & Badges", () => {
@@ -171,8 +171,8 @@ describe("Ticket 06 — RTL Teacher Studio: Grades K–5, 12 Units Accordion, Se
 
 describe("Ticket 06 — Secondary Seam: Headless Browser A4 PDF Exporter & /api/pdf Route", () => {
   it("renders Worksheet and Answer Key via Playwright headless Chromium with @page { size: A4 portrait; margin: 0; } and print-color-adjust: exact into valid %PDF- buffers within the 1–2 page budget", async () => {
-    const { buildPrintCleanA4Html, exportWorksheetPdf } =
-      await import("@/pdf/pdf-exporter");
+    const { buildPrintCleanA4Html } = await import("@/pdf/print-document");
+    const { exportWorksheetPdf } = await import("@/pdf/pdf-exporter");
     const { GET } = await import("@/app/api/pdf/route");
 
     // 1. Verify print-clean A4 HTML rules and Eastern Arabic Numerals invariant

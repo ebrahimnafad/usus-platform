@@ -16,7 +16,6 @@ import {
   getArabicNumberWord,
 } from "@/visual-models/unit-2-models";
 import {
-  registerExerciseArchetype,
   type ArchetypeGeneratorContext,
   type ArchetypeRenderProps,
 } from "@/archetypes/registry";
@@ -163,23 +162,24 @@ function generateModelCountAndTraceExercise(
     ctx.difficultyLevel === "Easy"
       ? 2
       : ctx.difficultyLevel === "Intermediate"
-      ? 3
-      : 3;
+        ? 3
+        : 3;
 
   let itemSpecs: ModelCountAndTraceItemSpec[] = [];
 
   if (params.items && params.items.length > 0) {
-    const countToPick = params.itemCount ?? Math.min(params.items.length, defaultItemCount);
+    const countToPick =
+      params.itemCount ?? Math.min(params.items.length, defaultItemCount);
     itemSpecs = ctx.rng.pickN(params.items, countToPick);
   } else {
     const candidateNumbers =
       params.targetNumbers && params.targetNumbers.length > 0
         ? params.targetNumbers
         : ctx.difficultyLevel === "Easy"
-        ? [1, 2, 3]
-        : ctx.difficultyLevel === "Intermediate"
-        ? [2, 3, 4, 5]
-        : [3, 4, 5];
+          ? [1, 2, 3]
+          : ctx.difficultyLevel === "Intermediate"
+            ? [2, 3, 4, 5]
+            : [3, 4, 5];
 
     const pickedNumbers = ctx.rng.pickN(
       candidateNumbers,
@@ -246,15 +246,15 @@ function generateModelCountAndTraceExercise(
     ctx.difficultyLevel === "Easy"
       ? `عدّ العناصر ومثّل العدد، ثم تتبّع الرقم المنقّط بدءاً من النقطة الخضراء باتجاه السهم (${numbersListAr}):`
       : ctx.difficultyLevel === "Intermediate"
-      ? `عدّ المجموعات ولاحظ الأجزاء التي تكوّن الكل، ثم تتبّع الأرقام واكتبها (${numbersListAr}):`
-      : `مثّل الأعداد (${numbersListAr}) بالاعتماد على الأجزاء والكل، وتتبّع كل رقم واكتبه في المربع المخصّص:`;
+        ? `عدّ المجموعات ولاحظ الأجزاء التي تكوّن الكل، ثم تتبّع الأرقام واكتبها (${numbersListAr}):`
+        : `مثّل الأعداد (${numbersListAr}) بالاعتماد على الأجزاء والكل، وتتبّع كل رقم واكتبه في المربع المخصّص:`;
 
   const defaultStrategyHintAr =
     ctx.difficultyLevel === "Easy"
       ? `استخدم التقابل واحداً لواحد عند العدّ؛ تذكّر أن آخر عدد تنطقه يمثّل المجموعة كلها، ثم ابدأ تتبّع الرقم من نقطة البداية الخضراء.`
       : ctx.difficultyLevel === "Intermediate"
-      ? `لاحظ كيف تتجمّع الأجزاء الصغيرة لتكوّن العدد الكلي (${numbersListAr})، وتتبّع مسار السهم لكتابة الرقم العربي الشرقي بدقة على السطر.`
-      : `اعتمد على التعرّف البصري للأجزاء والكل لتحديد الكمية بسرعة، ثم تتبّع الرقم المنقّط واكتبه بخط واضح ومرتّب.`;
+        ? `لاحظ كيف تتجمّع الأجزاء الصغيرة لتكوّن العدد الكلي (${numbersListAr})، وتتبّع مسار السهم لكتابة الرقم العربي الشرقي بدقة على السطر.`
+        : `اعتمد على التعرّف البصري للأجزاء والكل لتحديد الكمية بسرعة، ثم تتبّع الرقم المنقّط واكتبه بخط واضح ومرتّب.`;
 
   const data: ModelCountAndTraceData = {
     kind: "ModelCountAndTrace",
@@ -351,7 +351,9 @@ function renderModelCountAndTraceExercise({
                 </span>
               )}
               <span className="text-[10px] font-bold text-slate-500">
-                {isAnswerKey ? `✓ كُتب الرقم ${item.targetNumberAr}` : "اكتب الرقم هنا"}
+                {isAnswerKey
+                  ? `✓ كُتب الرقم ${item.targetNumberAr}`
+                  : "اكتب الرقم هنا"}
               </span>
             </div>
           </div>
@@ -383,5 +385,3 @@ export const modelCountAndTraceArchetype = {
   generate: generateModelCountAndTraceExercise,
   render: renderModelCountAndTraceExercise,
 };
-
-registerExerciseArchetype(modelCountAndTraceArchetype);

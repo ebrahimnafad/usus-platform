@@ -12,11 +12,10 @@ import {
 } from "@/visual-models/everyday-objects";
 import { VisualModelView } from "@/visual-models/registry";
 import {
-  registerExerciseArchetype,
   type ArchetypeGeneratorContext,
   type ArchetypeRenderProps,
 } from "@/archetypes/registry";
-import { formatEasternNumber } from "@/lib/numerals";
+import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
 
 export interface ConnectMatchBlueprintParams {
   pairCount?: number;
@@ -42,15 +41,17 @@ const CONNECTION_STROKE_COLORS = [
   "#E11D48", // rose
 ];
 
-function generateConnectMatchExercise(ctx: ArchetypeGeneratorContext): Exercise {
+function generateConnectMatchExercise(
+  ctx: ArchetypeGeneratorContext
+): Exercise {
   const params = (ctx.spec.params ?? {}) as ConnectMatchBlueprintParams;
 
   const defaultPairCount =
     ctx.difficultyLevel === "Easy"
       ? 3
       : ctx.difficultyLevel === "Intermediate"
-      ? 4
-      : 5;
+        ? 4
+        : 5;
   const pairCount = params.pairCount ?? defaultPairCount;
 
   let pairs: ConnectMatchPair[] = [];
@@ -114,15 +115,15 @@ function generateConnectMatchExercise(ctx: ArchetypeGeneratorContext): Exercise 
     ctx.difficultyLevel === "Easy"
       ? `صل بخط بين كل شكل في العمود الأيمن وما يطابقه تماماً في العمود الأيسر (${pairCountAr} عناصر):`
       : ctx.difficultyLevel === "Intermediate"
-      ? `قارن بدقة ثم صل بخط بين كل صورة في العمود الأيمن والصورة المطابقة لها في العمود الأيسر (${pairCountAr} عناصر):`
-      : `لاحظ التفاصيل الدقيقة للصور (${pairCountAr} عناصر)، وصل كل عنصر في العمود الأيمن بنظيره المطابق في العمود الأيسر:`;
+        ? `قارن بدقة ثم صل بخط بين كل صورة في العمود الأيمن والصورة المطابقة لها في العمود الأيسر (${pairCountAr} عناصر):`
+        : `لاحظ التفاصيل الدقيقة للصور (${pairCountAr} عناصر)، وصل كل عنصر في العمود الأيمن بنظيره المطابق في العمود الأيسر:`;
 
   const defaultStrategyHintAr =
     ctx.difficultyLevel === "Easy"
       ? `ابدأ من أول صورة في العمود الأيمن، لاحظ شكلها ولونها المميّز، ثم ابحث عن توأمها في العمود الأيسر وارسم خطاً يصل بينهما (التقابل ١ إلى ١).`
       : ctx.difficultyLevel === "Intermediate"
-      ? `ركّز على الصفة المميّزة لكل عنصر (الشكل الخارجي والتفاصيل الداخلية) وتحقّق من أن كل عنصر في اليمين يتصل بعنصر واحد فقط في اليسار.`
-      : `قارن العناصر المتشابهة في الفئة بعناية، واستبعد الصور المختلفة في الشكل أو التفاصيل، ثم تأكّد من تساوي عدد العناصر في العمودين (${pairCountAr} مقابل ${pairCountAr}).`;
+        ? `ركّز على الصفة المميّزة لكل عنصر (الشكل الخارجي والتفاصيل الداخلية) وتحقّق من أن كل عنصر في اليمين يتصل بعنصر واحد فقط في اليسار.`
+        : `قارن العناصر المتشابهة في الفئة بعناية، واستبعد الصور المختلفة في الشكل أو التفاصيل، ثم تأكّد من تساوي عدد العناصر في العمودين (${pairCountAr} مقابل ${pairCountAr}).`;
 
   const data: ConnectMatchData = {
     kind: "ConnectMatch",
@@ -169,7 +170,7 @@ function renderConnectMatchExercise({
         {/* Right Column (First in RTL) */}
         <div className="flex flex-col justify-between gap-2">
           <div className="rounded-lg bg-indigo-100/80 px-2.5 py-1 text-center text-xs font-extrabold text-indigo-950">
-            {data.rightColumnTitleAr}
+            {toEasternArabicNumerals(data.rightColumnTitleAr)}
           </div>
           {data.rightItems.map((item, idx) => (
             <div
@@ -180,7 +181,10 @@ function renderConnectMatchExercise({
               <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold text-white">
                 {formatEasternNumber(idx + 1)}
               </span>
-              <VisualModelView model={item.model} solved={mode === "answer-key"} />
+              <VisualModelView
+                model={item.model}
+                solved={mode === "answer-key"}
+              />
               <span
                 className="h-4 w-4 rounded-full border-2 border-indigo-600 bg-indigo-100"
                 aria-hidden="true"
@@ -211,7 +215,9 @@ function renderConnectMatchExercise({
               const yLeft =
                 (lIdx >= 0 ? lIdx : rIdx) * rowHeight + rowHeight / 2;
               const strokeColor =
-                CONNECTION_STROKE_COLORS[rIdx % CONNECTION_STROKE_COLORS.length];
+                CONNECTION_STROKE_COLORS[
+                  rIdx % CONNECTION_STROKE_COLORS.length
+                ];
 
               return (
                 <g key={rightItem.id}>
@@ -248,7 +254,7 @@ function renderConnectMatchExercise({
         {/* Left Column (Second in RTL) */}
         <div className="flex flex-col justify-between gap-2">
           <div className="rounded-lg bg-teal-100/80 px-2.5 py-1 text-center text-xs font-extrabold text-teal-950">
-            {data.leftColumnTitleAr}
+            {toEasternArabicNumerals(data.leftColumnTitleAr)}
           </div>
           {data.leftItems.map((item, idx) => (
             <div
@@ -260,7 +266,10 @@ function renderConnectMatchExercise({
                 className="h-4 w-4 rounded-full border-2 border-teal-600 bg-teal-100"
                 aria-hidden="true"
               />
-              <VisualModelView model={item.model} solved={mode === "answer-key"} />
+              <VisualModelView
+                model={item.model}
+                solved={mode === "answer-key"}
+              />
               <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-teal-700 text-xs font-bold text-white">
                 {formatEasternNumber(idx + 1)}
               </span>
@@ -272,7 +281,9 @@ function renderConnectMatchExercise({
       {/* Optional Comparison Reasoning Sub-prompt */}
       {data.comparisonPromptAr && (
         <div className="flex items-center justify-between rounded-xl border border-amber-300 bg-amber-50/80 px-3.5 py-2 text-xs font-bold text-amber-950">
-          <span>🤔 سؤال التفكير: {data.comparisonPromptAr}</span>
+          <span>
+            🤔 سؤال التفكير: {toEasternArabicNumerals(data.comparisonPromptAr)}
+          </span>
           {mode === "answer-key" && data.comparisonAnswerAr ? (
             <span className="rounded-lg bg-emerald-600 px-2.5 py-1 text-white">
               الإجابة: {data.comparisonAnswerAr}
@@ -292,5 +303,3 @@ export const connectMatchArchetype = {
   generate: generateConnectMatchExercise,
   render: renderConnectMatchExercise,
 };
-
-registerExerciseArchetype(connectMatchArchetype);

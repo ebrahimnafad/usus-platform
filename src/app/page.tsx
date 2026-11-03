@@ -4,7 +4,7 @@ import { generateWorksheet } from "@/engine/worksheet-engine";
 import {
   TeacherStudio,
   type StudioSearchParamsInput,
-} from "@/components/studio/TeacherStudio";
+} from "@/components/studio/TeacherStudioClient";
 import { resolveStudioStateFromSearchParams } from "@/lib/studio-state";
 
 export default async function HomePage({

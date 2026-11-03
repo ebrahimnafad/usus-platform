@@ -842,25 +842,105 @@ export function RealWorldSolidSvg({
   switch (def.id) {
     case "soup-can":
       return (
-        <svg width={px} height={px} viewBox="0 0 64 64" fill="none" aria-label={def.labelAr}>
-          <path d="M16 16 L16 48 C16 54, 48 54, 48 48 L48 16 Z" fill="#EF4444" stroke="#7F1D1D" strokeWidth="2.5" />
-          <rect x="16" y="26" width="32" height="14" fill="#FEF2F2" stroke="#7F1D1D" strokeWidth="1.8" />
-          <circle cx="32" cy="33" r="4.5" fill="#F59E0B" stroke="#78350F" strokeWidth="1.5" />
-          <ellipse cx="32" cy="16" rx="16" ry="5.5" fill="#CBD5E1" stroke="#334155" strokeWidth="2.5" />
-          <ellipse cx="32" cy="16" rx="10" ry="3" fill="none" stroke="#64748B" strokeWidth="1.5" />
+        <svg
+          width={px}
+          height={px}
+          viewBox="0 0 64 64"
+          fill="none"
+          aria-label={def.labelAr}
+        >
+          <path
+            d="M16 16 L16 48 C16 54, 48 54, 48 48 L48 16 Z"
+            fill="#EF4444"
+            stroke="#7F1D1D"
+            strokeWidth="2.5"
+          />
+          <rect
+            x="16"
+            y="26"
+            width="32"
+            height="14"
+            fill="#FEF2F2"
+            stroke="#7F1D1D"
+            strokeWidth="1.8"
+          />
+          <circle
+            cx="32"
+            cy="33"
+            r="4.5"
+            fill="#F59E0B"
+            stroke="#78350F"
+            strokeWidth="1.5"
+          />
+          <ellipse
+            cx="32"
+            cy="16"
+            rx="16"
+            ry="5.5"
+            fill="#CBD5E1"
+            stroke="#334155"
+            strokeWidth="2.5"
+          />
+          <ellipse
+            cx="32"
+            cy="16"
+            rx="10"
+            ry="3"
+            fill="none"
+            stroke="#64748B"
+            strokeWidth="1.5"
+          />
         </svg>
       );
 
     case "ice-cream-cone":
       return (
-        <svg width={px} height={px} viewBox="0 0 64 64" fill="none" aria-label={def.labelAr}>
+        <svg
+          width={px}
+          height={px}
+          viewBox="0 0 64 64"
+          fill="none"
+          aria-label={def.labelAr}
+        >
           {/* Waffle Cone */}
-          <polygon points="19,28 45,28 32,57" fill="#F59E0B" stroke="#78350F" strokeWidth="2.5" strokeLinejoin="round" />
-          <line x1="23" y1="28" x2="35" y2="50" stroke="#92400E" strokeWidth="1.6" />
-          <line x1="33" y1="28" x2="39" y2="42" stroke="#92400E" strokeWidth="1.6" />
-          <line x1="41" y1="28" x2="28" y2="50" stroke="#92400E" strokeWidth="1.6" />
+          <polygon
+            points="19,28 45,28 32,57"
+            fill="#F59E0B"
+            stroke="#78350F"
+            strokeWidth="2.5"
+            strokeLinejoin="round"
+          />
+          <line
+            x1="23"
+            y1="28"
+            x2="35"
+            y2="50"
+            stroke="#92400E"
+            strokeWidth="1.6"
+          />
+          <line
+            x1="33"
+            y1="28"
+            x2="39"
+            y2="42"
+            stroke="#92400E"
+            strokeWidth="1.6"
+          />
+          <line
+            x1="41"
+            y1="28"
+            x2="28"
+            y2="50"
+            stroke="#92400E"
+            strokeWidth="1.6"
+          />
           {/* Scoop */}
-          <path d="M16 28 C14 14, 24 9, 32 9 C40 9, 50 14, 48 28 Z" fill="#F472B6" stroke="#831843" strokeWidth="2.5" />
+          <path
+            d="M16 28 C14 14, 24 9, 32 9 C40 9, 50 14, 48 28 Z"
+            fill="#F472B6"
+            stroke="#831843"
+            strokeWidth="2.5"
+          />
           <circle cx="26" cy="18" r="2" fill="#FEF08A" />
           <circle cx="37" cy="20" r="2" fill="#BAE6FD" />
         </svg>
@@ -868,70 +948,274 @@ export function RealWorldSolidSvg({
 
     case "ice-cube":
       return (
-        <svg width={px} height={px} viewBox="0 0 64 64" fill="none" aria-label={def.labelAr}>
-          <polygon points="32,9 51,19 32,29 13,19" fill="#E0F2FE" stroke="#0369A1" strokeWidth="2.4" strokeLinejoin="round" />
-          <polygon points="13,19 32,29 32,51 13,41" fill="#7DD3FC" stroke="#0369A1" strokeWidth="2.4" strokeLinejoin="round" />
-          <polygon points="32,29 51,19 51,41 32,51" fill="#38BDF8" stroke="#0369A1" strokeWidth="2.4" strokeLinejoin="round" />
-          <line x1="18" y1="26" x2="26" y2="31" stroke="#FFFFFF" strokeWidth="2.2" strokeLinecap="round" />
-          <line x1="18" y1="32" x2="23" y2="35" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" />
+        <svg
+          width={px}
+          height={px}
+          viewBox="0 0 64 64"
+          fill="none"
+          aria-label={def.labelAr}
+        >
+          <polygon
+            points="32,9 51,19 32,29 13,19"
+            fill="#E0F2FE"
+            stroke="#0369A1"
+            strokeWidth="2.4"
+            strokeLinejoin="round"
+          />
+          <polygon
+            points="13,19 32,29 32,51 13,41"
+            fill="#7DD3FC"
+            stroke="#0369A1"
+            strokeWidth="2.4"
+            strokeLinejoin="round"
+          />
+          <polygon
+            points="32,29 51,19 51,41 32,51"
+            fill="#38BDF8"
+            stroke="#0369A1"
+            strokeWidth="2.4"
+            strokeLinejoin="round"
+          />
+          <line
+            x1="18"
+            y1="26"
+            x2="26"
+            y2="31"
+            stroke="#FFFFFF"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+          />
+          <line
+            x1="18"
+            y1="32"
+            x2="23"
+            y2="35"
+            stroke="#FFFFFF"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
         </svg>
       );
 
     case "gift-box":
       return (
-        <svg width={px} height={px} viewBox="0 0 64 64" fill="none" aria-label={def.labelAr}>
-          <polygon points="22,16 54,16 42,26 10,26" fill="#C4B5FD" stroke="#4C1D95" strokeWidth="2.4" strokeLinejoin="round" />
-          <rect x="10" y="26" width="32" height="24" fill="#8B5CF6" stroke="#4C1D95" strokeWidth="2.4" />
-          <polygon points="42,26 54,16 54,40 42,50" fill="#6D28D9" stroke="#4C1D95" strokeWidth="2.4" strokeLinejoin="round" />
+        <svg
+          width={px}
+          height={px}
+          viewBox="0 0 64 64"
+          fill="none"
+          aria-label={def.labelAr}
+        >
+          <polygon
+            points="22,16 54,16 42,26 10,26"
+            fill="#C4B5FD"
+            stroke="#4C1D95"
+            strokeWidth="2.4"
+            strokeLinejoin="round"
+          />
+          <rect
+            x="10"
+            y="26"
+            width="32"
+            height="24"
+            fill="#8B5CF6"
+            stroke="#4C1D95"
+            strokeWidth="2.4"
+          />
+          <polygon
+            points="42,26 54,16 54,40 42,50"
+            fill="#6D28D9"
+            stroke="#4C1D95"
+            strokeWidth="2.4"
+            strokeLinejoin="round"
+          />
           {/* Ribbon */}
-          <rect x="23" y="26" width="6" height="24" fill="#FACC15" stroke="#854D0E" strokeWidth="1.6" />
-          <path d="M26 21 C18 11, 14 21, 26 21 C38 21, 34 11, 26 21 Z" fill="#F43F5E" stroke="#881337" strokeWidth="2" />
+          <rect
+            x="23"
+            y="26"
+            width="6"
+            height="24"
+            fill="#FACC15"
+            stroke="#854D0E"
+            strokeWidth="1.6"
+          />
+          <path
+            d="M26 21 C18 11, 14 21, 26 21 C38 21, 34 11, 26 21 Z"
+            fill="#F43F5E"
+            stroke="#881337"
+            strokeWidth="2"
+          />
         </svg>
       );
 
     case "basketball":
       return (
-        <svg width={px} height={px} viewBox="0 0 64 64" fill="none" aria-label={def.labelAr}>
-          <circle cx="32" cy="32" r="22" fill="#F97316" stroke="#7C2D12" strokeWidth="2.6" />
-          <line x1="10" y1="32" x2="54" y2="32" stroke="#431407" strokeWidth="2.2" />
-          <line x1="32" y1="10" x2="32" y2="54" stroke="#431407" strokeWidth="2.2" />
-          <path d="M17 16 C26 26, 26 38, 17 48" stroke="#431407" strokeWidth="2.2" fill="none" />
-          <path d="M47 16 C38 26, 38 38, 47 48" stroke="#431407" strokeWidth="2.2" fill="none" />
+        <svg
+          width={px}
+          height={px}
+          viewBox="0 0 64 64"
+          fill="none"
+          aria-label={def.labelAr}
+        >
+          <circle
+            cx="32"
+            cy="32"
+            r="22"
+            fill="#F97316"
+            stroke="#7C2D12"
+            strokeWidth="2.6"
+          />
+          <line
+            x1="10"
+            y1="32"
+            x2="54"
+            y2="32"
+            stroke="#431407"
+            strokeWidth="2.2"
+          />
+          <line
+            x1="32"
+            y1="10"
+            x2="32"
+            y2="54"
+            stroke="#431407"
+            strokeWidth="2.2"
+          />
+          <path
+            d="M17 16 C26 26, 26 38, 17 48"
+            stroke="#431407"
+            strokeWidth="2.2"
+            fill="none"
+          />
+          <path
+            d="M47 16 C38 26, 38 38, 47 48"
+            stroke="#431407"
+            strokeWidth="2.2"
+            fill="none"
+          />
         </svg>
       );
 
     case "party-hat":
       return (
-        <svg width={px} height={px} viewBox="0 0 64 64" fill="none" aria-label={def.labelAr}>
-          <polygon points="32,12 52,50 12,50" fill="#F43F5E" stroke="#881337" strokeWidth="2.5" strokeLinejoin="round" />
-          <circle cx="32" cy="10" r="5" fill="#FACC15" stroke="#854D0E" strokeWidth="2" />
+        <svg
+          width={px}
+          height={px}
+          viewBox="0 0 64 64"
+          fill="none"
+          aria-label={def.labelAr}
+        >
+          <polygon
+            points="32,12 52,50 12,50"
+            fill="#F43F5E"
+            stroke="#881337"
+            strokeWidth="2.5"
+            strokeLinejoin="round"
+          />
+          <circle
+            cx="32"
+            cy="10"
+            r="5"
+            fill="#FACC15"
+            stroke="#854D0E"
+            strokeWidth="2"
+          />
           <circle cx="32" cy="27" r="3" fill="#FEF08A" />
           <circle cx="24" cy="40" r="3" fill="#BAE6FD" />
           <circle cx="40" cy="40" r="3" fill="#A7F3D0" />
-          <ellipse cx="32" cy="50" rx="20" ry="4.5" fill="#FDA4AF" stroke="#881337" strokeWidth="2.2" />
+          <ellipse
+            cx="32"
+            cy="50"
+            rx="20"
+            ry="4.5"
+            fill="#FDA4AF"
+            stroke="#881337"
+            strokeWidth="2.2"
+          />
         </svg>
       );
 
     case "juice-box":
       return (
-        <svg width={px} height={px} viewBox="0 0 64 64" fill="none" aria-label={def.labelAr}>
+        <svg
+          width={px}
+          height={px}
+          viewBox="0 0 64 64"
+          fill="none"
+          aria-label={def.labelAr}
+        >
           {/* Straw */}
-          <path d="M35 16 L39 7 L47 9" stroke="#F59E0B" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+          <path
+            d="M35 16 L39 7 L47 9"
+            stroke="#F59E0B"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
           {/* 3D Box */}
-          <polygon points="22,16 48,16 40,22 14,22" fill="#6EE7B7" stroke="#064E3B" strokeWidth="2.2" />
-          <rect x="14" y="22" width="26" height="32" fill="#10B981" stroke="#064E3B" strokeWidth="2.4" />
-          <polygon points="40,22 48,16 48,48 40,54" fill="#059669" stroke="#064E3B" strokeWidth="2.2" />
-          <circle cx="27" cy="38" r="6" fill="#FACC15" stroke="#78350F" strokeWidth="1.8" />
+          <polygon
+            points="22,16 48,16 40,22 14,22"
+            fill="#6EE7B7"
+            stroke="#064E3B"
+            strokeWidth="2.2"
+          />
+          <rect
+            x="14"
+            y="22"
+            width="26"
+            height="32"
+            fill="#10B981"
+            stroke="#064E3B"
+            strokeWidth="2.4"
+          />
+          <polygon
+            points="40,22 48,16 48,48 40,54"
+            fill="#059669"
+            stroke="#064E3B"
+            strokeWidth="2.2"
+          />
+          <circle
+            cx="27"
+            cy="38"
+            r="6"
+            fill="#FACC15"
+            stroke="#78350F"
+            strokeWidth="1.8"
+          />
         </svg>
       );
 
     case "tent":
     default:
       return (
-        <svg width={px} height={px} viewBox="0 0 64 64" fill="none" aria-label={def.labelAr}>
-          <polygon points="32,10 8,50 36,54" fill="#14B8A6" stroke="#134E4A" strokeWidth="2.5" strokeLinejoin="round" />
-          <polygon points="32,10 36,54 56,44" fill="#0D9488" stroke="#134E4A" strokeWidth="2.5" strokeLinejoin="round" />
-          <polygon points="24,52 32,30 36,54" fill="#FACC15" stroke="#134E4A" strokeWidth="2" strokeLinejoin="round" />
+        <svg
+          width={px}
+          height={px}
+          viewBox="0 0 64 64"
+          fill="none"
+          aria-label={def.labelAr}
+        >
+          <polygon
+            points="32,10 8,50 36,54"
+            fill="#14B8A6"
+            stroke="#134E4A"
+            strokeWidth="2.5"
+            strokeLinejoin="round"
+          />
+          <polygon
+            points="32,10 36,54 56,44"
+            fill="#0D9488"
+            stroke="#134E4A"
+            strokeWidth="2.5"
+            strokeLinejoin="round"
+          />
+          <polygon
+            points="24,52 32,30 36,54"
+            fill="#FACC15"
+            stroke="#134E4A"
+            strokeWidth="2"
+            strokeLinejoin="round"
+          />
         </svg>
       );
   }
@@ -962,7 +1246,13 @@ export function LocalizedCoinSvg({
   // Metal palette per coin
   const metalColors: Record<
     CoinDenomination,
-    { outer: string; inner: string; stroke: string; text: string; shine: string }
+    {
+      outer: string;
+      inner: string;
+      stroke: string;
+      text: string;
+      shine: string;
+    }
   > = {
     1: {
       outer: "#D97706", // Copper/bronze
@@ -1034,10 +1324,10 @@ export function LocalizedCoinSvg({
           denomination === 1
             ? "2 2"
             : denomination === 5
-            ? "4 2"
-            : denomination === 10
-            ? "none"
-            : "5 2"
+              ? "4 2"
+              : denomination === 10
+                ? "none"
+                : "5 2"
         }
       />
       {/* Specular metallic shine */}
@@ -1064,156 +1354,158 @@ export function LocalizedCoinSvg({
   );
 }
 
-// Register "shape-2d"
-registerVisualModel("shape-2d", ({ model }) => {
-  const count = model.count ?? 1;
-  if (count > 1) {
+export function registerShapesSolidsCoinsVisualModels(): void {
+  // Register "shape-2d"
+  registerVisualModel("shape-2d", ({ model }) => {
+    const count = model.count ?? 1;
+    if (count > 1) {
+      return (
+        <div
+          className="inline-flex flex-col items-center gap-1"
+          data-visual-model="shape-2d"
+          data-shape-id={model.id}
+        >
+          <div className="flex flex-wrap items-center justify-center gap-1.5">
+            {Array.from({ length: count }, (_, idx) => (
+              <Shape2DSvg
+                key={idx}
+                shapeId={model.id}
+                colorTheme={model.colorTheme}
+                size={model.size ?? "small"}
+                rotationDeg={model.rotationDeg}
+              />
+            ))}
+          </div>
+          <span className="text-xs font-bold text-slate-700">
+            {toEasternArabicNumerals(model.labelAr)}
+          </span>
+        </div>
+      );
+    }
+
     return (
       <div
         className="inline-flex flex-col items-center gap-1"
         data-visual-model="shape-2d"
         data-shape-id={model.id}
       >
-        <div className="flex flex-wrap items-center justify-center gap-1.5">
-          {Array.from({ length: count }, (_, idx) => (
-            <Shape2DSvg
-              key={idx}
-              shapeId={model.id}
-              colorTheme={model.colorTheme}
-              size={model.size ?? "small"}
-              rotationDeg={model.rotationDeg}
-            />
-          ))}
-        </div>
+        <Shape2DSvg
+          shapeId={model.id}
+          colorTheme={model.colorTheme}
+          size={model.size ?? "medium"}
+          rotationDeg={model.rotationDeg}
+        />
         <span className="text-xs font-bold text-slate-700">
           {toEasternArabicNumerals(model.labelAr)}
         </span>
       </div>
     );
-  }
+  });
 
-  return (
-    <div
-      className="inline-flex flex-col items-center gap-1"
-      data-visual-model="shape-2d"
-      data-shape-id={model.id}
-    >
-      <Shape2DSvg
-        shapeId={model.id}
-        colorTheme={model.colorTheme}
-        size={model.size ?? "medium"}
-        rotationDeg={model.rotationDeg}
-      />
-      <span className="text-xs font-bold text-slate-700">
-        {toEasternArabicNumerals(model.labelAr)}
-      </span>
-    </div>
-  );
-});
+  // Register "solid-3d"
+  registerVisualModel("solid-3d", ({ model }) => {
+    const count = model.count ?? 1;
+    if (count > 1) {
+      return (
+        <div
+          className="inline-flex flex-col items-center gap-1"
+          data-visual-model="solid-3d"
+          data-solid-id={model.id}
+        >
+          <div className="flex flex-wrap items-center justify-center gap-1.5">
+            {Array.from({ length: count }, (_, idx) => (
+              <Solid3DSvg
+                key={idx}
+                solidId={model.id}
+                colorTheme={model.colorTheme}
+                size={model.size ?? "small"}
+                rotationDeg={model.rotationDeg}
+              />
+            ))}
+          </div>
+          <span className="text-xs font-bold text-slate-700">
+            {toEasternArabicNumerals(model.labelAr)}
+          </span>
+        </div>
+      );
+    }
 
-// Register "solid-3d"
-registerVisualModel("solid-3d", ({ model }) => {
-  const count = model.count ?? 1;
-  if (count > 1) {
     return (
       <div
         className="inline-flex flex-col items-center gap-1"
         data-visual-model="solid-3d"
         data-solid-id={model.id}
       >
-        <div className="flex flex-wrap items-center justify-center gap-1.5">
-          {Array.from({ length: count }, (_, idx) => (
-            <Solid3DSvg
-              key={idx}
-              solidId={model.id}
-              colorTheme={model.colorTheme}
-              size={model.size ?? "small"}
-              rotationDeg={model.rotationDeg}
-            />
-          ))}
-        </div>
+        <Solid3DSvg
+          solidId={model.id}
+          colorTheme={model.colorTheme}
+          size={model.size ?? "medium"}
+          rotationDeg={model.rotationDeg}
+        />
         <span className="text-xs font-bold text-slate-700">
           {toEasternArabicNumerals(model.labelAr)}
         </span>
       </div>
     );
-  }
+  });
 
-  return (
-    <div
-      className="inline-flex flex-col items-center gap-1"
-      data-visual-model="solid-3d"
-      data-solid-id={model.id}
-    >
-      <Solid3DSvg
-        solidId={model.id}
-        colorTheme={model.colorTheme}
-        size={model.size ?? "medium"}
-        rotationDeg={model.rotationDeg}
-      />
-      <span className="text-xs font-bold text-slate-700">
-        {toEasternArabicNumerals(model.labelAr)}
-      </span>
-    </div>
-  );
-});
+  // Register "real-world-solid"
+  registerVisualModel("real-world-solid", ({ model }) => {
+    return (
+      <div
+        className="inline-flex flex-col items-center gap-1"
+        data-visual-model="real-world-solid"
+        data-object-id={model.id}
+      >
+        <RealWorldSolidSvg objectId={model.id} size={model.size ?? "medium"} />
+        <span className="text-xs font-bold text-slate-700">
+          {toEasternArabicNumerals(model.labelAr)}
+        </span>
+      </div>
+    );
+  });
 
-// Register "real-world-solid"
-registerVisualModel("real-world-solid", ({ model }) => {
-  return (
-    <div
-      className="inline-flex flex-col items-center gap-1"
-      data-visual-model="real-world-solid"
-      data-object-id={model.id}
-    >
-      <RealWorldSolidSvg objectId={model.id} size={model.size ?? "medium"} />
-      <span className="text-xs font-bold text-slate-700">
-        {toEasternArabicNumerals(model.labelAr)}
-      </span>
-    </div>
-  );
-});
+  // Register "coin"
+  registerVisualModel("coin", ({ model }) => {
+    const denomination = (model.denomination ?? 1) as CoinDenomination;
+    const count = model.count ?? 1;
+    if (count > 1) {
+      return (
+        <div
+          className="inline-flex flex-col items-center gap-1"
+          data-visual-model="coin"
+          data-denomination={formatEasternNumber(denomination)}
+        >
+          <div className="flex flex-wrap items-center justify-center gap-1.5">
+            {Array.from({ length: count }, (_, idx) => (
+              <LocalizedCoinSvg
+                key={idx}
+                denomination={denomination}
+                size={model.size ?? "small"}
+              />
+            ))}
+          </div>
+          <span className="text-xs font-bold text-slate-700">
+            {toEasternArabicNumerals(model.labelAr)}
+          </span>
+        </div>
+      );
+    }
 
-// Register "coin"
-registerVisualModel("coin", ({ model }) => {
-  const denomination = (model.denomination ?? 1) as CoinDenomination;
-  const count = model.count ?? 1;
-  if (count > 1) {
     return (
       <div
         className="inline-flex flex-col items-center gap-1"
         data-visual-model="coin"
         data-denomination={formatEasternNumber(denomination)}
       >
-        <div className="flex flex-wrap items-center justify-center gap-1.5">
-          {Array.from({ length: count }, (_, idx) => (
-            <LocalizedCoinSvg
-              key={idx}
-              denomination={denomination}
-              size={model.size ?? "small"}
-            />
-          ))}
-        </div>
+        <LocalizedCoinSvg
+          denomination={denomination}
+          size={model.size ?? "medium"}
+        />
         <span className="text-xs font-bold text-slate-700">
           {toEasternArabicNumerals(model.labelAr)}
         </span>
       </div>
     );
-  }
-
-  return (
-    <div
-      className="inline-flex flex-col items-center gap-1"
-      data-visual-model="coin"
-      data-denomination={formatEasternNumber(denomination)}
-    >
-      <LocalizedCoinSvg
-        denomination={denomination}
-        size={model.size ?? "medium"}
-      />
-      <span className="text-xs font-bold text-slate-700">
-        {toEasternArabicNumerals(model.labelAr)}
-      </span>
-    </div>
-  );
-});
+  });
+}

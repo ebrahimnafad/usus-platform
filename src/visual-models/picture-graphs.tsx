@@ -669,33 +669,34 @@ export function PictureGraphSvg({
   );
 }
 
-registerVisualModel("picture-graph", ({ model, solved }) => {
-  const meta = (model.meta ?? {}) as Record<string, unknown>;
-  const orientation =
-    (meta.orientation as PictureGraphOrientation) ?? "horizontal";
-  const titleAr = (meta.titleAr as string) ?? "تمثيل بياني بالصور";
-  const maxCount = (meta.maxCount as number) ?? 5;
-  const categories =
-    (meta.categories as PictureGraphCategorySpec[]) ?? [];
+export function registerPictureGraphVisualModels(): void {
+  registerVisualModel("picture-graph", ({ model, solved }) => {
+    const meta = (model.meta ?? {}) as Record<string, unknown>;
+    const orientation =
+      (meta.orientation as PictureGraphOrientation) ?? "horizontal";
+    const titleAr = (meta.titleAr as string) ?? "تمثيل بياني بالصور";
+    const maxCount = (meta.maxCount as number) ?? 5;
+    const categories = (meta.categories as PictureGraphCategorySpec[]) ?? [];
 
-  return (
-    <div
-      className="inline-flex flex-col items-center gap-1.5"
-      data-visual-model="picture-graph"
-      data-orientation={orientation}
-      data-direction="rtl"
-      data-category-count={formatEasternNumber(categories.length)}
-    >
-      <PictureGraphSvg
-        orientation={orientation}
-        titleAr={titleAr}
-        categories={categories}
-        maxCount={maxCount}
-        solved={solved}
-      />
-      <span className="text-xs font-bold text-slate-700">
-        {toEasternArabicNumerals(model.labelAr)}
-      </span>
-    </div>
-  );
-});
+    return (
+      <div
+        className="inline-flex flex-col items-center gap-1.5"
+        data-visual-model="picture-graph"
+        data-orientation={orientation}
+        data-direction="rtl"
+        data-category-count={formatEasternNumber(categories.length)}
+      >
+        <PictureGraphSvg
+          orientation={orientation}
+          titleAr={titleAr}
+          categories={categories}
+          maxCount={maxCount}
+          solved={solved}
+        />
+        <span className="text-xs font-bold text-slate-700">
+          {toEasternArabicNumerals(model.labelAr)}
+        </span>
+      </div>
+    );
+  });
+}

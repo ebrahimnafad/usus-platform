@@ -61,6 +61,7 @@ export function WorksheetSurface({
 }: WorksheetSurfaceProps): React.ReactElement {
   const { worksheet, lesson, teacherNotes } = bundle;
   const { header } = worksheet;
+  const isAuthoredBlueprint = bundle.isAuthoredBlueprint;
 
   if (viewMode === "teacher-notes") {
     return (
@@ -70,6 +71,14 @@ export function WorksheetSurface({
         className="mx-auto w-full max-w-[210mm] rounded-3xl border-2 border-indigo-200 bg-white p-8 text-slate-900 shadow-lg"
         data-view-mode="teacher-notes"
       >
+        {!isAuthoredBlueprint && (
+          <div
+            className="mb-4 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-950"
+            data-fallback-preview="true"
+          >
+            معاينة احتياطية — محتوى هذا الدرس غير مؤلف بعد
+          </div>
+        )}
         <header className="border-b-2 border-indigo-100 pb-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
@@ -258,6 +267,14 @@ export function WorksheetSurface({
       data-lesson-id={toEasternArabicNumerals(worksheet.lessonId)}
     >
       <div className="space-y-4">
+        {!isAuthoredBlueprint && (
+          <div
+            className="rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-950"
+            data-fallback-preview="true"
+          >
+            معاينة احتياطية — محتوى هذا الدرس غير مؤلف بعد
+          </div>
+        )}
         {/* Illustrated Workbook Header */}
         <header className="rounded-3xl border-2 border-indigo-200 bg-gradient-to-l from-indigo-50 via-sky-50 to-amber-50 p-4 shadow-2xs">
           <div className="flex items-start justify-between gap-3">

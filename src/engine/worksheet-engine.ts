@@ -19,9 +19,9 @@ import type {
 import { getCurriculumCatalog } from "@/curriculum/catalog";
 import { getExerciseArchetype } from "@/archetypes/registry";
 import { getLessonBlueprint } from "@/blueprints/registry";
-import { lessonK1Blueprint } from "@/blueprints/grade-k/lesson-k1";
+import { createFallbackBlueprint } from "@/blueprints/fallback";
 import { WorksheetSurface } from "@/components/worksheet/WorksheetSurface";
-import { createSeededRandom } from "@/lib/seed";
+import { createSeededRandom, type SeededRandom } from "@/lib/seed";
 import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
 
 export const DIFFICULTY_LABELS_AR: Record<WorksheetDifficultyMode, string> = {
@@ -101,14 +101,68 @@ export function resolveWarmUpSourceBlueprint(
   };
 }
 
-function createFallbackBlueprintForLesson(lesson: Lesson): LessonBlueprint {
+interface BuildWorksheetSectionInput {
+  sectionId: SectionId;
+  blueprint: LessonBlueprint;
+  sourceLessonId: string;
+  lesson: Lesson;
+  catalog: CurriculumCatalog;
+  rootRng: SeededRandom;
+  difficultyMode: WorksheetDifficultyMode;
+  pickSpecs: (
+    tier: LessonBlueprint["tiers"][DifficultyLevel]
+  ) => BlueprintExerciseSpec[];
+  startingExerciseNumber: number;
+}
+
+function buildWorksheetSection(input: BuildWorksheetSectionInput): {
+  section: Section;
+  nextExerciseNumber: number;
+} {
+  const {
+    sectionId,
+    blueprint,
+    sourceLessonId,
+    lesson,
+    catalog,
+    rootRng,
+    difficultyMode,
+    pickSpecs,
+    startingExerciseNumber,
+  } = input;
+
+  const targetDifficulty = resolveSectionDifficulty(sectionId, difficultyMode);
+  const tierSpec = blueprint.tiers[targetDifficulty];
+  const specs = pickSpecs(tierSpec);
+  const sectionRng = rootRng.fork(`section:${sectionId}:${sourceLessonId}`);
+
+  const exercises: Exercise[] = specs.map((spec, idx) => {
+    const archetypeDef = getExerciseArchetype(spec.archetype);
+    const exRng = sectionRng.fork(`ex:${idx}`);
+    const sourceLesson = catalog.getLessonByCode(sourceLessonId) ?? lesson;
+
+    return archetypeDef.generate({
+      lesson: sourceLesson,
+      sourceLessonId,
+      sectionId,
+      exerciseIndex: idx,
+      exerciseNumber: startingExerciseNumber + idx,
+      difficultyLevel: targetDifficulty,
+      rng: exRng,
+      spec,
+    });
+  });
+
   return {
-    lessonId: lesson.id,
-    grade: lesson.grade,
-    lessonNumber: lesson.lessonNumber,
-    titleAr: lesson.titleAr,
-    teacherNotes: lesson.teacherNotes,
-    tiers: lessonK1Blueprint.tiers,
+    section: {
+      id: sectionId,
+      titleAr: SECTION_METADATA[sectionId].titleAr,
+      badgeEmoji: SECTION_METADATA[sectionId].badgeEmoji,
+      difficultyLevel: targetDifficulty,
+      sourceLessonId,
+      exercises,
+    },
+    nextExerciseNumber: startingExerciseNumber + specs.length,
   };
 }
 
@@ -141,8 +195,7 @@ export function generateWorksheet(
     input.difficultyLevel ?? "scaffolded";
 
   const authoredBlueprint = getLessonBlueprint(lesson.id);
-  const activeBlueprint =
-    authoredBlueprint ?? createFallbackBlueprintForLesson(lesson);
+  const activeBlueprint = authoredBlueprint ?? createFallbackBlueprint(lesson);
 
   const warmUpSource = resolveWarmUpSourceBlueprint(
     lesson,
@@ -152,81 +205,78 @@ export function generateWorksheet(
 
   const rootRng = createSeededRandom(`${lesson.id}::${seed}`);
 
-  let globalExerciseCounter = 0;
+  const warmUpBuilt = buildWorksheetSection({
+    sectionId: "warm-up",
+    blueprint: warmUpSource.blueprint,
+    sourceLessonId: warmUpSource.sourceLessonId,
+    lesson,
+    catalog,
+    rootRng,
+    difficultyMode,
+    pickSpecs: (tier) => tier.warmUp,
+    startingExerciseNumber: 1,
+  });
 
-  const buildSection = (
-    sectionId: SectionId,
-    blueprint: LessonBlueprint,
-    sourceLessonId: string,
-    pickSpecs: (
-      tier: LessonBlueprint["tiers"][DifficultyLevel]
-    ) => BlueprintExerciseSpec[]
-  ): Section => {
-    const targetDifficulty = resolveSectionDifficulty(
-      sectionId,
-      difficultyMode
-    );
-    const tierSpec = blueprint.tiers[targetDifficulty];
-    const specs = pickSpecs(tierSpec);
-    const sectionRng = rootRng.fork(`section:${sectionId}:${sourceLessonId}`);
+  const practiceBuilt = buildWorksheetSection({
+    sectionId: "practice",
+    blueprint: activeBlueprint,
+    sourceLessonId: lesson.id,
+    lesson,
+    catalog,
+    rootRng,
+    difficultyMode,
+    pickSpecs: (tier) => tier.practice,
+    startingExerciseNumber: warmUpBuilt.nextExerciseNumber,
+  });
 
-    const exercises: Exercise[] = specs.map((spec, idx) => {
-      globalExerciseCounter += 1;
-      const archetypeDef = getExerciseArchetype(spec.archetype);
-      const exRng = sectionRng.fork(`ex:${idx}`);
-      const sourceLesson = catalog.getLessonByCode(sourceLessonId) ?? lesson;
+  const challengeBuilt = buildWorksheetSection({
+    sectionId: "challenge",
+    blueprint: activeBlueprint,
+    sourceLessonId: lesson.id,
+    lesson,
+    catalog,
+    rootRng,
+    difficultyMode,
+    pickSpecs: (tier) => tier.challenge,
+    startingExerciseNumber: practiceBuilt.nextExerciseNumber,
+  });
 
-      return archetypeDef.generate({
-        lesson: sourceLesson,
-        sourceLessonId,
-        sectionId,
-        exerciseIndex: idx,
-        exerciseNumber: globalExerciseCounter,
-        difficultyLevel: targetDifficulty,
-        rng: exRng,
-        spec,
-      });
-    });
-
-    return {
-      id: sectionId,
-      titleAr: SECTION_METADATA[sectionId].titleAr,
-      badgeEmoji: SECTION_METADATA[sectionId].badgeEmoji,
-      difficultyLevel: targetDifficulty,
-      sourceLessonId,
-      exercises,
-    };
-  };
-
-  // 1. 🌟 تهيئة (Warm-Up): pulls 1-2 exercises from prerequisite blueprint (or current blueprint)
-  const warmUpSection = buildSection(
-    "warm-up",
-    warmUpSource.blueprint,
-    warmUpSource.sourceLessonId,
-    (tier) => tier.warmUp
-  );
-
-  // 2. 🎨 تدرّب (Practice): core practice exercises from active blueprint
-  const practiceSection = buildSection(
-    "practice",
-    activeBlueprint,
-    lesson.id,
-    (tier) => tier.practice
-  );
-
-  // 3. 🚀 تحدٍّ وتقييم (Challenge & Assessment): deeper reasoning exercises from active blueprint
-  const challengeSection = buildSection(
-    "challenge",
-    activeBlueprint,
-    lesson.id,
-    (tier) => tier.challenge
-  );
-
-  const sections: [Section, Section, Section] = [
-    warmUpSection,
-    practiceSection,
-    challengeSection,
+  const authoredSections: [Section, Section, Section] = [
+    warmUpBuilt.section,
+    practiceBuilt.section,
+    challengeBuilt.section,
   ];
+
+  const fallbackSections: [Section, Section, Section] = [
+    {
+      id: "warm-up",
+      titleAr: SECTION_METADATA["warm-up"].titleAr,
+      badgeEmoji: SECTION_METADATA["warm-up"].badgeEmoji,
+      difficultyLevel: resolveSectionDifficulty("warm-up", difficultyMode),
+      sourceLessonId: lesson.id,
+      exercises: [],
+    },
+    {
+      id: "practice",
+      titleAr: SECTION_METADATA.practice.titleAr,
+      badgeEmoji: SECTION_METADATA.practice.badgeEmoji,
+      difficultyLevel: resolveSectionDifficulty("practice", difficultyMode),
+      sourceLessonId: lesson.id,
+      exercises: [],
+    },
+    {
+      id: "challenge",
+      titleAr: SECTION_METADATA.challenge.titleAr,
+      badgeEmoji: SECTION_METADATA.challenge.badgeEmoji,
+      difficultyLevel: resolveSectionDifficulty("challenge", difficultyMode),
+      sourceLessonId: lesson.id,
+      exercises: [],
+    },
+  ];
+
+  const sections: [Section, Section, Section] = authoredBlueprint
+    ? authoredSections
+    : fallbackSections;
 
   const seedAr = toEasternArabicNumerals(seed);
   const header: WorksheetHeader = {

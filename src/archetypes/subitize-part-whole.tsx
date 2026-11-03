@@ -20,7 +20,6 @@ import {
 } from "@/visual-models/unit-2-models";
 import { VisualModelView } from "@/visual-models/registry";
 import {
-  registerExerciseArchetype,
   type ArchetypeGeneratorContext,
   type ArchetypeRenderProps,
 } from "@/archetypes/registry";
@@ -29,9 +28,7 @@ import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
 export type SubitizeMode = "identify-quantity" | "both-parts-to-5";
 
 export type SubitizeVisualKind =
-  | "five-frame"
-  | "five-frame-and-dice"
-  | "five-frame-and-shapes";
+  "five-frame" | "five-frame-and-dice" | "five-frame-and-shapes";
 
 export interface SubitizeCardInput {
   filledCount: number;
@@ -150,8 +147,8 @@ function generateSubitizePartWholeExercise(
     ctx.difficultyLevel === "Easy"
       ? 2
       : ctx.difficultyLevel === "Intermediate"
-      ? 3
-      : 3;
+        ? 3
+        : 3;
   const cardCount = Math.max(
     2,
     Math.min(3, params.cardCount ?? defaultCardCount)
@@ -164,23 +161,21 @@ function generateSubitizePartWholeExercise(
     const picked = ctx.rng.pickN(params.cards, cardCount);
     rawCards = picked.map((c, idx) => ({
       ...c,
-      colorTheme:
-        c.colorTheme ?? shuffledThemes[idx % shuffledThemes.length],
+      colorTheme: c.colorTheme ?? shuffledThemes[idx % shuffledThemes.length],
     }));
   } else {
     const candidateCounts =
       params.candidateCounts && params.candidateCounts.length > 0
         ? params.candidateCounts
         : subitizeMode === "both-parts-to-5"
-        ? [2, 3, 4, 5]
-        : [3, 4, 5, 2];
+          ? [2, 3, 4, 5]
+          : [3, 4, 5, 2];
 
     const pickedCounts = ctx.rng.pickN(candidateCounts, cardCount);
     rawCards = pickedCounts.map((count, idx) => ({
       filledCount: count,
       colorTheme: shuffledThemes[idx % shuffledThemes.length],
-      secondaryColorTheme:
-        shuffledThemes[(idx + 2) % shuffledThemes.length],
+      secondaryColorTheme: shuffledThemes[(idx + 2) % shuffledThemes.length],
     }));
   }
 
@@ -214,7 +209,8 @@ function generateSubitizePartWholeExercise(
 
     let companionModel: VisualModelSpec | undefined;
     if (visualKind === "five-frame-and-dice") {
-      const subA = filledCount >= 3 ? Math.floor(filledCount / 2) + 1 : filledCount;
+      const subA =
+        filledCount >= 3 ? Math.floor(filledCount / 2) + 1 : filledCount;
       const subB = Math.max(0, filledCount - subA);
       companionModel = createDicePatternSpec({
         count: subA,
@@ -502,5 +498,3 @@ export const subitizePartWholeArchetype = {
   generate: generateSubitizePartWholeExercise,
   render: renderSubitizePartWholeExercise,
 };
-
-registerExerciseArchetype(subitizePartWholeArchetype);

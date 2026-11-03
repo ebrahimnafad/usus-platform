@@ -1,17 +1,32 @@
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import type { RenderWorksheetSurfaceInput } from "@/domain/types";
+import type {
+  GeneratedWorksheetBundle,
+  RenderWorksheetSurfaceInput,
+} from "@/domain/types";
 import { generateWorksheet } from "@/engine/worksheet-engine";
 import { WorksheetSurface } from "@/components/worksheet/WorksheetSurface";
 
-export function renderWorksheetSurface(
+export interface RenderedWorksheetSurface {
+  bundle: GeneratedWorksheetBundle;
+  html: string;
+}
+
+export function renderWorksheetSurfaceDocument(
   input: RenderWorksheetSurfaceInput
-): string {
+): RenderedWorksheetSurface {
   const bundle = generateWorksheet(input);
-  return renderToStaticMarkup(
+  const html = renderToStaticMarkup(
     React.createElement(WorksheetSurface, {
       bundle,
       viewMode: input.viewMode,
     })
   );
+  return { bundle, html };
+}
+
+export function renderWorksheetSurface(
+  input: RenderWorksheetSurfaceInput
+): string {
+  return renderWorksheetSurfaceDocument(input).html;
 }

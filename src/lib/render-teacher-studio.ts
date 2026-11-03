@@ -3,13 +3,15 @@ import { renderToStaticMarkup } from "react-dom/server";
 import type { GeneratedWorksheetBundle } from "@/domain/types";
 import { getCurriculumCatalog } from "@/curriculum/catalog";
 import { generateWorksheet } from "@/engine/worksheet-engine";
+import { TeacherStudio } from "@/components/studio/TeacherStudioClient";
 import {
-  TeacherStudio,
   buildPdfExportUrl,
   buildStudioSearchParams,
+} from "@/lib/studio-helpers";
+import {
   resolveStudioStateFromSearchParams,
   type StudioSearchParamsInput,
-} from "@/components/studio/TeacherStudioClient";
+} from "@/lib/studio-state";
 
 export interface RenderTeacherStudioInput extends StudioSearchParamsInput {
   expandAllUnits?: boolean;

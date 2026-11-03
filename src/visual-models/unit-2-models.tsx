@@ -27,17 +27,16 @@ export interface FiveFrameOptions {
   labelAr?: string;
 }
 
-export function createFiveFrameSpec(options: FiveFrameOptions): VisualModelSpec {
+export function createFiveFrameSpec(
+  options: FiveFrameOptions
+): VisualModelSpec {
   const primary = Math.max(0, Math.min(5, options.count));
   const secondary = Math.max(
     0,
     Math.min(5 - primary, options.secondaryCount ?? 0)
   );
   const total = primary + secondary;
-  const crossedOut = Math.max(
-    0,
-    Math.min(total, options.crossedOutCount ?? 0)
-  );
+  const crossedOut = Math.max(0, Math.min(total, options.crossedOutCount ?? 0));
   const remaining = Math.max(0, total - crossedOut);
 
   const defaultLabelAr =
@@ -46,10 +45,10 @@ export function createFiveFrameSpec(options: FiveFrameOptions): VisualModelSpec 
           crossedOut
         )} وبقي ${formatEasternNumber(remaining)}`
       : secondary > 0
-      ? `لوحة الخمسة: ${formatEasternNumber(primary)} و${formatEasternNumber(
-          secondary
-        )} يساوي ${formatEasternNumber(total)}`
-      : `لوحة الخمسة: ${formatEasternNumber(total)} من ٥`;
+        ? `لوحة الخمسة: ${formatEasternNumber(primary)} و${formatEasternNumber(
+            secondary
+          )} يساوي ${formatEasternNumber(total)}`
+        : `لوحة الخمسة: ${formatEasternNumber(total)} من ٥`;
 
   return {
     kind: "five-frame",
@@ -93,10 +92,7 @@ export function FiveFrameSvg({
   const secondary = Math.max(0, Math.min(5 - primary, secondaryCount));
   const totalFilled = primary + secondary;
   const crossedOut = Math.max(0, Math.min(totalFilled, crossedOutCount));
-  const ghostCount = Math.max(
-    0,
-    Math.min(5 - totalFilled, ghostTargetCount)
-  );
+  const ghostCount = Math.max(0, Math.min(5 - totalFilled, ghostTargetCount));
 
   const primaryPalette = COLOR_PALETTES[colorTheme] ?? COLOR_PALETTES.coral;
   const secondaryPalette =
@@ -196,9 +192,7 @@ export function FiveFrameSvg({
           rtlIdx >= totalFilled - crossedOut &&
           rtlIdx < totalFilled;
 
-        const activePalette = isSecondary
-          ? secondaryPalette
-          : primaryPalette;
+        const activePalette = isSecondary ? secondaryPalette : primaryPalette;
 
         return (
           <g
@@ -208,10 +202,10 @@ export function FiveFrameSvg({
               isCrossedOut
                 ? "crossed-out"
                 : isFilled
-                ? "filled"
-                : isGhost
-                ? "ghost"
-                : "empty"
+                  ? "filled"
+                  : isGhost
+                    ? "ghost"
+                    : "empty"
             }
           >
             {/* Vertical Cell Divider */}
@@ -270,7 +264,9 @@ export function FiveFrameSvg({
             {isFilled && (
               <g
                 data-counter-tone={isSecondary ? "secondary" : "primary"}
-                {...(isGhost && solved ? { "data-solved-counter": "true" } : {})}
+                {...(isGhost && solved
+                  ? { "data-solved-counter": "true" }
+                  : {})}
               >
                 <circle
                   cx={cx}
@@ -400,24 +396,21 @@ const DIGIT_STROKE_GUIDES: Record<number, DigitStrokeGuide> = {
   },
   3: {
     // Eastern Arabic ٣ (two top scallops from right to left then vertical stem down)
-    pathD:
-      "M 60 15 C 57 26, 49 26, 47 15 C 45 26, 37 26, 34 15 L 34 55",
+    pathD: "M 60 15 C 57 26, 49 26, 47 15 C 45 26, 37 26, 34 15 L 34 55",
     startX: 60,
     startY: 15,
     arrowPoints: "55,25 48,24 52,19",
   },
   4: {
     // Eastern Arabic ٤ (two stacked rightward open curves)
-    pathD:
-      "M 53 14 C 34 16, 34 33, 50 34 C 33 35, 33 52, 54 55",
+    pathD: "M 53 14 C 34 16, 34 33, 50 34 C 33 35, 33 52, 54 55",
     startX: 53,
     startY: 14,
     arrowPoints: "41,14 35,19 42,21",
   },
   5: {
     // Eastern Arabic ٥ (rounded teardrop loop)
-    pathD:
-      "M 44 16 C 60 22, 60 53, 44 53 C 28 53, 28 22, 44 16 Z",
+    pathD: "M 44 16 C 60 22, 60 53, 44 53 C 28 53, 28 22, 44 16 Z",
     startX: 44,
     startY: 16,
     arrowPoints: "54,19 59,26 51,25",
@@ -441,8 +434,7 @@ const DIGIT_STROKE_GUIDES: Record<number, DigitStrokeGuide> = {
     arrowPoints: "32,43 36,35 39,44",
   },
   9: {
-    pathD:
-      "M 52 26 C 52 14, 34 14, 34 26 C 34 36, 52 36, 52 26 L 52 55",
+    pathD: "M 52 26 C 52 14, 34 14, 34 26 C 34 36, 52 36, 52 26 L 52 55",
     startX: 52,
     startY: 26,
     arrowPoints: "43,12 36,15 43,19",
@@ -505,14 +497,7 @@ export function NumeralTraceSvg({
         strokeDasharray="4 4"
       />
       {/* Bottom Baseline (Rose/Red ruled baseline) */}
-      <line
-        x1="10"
-        y1="56"
-        x2="78"
-        y2="56"
-        stroke="#FDA4AF"
-        strokeWidth="2"
-      />
+      <line x1="10" y1="56" x2="78" y2="56" stroke="#FDA4AF" strokeWidth="2" />
 
       {/* Soft Ghost Track Underneath */}
       <path
@@ -573,62 +558,64 @@ export function NumeralTraceSvg({
 }
 
 // Register "five-frame"
-registerVisualModel("five-frame", ({ model, solved }) => {
-  const meta = (model.meta ?? {}) as Record<string, unknown>;
-  const primary = model.count ?? 1;
-  const secondary = model.secondaryCount ?? 0;
-  const crossedOut = model.crossedOutCount ?? 0;
-  const total = Math.max(0, primary + secondary - crossedOut);
+export function registerFiveFrameVisualModel(): void {
+  registerVisualModel("five-frame", ({ model, solved }) => {
+    const meta = (model.meta ?? {}) as Record<string, unknown>;
+    const primary = model.count ?? 1;
+    const secondary = model.secondaryCount ?? 0;
+    const crossedOut = model.crossedOutCount ?? 0;
+    const total = Math.max(0, primary + secondary - crossedOut);
 
-  return (
-    <div
-      className="inline-flex flex-col items-center gap-1"
-      data-visual-model="five-frame"
-      data-direction="rtl"
-      data-count={formatEasternNumber(total)}
-    >
-      <FiveFrameSvg
-        count={primary}
-        secondaryCount={secondary}
-        crossedOutCount={crossedOut}
-        colorTheme={model.colorTheme ?? "coral"}
-        secondaryColorTheme={
-          (meta.secondaryColorTheme as ColorThemeId) ?? "sky"
-        }
-        highlightEmptySlots={(meta.highlightEmptySlots as boolean) ?? true}
-        showPartOutline={
-          (meta.showPartOutline as boolean) ?? secondary > 0
-        }
-        ghostTargetCount={(meta.ghostTargetCount as number) ?? 0}
-        solved={solved}
-      />
-      <span className="text-xs font-bold text-slate-700">
-        {toEasternArabicNumerals(model.labelAr)}
-      </span>
-    </div>
-  );
-});
+    return (
+      <div
+        className="inline-flex flex-col items-center gap-1"
+        data-visual-model="five-frame"
+        data-direction="rtl"
+        data-count={formatEasternNumber(total)}
+      >
+        <FiveFrameSvg
+          count={primary}
+          secondaryCount={secondary}
+          crossedOutCount={crossedOut}
+          colorTheme={model.colorTheme ?? "coral"}
+          secondaryColorTheme={
+            (meta.secondaryColorTheme as ColorThemeId) ?? "sky"
+          }
+          highlightEmptySlots={(meta.highlightEmptySlots as boolean) ?? true}
+          showPartOutline={(meta.showPartOutline as boolean) ?? secondary > 0}
+          ghostTargetCount={(meta.ghostTargetCount as number) ?? 0}
+          solved={solved}
+        />
+        <span className="text-xs font-bold text-slate-700">
+          {toEasternArabicNumerals(model.labelAr)}
+        </span>
+      </div>
+    );
+  });
+}
 
 // Register "numeral-trace"
-registerVisualModel("numeral-trace", ({ model, solved }) => {
-  const digit = model.digit ?? model.count ?? 1;
-  return (
-    <div
-      className="inline-flex flex-col items-center gap-1"
-      data-visual-model="numeral-trace"
-      data-digit={formatEasternNumber(digit)}
-    >
-      <NumeralTraceSvg
-        digit={digit}
-        solved={solved}
-        colorTheme={model.colorTheme ?? "indigo"}
-      />
-      <span className="text-[11px] font-bold text-slate-700">
-        {toEasternArabicNumerals(model.labelAr)}
-      </span>
-    </div>
-  );
-});
+export function registerNumeralTraceVisualModel(): void {
+  registerVisualModel("numeral-trace", ({ model, solved }) => {
+    const digit = model.digit ?? model.count ?? 1;
+    return (
+      <div
+        className="inline-flex flex-col items-center gap-1"
+        data-visual-model="numeral-trace"
+        data-digit={formatEasternNumber(digit)}
+      >
+        <NumeralTraceSvg
+          digit={digit}
+          solved={solved}
+          colorTheme={model.colorTheme ?? "indigo"}
+        />
+        <span className="text-[11px] font-bold text-slate-700">
+          {toEasternArabicNumerals(model.labelAr)}
+        </span>
+      </div>
+    );
+  });
+}
 
 export interface SnapCubesOptions {
   count: number;
@@ -652,15 +639,16 @@ export function createSnapCubesSpec(
   const separated = options.separated ?? false;
   const orientation = options.orientation ?? "horizontal";
 
-  const defaultLabelAr = separated && secondary > 0
-    ? `مكعبات مفكوكة: ${formatEasternNumber(primary)} و${formatEasternNumber(
-        secondary
-      )} (الكل ${formatEasternNumber(total)})`
-    : secondary > 0
-    ? `قطار مكعبات متداخلة: ${formatEasternNumber(
-        primary
-      )} و${formatEasternNumber(secondary)} يساوي ${formatEasternNumber(total)}`
-    : `مكعبات متداخلة: ${formatEasternNumber(total)}`;
+  const defaultLabelAr =
+    separated && secondary > 0
+      ? `مكعبات مفكوكة: ${formatEasternNumber(primary)} و${formatEasternNumber(
+          secondary
+        )} (الكل ${formatEasternNumber(total)})`
+      : secondary > 0
+        ? `قطار مكعبات متداخلة: ${formatEasternNumber(
+            primary
+          )} و${formatEasternNumber(secondary)} يساوي ${formatEasternNumber(total)}`
+        : `مكعبات متداخلة: ${formatEasternNumber(total)}`;
 
   return {
     kind: "snap-cubes",
@@ -696,8 +684,7 @@ export function SnapCubesSvg({
   const secondary = Math.max(0, Math.min(5 - primary, secondaryCount));
   const total = primary + secondary;
 
-  const primaryPalette =
-    COLOR_PALETTES[colorTheme] ?? COLOR_PALETTES.emerald;
+  const primaryPalette = COLOR_PALETTES[colorTheme] ?? COLOR_PALETTES.emerald;
   const secondaryPalette =
     COLOR_PALETTES[secondaryColorTheme] ?? COLOR_PALETTES.amber;
 
@@ -900,39 +887,41 @@ export function SnapCubesSvg({
 }
 
 // Register "snap-cubes"
-registerVisualModel("snap-cubes", ({ model }) => {
-  const meta = (model.meta ?? {}) as Record<string, unknown>;
-  const primary = model.count ?? 1;
-  const secondary = model.secondaryCount ?? 0;
-  const separated = Boolean(meta.separated);
-  const orientation =
-    (meta.orientation as "horizontal" | "vertical") ?? "horizontal";
-  const total = primary + secondary;
+export function registerSnapCubesVisualModel(): void {
+  registerVisualModel("snap-cubes", ({ model }) => {
+    const meta = (model.meta ?? {}) as Record<string, unknown>;
+    const primary = model.count ?? 1;
+    const secondary = model.secondaryCount ?? 0;
+    const separated = Boolean(meta.separated);
+    const orientation =
+      (meta.orientation as "horizontal" | "vertical") ?? "horizontal";
+    const total = primary + secondary;
 
-  return (
-    <div
-      className="inline-flex flex-col items-center gap-1"
-      data-visual-model="snap-cubes"
-      data-count={formatEasternNumber(total)}
-      data-separated={separated ? "true" : "false"}
-      data-orientation={orientation}
-    >
-      <SnapCubesSvg
-        count={primary}
-        secondaryCount={secondary}
-        separated={separated}
-        orientation={orientation}
-        colorTheme={model.colorTheme ?? "emerald"}
-        secondaryColorTheme={
-          (meta.secondaryColorTheme as ColorThemeId) ?? "amber"
-        }
-      />
-      <span className="text-xs font-bold text-slate-700">
-        {toEasternArabicNumerals(model.labelAr)}
-      </span>
-    </div>
-  );
-});
+    return (
+      <div
+        className="inline-flex flex-col items-center gap-1"
+        data-visual-model="snap-cubes"
+        data-count={formatEasternNumber(total)}
+        data-separated={separated ? "true" : "false"}
+        data-orientation={orientation}
+      >
+        <SnapCubesSvg
+          count={primary}
+          secondaryCount={secondary}
+          separated={separated}
+          orientation={orientation}
+          colorTheme={model.colorTheme ?? "emerald"}
+          secondaryColorTheme={
+            (meta.secondaryColorTheme as ColorThemeId) ?? "amber"
+          }
+        />
+        <span className="text-xs font-bold text-slate-700">
+          {toEasternArabicNumerals(model.labelAr)}
+        </span>
+      </div>
+    );
+  });
+}
 
 export type TallyMarksVariant = "tally" | "sticks" | "tally-and-sticks";
 
@@ -954,8 +943,8 @@ export function createTallyMarksSpec(
     variant === "sticks"
       ? `أعواد عدّ ملوّنة: ${countAr}`
       : count === 5
-      ? `إشارات العدّ: حزمة خماسية (${countAr})`
-      : `إشارات العدّ: ${countAr}`;
+        ? `إشارات العدّ: حزمة خماسية (${countAr})`
+        : `إشارات العدّ: ${countAr}`;
 
   return {
     kind: "tally-marks",
@@ -1145,29 +1134,31 @@ export function TallyMarksSvg({
 }
 
 // Register "tally-marks"
-registerVisualModel("tally-marks", ({ model }) => {
-  const meta = (model.meta ?? {}) as Record<string, unknown>;
-  const count = model.count ?? 1;
-  const variant = (meta.variant as TallyMarksVariant) ?? "tally";
+export function registerTallyMarksVisualModel(): void {
+  registerVisualModel("tally-marks", ({ model }) => {
+    const meta = (model.meta ?? {}) as Record<string, unknown>;
+    const count = model.count ?? 1;
+    const variant = (meta.variant as TallyMarksVariant) ?? "tally";
 
-  return (
-    <div
-      className="inline-flex flex-col items-center gap-1"
-      data-visual-model="tally-marks"
-      data-count={formatEasternNumber(count)}
-      data-has-fifth-slash={count >= 5 ? "true" : "false"}
-    >
-      <TallyMarksSvg
-        count={count}
-        variant={variant}
-        colorTheme={model.colorTheme ?? "amber"}
-      />
-      <span className="text-xs font-bold text-slate-700">
-        {toEasternArabicNumerals(model.labelAr)}
-      </span>
-    </div>
-  );
-});
+    return (
+      <div
+        className="inline-flex flex-col items-center gap-1"
+        data-visual-model="tally-marks"
+        data-count={formatEasternNumber(count)}
+        data-has-fifth-slash={count >= 5 ? "true" : "false"}
+      >
+        <TallyMarksSvg
+          count={count}
+          variant={variant}
+          colorTheme={model.colorTheme ?? "amber"}
+        />
+        <span className="text-xs font-bold text-slate-700">
+          {toEasternArabicNumerals(model.labelAr)}
+        </span>
+      </div>
+    );
+  });
+}
 
 export type DicePatternVariant = "die" | "domino";
 
@@ -1197,10 +1188,10 @@ export function createDicePatternSpec(
           secondary
         )} يساوي ${formatEasternNumber(total)}`
       : secondary > 0
-      ? `وجه النرد (${formatEasternNumber(total)}): ${formatEasternNumber(
-          primary
-        )} و${formatEasternNumber(secondary)}`
-      : `وجه النرد: ${formatEasternNumber(total)}`;
+        ? `وجه النرد (${formatEasternNumber(total)}): ${formatEasternNumber(
+            primary
+          )} و${formatEasternNumber(secondary)}`
+        : `وجه النرد: ${formatEasternNumber(total)}`;
 
   return {
     kind: "dice-pattern",
@@ -1342,14 +1333,7 @@ export function DicePatternSvg({
       data-variant="die"
     >
       {/* 3D Die Shadow & Face */}
-      <rect
-        x="7"
-        y="7"
-        width="56"
-        height="56"
-        rx="14"
-        fill="#CBD5E1"
-      />
+      <rect x="7" y="7" width="56" height="56" rx="14" fill="#CBD5E1" />
       <rect
         x="4"
         y="4"
@@ -1392,12 +1376,7 @@ export function DicePatternSvg({
               strokeWidth="1.8"
             />
             {isSecondaryDot && (
-              <circle
-                cx={px}
-                cy={py}
-                r="3.2"
-                fill={pal.accent}
-              />
+              <circle cx={px} cy={py} r="3.2" fill={pal.accent} />
             )}
           </g>
         );
@@ -1407,35 +1386,37 @@ export function DicePatternSvg({
 }
 
 // Register "dice-pattern"
-registerVisualModel("dice-pattern", ({ model }) => {
-  const meta = (model.meta ?? {}) as Record<string, unknown>;
-  const primary = model.count ?? 1;
-  const secondary = model.secondaryCount ?? 0;
-  const total = Math.max(1, primary + secondary);
-  const diceVariant = (meta.diceVariant as DicePatternVariant) ?? "die";
+export function registerDicePatternVisualModel(): void {
+  registerVisualModel("dice-pattern", ({ model }) => {
+    const meta = (model.meta ?? {}) as Record<string, unknown>;
+    const primary = model.count ?? 1;
+    const secondary = model.secondaryCount ?? 0;
+    const total = Math.max(1, primary + secondary);
+    const diceVariant = (meta.diceVariant as DicePatternVariant) ?? "die";
 
-  return (
-    <div
-      className="inline-flex flex-col items-center gap-1"
-      data-visual-model="dice-pattern"
-      data-count={formatEasternNumber(total)}
-      data-variant={diceVariant}
-    >
-      <DicePatternSvg
-        count={primary}
-        secondaryCount={secondary}
-        diceVariant={diceVariant}
-        colorTheme={model.colorTheme ?? "coral"}
-        secondaryColorTheme={
-          (meta.secondaryColorTheme as ColorThemeId) ?? "sky"
-        }
-      />
-      <span className="text-xs font-bold text-slate-700">
-        {toEasternArabicNumerals(model.labelAr)}
-      </span>
-    </div>
-  );
-});
+    return (
+      <div
+        className="inline-flex flex-col items-center gap-1"
+        data-visual-model="dice-pattern"
+        data-count={formatEasternNumber(total)}
+        data-variant={diceVariant}
+      >
+        <DicePatternSvg
+          count={primary}
+          secondaryCount={secondary}
+          diceVariant={diceVariant}
+          colorTheme={model.colorTheme ?? "coral"}
+          secondaryColorTheme={
+            (meta.secondaryColorTheme as ColorThemeId) ?? "sky"
+          }
+        />
+        <span className="text-xs font-bold text-slate-700">
+          {toEasternArabicNumerals(model.labelAr)}
+        </span>
+      </div>
+    );
+  });
+}
 
 export interface CircularArrangementOptions {
   count: number;
@@ -1495,8 +1476,7 @@ export function CircularArrangementSvg({
   const secondary = Math.max(0, Math.min(5 - primary, secondaryCount));
   const total = Math.max(1, Math.min(5, primary + secondary));
 
-  const primaryPalette =
-    COLOR_PALETTES[colorTheme] ?? COLOR_PALETTES.violet;
+  const primaryPalette = COLOR_PALETTES[colorTheme] ?? COLOR_PALETTES.violet;
   const secondaryPalette =
     COLOR_PALETTES[secondaryColorTheme] ?? COLOR_PALETTES.amber;
 
@@ -1536,12 +1516,7 @@ export function CircularArrangementSvg({
       />
 
       {/* Center Hub Dot */}
-      <circle
-        cx={centerX}
-        cy={centerY}
-        r="3.5"
-        fill="#CBD5E1"
-      />
+      <circle cx={centerX} cy={centerY} r="3.5" fill="#CBD5E1" />
 
       {/* Starting Flag / Arrow at Top (12 o'clock) */}
       <g data-start-marker="true">
@@ -1555,8 +1530,7 @@ export function CircularArrangementSvg({
 
       {/* Evenly Spaced Items Around the Circle */}
       {Array.from({ length: total }, (_, idx) => {
-        const angleRad =
-          -Math.PI / 2 + (idx * 2 * Math.PI) / total;
+        const angleRad = -Math.PI / 2 + (idx * 2 * Math.PI) / total;
         const x = Math.round((centerX + radius * Math.cos(angleRad)) * 10) / 10;
         const y = Math.round((centerY + radius * Math.sin(angleRad)) * 10) / 10;
 
@@ -1589,12 +1563,7 @@ export function CircularArrangementSvg({
                 strokeWidth="1"
               />
             ) : (
-              <circle
-                cx={x}
-                cy={y}
-                r="6.5"
-                fill={pal.accent}
-              />
+              <circle cx={x} cy={y} r="6.5" fill={pal.accent} />
             )}
             {/* Eastern Arabic Number Label Inside Each Circular Node */}
             <text
@@ -1615,35 +1584,37 @@ export function CircularArrangementSvg({
 }
 
 // Register "circular-arrangement"
-registerVisualModel("circular-arrangement", ({ model }) => {
-  const meta = (model.meta ?? {}) as Record<string, unknown>;
-  const primary = model.count ?? 1;
-  const secondary = model.secondaryCount ?? 0;
-  const total = Math.max(1, primary + secondary);
+export function registerCircularArrangementVisualModel(): void {
+  registerVisualModel("circular-arrangement", ({ model }) => {
+    const meta = (model.meta ?? {}) as Record<string, unknown>;
+    const primary = model.count ?? 1;
+    const secondary = model.secondaryCount ?? 0;
+    const total = Math.max(1, primary + secondary);
 
-  return (
-    <div
-      className="inline-flex flex-col items-center gap-1"
-      data-visual-model="circular-arrangement"
-      data-count={formatEasternNumber(total)}
-    >
-      <CircularArrangementSvg
-        count={primary}
-        secondaryCount={secondary}
-        colorTheme={model.colorTheme ?? "violet"}
-        secondaryColorTheme={
-          (meta.secondaryColorTheme as ColorThemeId) ?? "amber"
-        }
-        itemMotif={
-          (meta.itemMotif as "star" | "flower" | "apple" | "gem") ?? "star"
-        }
-      />
-      <span className="text-xs font-bold text-slate-700">
-        {toEasternArabicNumerals(model.labelAr)}
-      </span>
-    </div>
-  );
-});
+    return (
+      <div
+        className="inline-flex flex-col items-center gap-1"
+        data-visual-model="circular-arrangement"
+        data-count={formatEasternNumber(total)}
+      >
+        <CircularArrangementSvg
+          count={primary}
+          secondaryCount={secondary}
+          colorTheme={model.colorTheme ?? "violet"}
+          secondaryColorTheme={
+            (meta.secondaryColorTheme as ColorThemeId) ?? "amber"
+          }
+          itemMotif={
+            (meta.itemMotif as "star" | "flower" | "apple" | "gem") ?? "star"
+          }
+        />
+        <span className="text-xs font-bold text-slate-700">
+          {toEasternArabicNumerals(model.labelAr)}
+        </span>
+      </div>
+    );
+  });
+}
 
 export function createDigitCardSpec(
   digit: number,
@@ -1662,80 +1633,4 @@ export function createDigitCardSpec(
   };
 }
 
-// Enhance "everyday-object" renderer to preserve `data-visual-model="everyday-object"` on grouped quantities
-// and highlight subitizable sub-groups (`secondaryCount`) when present (Lessons K-17..K-19).
-registerVisualModel("everyday-object", ({ model }) => {
-  const primary = model.count ?? 1;
-  const secondary = model.secondaryCount ?? 0;
-  const total = primary + secondary;
-
-  if (total <= 1) {
-    return (
-      <div
-        className="inline-flex flex-col items-center gap-1"
-        data-visual-model="everyday-object"
-        data-object-id={model.id}
-        data-count={formatEasternNumber(1)}
-      >
-        <EverydayObjectSvg objectId={model.id} size={model.size ?? "medium"} />
-        <span className="text-xs font-bold text-slate-700">
-          {toEasternArabicNumerals(model.labelAr)}
-        </span>
-      </div>
-    );
-  }
-
-  return (
-    <div
-      className="inline-flex flex-col items-center gap-1"
-      data-visual-model="everyday-object"
-      data-object-id={model.id}
-      data-count={formatEasternNumber(total)}
-    >
-      <div
-        className="flex flex-wrap items-center justify-center gap-1.5"
-        data-visual-model="everyday-object-group"
-        {...(secondary > 0
-          ? {
-              "data-subitize-parts": `${formatEasternNumber(
-                primary
-              )}+${formatEasternNumber(secondary)}`,
-            }
-          : {})}
-      >
-        <div
-          className={`flex items-center gap-1 ${
-            secondary > 0
-              ? "rounded-xl border border-dashed border-indigo-300 bg-indigo-50/40 px-1.5 py-0.5"
-              : ""
-          }`}
-        >
-          {Array.from({ length: primary }, (_, idx) => (
-            <EverydayObjectSvg
-              key={`p-${idx}`}
-              objectId={model.id}
-              size={model.size ?? "small"}
-            />
-          ))}
-        </div>
-        {secondary > 0 && (
-          <div className="flex items-center gap-1 rounded-xl border border-dashed border-amber-300 bg-amber-50/40 px-1.5 py-0.5">
-            {Array.from({ length: secondary }, (_, idx) => (
-              <EverydayObjectSvg
-                key={`s-${idx}`}
-                objectId={model.id}
-                size={model.size ?? "small"}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-      <span className="text-xs font-bold text-slate-700">
-        {toEasternArabicNumerals(model.labelAr)}
-      </span>
-    </div>
-  );
-});
-
-export { EVERYDAY_OBJECT_CATALOG, EverydayObjectSvg, getEverydayObjectById };
 export type { EverydayObjectId, VisualSize };

@@ -19,7 +19,6 @@ import {
 } from "@/visual-models/unit-2-models";
 import { VisualModelView } from "@/visual-models/registry";
 import {
-  registerExerciseArchetype,
   type ArchetypeGeneratorContext,
   type ArchetypeRenderProps,
 } from "@/archetypes/registry";
@@ -28,9 +27,7 @@ import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
 export type SequenceMode = "forward" | "backward" | "zero-take-away";
 
 export type SequenceVisualKind =
-  | "snap-cubes"
-  | "everyday-object"
-  | "five-frame";
+  "snap-cubes" | "everyday-object" | "five-frame";
 
 export interface SequenceStepInput {
   value: number;
@@ -95,13 +92,17 @@ function buildStepVisualModel(
   objectId: EverydayObjectId,
   crossedOutFrom?: number
 ): VisualModelSpec {
-  if (visualKind === "five-frame" || value === 0 || crossedOutFrom !== undefined) {
+  if (
+    visualKind === "five-frame" ||
+    value === 0 ||
+    crossedOutFrom !== undefined
+  ) {
     const startTotal =
       crossedOutFrom !== undefined
         ? Math.max(value, crossedOutFrom)
         : value === 0
-        ? 3
-        : value;
+          ? 3
+          : value;
     const crossedOut = Math.max(0, startTotal - value);
     return createFiveFrameSpec({
       count: startTotal,
@@ -172,8 +173,8 @@ function generateSequenceAndZeroExercise(
     ctx.lesson.lessonNumber === 24
       ? "zero-take-away"
       : ctx.lesson.lessonNumber === 23
-      ? "backward"
-      : "forward";
+        ? "backward"
+        : "forward";
 
   const sequenceMode: SequenceMode = params.sequenceMode ?? defaultMode;
 
@@ -182,8 +183,7 @@ function generateSequenceAndZeroExercise(
   const visualKind: SequenceVisualKind = params.visualKind ?? defaultVisualKind;
 
   const pickedObject =
-    params.objectId ??
-    ctx.rng.pickOne(EVERYDAY_OBJECT_CATALOG).id;
+    params.objectId ?? ctx.rng.pickOne(EVERYDAY_OBJECT_CATALOG).id;
 
   let rawSteps: SequenceStepInput[] = [];
 
@@ -194,25 +194,24 @@ function generateSequenceAndZeroExercise(
       params.numbers && params.numbers.length > 0
         ? params.numbers
         : sequenceMode === "zero-take-away"
-        ? [3, 2, 1, 0]
-        : sequenceMode === "backward"
-        ? [5, 4, 3, 2, 1]
-        : [1, 2, 3, 4, 5];
+          ? [3, 2, 1, 0]
+          : sequenceMode === "backward"
+            ? [5, 4, 3, 2, 1]
+            : [1, 2, 3, 4, 5];
 
     const defaultMissingCount =
       ctx.difficultyLevel === "Easy"
         ? 1
         : ctx.difficultyLevel === "Intermediate"
-        ? 2
-        : 2;
+          ? 2
+          : 2;
 
     let missingSet: Set<number>;
     if (params.missingValues && params.missingValues.length > 0) {
       missingSet = new Set(params.missingValues);
     } else if (sequenceMode === "zero-take-away") {
       // Always make 0 (and optionally 1) a target response in zero-take-away
-      const extraMissing =
-        ctx.difficultyLevel === "Easy" ? [0] : [1, 0];
+      const extraMissing = ctx.difficultyLevel === "Easy" ? [0] : [1, 0];
       missingSet = new Set(extraMissing);
     } else {
       // Pick non-first items to be missing so the starting anchor is visible
@@ -230,8 +229,7 @@ function generateSequenceAndZeroExercise(
       value: val,
       isMissing: missingSet.has(val),
       colorTheme: shuffledStepColors[idx % shuffledStepColors.length],
-      crossedOutFrom:
-        sequenceMode === "zero-take-away" ? startMax : undefined,
+      crossedOutFrom: sequenceMode === "zero-take-away" ? startMax : undefined,
     }));
   }
 
@@ -241,15 +239,15 @@ function generateSequenceAndZeroExercise(
     sequenceMode === "zero-take-away"
       ? "نأخذ ١ في كل مرة حتى يبقى صفر (٠)"
       : sequenceMode === "backward"
-      ? "عدّ تنازلي: ١ أقل في كل خطوة (٥ ← ١)"
-      : "عدّ تصاعدي: ١ أكثر في كل خطوة (١ ← ٥)";
+        ? "عدّ تنازلي: ١ أقل في كل خطوة (٥ ← ١)"
+        : "عدّ تصاعدي: ١ أكثر في كل خطوة (١ ← ٥)";
 
   const stepDeltaLabelAr =
     sequenceMode === "zero-take-away"
       ? "شطب ١ (١ أقل)"
       : sequenceMode === "backward"
-      ? "١ أقل"
-      : "١ أكثر";
+        ? "١ أقل"
+        : "١ أكثر";
 
   const steps: SequenceStepItem[] = rawSteps.map((step, idx) => {
     const val = Math.max(0, Math.min(5, step.value));
@@ -287,8 +285,7 @@ function generateSequenceAndZeroExercise(
       isMissing: Boolean(step.isMissing),
       stepDeltaLabelAr,
       stepNoteAr:
-        step.stepNoteAr ??
-        defaultStepNoteAr(sequenceMode, val, idx, prevVal),
+        step.stepNoteAr ?? defaultStepNoteAr(sequenceMode, val, idx, prevVal),
       visualModel,
       traceModel,
     };
@@ -324,29 +321,29 @@ function generateSequenceAndZeroExercise(
     sequenceMode === "zero-take-away"
       ? `تتبّع قصة أخذ العناصر واحداً تلو الآخر على لوحة الخمسة، وتتبّع الرقم المنقّط (٠) واكتب الأعداد المتبقية:`
       : sequenceMode === "backward"
-      ? `عدّ تنازلياً من اليمين إلى اليسار (١ أقل في كل خطوة)، ثم تتبّع واكتب الأعداد المفقودة في التسلسل:`
-      : `عدّ تصاعدياً من اليمين إلى اليسار (١ أكثر في كل خطوة)، ثم تتبّع واكتب الأعداد المفقودة في التسلسل:`;
+        ? `عدّ تنازلياً من اليمين إلى اليسار (١ أقل في كل خطوة)، ثم تتبّع واكتب الأعداد المفقودة في التسلسل:`
+        : `عدّ تصاعدياً من اليمين إلى اليسار (١ أكثر في كل خطوة)، ثم تتبّع واكتب الأعداد المفقودة في التسلسل:`;
 
   const defaultStrategyHintAr =
     sequenceMode === "zero-take-away"
       ? `ابدأ بعدد الأقراص الكلي على لوحة الخمسة واشطب قرصاً واحداً في كل مرة (${sequenceTextAr})؛ عندما تُشطب جميع الأقراص لا يبقى شيء ونكتبه بالرقم (٠).`
       : sequenceMode === "backward"
-      ? `في العدّ التنازلي (${sequenceTextAr}) ينقص كل عدد بمقدار (١ أقل) عن العدد الذي يسبقه؛ فمثلاً ٤ هو ١ أقل من ٥، و٣ هو ١ أقل من ٤.`
-      : `في العدّ التصاعدي (${sequenceTextAr}) يزيد كل عدد بمقدار (١ أكثر) على العدد الذي يسبقه؛ فمثلاً ٢ هو ١ أكثر من ١، و٣ هو ١ أكثر من ٢.`;
+        ? `في العدّ التنازلي (${sequenceTextAr}) ينقص كل عدد بمقدار (١ أقل) عن العدد الذي يسبقه؛ فمثلاً ٤ هو ١ أقل من ٥، و٣ هو ١ أقل من ٤.`
+        : `في العدّ التصاعدي (${sequenceTextAr}) يزيد كل عدد بمقدار (١ أكثر) على العدد الذي يسبقه؛ فمثلاً ٢ هو ١ أكثر من ١، و٣ هو ١ أكثر من ٢.`;
 
   const defaultReasoningPromptAr =
     sequenceMode === "zero-take-away"
       ? `إذا كان لدينا ٣ أقراص على لوحة الخمسة وشطبناها واحداً بعد الآخر (٣ ← ٢ ← ١ ← ٠)، فكم قرصاً يتبقّى في النهاية؟`
       : sequenceMode === "backward"
-      ? `ما العدد الذي يمثّل (١ أقل) من ٥ ويأتي قبله عند العدّ التنازلي؟ وما العدد الذي يمثّل (١ أقل) من ٤؟`
-      : `لماذا يزيد ارتفاع كل برج مكعبات في التسلسل التصاعدي؟ وما العدد الذي يمثّل (١ أكثر) من ٣ و(١ أكثر) من ٤؟`;
+        ? `ما العدد الذي يمثّل (١ أقل) من ٥ ويأتي قبله عند العدّ التنازلي؟ وما العدد الذي يمثّل (١ أقل) من ٤؟`
+        : `لماذا يزيد ارتفاع كل برج مكعبات في التسلسل التصاعدي؟ وما العدد الذي يمثّل (١ أكثر) من ٣ و(١ أكثر) من ٤؟`;
 
   const defaultReasoningAnswerAr =
     sequenceMode === "zero-take-away"
       ? `لا يتبقّى أي قرص، ونعبّر عن هذه الكمية بالعدد صفر (٠)`
       : sequenceMode === "backward"
-      ? `العدد ٤ هو (١ أقل) من ٥، والعدد ٣ هو (١ أقل) من ٤`
-      : `لأن كل عدد يزيد بمقدار (١ أكثر)؛ فالعدد ٤ هو ١ أكثر من ٣، والعدد ٥ هو ١ أكثر من ٤`;
+        ? `العدد ٤ هو (١ أقل) من ٥، والعدد ٣ هو (١ أقل) من ٤`
+        : `لأن كل عدد يزيد بمقدار (١ أكثر)؛ فالعدد ٤ هو ١ أكثر من ٣، والعدد ٥ هو ١ أكثر من ٤`;
 
   const data: SequenceAndZeroData = {
     kind: "SequenceAndZero",
@@ -370,8 +367,8 @@ function generateSequenceAndZeroExercise(
       sequenceMode === "zero-take-away"
         ? "العدد صفر (٠) وشطب العناصر"
         : sequenceMode === "backward"
-        ? "العدّ التنازلي من ٥ (١ أقل)"
-        : "العدّ التصاعدي حتى ٥ (١ أكثر)",
+          ? "العدّ التنازلي من ٥ (١ أقل)"
+          : "العدّ التصاعدي حتى ٥ (١ أكثر)",
     promptAr: ctx.spec.promptAr ?? defaultPromptAr,
     strategyHintAr: ctx.spec.strategyHintAr ?? defaultStrategyHintAr,
     visualModels,
@@ -394,7 +391,9 @@ function renderSequenceAndZeroExercise({
     >
       {/* Header Banner */}
       <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-indigo-200 bg-indigo-50/70 px-3.5 py-2 text-xs font-extrabold text-indigo-950">
-        <span>🔢 قاعدة التسلسل: {toEasternArabicNumerals(data.stepRuleBadgeAr)}</span>
+        <span>
+          🔢 قاعدة التسلسل: {toEasternArabicNumerals(data.stepRuleBadgeAr)}
+        </span>
         <span className="rounded-full bg-white px-2.5 py-0.5 text-[11px] font-bold text-slate-700 border border-indigo-200">
           الاتجاه: من اليمين إلى اليسار (⬅️)
         </span>
@@ -415,8 +414,8 @@ function renderSequenceAndZeroExercise({
                 isSolvedStep
                   ? "border-emerald-500 bg-emerald-50/90 shadow-xs"
                   : step.isMissing
-                  ? "border-dashed border-amber-500 bg-amber-50/50"
-                  : "border-slate-200 bg-white shadow-2xs"
+                    ? "border-dashed border-amber-500 bg-amber-50/50"
+                    : "border-slate-200 bg-white shadow-2xs"
               }`}
               data-sequence-step={formatEasternNumber(idx + 1)}
               data-step-value={step.valueAr}
@@ -504,7 +503,8 @@ function renderSequenceAndZeroExercise({
               ✍️ تدريب كتابة وتتبع العدد صفر (٠):
             </div>
             <p className="text-[11px] font-bold text-slate-700">
-              عندما نأخذ جميع العناصر ولا يتبقّى أي عنصر نسمّي الكمية «صفر» ونكتبها على شكل نقطة المعيّن (٠).
+              عندما نأخذ جميع العناصر ولا يتبقّى أي عنصر نسمّي الكمية «صفر»
+              ونكتبها على شكل نقطة المعيّن (٠).
             </p>
           </div>
           <VisualModelView model={data.zeroTraceModel} solved={isAnswerKey} />
@@ -538,5 +538,3 @@ export const sequenceAndZeroArchetype = {
   generate: generateSequenceAndZeroExercise,
   render: renderSequenceAndZeroExercise,
 };
-
-registerExerciseArchetype(sequenceAndZeroArchetype);

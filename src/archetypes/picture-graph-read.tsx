@@ -22,17 +22,13 @@ import {
 } from "@/visual-models/unit-2-models";
 import { VisualModelView } from "@/visual-models/registry";
 import {
-  registerExerciseArchetype,
   type ArchetypeGeneratorContext,
   type ArchetypeRenderProps,
 } from "@/archetypes/registry";
 import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
 
 export type PictureGraphCountsPattern =
-  | "increasing-by-1"
-  | "decreasing-by-1"
-  | "with-equal-pair"
-  | "mixed";
+  "increasing-by-1" | "decreasing-by-1" | "with-equal-pair" | "mixed";
 
 export type PictureGraphResponseMode = "trace" | "write" | "trace-and-write";
 
@@ -184,8 +180,8 @@ function deriveComparisonFromCategories(
     relation === "نفس العدد"
       ? `نفس العدد: «${pairB.labelAr}» (${pairB.countAr}) و«${pairA.labelAr}» (${pairA.countAr}) لهما نفس العدد`
       : relation === "١ أكثر"
-      ? `١ أكثر: عدد «${pairB.labelAr}» (${pairB.countAr}) هو ١ أكثر من «${pairA.labelAr}» (${pairA.countAr})`
-      : `١ أقل: عدد «${pairB.labelAr}» (${pairB.countAr}) هو ١ أقل من «${pairA.labelAr}» (${pairA.countAr})`;
+        ? `١ أكثر: عدد «${pairB.labelAr}» (${pairB.countAr}) هو ١ أكثر من «${pairA.labelAr}» (${pairA.countAr})`
+        : `١ أقل: عدد «${pairB.labelAr}» (${pairB.countAr}) هو ١ أقل من «${pairA.labelAr}» (${pairA.countAr})`;
 
   return { relation, promptAr, answerAr };
 }
@@ -195,7 +191,8 @@ function generatePictureGraphReadExercise(
 ): Exercise {
   const params = (ctx.spec.params ?? {}) as PictureGraphReadBlueprintParams;
   const orientation: PictureGraphOrientation =
-    params.orientation ?? (ctx.lesson.lessonNumber === 21 ? "vertical" : "horizontal");
+    params.orientation ??
+    (ctx.lesson.lessonNumber === 21 ? "vertical" : "horizontal");
 
   const defaultResponseMode: PictureGraphResponseMode =
     ctx.difficultyLevel === "Advanced" ? "write" : "trace-and-write";
@@ -206,8 +203,8 @@ function generatePictureGraphReadExercise(
     ctx.difficultyLevel === "Easy"
       ? 3
       : ctx.difficultyLevel === "Intermediate"
-      ? 3
-      : 4;
+        ? 3
+        : 4;
   const categoryCount = Math.max(
     2,
     Math.min(4, params.categoryCount ?? defaultCategoryCount)
@@ -380,7 +377,10 @@ function renderPictureGraphReadExercise({
             <div className="flex items-center gap-2">
               {data.responseMode !== "write" && (
                 <div className="scale-90">
-                  <VisualModelView model={cat.traceModel} solved={isAnswerKey} />
+                  <VisualModelView
+                    model={cat.traceModel}
+                    solved={isAnswerKey}
+                  />
                 </div>
               )}
 
@@ -435,7 +435,9 @@ function renderPictureGraphReadExercise({
                       }
                     : {})}
                 >
-                  {isSelected ? `✓ ${toEasternArabicNumerals(choice)}` : toEasternArabicNumerals(choice)}
+                  {isSelected
+                    ? `✓ ${toEasternArabicNumerals(choice)}`
+                    : toEasternArabicNumerals(choice)}
                 </span>
               );
             })}
@@ -462,5 +464,3 @@ export const pictureGraphReadArchetype = {
   generate: generatePictureGraphReadExercise,
   render: renderPictureGraphReadExercise,
 };
-
-registerExerciseArchetype(pictureGraphReadArchetype);
