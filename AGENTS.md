@@ -13,3 +13,7 @@ Uses the five default canonical triage role strings (`needs-triage`, `needs-info
 ### Domain docs
 
 Single-context layout (`GLOSSARY.md` and `docs/adr/` at the repo root). See `docs/agents/domain.md`.
+
+### Environment
+
+Headless browser testing uses Playwright with `channel: 'msedge'` — Microsoft Edge is installed; Chromium is not.
