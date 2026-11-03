@@ -310,4 +310,149 @@ describe("Ticket 06 — Zero-Overflow Printable A4 Reading Worksheets", () => {
       expect(html).toContain("الصفحة ١/١");
     });
   });
+
+  describe("Tashkeel-Aware Print, Story Toggle, and Level Typography (Ticket 04)", () => {
+    it("renders tashkeel level badge in the header reflecting tashkeelMode prop", () => {
+      const htmlFull = renderToString(
+        React.createElement(PrintableReadingSheet, {
+          level: level1,
+          story: standardStory,
+          tashkeelMode: "full",
+        })
+      );
+      expect(htmlFull).toContain("تشكيل كامل");
+
+      const htmlPartial = renderToString(
+        React.createElement(PrintableReadingSheet, {
+          level: level1,
+          story: standardStory,
+          tashkeelMode: "partial",
+        })
+      );
+      expect(htmlPartial).toContain("تشكيل جزئي");
+
+      const htmlNone = renderToString(
+        React.createElement(PrintableReadingSheet, {
+          level: level1,
+          story: standardStory,
+          tashkeelMode: "none",
+        })
+      );
+      expect(htmlNone).toContain("بدون تشكيل");
+
+      // Defaults to "تشكيل كامل" when omitted
+      const htmlDefault = renderToString(
+        React.createElement(PrintableReadingSheet, {
+          level: level1,
+          story: standardStory,
+        })
+      );
+      expect(htmlDefault).toContain("تشكيل كامل");
+
+      // Numerals check
+      expect(findWesternNumeralsInRenderedHtml(htmlFull)).toEqual([]);
+      expect(findWesternNumeralsInRenderedHtml(htmlNone)).toEqual([]);
+    });
+
+    it("transforms story text according to tashkeelMode", () => {
+      const htmlNone = renderToString(
+        React.createElement(PrintableReadingSheet, {
+          level: level1,
+          story: standardStory,
+          tashkeelMode: "none",
+        })
+      );
+
+      // In "none" mode, diacritics are stripped from the story text
+      expect(htmlNone).toContain("وقف عصفور صغير");
+      expect(htmlNone).not.toContain("وَقَفَ عُصْفُورٌ صَغِيرٌ");
+
+      const htmlFull = renderToString(
+        React.createElement(PrintableReadingSheet, {
+          level: level1,
+          story: standardStory,
+          tashkeelMode: "full",
+        })
+      );
+      expect(htmlFull).toContain("وَقَفَ عُصْفُورٌ صَغِيرٌ");
+    });
+
+    it("omits story section when includeStoryText is false while preserving QAR and Grammar", () => {
+      const htmlWithoutStory = renderToString(
+        React.createElement(PrintableReadingSheet, {
+          level: level1,
+          story: standardStory,
+          includeStoryText: false,
+        })
+      );
+
+      // Story section is omitted
+      expect(htmlWithoutStory).not.toContain("📖 نص القصة");
+      expect(htmlWithoutStory).not.toContain("وَقَفَ عُصْفُورٌ");
+
+      // QAR and Grammar sections remain intact
+      expect(htmlWithoutStory).toContain("🔍 أسئلة الفهم");
+      expect(htmlWithoutStory).toContain("🧩 معمل اللغة");
+      expect(htmlWithoutStory).toContain("كيف أحسست بأدائي؟");
+
+      // Numerals check
+      expect(findWesternNumeralsInRenderedHtml(htmlWithoutStory)).toEqual([]);
+    });
+
+    it("scales story text typography based on Reading Level (22px for L1, 19px for L2, 16px for L3)", () => {
+      const level2 = {
+        ...level1,
+        id: "level-2",
+        levelNumber: 2,
+        titleAr: "المستوى الثاني",
+      };
+      const level3 = {
+        ...level1,
+        id: "level-3",
+        levelNumber: 3,
+        titleAr: "المستوى الثالث",
+      };
+
+      const htmlL1 = renderToString(
+        React.createElement(PrintableReadingSheet, {
+          level: level1,
+          story: standardStory,
+        })
+      );
+      expect(htmlL1).toContain("text-[22px]");
+      expect(htmlL1).toContain("leading-[2.6]");
+
+      const htmlL2 = renderToString(
+        React.createElement(PrintableReadingSheet, {
+          level: level2,
+          story: standardStory,
+        })
+      );
+      expect(htmlL2).toContain("text-[19px]");
+      expect(htmlL2).toContain("leading-[2.3]");
+
+      const htmlL3 = renderToString(
+        React.createElement(PrintableReadingSheet, {
+          level: level3,
+          story: standardStory,
+        })
+      );
+      expect(htmlL3).toContain("text-[16px]");
+      expect(htmlL3).toContain("leading-[2.1]");
+
+      expect(findWesternNumeralsInRenderedHtml(htmlL1)).toEqual([]);
+      expect(findWesternNumeralsInRenderedHtml(htmlL2)).toEqual([]);
+      expect(findWesternNumeralsInRenderedHtml(htmlL3)).toEqual([]);
+    });
+
+    it("renders 'مع نص القصة' checkbox inline next to the print button in StoryCycleRunnerPage", async () => {
+      const pageComponent = await StoryCycleRunnerPage({
+        params: Promise.resolve({ levelId: "level-1", storyId: "1" }),
+      });
+      const html = renderToString(pageComponent);
+
+      expect(html).toContain("مع نص القصة");
+      expect(html).toMatch(/<input[^>]*type="checkbox"[^>]*checked[^>]*>/);
+    });
+  });
 });

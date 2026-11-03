@@ -5,6 +5,7 @@ import type {
   ReadingStory,
 } from "@/domain/reading-types";
 import { toEasternArabicNumerals } from "@/lib/numerals";
+import { transformTashkeel, type TashkeelMode } from "@/lib/reading-scaffold";
 
 const QAR_TIER_CONFIG: Record<QARTier, { label: string; lines: number }> = {
   direct: { label: "مباشر", lines: 1 },
@@ -12,14 +13,39 @@ const QAR_TIER_CONFIG: Record<QARTier, { label: string; lines: number }> = {
   creative: { label: "إبداعي", lines: 3 },
 };
 
+const TASHKEEL_BADGE_LABELS: Record<TashkeelMode, string> = {
+  full: "تشكيل كامل",
+  partial: "تشكيل جزئي",
+  none: "بدون تشكيل",
+};
+
+const LEVEL_TYPOGRAPHY: Record<number, string> = {
+  1: "text-[22px] leading-[2.6]",
+  2: "text-[19px] leading-[2.3]",
+  3: "text-[16px] leading-[2.1]",
+};
+
+function getStoryTypographyClass(levelNumber?: number): string {
+  return (levelNumber && LEVEL_TYPOGRAPHY[levelNumber]) || LEVEL_TYPOGRAPHY[2];
+}
+
 interface Props {
   level: ReadingLevel;
   story: ReadingStory;
+  tashkeelMode?: TashkeelMode;
+  includeStoryText?: boolean;
 }
 
-export default function PrintableReadingSheet({ level, story }: Props) {
+export default function PrintableReadingSheet({
+  level,
+  story,
+  tashkeelMode = "full",
+  includeStoryText = true,
+}: Props) {
   const isFreeReading = story.type === "free_reading";
   const isTransferTest = story.type === "transfer_test";
+  const renderedStoryText = transformTashkeel(story.text, tashkeelMode);
+  const typographyClass = getStoryTypographyClass(level.levelNumber);
 
   return (
     <article
@@ -39,6 +65,9 @@ export default function PrintableReadingSheet({ level, story }: Props) {
             </span>
             <span className="text-sm font-black text-slate-900">
               أُسُس — نادي القراءة والفهم القرائي — {level.titleAr}
+            </span>
+            <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px] font-black border border-slate-200">
+              {TASHKEEL_BADGE_LABELS[tashkeelMode]}
             </span>
             {isTransferTest && (
               <span className="px-2 py-0.5 rounded bg-slate-800 text-white text-[10px] font-black">
@@ -82,17 +111,21 @@ export default function PrintableReadingSheet({ level, story }: Props) {
       {/* Free Reading Printable Layout */}
       {isFreeReading ? (
         <div className="flex flex-col justify-between h-[245mm]">
-          <div className="border border-amber-300 rounded-2xl p-8 bg-amber-50/20 text-center my-auto">
-            <div className="text-xs font-extrabold text-amber-900 mb-4 inline-block bg-amber-100 px-3 py-1 rounded-full border border-amber-300">
-              🌟 جلسة قراءة حرة للمتعة الأدبية الخالصة
+          {includeStoryText && (
+            <div className="border border-amber-300 rounded-2xl p-8 bg-amber-50/20 text-center my-auto">
+              <div className="text-xs font-extrabold text-amber-900 mb-4 inline-block bg-amber-100 px-3 py-1 rounded-full border border-amber-300">
+                🌟 جلسة قراءة حرة للمتعة الأدبية الخالصة
+              </div>
+              <h1 className="text-2xl font-black font-serif text-slate-900 mb-8">
+                {story.titleAr ?? story.title}
+              </h1>
+              <div
+                className={`font-serif ${typographyClass} text-slate-900 text-justify max-w-xl mx-auto`}
+              >
+                {renderedStoryText}
+              </div>
             </div>
-            <h1 className="text-2xl font-black font-serif text-slate-900 mb-8">
-              {story.titleAr ?? story.title}
-            </h1>
-            <div className="font-serif text-2xl leading-[2.6] text-slate-900 text-justify max-w-xl mx-auto">
-              {story.text}
-            </div>
-          </div>
+          )}
           <footer className="text-center text-[11px] text-slate-400 font-bold border-t border-slate-200 pt-3">
             منصة أُسُس التعليمية — نادي القراءة والفهم القرائي
           </footer>
@@ -101,19 +134,23 @@ export default function PrintableReadingSheet({ level, story }: Props) {
         /* Standard & Transfer Test Printable Layout (Story + QAR + Grammar Lab) */
         <div className="space-y-4">
           {/* 1. Story Text Box */}
-          <section className="border border-emerald-200 border-l-4 border-l-emerald-400 rounded-xl p-4 bg-emerald-50/40 break-inside-avoid">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-black text-slate-800">
-                📖 نص القصة: «{story.titleAr ?? story.title}»
-              </span>
-              <span className="text-[10px] font-bold text-slate-500">
-                ({toEasternArabicNumerals(story.wordCount)} كلمة)
-              </span>
-            </div>
-            <div className="font-serif text-[17px] leading-[2.1] text-slate-900 text-justify">
-              {story.text}
-            </div>
-          </section>
+          {includeStoryText && (
+            <section className="border border-emerald-200 border-l-4 border-l-emerald-400 rounded-xl p-4 bg-emerald-50/40 break-inside-avoid">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-black text-slate-800">
+                  📖 نص القصة: «{story.titleAr ?? story.title}»
+                </span>
+                <span className="text-[10px] font-bold text-slate-500">
+                  ({toEasternArabicNumerals(story.wordCount)} كلمة)
+                </span>
+              </div>
+              <div
+                className={`font-serif ${typographyClass} text-slate-900 text-justify`}
+              >
+                {renderedStoryText}
+              </div>
+            </section>
+          )}
 
           {/* 2. QAR Comprehension Questions */}
           <section className="border border-sky-200 border-l-4 border-l-sky-400 rounded-xl p-4 bg-sky-50/40 break-inside-avoid">

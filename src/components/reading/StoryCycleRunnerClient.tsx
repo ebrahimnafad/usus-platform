@@ -4,8 +4,8 @@ import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import type { ReadingLevel, ReadingStory } from "@/domain/reading-types";
 import {
-  stripTashkeel,
-  toPartialTashkeel,
+  transformTashkeel,
+  type TashkeelMode,
   highlightTextSnippet,
   highlightSightWords,
 } from "@/lib/reading-scaffold";
@@ -65,9 +65,7 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
   const isTransferTest = story.type === "transfer_test";
 
   const [activeStation, setActiveStation] = useState<number>(1);
-  const [tashkeelMode, setTashkeelMode] = useState<"full" | "partial" | "none">(
-    "full"
-  );
+  const [tashkeelMode, setTashkeelMode] = useState<TashkeelMode>("full");
   const [sightWordMode, setSightWordMode] = useState<
     "colored" | "underlined" | "off"
   >(isTransferTest ? "off" : "colored");
@@ -81,12 +79,11 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
     Record<string, boolean>
   >({});
   const [shieldOpen, setShieldOpen] = useState<boolean>(false);
+  const [includeStoryText, setIncludeStoryText] = useState<boolean>(true);
 
   // Compute story text based on active Tashkeel mode
   const displayedStoryText = useMemo(() => {
-    if (tashkeelMode === "none") return stripTashkeel(story.text);
-    if (tashkeelMode === "partial") return toPartialTashkeel(story.text);
-    return story.text;
+    return transformTashkeel(story.text, tashkeelMode);
   }, [story.text, tashkeelMode]);
 
   // For Station 2: highlight sight words (locked off for transfer tests)
@@ -202,6 +199,15 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
               <span>👩‍🏫</span>
               <span>درع المعلم</span>
             </button>
+            <label className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={includeStoryText}
+                onChange={(e) => setIncludeStoryText(e.target.checked)}
+                className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 w-3.5 h-3.5 cursor-pointer"
+              />
+              <span>مع نص القصة</span>
+            </label>
             <button
               onClick={() => window.print()}
               className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-xs transition"
@@ -383,7 +389,12 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
       />
 
       {/* Printable A4 Reading Sheet */}
-      <PrintableReadingSheet level={level} story={story} />
+      <PrintableReadingSheet
+        level={level}
+        story={story}
+        tashkeelMode={tashkeelMode}
+        includeStoryText={includeStoryText}
+      />
     </div>
   );
 }

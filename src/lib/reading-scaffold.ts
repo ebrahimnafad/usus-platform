@@ -24,6 +24,20 @@ export function toPartialTashkeel(text: string): string {
   return text.replace(/[\u064B-\u0652\u0670]+(?=[\s.,!؟;:؛)]|$)/g, "");
 }
 
+export type TashkeelMode = "full" | "partial" | "none";
+
+/**
+ * Transforms Arabic text according to the active Tashkeel mode.
+ */
+export function transformTashkeel(
+  text: string,
+  mode: TashkeelMode = "full"
+): string {
+  if (mode === "none") return stripTashkeel(text);
+  if (mode === "partial") return toPartialTashkeel(text);
+  return text;
+}
+
 /**
  * Normalizes text for fuzzy snippet matching (strips diacritics, normalizes alifs).
  */

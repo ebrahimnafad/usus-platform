@@ -4,20 +4,20 @@
 
 **Blocked by:** 01: Print Isolation (needs the clean print surface), 02: Colored Sections (story section styling must exist before typography scaling is applied to it).
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] `PrintableReadingSheet` accepts a `tashkeelMode` prop (`"full" | "partial" | "none"`) and renders the story text with the corresponding tashkeel transformation
-- [ ] The header displays a tashkeel level badge (e.g., "تشكيل كامل", "تشكيل جزئي", "بدون تشكيل") reflecting the passed mode
-- [ ] `PrintableReadingSheet` accepts an `includeStoryText` prop — when `false`, the 📖 Story section is omitted entirely; QAR and Grammar sections still render
-- [ ] `StoryCycleRunnerClient` renders a "مع نص القصة" checkbox inline next to the 🖨️ print button, default checked
-- [ ] The checkbox state is wired as the `includeStoryText` prop to `PrintableReadingSheet`
-- [ ] The existing `tashkeelMode` state in `StoryCycleRunnerClient` is passed through to `PrintableReadingSheet`
-- [ ] Story text renders at 22px / line-height 2.6 when the level is Level 1
-- [ ] Story text renders at 19px / line-height 2.3 when the level is Level 2
-- [ ] Story text renders at 16px / line-height 2.1 when the level is Level 3
-- [ ] The tashkeel text transformation logic is extracted into a shared utility (not duplicated between station components and the printable)
-- [ ] New test: render with `tashkeelMode="full"` → assert "تشكيل كامل" badge in HTML
-- [ ] New test: render with `tashkeelMode="none"` → assert "بدون تشكيل" badge in HTML
-- [ ] New test: render with `includeStoryText={false}` → assert story section absent, QAR and grammar present
-- [ ] New test: render with Level 1 → assert `text-[22px]` class on story text container; Level 3 → assert `text-[16px]`
-- [ ] Eastern Arabic Numerals invariant holds
+- [x] `PrintableReadingSheet` accepts a `tashkeelMode` prop (`"full" | "partial" | "none"`) and renders the story text with the corresponding tashkeel transformation
+- [x] The header displays a tashkeel level badge (e.g., "تشكيل كامل", "تشكيل جزئي", "بدون تشكيل") reflecting the passed mode
+- [x] `PrintableReadingSheet` accepts an `includeStoryText` prop — when `false`, the 📖 Story section is omitted entirely; QAR and Grammar sections still render
+- [x] `StoryCycleRunnerClient` renders a "مع نص القصة" checkbox inline next to the 🖨️ print button, default checked
+- [x] The checkbox state is wired as the `includeStoryText` prop to `PrintableReadingSheet`
+- [x] The existing `tashkeelMode` state in `StoryCycleRunnerClient` is passed through to `PrintableReadingSheet`
+- [x] Story text renders at 22px / line-height 2.6 when the level is Level 1
+- [x] Story text renders at 19px / line-height 2.3 when the level is Level 2
+- [x] Story text renders at 16px / line-height 2.1 when the level is Level 3
+- [x] The tashkeel text transformation logic is extracted into a shared utility (not duplicated between station components and the printable)
+- [x] New test: render with `tashkeelMode="full"` → assert "تشكيل كامل" badge in HTML
+- [x] New test: render with `tashkeelMode="none"` → assert "بدون تشكيل" badge in HTML
+- [x] New test: render with `includeStoryText={false}` → assert story section absent, QAR and grammar present
+- [x] New test: render with Level 1 → assert `text-[22px]` class on story text container; Level 3 → assert `text-[16px]`
+- [x] Eastern Arabic Numerals invariant holds
