@@ -6,31 +6,22 @@ import type {
   Grade,
   GradeId,
   Unit,
-  ViewMode,
   WorksheetDifficultyMode,
 } from "@/domain/types";
 import { WorksheetSurface } from "@/components/worksheet/WorksheetSurface";
 import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
+import {
+  VALID_GRADES,
+  VALID_DIFFICULTY_MODES,
+  VALID_VIEW_MODES,
+  ZOOM_LEVELS,
+  resolveStudioStateFromSearchParams,
+  type StudioResolvedState,
+  type ViewMode,
+  type StudioSearchParamsInput,
+} from "@/lib/studio-state";
 
-export interface StudioSearchParamsInput {
-  grade?: string;
-  lesson?: string | number;
-  seed?: string;
-  difficulty?: string;
-  view?: string;
-  q?: string;
-  zoom?: string | number;
-}
-
-export interface StudioResolvedState {
-  grade: GradeId;
-  lessonNumber: number;
-  seed: string;
-  difficultyLevel: WorksheetDifficultyMode;
-  viewMode: ViewMode;
-  searchQuery: string;
-  zoomPercent: number;
-}
+export type { StudioResolvedState, ViewMode, StudioSearchParamsInput };
 
 export interface TeacherStudioProps {
   grades: Grade[];
@@ -44,22 +35,7 @@ export interface TeacherStudioProps {
 
 export type TeacherStudioClientProps = TeacherStudioProps;
 
-export const VALID_GRADES: readonly GradeId[] = ["K", "1", "2", "3", "4", "5"];
-
-export const VALID_DIFFICULTY_MODES: readonly WorksheetDifficultyMode[] = [
-  "scaffolded",
-  "Easy",
-  "Intermediate",
-  "Advanced",
-];
-
-export const VALID_VIEW_MODES: readonly ViewMode[] = [
-  "worksheet",
-  "answer-key",
-  "teacher-notes",
-];
-
-export const ZOOM_LEVELS: readonly number[] = [75, 90, 100, 115, 125];
+export { resolveStudioStateFromSearchParams };
 
 export const DIFFICULTY_OPTIONS: Array<{
   value: WorksheetDifficultyMode;
@@ -82,55 +58,6 @@ export function formatGradePillLabelAr(grade: Grade): string {
   }
   const numAr = formatEasternNumber(Number(grade.id));
   return `الصف ${numAr} (${grade.labelAr})`;
-}
-
-/**
- * Normalizes and validates raw URL search parameters into a canonical StudioResolvedState.
- */
-export function resolveStudioStateFromSearchParams(
-  raw: StudioSearchParamsInput = {}
-): StudioResolvedState {
-  const grade: GradeId = VALID_GRADES.includes(raw.grade as GradeId)
-    ? (raw.grade as GradeId)
-    : "K";
-
-  const parsedLesson =
-    typeof raw.lesson === "number"
-      ? raw.lesson
-      : parseInt(String(raw.lesson ?? "1"), 10);
-  const lessonNumber =
-    Number.isFinite(parsedLesson) && parsedLesson >= 1 && parsedLesson <= 135
-      ? parsedLesson
-      : 1;
-
-  const seed = String(raw.seed ?? "").trim() || "K1-2026";
-
-  const difficultyLevel: WorksheetDifficultyMode =
-    VALID_DIFFICULTY_MODES.includes(raw.difficulty as WorksheetDifficultyMode)
-      ? (raw.difficulty as WorksheetDifficultyMode)
-      : "scaffolded";
-
-  const viewMode: ViewMode = VALID_VIEW_MODES.includes(raw.view as ViewMode)
-    ? (raw.view as ViewMode)
-    : "worksheet";
-
-  const searchQuery = String(raw.q ?? "").trim();
-
-  const parsedZoom =
-    typeof raw.zoom === "number"
-      ? raw.zoom
-      : parseInt(String(raw.zoom ?? "100"), 10);
-  const zoomPercent = ZOOM_LEVELS.includes(parsedZoom) ? parsedZoom : 100;
-
-  return {
-    grade,
-    lessonNumber,
-    seed,
-    difficultyLevel,
-    viewMode,
-    searchQuery,
-    zoomPercent,
-  };
 }
 
 /**
@@ -368,10 +295,11 @@ export function TeacherStudio({
     [grades, selectedGradeId]
   );
 
-  const [expandedUnitNumbers, setExpandedUnitNumbers] = useState<number[]>(() =>
-    expandAllUnitsByDefault
-      ? selectedGrade.units.map((u) => u.unitNumber)
-      : [initialBundle.unit.unitNumber]
+  const [expandedUnitNumbers, setExpandedUnitNumbers] = useState<number[]>(
+    () =>
+      expandAllUnitsByDefault
+        ? selectedGrade.units.map((u) => u.unitNumber)
+        : [initialBundle.unit.unitNumber]
   );
 
   const [searchQuery, setSearchQuery] = useState<string>(initialSearchQuery);
@@ -485,7 +413,11 @@ export function TeacherStudio({
           <label className="mb-1.5 block text-xs font-extrabold text-slate-700">
             الصف الدراسي:
           </label>
-          <div className="grid grid-cols-2 gap-1.5" role="group" aria-label="اختيار الصف الدراسي">
+          <div
+            className="grid grid-cols-2 gap-1.5"
+            role="group"
+            aria-label="اختيار الصف الدراسي"
+          >
             {grades.map((g) => {
               const active = g.id === selectedGradeId;
               return (
@@ -528,7 +460,11 @@ export function TeacherStudio({
             <span className="mb-1.5 block text-xs font-extrabold text-indigo-950">
               مستوى الصعوبة:
             </span>
-            <div className="grid grid-cols-4 gap-1" role="group" aria-label="مستوى الصعوبة">
+            <div
+              className="grid grid-cols-4 gap-1"
+              role="group"
+              aria-label="مستوى الصعوبة"
+            >
               {DIFFICULTY_OPTIONS.map((opt) => {
                 const isSelected = initialBundle.difficultyMode === opt.value;
                 return (

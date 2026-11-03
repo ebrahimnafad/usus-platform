@@ -3,9 +3,9 @@ import { getCurriculumCatalog } from "@/curriculum/catalog";
 import { generateWorksheet } from "@/engine/worksheet-engine";
 import {
   TeacherStudio,
-  resolveStudioStateFromSearchParams,
   type StudioSearchParamsInput,
 } from "@/components/studio/TeacherStudio";
+import { resolveStudioStateFromSearchParams } from "@/lib/studio-state";
 
 export default async function HomePage({
   searchParams,

@@ -1,12 +1,6 @@
 import type { GradeId, WorksheetDifficultyMode } from "@/domain/types";
-import {
-  VALID_DIFFICULTY_MODES,
-  VALID_GRADES,
-} from "@/components/studio/TeacherStudio";
-import {
-  exportWorksheetPdf,
-  type PrintableViewMode,
-} from "@/pdf/pdf-exporter";
+import { VALID_DIFFICULTY_MODES, VALID_GRADES } from "@/lib/studio-state";
+import { exportWorksheetPdf, type PrintableViewMode } from "@/pdf/pdf-exporter";
 
 export async function GET(request: Request): Promise<Response> {
   const url = new URL(request.url);
