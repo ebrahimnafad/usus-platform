@@ -10,6 +10,7 @@ import {
   highlightSightWords,
 } from "@/lib/reading-scaffold";
 import { toEasternArabicNumerals } from "@/lib/numerals";
+import TeacherShieldDrawer from "./TeacherShieldDrawer";
 
 interface Props {
   level: ReadingLevel;
@@ -51,13 +52,16 @@ const STATIONS = [
 ] as const;
 
 export default function StoryCycleRunnerClient({ level, story }: Props) {
+  const isFreeReading = story.type === "free_reading";
+  const isTransferTest = story.type === "transfer_test";
+
   const [activeStation, setActiveStation] = useState<number>(1);
   const [tashkeelMode, setTashkeelMode] = useState<"full" | "partial" | "none">(
-    "full"
+    isTransferTest ? "full" : "full"
   );
   const [sightWordMode, setSightWordMode] = useState<
     "colored" | "underlined" | "off"
-  >("colored");
+  >(isTransferTest ? "off" : "colored");
   const [activeEvidenceSnippet, setActiveEvidenceSnippet] = useState<
     string | null
   >(null);
@@ -68,6 +72,7 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
     Record<string, boolean>
   >({});
   const [pinnedExpanded, setPinnedExpanded] = useState<boolean>(false);
+  const [shieldOpen, setShieldOpen] = useState<boolean>(false);
 
   // Compute story text based on active Tashkeel mode
   const displayedStoryText = useMemo(() => {
@@ -76,14 +81,20 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
     return story.text;
   }, [story.text, tashkeelMode]);
 
-  // For Station 2: highlight sight words
+  // For Station 2: highlight sight words (locked off for transfer tests)
   const station2Html = useMemo(() => {
+    if (isTransferTest) return displayedStoryText;
     return highlightSightWords(
       displayedStoryText,
       story.targetSightWords,
       sightWordMode
     );
-  }, [displayedStoryText, story.targetSightWords, sightWordMode]);
+  }, [
+    displayedStoryText,
+    story.targetSightWords,
+    sightWordMode,
+    isTransferTest,
+  ]);
 
   // For pinned story in Stations 3–6: highlight active evidence snippet
   const pinnedStoryHtml = useMemo(() => {
@@ -103,9 +114,130 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
     setActiveEvidenceSnippet((prev) => (prev === snippet ? null : snippet));
   };
 
-  // Find next story link
   const nextStoryNumber = story.storyNumber < 12 ? story.storyNumber + 1 : null;
 
+  // RENDER VARIANT 1: FREE READING NOOK (Stories 4 & 10)
+  if (isFreeReading) {
+    return (
+      <div className="min-h-screen bg-[#fcf9f2] text-slate-900 pb-24" dir="rtl">
+        {/* Top Navigation Bar */}
+        <header className="sticky top-0 z-30 bg-[#fcf9f2]/95 backdrop-blur border-b border-amber-200/80 px-4 sm:px-8 py-3 no-print">
+          <div className="max-w-5xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Link
+                href="/"
+                className="flex items-center gap-2 group focus:outline-none"
+                title="العودة إلى بوابة أُسُس"
+              >
+                <div className="w-9 h-9 rounded-xl bg-amber-600 flex items-center justify-center text-white font-extrabold shadow-sm group-hover:bg-amber-700 transition">
+                  أُ
+                </div>
+                <span className="font-extrabold text-lg text-slate-800">
+                  أُسُس
+                </span>
+              </Link>
+              <span className="text-amber-300 font-bold">/</span>
+              <nav className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-amber-900/60">
+                <Link href="/" className="hover:text-amber-900 transition">
+                  الرئيسية
+                </Link>
+                <span className="text-amber-300">›</span>
+                <Link
+                  href="/reading"
+                  className="hover:text-amber-900 transition"
+                >
+                  القراءة
+                </Link>
+                <span className="text-amber-300">›</span>
+                <Link
+                  href={`/reading/level/${level.id}`}
+                  className="hover:text-amber-900 transition"
+                >
+                  {level.titleAr}
+                </Link>
+                <span className="text-amber-300">›</span>
+                <span className="text-amber-900 bg-amber-100 px-2.5 py-0.5 rounded-lg border border-amber-300">
+                  🌟 ركن القراءة الهادئة
+                </span>
+              </nav>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShieldOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-950 font-extrabold text-xs transition border border-amber-300 shadow-2xs"
+              >
+                <span>👩‍🏫</span>
+                <span>درع المعلم</span>
+              </button>
+              <button
+                onClick={() => window.print()}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white hover:bg-amber-50 text-amber-900 font-extrabold text-xs transition border border-amber-200"
+                title="طباعة ورقة العمل"
+              >
+                <span>🖨️</span>
+                <span>طباعة ورقة العمل</span>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        {/* Reading Nook Reading Surface */}
+        <main className="max-w-3xl mx-auto px-4 sm:px-8 pt-10 text-center">
+          <div className="mb-8">
+            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-100 text-amber-950 text-xs font-black border border-amber-300 mb-3">
+              <span>🌟</span>
+              <span>ركن القراءة الهادئة</span>
+            </span>
+            <p className="text-xs text-amber-800/80 font-bold">
+              جلسة استمتاع أدبي حر للمتعة — لا أسئلة، ولا تدريبات، ولا مقاطعات
+            </p>
+          </div>
+
+          <article className="bg-white/90 border-2 border-amber-200/90 rounded-3xl p-8 sm:p-14 shadow-sm text-center relative overflow-hidden">
+            <div className="w-12 h-12 bg-amber-100 text-amber-800 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-6">
+              📖
+            </div>
+            <h1 className="text-2xl sm:text-4xl font-black text-slate-900 mb-10 font-serif">
+              {story.titleAr ?? story.title}
+            </h1>
+            <div className="font-serif text-2xl sm:text-3xl leading-[2.5] text-slate-800 text-justify max-w-2xl mx-auto">
+              {story.text}
+            </div>
+
+            <div className="mt-12 pt-8 border-t border-amber-100 flex flex-col sm:flex-row items-center justify-center gap-3 no-print">
+              <Link
+                href={
+                  nextStoryNumber
+                    ? `/reading/level/${level.id}/story/${nextStoryNumber}`
+                    : `/reading/level/${level.id}`
+                }
+                className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-extrabold text-sm transition shadow-sm"
+              >
+                أتممت القراءة 🎉
+              </Link>
+              <Link
+                href={`/reading/level/${level.id}`}
+                className="w-full sm:w-auto px-5 py-3.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-950 font-extrabold text-sm transition"
+              >
+                العودة لشبكة القصص
+              </Link>
+            </div>
+          </article>
+        </main>
+
+        <TeacherShieldDrawer
+          isOpen={shieldOpen}
+          onClose={() => setShieldOpen(false)}
+          storyId={story.id}
+          storyTitle={story.titleAr ?? story.title}
+          teacherGuide={story.teacherGuide}
+        />
+      </div>
+    );
+  }
+
+  // RENDER VARIANT 2: STANDARD OR TRANSFER-TEST STORY CYCLE
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 pb-24" dir="rtl">
       {/* Top Navigation Bar */}
@@ -117,7 +249,13 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
               className="flex items-center gap-2 group focus:outline-none"
               title="العودة إلى بوابة أُسُس"
             >
-              <div className="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center text-white font-extrabold shadow-sm group-hover:bg-emerald-700 transition">
+              <div
+                className={`w-9 h-9 rounded-xl flex items-center justify-center text-white font-extrabold shadow-sm transition ${
+                  isTransferTest
+                    ? "bg-indigo-600 group-hover:bg-indigo-700"
+                    : "bg-emerald-600 group-hover:bg-emerald-700"
+                }`}
+              >
                 أُ
               </div>
               <span className="font-extrabold text-lg text-slate-800">
@@ -144,13 +282,26 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
                 {level.titleAr}
               </Link>
               <span className="text-slate-300">›</span>
-              <span className="text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-200 max-w-[140px] sm:max-w-none truncate">
+              <span
+                className={`px-2 py-0.5 rounded-lg border max-w-[140px] sm:max-w-none truncate ${
+                  isTransferTest
+                    ? "bg-indigo-50 text-indigo-900 border-indigo-200 font-black"
+                    : "bg-emerald-50 text-emerald-800 border-emerald-200"
+                }`}
+              >
                 {story.titleAr ?? story.title}
               </span>
             </nav>
           </div>
 
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShieldOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-extrabold text-xs transition border border-slate-200"
+            >
+              <span>👩‍🏫</span>
+              <span>درع المعلم</span>
+            </button>
             <button
               onClick={() => window.print()}
               className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-xs transition"
@@ -169,6 +320,26 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
         </div>
       </header>
 
+      {/* Transfer Test Notice Banner */}
+      {isTransferTest && (
+        <section className="bg-indigo-900 text-white px-4 sm:px-8 py-3 no-print">
+          <div className="max-w-6xl mx-auto flex items-center justify-between text-xs font-bold">
+            <div className="flex items-center gap-2">
+              <span className="px-2 py-0.5 rounded bg-indigo-700 text-indigo-100 font-black">
+                🎯 اختبار النقل
+              </span>
+              <span>
+                قياس الأداء المستقل: يُقرأ النص دون مساعدات أو تلوين لقياس
+                الاستيعاب الحقيقي
+              </span>
+            </div>
+            <span className="text-indigo-200 hidden sm:inline">
+              الدعامات مقفلة للملاحظة الحرة
+            </span>
+          </div>
+        </section>
+      )}
+
       {/* 6-Station Stepper */}
       <section className="bg-white border-b border-slate-200 py-3 px-4 sm:px-8 no-print shadow-2xs">
         <div className="max-w-6xl mx-auto overflow-x-auto">
@@ -183,7 +354,9 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
                   onClick={() => setActiveStation(station.id)}
                   className={`flex-1 flex items-center gap-2 px-3 py-2 rounded-xl text-right transition border ${
                     isActive
-                      ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
+                      ? isTransferTest
+                        ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
+                        : "bg-emerald-600 text-white border-emerald-600 shadow-sm"
                       : isPast
                         ? "bg-emerald-50 text-emerald-900 border-emerald-200 hover:bg-emerald-100"
                         : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
@@ -192,7 +365,7 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
                   <span
                     className={`w-6 h-6 rounded-lg text-xs font-black flex items-center justify-center shrink-0 ${
                       isActive
-                        ? "bg-white text-emerald-700"
+                        ? "bg-white text-slate-900"
                         : isPast
                           ? "bg-emerald-200 text-emerald-900"
                           : "bg-slate-200 text-slate-600"
@@ -270,29 +443,35 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
                 <span className="text-xs font-black text-slate-600">
                   درجة التشكيل:
                 </span>
-                <div className="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200 text-xs font-bold">
-                  {(["full", "partial", "none"] as const).map((mode) => {
-                    const label =
-                      mode === "full"
-                        ? "تشكيل كامل"
-                        : mode === "partial"
-                          ? "تشكيل جزئي"
-                          : "بدون تشكيل";
-                    return (
-                      <button
-                        key={mode}
-                        onClick={() => setTashkeelMode(mode)}
-                        className={`px-3 py-1 rounded-lg transition ${
-                          tashkeelMode === mode
-                            ? "bg-white text-emerald-800 font-black shadow-xs"
-                            : "text-slate-600 hover:text-slate-900"
-                        }`}
-                      >
-                        {label}
-                      </button>
-                    );
-                  })}
-                </div>
+                {isTransferTest ? (
+                  <span className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-lg">
+                    تشكيل قياسي مقفل لاختبار النقل
+                  </span>
+                ) : (
+                  <div className="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200 text-xs font-bold">
+                    {(["full", "partial", "none"] as const).map((mode) => {
+                      const label =
+                        mode === "full"
+                          ? "تشكيل كامل"
+                          : mode === "partial"
+                            ? "تشكيل جزئي"
+                            : "بدون تشكيل";
+                      return (
+                        <button
+                          key={mode}
+                          onClick={() => setTashkeelMode(mode)}
+                          className={`px-3 py-1 rounded-lg transition ${
+                            tashkeelMode === mode
+                              ? "bg-white text-emerald-800 font-black shadow-xs"
+                              : "text-slate-600 hover:text-slate-900"
+                          }`}
+                        >
+                          {label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               <div className="text-xs font-bold text-slate-500">
@@ -309,7 +488,7 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
                 <span>📖</span>
                 <span>القصة {toEasternArabicNumerals(story.storyNumber)}</span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 mb-8">
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 mb-8 font-serif">
                 {story.titleAr ?? story.title}
               </h1>
               <div className="font-serif text-2xl sm:text-3xl leading-[2.4] text-slate-800 text-justify max-w-3xl mx-auto">
@@ -341,29 +520,35 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
                 <span className="text-xs font-black text-slate-600">
                   إبراز الكلمات المستهدفة:
                 </span>
-                <div className="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200 text-xs font-bold">
-                  {(["colored", "underlined", "off"] as const).map((mode) => {
-                    const label =
-                      mode === "colored"
-                        ? "تلوين"
-                        : mode === "underlined"
-                          ? "تسطير"
-                          : "إيقاف";
-                    return (
-                      <button
-                        key={mode}
-                        onClick={() => setSightWordMode(mode)}
-                        className={`px-3 py-1 rounded-lg transition ${
-                          sightWordMode === mode
-                            ? "bg-white text-emerald-800 font-black shadow-xs"
-                            : "text-slate-600 hover:text-slate-900"
-                        }`}
-                      >
-                        {label}
-                      </button>
-                    );
-                  })}
-                </div>
+                {isTransferTest ? (
+                  <span className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-lg">
+                    التلوين مقفل لاختبار النقل المستقل
+                  </span>
+                ) : (
+                  <div className="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200 text-xs font-bold">
+                    {(["colored", "underlined", "off"] as const).map((mode) => {
+                      const label =
+                        mode === "colored"
+                          ? "تلوين"
+                          : mode === "underlined"
+                            ? "تسطير"
+                            : "إيقاف";
+                      return (
+                        <button
+                          key={mode}
+                          onClick={() => setSightWordMode(mode)}
+                          className={`px-3 py-1 rounded-lg transition ${
+                            sightWordMode === mode
+                              ? "bg-white text-emerald-800 font-black shadow-xs"
+                              : "text-slate-600 hover:text-slate-900"
+                          }`}
+                        >
+                          {label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               {/* Sight Words Chips */}
@@ -460,7 +645,7 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
                       </div>
 
                       {/* Evidence Button */}
-                      {q.textEvidenceSnippet && (
+                      {q.textEvidenceSnippet && !isTransferTest && (
                         <button
                           onClick={() => toggleEvidence(q.textEvidenceSnippet)}
                           className={`text-xs font-extrabold px-3 py-1 rounded-xl transition border ${
@@ -481,7 +666,7 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
                     {/* Hint / Sample Answer Controls */}
                     <div className="border-t border-slate-100 pt-3 flex flex-wrap items-center justify-between gap-3 text-xs">
                       <div className="flex items-center gap-2">
-                        {q.hint && (
+                        {q.hint && !isTransferTest && (
                           <button
                             onClick={() => toggleHint(q.id)}
                             className="text-slate-500 hover:text-slate-800 font-bold"
@@ -708,6 +893,16 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
           </button>
         </div>
       </main>
+
+      {/* Teacher Shield Collapsible Right Drawer */}
+      <TeacherShieldDrawer
+        isOpen={shieldOpen}
+        onClose={() => setShieldOpen(false)}
+        storyId={story.id}
+        storyTitle={story.titleAr ?? story.title}
+        teacherGuide={story.teacherGuide}
+        isTransferTest={isTransferTest}
+      />
     </div>
   );
 }
