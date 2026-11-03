@@ -6,6 +6,7 @@ import type {
   ViewMode,
 } from "@/domain/types";
 import { getExerciseArchetype } from "@/archetypes/registry";
+import "@/registry/bootstrap";
 import {
   formatEasternNumber,
   formatLessonCodeAr,
@@ -104,7 +105,8 @@ export function WorksheetSurface({
           </div>
 
           <h1 className="mt-3 text-2xl font-extrabold text-slate-900">
-            الدرس {header.lessonNumberAr}: {toEasternArabicNumerals(header.lessonTitleAr)}
+            الدرس {header.lessonNumberAr}:{" "}
+            {toEasternArabicNumerals(header.lessonTitleAr)}
           </h1>
           <p className="mt-1 text-sm font-medium text-slate-600">
             {header.unitTitleAr}
@@ -141,10 +143,15 @@ export function WorksheetSurface({
                           <button
                             type="button"
                             onClick={() =>
-                              onSelectPrerequisite?.(ref.grade, ref.lessonNumber)
+                              onSelectPrerequisite?.(
+                                ref.grade,
+                                ref.lessonNumber
+                              )
                             }
                             className="rounded-lg bg-amber-100 px-2.5 py-1 text-xs font-extrabold text-amber-950 transition hover:bg-amber-200"
-                            data-prerequisite-code={toEasternArabicNumerals(ref.rawCode)}
+                            data-prerequisite-code={toEasternArabicNumerals(
+                              ref.rawCode
+                            )}
                           >
                             {formatLessonCodeAr(ref.rawCode)}
                           </button>
@@ -199,7 +206,9 @@ export function WorksheetSurface({
               </h2>
               {teacherNotes.classroomActivityNoteAr && (
                 <p className="text-sm font-medium text-emerald-950">
-                  {toEasternArabicNumerals(teacherNotes.classroomActivityNoteAr)}
+                  {toEasternArabicNumerals(
+                    teacherNotes.classroomActivityNoteAr
+                  )}
                 </p>
               )}
               {teacherNotes.coPresentationNoteAr && (
@@ -258,7 +267,8 @@ export function WorksheetSurface({
                   {header.gradeLabelAr}
                 </span>
                 <span className="inline-flex items-center gap-1 rounded-full bg-sky-600 px-3 py-0.5 text-xs font-extrabold text-white">
-                  الوحدة {header.unitNumberAr}: {toEasternArabicNumerals(header.unitTitleAr)}
+                  الوحدة {header.unitNumberAr}:{" "}
+                  {toEasternArabicNumerals(header.unitTitleAr)}
                 </span>
                 <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-900 border border-amber-300">
                   المستوى: {toEasternArabicNumerals(header.difficultyLabelAr)}
@@ -305,7 +315,9 @@ export function WorksheetSurface({
           {/* Student Name, Date, and Self-Check Star Bar */}
           <div className="mt-3 grid grid-cols-[1.3fr_0.9fr_1fr] items-center gap-3 rounded-2xl border border-indigo-200/80 bg-white/95 px-3.5 py-2 text-xs font-bold text-slate-800">
             <div className="flex items-center gap-2">
-              <span className="text-indigo-950">{header.studentNameLabelAr}</span>
+              <span className="text-indigo-950">
+                {header.studentNameLabelAr}
+              </span>
               <span className="flex-1 border-b-2 border-dotted border-slate-400 py-1 text-emerald-700">
                 {isAnswerKey ? "نموذج المعلم المحلول" : ""}
               </span>
@@ -320,7 +332,10 @@ export function WorksheetSurface({
 
             <div className="flex items-center justify-end gap-1.5">
               <span className="text-amber-900">{header.selfCheckLabelAr}</span>
-              <div className="inline-flex items-center gap-1" aria-label="نجوم التقييم الذاتي">
+              <div
+                className="inline-flex items-center gap-1"
+                aria-label="نجوم التقييم الذاتي"
+              >
                 {[1, 2, 3].map((starIdx) => (
                   <svg
                     key={starIdx}
@@ -356,13 +371,16 @@ export function WorksheetSurface({
                     <span className="text-lg" aria-hidden="true">
                       {section.badgeEmoji}
                     </span>
-                    <h2 className={`text-base font-extrabold ${style.textColor}`}>
+                    <h2
+                      className={`text-base font-extrabold ${style.textColor}`}
+                    >
                       {section.titleAr}
                     </h2>
                     {section.id === "warm-up" &&
                       section.sourceLessonId !== worksheet.lessonId && (
                         <span className="rounded-full bg-white/90 px-2.5 py-0.5 text-[11px] font-bold text-amber-900 border border-amber-300">
-                          من المتطلب السابق ({formatLessonCodeAr(section.sourceLessonId)})
+                          من المتطلب السابق (
+                          {formatLessonCodeAr(section.sourceLessonId)})
                         </span>
                       )}
                   </div>
