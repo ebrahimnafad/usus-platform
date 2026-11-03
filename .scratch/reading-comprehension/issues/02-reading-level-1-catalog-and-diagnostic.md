@@ -5,14 +5,14 @@ A strongly-typed, comprehensive curriculum data model for Reading Level 1 ("ال
 
 **Blocked by:** None (can start immediately)
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] Reading curriculum catalog defines Level 1 with 12 complete story cycles adhering to the multi-dimensional progression rules (word counts 50–75 words).
-- [ ] Stories 4 and 10 are designated as free-reading stories (`free_reading`) with engaging text and zero questions.
-- [ ] Stories 6 and 12 are designated as transfer-test stories (`transfer_test`) with independent texts for measuring skill transfer.
-- [ ] Standard stories contain 3-tier QAR questions (direct, inferential, creative) with populated `textEvidenceSnippet` strings.
-- [ ] Standard stories define inductive grammar discovery steps (examples → observation → label → production prompt).
-- [ ] Standard stories define teacher guide properties (modeling script, blind-spot tips).
-- [ ] Route `/reading/diagnostic` renders a short, interactive questionnaire asking about the child's reading fluency and comprehension.
-- [ ] Completing the questionnaire outputs a recommended starting level with a direct link to begin.
-- [ ] Unit tests verify complete data integrity across all 12 stories in Level 1.
+- [x] Reading curriculum catalog defines Level 1 with 12 complete story cycles adhering to the multi-dimensional progression rules (word counts 50–75 words).
+- [x] Stories 4 and 10 are designated as free-reading stories (`free_reading`) with engaging text and zero questions.
+- [x] Stories 6 and 12 are designated as transfer-test stories (`transfer_test`) with independent texts for measuring skill transfer.
+- [x] Standard stories contain 3-tier QAR questions (direct, inferential, creative) with populated `textEvidenceSnippet` strings.
+- [x] Standard stories define inductive grammar discovery steps (examples → observation → label → production prompt).
+- [x] Standard stories define teacher guide properties (modeling script, blind-spot tips).
+- [x] Route `/reading/diagnostic` renders a short, interactive questionnaire asking about the child's reading fluency and comprehension.
+- [x] Completing the questionnaire outputs a recommended starting level with a direct link to begin.
+- [x] Unit tests verify complete data integrity across all 12 stories in Level 1.
