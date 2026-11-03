@@ -1,6 +1,6 @@
 # Feature Spec: Reading Comprehension Club (نادي القراءة والفهم القرائي)
 
-Status: ready-for-agent
+Status: resolved
 
 ## Problem Statement
 
