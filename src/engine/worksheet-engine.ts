@@ -1,5 +1,3 @@
-import React from "react";
-import { renderToStaticMarkup } from "react-dom/server";
 import "@/registry/bootstrap";
 import type {
   AnswerKey,
@@ -299,17 +297,4 @@ export function generateWorksheet(
   };
 }
 
-/**
- * Primary Seam — Renders the full RTL HTML/SVG markup for a Worksheet, Answer Key, or Teacher Notes view.
- */
-export function renderWorksheetSurface(
-  input: RenderWorksheetSurfaceInput
-): string {
-  const bundle = generateWorksheet(input);
-  return renderToStaticMarkup(
-    React.createElement(WorksheetSurface, {
-      bundle,
-      viewMode: input.viewMode,
-    })
-  );
-}
+// (renderWorksheetSurface moved to src/lib/render-worksheet-surface.ts)

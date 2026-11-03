@@ -1,5 +1,3 @@
-import React from "react";
-import { renderToStaticMarkup } from "react-dom/server";
 import { chromium, type Browser } from "playwright";
 import type {
   GeneratedWorksheetBundle,
@@ -179,9 +177,9 @@ function sanitizeFilenamePart(value: string | number): string {
 /**
  * Builds the complete, self-contained A4 print-clean HTML document for a Worksheet or Answer Key.
  */
-export function buildPrintCleanA4Html(
+export async function buildPrintCleanA4Html(
   input: ExportWorksheetPdfInput
-): PrintCleanA4Document {
+): Promise<PrintCleanA4Document> {
   const viewMode: PrintableViewMode =
     input.viewMode === "answer-key" ? "answer-key" : "worksheet";
   const difficultyLevel: WorksheetDifficultyMode =
@@ -194,6 +192,9 @@ export function buildPrintCleanA4Html(
     seed,
     difficultyLevel,
   });
+
+  const { renderToStaticMarkup } = await import("react-dom/server");
+  const { default: React } = await import("react");
 
   const surfaceMarkup = renderToStaticMarkup(
     React.createElement(WorksheetSurface, {
@@ -277,7 +278,7 @@ async function launchHeadlessBrowser(): Promise<Browser> {
 export async function exportWorksheetPdf(
   input: ExportWorksheetPdfInput
 ): Promise<ExportedPdfResult> {
-  const doc = buildPrintCleanA4Html(input);
+  const doc = await buildPrintCleanA4Html(input);
   const browser = await launchHeadlessBrowser();
 
   try {

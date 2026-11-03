@@ -1,8 +1,6 @@
 import { describe, expect, it } from "vitest";
-import {
-  generateWorksheet,
-  renderWorksheetSurface,
-} from "@/engine/worksheet-engine";
+import { renderWorksheetSurface } from "@/lib/render-worksheet-surface";
+import { generateWorksheet } from "@/engine/worksheet-engine";
 import { findWesternNumeralsInRenderedHtml } from "@/lib/numerals";
 
 describe("Ticket 05 — Lessons K-20 & K-21: PictureGraphRead (اقرأ التمثيل البياني بالصور) & Horizontal/Vertical Picture Graph Visual Models", () => {
@@ -26,7 +24,9 @@ describe("Ticket 05 — Lessons K-20 & K-21: PictureGraphRead (اقرأ التم
     for (const ex of allExercises) {
       expect(ex.archetype).toBe("PictureGraphRead");
       expect(ex.data.kind).toBe("PictureGraphRead");
-      expect(ex.visualModels.some((m) => m.kind === "picture-graph")).toBe(true);
+      expect(ex.visualModels.some((m) => m.kind === "picture-graph")).toBe(
+        true
+      );
     }
 
     const worksheetHtml = renderWorksheetSurface({
@@ -89,7 +89,9 @@ describe("Ticket 05 — Lessons K-20 & K-21: PictureGraphRead (اقرأ التم
 
     for (const ex of coreExercises) {
       expect(ex.archetype).toBe("PictureGraphRead");
-      expect(ex.visualModels.some((m) => m.kind === "picture-graph")).toBe(true);
+      expect(ex.visualModels.some((m) => m.kind === "picture-graph")).toBe(
+        true
+      );
     }
 
     const worksheetHtml = renderWorksheetSurface({
@@ -462,7 +464,9 @@ describe("Ticket 05 — Complete Grade K Units 1–2 (Lessons K-1 through K-26) 
       // 2. Seed determinism & variation
       expect(bundle1.worksheet).toEqual(bundle2.worksheet);
       expect(bundle1.answerKey).toEqual(bundle2.answerKey);
-      expect(bundle1.worksheet.sections).not.toEqual(bundleDiff.worksheet.sections);
+      expect(bundle1.worksheet.sections).not.toEqual(
+        bundleDiff.worksheet.sections
+      );
 
       // 3. Default scaffolded progression (Easy -> Intermediate -> Advanced)
       expect(bundle1.worksheet.sections.map((s) => s.difficultyLevel)).toEqual([
@@ -556,4 +560,3 @@ describe("Ticket 05 — Complete Grade K Units 1–2 (Lessons K-1 through K-26) 
     }
   });
 });
-

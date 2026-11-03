@@ -1,8 +1,6 @@
 import { describe, expect, it } from "vitest";
-import {
-  generateWorksheet,
-  renderWorksheetSurface,
-} from "@/engine/worksheet-engine";
+import { renderWorksheetSurface } from "@/lib/render-worksheet-surface";
+import { generateWorksheet } from "@/engine/worksheet-engine";
 import { findWesternNumeralsInRenderedHtml } from "@/lib/numerals";
 
 describe("Ticket 04 — Lessons K-12 to K-16: ModelCountAndTrace (عدّ ومثّل وتتبّع الرقم) & Unit 2 SVG Visual Models", () => {
@@ -27,7 +25,9 @@ describe("Ticket 04 — Lessons K-12 to K-16: ModelCountAndTrace (عدّ ومث�
       expect(ex.archetype).toBe("ModelCountAndTrace");
       expect(ex.data.kind).toBe("ModelCountAndTrace");
       expect(ex.visualModels.some((m) => m.kind === "five-frame")).toBe(true);
-      expect(ex.visualModels.some((m) => m.kind === "numeral-trace")).toBe(true);
+      expect(ex.visualModels.some((m) => m.kind === "numeral-trace")).toBe(
+        true
+      );
     }
 
     const worksheetHtml = renderWorksheetSurface({
@@ -248,7 +248,9 @@ describe("Ticket 04 — Lessons K-12 to K-16: ModelCountAndTrace (عدّ ومث�
     expect(coreExercises.length).toBeGreaterThanOrEqual(4);
 
     const coreModels = coreExercises.flatMap((e) => e.visualModels);
-    expect(coreModels.some((m) => m.kind === "circular-arrangement")).toBe(true);
+    expect(coreModels.some((m) => m.kind === "circular-arrangement")).toBe(
+      true
+    );
     expect(coreModels.some((m) => m.kind === "numeral-trace")).toBe(true);
 
     const worksheetHtml = renderWorksheetSurface({
@@ -345,7 +347,9 @@ describe("Ticket 04 — Lessons K-17, K-18, K-19: Match Quantities to 5 with Obj
       .flatMap((s) => s.exercises);
     for (const ex of k17CoreExercises) {
       expect(ex.archetype).toBe("ConnectMatch");
-      expect(ex.visualModels.some((m) => m.kind === "everyday-object")).toBe(true);
+      expect(ex.visualModels.some((m) => m.kind === "everyday-object")).toBe(
+        true
+      );
       expect(
         ex.visualModels.some(
           (m) => m.kind === "digit-card" || m.kind === "numeral-trace"
@@ -424,11 +428,9 @@ describe("Ticket 04 — Lessons K-17, K-18, K-19: Match Quantities to 5 with Obj
           seed: `CLAMP-K${lessonNumber}`,
           difficultyLevel: tier,
         });
-        expect(clamped.worksheet.sections.map((s) => s.difficultyLevel)).toEqual([
-          tier,
-          tier,
-          tier,
-        ]);
+        expect(
+          clamped.worksheet.sections.map((s) => s.difficultyLevel)
+        ).toEqual([tier, tier, tier]);
       }
 
       // 3. Render Surface & Strict Eastern Arabic Numerals Invariant

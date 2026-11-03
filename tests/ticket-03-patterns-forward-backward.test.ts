@@ -1,8 +1,6 @@
 import { describe, expect, it } from "vitest";
-import {
-  generateWorksheet,
-  renderWorksheetSurface,
-} from "@/engine/worksheet-engine";
+import { renderWorksheetSurface } from "@/lib/render-worksheet-surface";
+import { generateWorksheet } from "@/engine/worksheet-engine";
 import { findWesternNumeralsInRenderedHtml } from "@/lib/numerals";
 
 describe("Ticket 03 — Lesson K-9: Identify Patterns working Forward with 2 Objects (ABABAB)", () => {
@@ -133,7 +131,9 @@ describe("Ticket 03 — Lesson K-10: Identify Patterns working Forward with 3 Ob
     // Prerequisite Warm-Up resolution: K-10 -> K-9
     expect(k10.warmUpSourceLessonId).toBe("K-9");
     expect(k10.worksheet.sections[0].sourceLessonId).toBe("K-9");
-    expect(k10.worksheet.sections[0].exercises[0].archetype).toBe("PatternComplete");
+    expect(k10.worksheet.sections[0].exercises[0].archetype).toBe(
+      "PatternComplete"
+    );
 
     // Practice & Challenge sections use PatternComplete with forward ABCABC patterns
     const coreExercises = k10.worksheet.sections
@@ -164,7 +164,9 @@ describe("Ticket 03 — Lesson K-10: Identify Patterns working Forward with 3 Ob
         expect(slots[0].item.id).toBe(slots[3].item.id);
         expect(slots[1].item.id).toBe(slots[4].item.id);
         expect(slots[2].item.id).toBe(slots[5].item.id);
-        expect(new Set([slots[0].item.id, slots[1].item.id, slots[2].item.id]).size).toBe(3);
+        expect(
+          new Set([slots[0].item.id, slots[1].item.id, slots[2].item.id]).size
+        ).toBe(3);
 
         const choices = ex.data.choices as Array<{
           id: string;
@@ -242,7 +244,9 @@ describe("Ticket 03 — Lesson K-11: Identify Patterns working Backward & Compre
     // Prerequisite Warm-Up resolution: K-11 -> K-10
     expect(k11.warmUpSourceLessonId).toBe("K-10");
     expect(k11.worksheet.sections[0].sourceLessonId).toBe("K-10");
-    expect(k11.worksheet.sections[0].exercises[0].archetype).toBe("PatternComplete");
+    expect(k11.worksheet.sections[0].exercises[0].archetype).toBe(
+      "PatternComplete"
+    );
 
     // Practice & Challenge sections use PatternComplete with backward direction (missingIndex === 0)
     const coreExercises = k11.worksheet.sections
@@ -356,11 +360,9 @@ describe("Ticket 03 — Lesson K-11: Identify Patterns working Backward & Compre
           seed: `CLAMP-K${lessonNumber}`,
           difficultyLevel: tier,
         });
-        expect(clamped.worksheet.sections.map((s) => s.difficultyLevel)).toEqual([
-          tier,
-          tier,
-          tier,
-        ]);
+        expect(
+          clamped.worksheet.sections.map((s) => s.difficultyLevel)
+        ).toEqual([tier, tier, tier]);
 
         const htmlW = renderWorksheetSurface({
           grade: "K",

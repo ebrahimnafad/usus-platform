@@ -1,8 +1,6 @@
 import { describe, expect, it } from "vitest";
-import {
-  generateWorksheet,
-  renderWorksheetSurface,
-} from "@/engine/worksheet-engine";
+import { renderWorksheetSurface } from "@/lib/render-worksheet-surface";
+import { generateWorksheet } from "@/engine/worksheet-engine";
 import { findWesternNumeralsInRenderedHtml } from "@/lib/numerals";
 
 describe("Ticket 02 — Lessons K-2, K-3, K-4: 2D Shapes, 3D Solids & Localized Coins with ConnectMatch", () => {
@@ -256,11 +254,9 @@ describe("Ticket 02 — Lessons K-5, K-6, K-7, K-8: ClassifyAndCount (صنّف �
       );
 
       // 2. Scaffolded progression vs. Single-tier Clamping
-      expect(firstRun.worksheet.sections.map((s) => s.difficultyLevel)).toEqual([
-        "Easy",
-        "Intermediate",
-        "Advanced",
-      ]);
+      expect(firstRun.worksheet.sections.map((s) => s.difficultyLevel)).toEqual(
+        ["Easy", "Intermediate", "Advanced"]
+      );
 
       for (const tier of ["Easy", "Intermediate", "Advanced"] as const) {
         const clamped = generateWorksheet({
@@ -269,11 +265,9 @@ describe("Ticket 02 — Lessons K-5, K-6, K-7, K-8: ClassifyAndCount (صنّف �
           seed: `CLAMP-K${lessonNumber}`,
           difficultyLevel: tier,
         });
-        expect(clamped.worksheet.sections.map((s) => s.difficultyLevel)).toEqual([
-          tier,
-          tier,
-          tier,
-        ]);
+        expect(
+          clamped.worksheet.sections.map((s) => s.difficultyLevel)
+        ).toEqual([tier, tier, tier]);
       }
 
       // 3. Render Surface & Strict Eastern Arabic Numerals Invariant

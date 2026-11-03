@@ -4,8 +4,8 @@ import { findWesternNumeralsInRenderedHtml } from "@/lib/numerals";
 import {
   applyStudioNavigationAction,
   filterUnitsForStudioSearch,
-  renderTeacherStudio,
 } from "@/components/studio/TeacherStudio";
+import { renderTeacherStudio } from "@/lib/render-teacher-studio";
 
 describe("Ticket 06 — RTL Teacher Studio: Grades K–5, 12 Units Accordion, Search & Badges", () => {
   it("renders all 6 Grades (الروضة K through الصف ٥), expands all 12 Units per grade, shows Standard, تقديم مشترك, and إثرائي * badges, and enforces Eastern Arabic Numerals", () => {
@@ -104,10 +104,13 @@ describe("Ticket 06 — RTL Teacher Studio: Grades K–5, 12 Units Accordion, Se
     );
 
     // Switch live preview tab to مفتاح الإجابة (answer-key)
-    const answerKeyState = applyStudioNavigationAction(k2WorksheetRender.state, {
-      type: "select-view",
-      viewMode: "answer-key",
-    });
+    const answerKeyState = applyStudioNavigationAction(
+      k2WorksheetRender.state,
+      {
+        type: "select-view",
+        viewMode: "answer-key",
+      }
+    );
     const k2AnswerKeyRender = renderTeacherStudio({
       ...answerKeyState,
       lesson: answerKeyState.lessonNumber,
@@ -153,8 +156,12 @@ describe("Ticket 06 — RTL Teacher Studio: Grades K–5, 12 Units Accordion, Se
       difficulty: regenState.difficultyLevel,
       view: regenState.viewMode,
     });
-    expect(regenRender1.searchParamsString).toContain(`seed=${regenState.seed}`);
-    expect(regenRender1.bundle.worksheet).toEqual(regenRender2.bundle.worksheet);
+    expect(regenRender1.searchParamsString).toContain(
+      `seed=${regenState.seed}`
+    );
+    expect(regenRender1.bundle.worksheet).toEqual(
+      regenRender2.bundle.worksheet
+    );
     expect(regenRender1.bundle.worksheet.sections).not.toEqual(
       advancedRender.bundle.worksheet.sections
     );
@@ -163,66 +170,59 @@ describe("Ticket 06 — RTL Teacher Studio: Grades K–5, 12 Units Accordion, Se
 });
 
 describe("Ticket 06 — Secondary Seam: Headless Browser A4 PDF Exporter & /api/pdf Route", () => {
-  it(
-    "renders Worksheet and Answer Key via Playwright headless Chromium with @page { size: A4 portrait; margin: 0; } and print-color-adjust: exact into valid %PDF- buffers within the 1–2 page budget",
-    async () => {
-      const { buildPrintCleanA4Html, exportWorksheetPdf } = await import(
-        "@/pdf/pdf-exporter"
-      );
-      const { GET } = await import("@/app/api/pdf/route");
+  it("renders Worksheet and Answer Key via Playwright headless Chromium with @page { size: A4 portrait; margin: 0; } and print-color-adjust: exact into valid %PDF- buffers within the 1–2 page budget", async () => {
+    const { buildPrintCleanA4Html, exportWorksheetPdf } =
+      await import("@/pdf/pdf-exporter");
+    const { GET } = await import("@/app/api/pdf/route");
 
-      // 1. Verify print-clean A4 HTML rules and Eastern Arabic Numerals invariant
-      const printDoc = buildPrintCleanA4Html({
-        grade: "K",
-        lessonNumber: 1,
-        seed: "PDF-2026",
-        difficultyLevel: "scaffolded",
-        viewMode: "worksheet",
-      });
-      expect(printDoc.html).toContain("@page");
-      expect(printDoc.html).toContain("size: A4 portrait");
-      expect(printDoc.html).toContain("margin: 0");
-      expect(printDoc.html).toContain("print-color-adjust: exact");
-      expect(printDoc.html).toContain("break-inside: avoid");
-      expect(findWesternNumeralsInRenderedHtml(printDoc.html)).toEqual([]);
+    // 1. Verify print-clean A4 HTML rules and Eastern Arabic Numerals invariant
+    const printDoc = await buildPrintCleanA4Html({
+      grade: "K",
+      lessonNumber: 1,
+      seed: "PDF-2026",
+      difficultyLevel: "scaffolded",
+      viewMode: "worksheet",
+    });
+    expect(printDoc.html).toContain("@page");
+    expect(printDoc.html).toContain("size: A4 portrait");
+    expect(printDoc.html).toContain("margin: 0");
+    expect(printDoc.html).toContain("print-color-adjust: exact");
+    expect(printDoc.html).toContain("break-inside: avoid");
+    expect(findWesternNumeralsInRenderedHtml(printDoc.html)).toEqual([]);
 
-      // 2. Headless browser PDF export for Worksheet
-      const worksheetPdf = await exportWorksheetPdf({
-        grade: "K",
-        lessonNumber: 1,
-        seed: "PDF-2026",
-        difficultyLevel: "scaffolded",
-        viewMode: "worksheet",
-      });
-      expect(worksheetPdf.pdfBuffer.subarray(0, 5).toString("ascii")).toBe(
-        "%PDF-"
-      );
-      expect(worksheetPdf.pdfBuffer.byteLength).toBeGreaterThan(5000);
-      expect(worksheetPdf.pageCount).toBeGreaterThanOrEqual(1);
-      expect(worksheetPdf.pageCount).toBeLessThanOrEqual(2);
-      expect(worksheetPdf.filename).toBe(
-        "worksheet-K-1-PDF-2026-worksheet.pdf"
-      );
+    // 2. Headless browser PDF export for Worksheet
+    const worksheetPdf = await exportWorksheetPdf({
+      grade: "K",
+      lessonNumber: 1,
+      seed: "PDF-2026",
+      difficultyLevel: "scaffolded",
+      viewMode: "worksheet",
+    });
+    expect(worksheetPdf.pdfBuffer.subarray(0, 5).toString("ascii")).toBe(
+      "%PDF-"
+    );
+    expect(worksheetPdf.pdfBuffer.byteLength).toBeGreaterThan(5000);
+    expect(worksheetPdf.pageCount).toBeGreaterThanOrEqual(1);
+    expect(worksheetPdf.pageCount).toBeLessThanOrEqual(2);
+    expect(worksheetPdf.filename).toBe("worksheet-K-1-PDF-2026-worksheet.pdf");
 
-      // 3. Headless browser PDF export for Answer Key via GET /api/pdf route handler
-      const request = new Request(
-        "http://localhost:3000/api/pdf?grade=K&lesson=1&seed=PDF-2026&difficulty=scaffolded&view=answer-key"
-      );
-      const response = await GET(request);
-      expect(response.status).toBe(200);
-      expect(response.headers.get("Content-Type")).toBe("application/pdf");
-      expect(response.headers.get("Content-Disposition")).toContain(
-        "worksheet-K-1-PDF-2026-answer-key.pdf"
-      );
+    // 3. Headless browser PDF export for Answer Key via GET /api/pdf route handler
+    const request = new Request(
+      "http://localhost:3000/api/pdf?grade=K&lesson=1&seed=PDF-2026&difficulty=scaffolded&view=answer-key"
+    );
+    const response = await GET(request);
+    expect(response.status).toBe(200);
+    expect(response.headers.get("Content-Type")).toBe("application/pdf");
+    expect(response.headers.get("Content-Disposition")).toContain(
+      "worksheet-K-1-PDF-2026-answer-key.pdf"
+    );
 
-      const arrayBuffer = await response.arrayBuffer();
-      const routePdfBuffer = Buffer.from(arrayBuffer);
-      expect(routePdfBuffer.subarray(0, 5).toString("ascii")).toBe("%PDF-");
-      expect(routePdfBuffer.byteLength).toBeGreaterThan(5000);
-      const pageCountHeader = Number(response.headers.get("X-PDF-Page-Count"));
-      expect(pageCountHeader).toBeGreaterThanOrEqual(1);
-      expect(pageCountHeader).toBeLessThanOrEqual(2);
-    },
-    60000
-  );
+    const arrayBuffer = await response.arrayBuffer();
+    const routePdfBuffer = Buffer.from(arrayBuffer);
+    expect(routePdfBuffer.subarray(0, 5).toString("ascii")).toBe("%PDF-");
+    expect(routePdfBuffer.byteLength).toBeGreaterThan(5000);
+    const pageCountHeader = Number(response.headers.get("X-PDF-Page-Count"));
+    expect(pageCountHeader).toBeGreaterThanOrEqual(1);
+    expect(pageCountHeader).toBeLessThanOrEqual(2);
+  }, 60000);
 });

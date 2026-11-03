@@ -1,9 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { renderWorksheetSurface } from "@/lib/render-worksheet-surface";
 import { getCurriculumCatalog } from "@/curriculum/catalog";
-import {
-  generateWorksheet,
-  renderWorksheetSurface,
-} from "@/engine/worksheet-engine";
+import { generateWorksheet } from "@/engine/worksheet-engine";
 import { findWesternNumeralsInRenderedHtml } from "@/lib/numerals";
 
 describe("Primary Seam — Curriculum Catalog Integrity", () => {
@@ -11,7 +9,14 @@ describe("Primary Seam — Curriculum Catalog Integrity", () => {
     const catalog = getCurriculumCatalog();
 
     // 1. All 6 Grades exist in order K through 5
-    expect(catalog.gradeList.map((g) => g.id)).toEqual(["K", "1", "2", "3", "4", "5"]);
+    expect(catalog.gradeList.map((g) => g.id)).toEqual([
+      "K",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+    ]);
 
     let totalLessons = 0;
     for (const grade of catalog.gradeList) {
@@ -122,13 +127,17 @@ describe("Primary Seam — Seeded Worksheet Generation & Determinism (Lesson K-1
           expect(rightItem.model.kind).toBe("everyday-object");
           const matchedLeftId = ex.data.solutionMap[rightItem.id];
           expect(matchedLeftId).toBeDefined();
-          const leftItem = ex.data.leftItems.find((li) => li.id === matchedLeftId);
+          const leftItem = ex.data.leftItems.find(
+            (li) => li.id === matchedLeftId
+          );
           expect(leftItem).toBeDefined();
         }
       }
       // Every exercise has a Strategy Hint in the Answer Key
       expect(ex.strategyHintAr.length).toBeGreaterThan(10);
-      expect(runA1.answerKey.strategyHintsByExerciseId[ex.id]).toBe(ex.strategyHintAr);
+      expect(runA1.answerKey.strategyHintsByExerciseId[ex.id]).toBe(
+        ex.strategyHintAr
+      );
     }
   });
 });
@@ -141,26 +150,33 @@ describe("Primary Seam — Difficulty Level Progression, Clamping & Prerequisite
       seed: "DIFF-SEED-1",
     });
 
-    expect(scaffolded.worksheet.sections.map((s) => s.difficultyLevel)).toEqual([
-      "Easy",
-      "Intermediate",
-      "Advanced",
-    ]);
+    expect(scaffolded.worksheet.sections.map((s) => s.difficultyLevel)).toEqual(
+      ["Easy", "Intermediate", "Advanced"]
+    );
     // In Easy: 3 pairs per ConnectMatch; Intermediate: 4 pairs; Advanced: 5 pairs
     const [warmUp, practice, challenge] = scaffolded.worksheet.sections;
     expect(
       warmUp.exercises.every(
-        (e) => e.difficultyLevel === "Easy" && e.data.kind === "ConnectMatch" && e.data.rightItems.length === 3
+        (e) =>
+          e.difficultyLevel === "Easy" &&
+          e.data.kind === "ConnectMatch" &&
+          e.data.rightItems.length === 3
       )
     ).toBe(true);
     expect(
       practice.exercises.every(
-        (e) => e.difficultyLevel === "Intermediate" && e.data.kind === "ConnectMatch" && e.data.rightItems.length === 4
+        (e) =>
+          e.difficultyLevel === "Intermediate" &&
+          e.data.kind === "ConnectMatch" &&
+          e.data.rightItems.length === 4
       )
     ).toBe(true);
     expect(
       challenge.exercises.every(
-        (e) => e.difficultyLevel === "Advanced" && e.data.kind === "ConnectMatch" && e.data.rightItems.length === 5
+        (e) =>
+          e.difficultyLevel === "Advanced" &&
+          e.data.kind === "ConnectMatch" &&
+          e.data.rightItems.length === 5
       )
     ).toBe(true);
 
@@ -274,6 +290,3 @@ describe("Primary Seam — A4 Worksheet, Mirrored Answer Key, Teacher Notes Rend
     }
   });
 });
-
-
-
