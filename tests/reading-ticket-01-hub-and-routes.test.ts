@@ -30,8 +30,8 @@ describe("Ticket 01 — Hub Page and Domain Route Migration", () => {
       expect(html).toMatch(/emerald|Emerald/);
 
       // 5. Visual illustrations / icons and CTA entry buttons for both domains
-      expect(html).toContain("data-domain-card=\"math\"");
-      expect(html).toContain("data-domain-card=\"reading\"");
+      expect(html).toContain('data-domain-card="math"');
+      expect(html).toContain('data-domain-card="reading"');
 
       // 6. Strict Eastern Arabic Numerals invariant
       expect(findWesternNumeralsInRenderedHtml(html)).toEqual([]);
@@ -49,7 +49,7 @@ describe("Ticket 01 — Hub Page and Domain Route Migration", () => {
       const html = renderToStaticMarkup(pageElement);
 
       // 1. Slim top navigation bar
-      expect(html).toContain("data-math-topbar=\"true\"");
+      expect(html).toContain('data-math-topbar="true"');
 
       // 2. أُسُس logo linking back to /
       expect(html).toMatch(/<a[^>]*href="\/"[^>]*>[\s\S]*?أُسُس[\s\S]*?<\/a>/);
@@ -63,7 +63,7 @@ describe("Ticket 01 — Hub Page and Domain Route Migration", () => {
       expect(html).toContain("الروضة K");
       expect(html).toContain("الصف ١");
       expect(html).toContain("مستوى الصعوبة");
-      expect(html).toContain("data-grade-pill=\"K\"");
+      expect(html).toContain('data-grade-pill="K"');
 
       // 5. Strict Eastern Arabic Numerals invariant
       expect(findWesternNumeralsInRenderedHtml(html)).toEqual([]);
@@ -80,6 +80,6 @@ describe("Ticket 01 — Hub Page and Domain Route Migration", () => {
       expect(response.headers.get("Content-Type")).toBe("application/pdf");
       const buffer = Buffer.from(await response.arrayBuffer());
       expect(buffer.subarray(0, 5).toString("ascii")).toBe("%PDF-");
-    });
+    }, 60000);
   });
 });

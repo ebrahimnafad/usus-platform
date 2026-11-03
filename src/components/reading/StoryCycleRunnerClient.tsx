@@ -11,6 +11,7 @@ import {
 } from "@/lib/reading-scaffold";
 import { toEasternArabicNumerals } from "@/lib/numerals";
 import TeacherShieldDrawer from "./TeacherShieldDrawer";
+import PrintableReadingSheet from "./PrintableReadingSheet";
 
 interface Props {
   level: ReadingLevel;
@@ -233,6 +234,9 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
           storyTitle={story.titleAr ?? story.title}
           teacherGuide={story.teacherGuide}
         />
+
+        {/* Printable A4 Reading Sheet */}
+        <PrintableReadingSheet level={level} story={story} />
       </div>
     );
   }
@@ -903,6 +907,9 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
         teacherGuide={story.teacherGuide}
         isTransferTest={isTransferTest}
       />
+
+      {/* Printable A4 Reading Sheet */}
+      <PrintableReadingSheet level={level} story={story} />
     </div>
   );
 }
