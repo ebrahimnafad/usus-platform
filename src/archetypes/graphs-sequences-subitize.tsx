@@ -6,4 +6,6 @@
  *
  * Register via `registerExerciseArchetype(...)`.
  */
-export {};
+export * from "@/archetypes/picture-graph-read";
+export * from "@/archetypes/sequence-and-zero";
+export * from "@/archetypes/subitize-part-whole";
