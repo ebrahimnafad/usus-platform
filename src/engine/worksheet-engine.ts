@@ -1,18 +1,6 @@
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import "@/visual-models/shapes-solids-coins";
-import "@/visual-models/frames-cubes-tallies-dice-circles-tracing";
-import "@/visual-models/picture-graphs";
-import "@/archetypes/connect-match";
-import "@/archetypes/classify-and-count";
-import "@/archetypes/pattern-complete";
-import "@/archetypes/model-count-and-trace";
-import "@/archetypes/graphs-sequences-subitize";
-import "@/blueprints/grade-k/lesson-k1";
-import "@/blueprints/grade-k/lessons-k2-to-k8";
-import "@/blueprints/grade-k/lessons-k9-to-k11";
-import "@/blueprints/grade-k/lessons-k12-to-k19";
-import "@/blueprints/grade-k/lessons-k20-to-k26";
+import "@/registry/bootstrap";
 import type {
   AnswerKey,
   BlueprintExerciseSpec,
@@ -172,7 +160,9 @@ export function generateWorksheet(
     sectionId: SectionId,
     blueprint: LessonBlueprint,
     sourceLessonId: string,
-    pickSpecs: (tier: LessonBlueprint["tiers"][DifficultyLevel]) => BlueprintExerciseSpec[]
+    pickSpecs: (
+      tier: LessonBlueprint["tiers"][DifficultyLevel]
+    ) => BlueprintExerciseSpec[]
   ): Section => {
     const targetDifficulty = resolveSectionDifficulty(
       sectionId,
@@ -186,8 +176,7 @@ export function generateWorksheet(
       globalExerciseCounter += 1;
       const archetypeDef = getExerciseArchetype(spec.archetype);
       const exRng = sectionRng.fork(`ex:${idx}`);
-      const sourceLesson =
-        catalog.getLessonByCode(sourceLessonId) ?? lesson;
+      const sourceLesson = catalog.getLessonByCode(sourceLessonId) ?? lesson;
 
       return archetypeDef.generate({
         lesson: sourceLesson,
@@ -324,4 +313,3 @@ export function renderWorksheetSurface(
     })
   );
 }
-
