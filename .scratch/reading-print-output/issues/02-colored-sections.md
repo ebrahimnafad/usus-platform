@@ -4,14 +4,14 @@
 
 **Blocked by:** 01: Print Isolation (print must be isolated before visual work makes sense — otherwise you're styling content buried under leaked screen UI).
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Story section (📖) renders with an emerald-400 left border and emerald-50/40 tinted background
-- [ ] QAR section (🔍) renders with a sky-400 left border and sky-50/40 tinted background
-- [ ] Grammar Lab section (🧩) renders with a violet-400 left border and violet-50/40 tinted background
-- [ ] The uniform `border-slate-300` on all sections is replaced with section-specific colors
-- [ ] `print-color-adjust: exact` (already in `globals.css` base layer) ensures tinted backgrounds print faithfully on color printers
-- [ ] New test: rendering `PrintableReadingSheet` for a standard story confirms the story section HTML contains emerald border/bg classes, QAR contains sky classes, grammar contains violet classes
-- [ ] Free-reading variant still renders its amber-themed story-only layout (no regression)
-- [ ] Transfer-test variant renders with the 🎯 badge alongside the standard colored sections
-- [ ] Eastern Arabic Numerals invariant holds
+- [x] Story section (📖) renders with an emerald-400 left border and emerald-50/40 tinted background
+- [x] QAR section (🔍) renders with a sky-400 left border and sky-50/40 tinted background
+- [x] Grammar Lab section (🧩) renders with a violet-400 left border and violet-50/40 tinted background
+- [x] The uniform `border-slate-300` on all sections is replaced with section-specific colors
+- [x] `print-color-adjust: exact` (already in `globals.css` base layer) ensures tinted backgrounds print faithfully on color printers
+- [x] New test: rendering `PrintableReadingSheet` for a standard story confirms the story section HTML contains emerald border/bg classes, QAR contains sky classes, grammar contains violet classes
+- [x] Free-reading variant still renders its amber-themed story-only layout (no regression)
+- [x] Transfer-test variant renders with the 🎯 badge alongside the standard colored sections
+- [x] Eastern Arabic Numerals invariant holds

@@ -119,6 +119,81 @@ describe("Ticket 06 — Zero-Overflow Printable A4 Reading Worksheets", () => {
     });
   });
 
+  describe("Colored Sections and Visual Richness (Ticket 02)", () => {
+    it("renders story with emerald border/bg, QAR with sky, and grammar with violet", () => {
+      const html = renderToString(
+        React.createElement(PrintableReadingSheet, {
+          level: level1,
+          story: standardStory,
+        })
+      );
+
+      // 1. Story section (📖) with emerald-400 left border and emerald-50/40 background
+      expect(html).toContain("border-l-emerald-400");
+      expect(html).toContain("bg-emerald-50/40");
+
+      // 2. QAR section (🔍) with sky-400 left border and sky-50/40 background
+      expect(html).toContain("border-l-sky-400");
+      expect(html).toContain("bg-sky-50/40");
+
+      // 3. Grammar Lab section (🧩) with violet-400 left border and violet-50/40 background
+      expect(html).toContain("border-l-violet-400");
+      expect(html).toContain("bg-violet-50/40");
+
+      // 4. Uniform border-slate-300 is replaced
+      expect(html).not.toContain("border-slate-300");
+
+      // 5. Eastern Arabic Numerals invariant holds
+      const westernNums = findWesternNumeralsInRenderedHtml(html);
+      expect(westernNums).toEqual([]);
+    });
+
+    it("preserves colored sections when rendering transfer-test variant with target badge", () => {
+      const html = renderToString(
+        React.createElement(PrintableReadingSheet, {
+          level: level1,
+          story: transferTestStory,
+        })
+      );
+
+      // Transfer test badge present
+      expect(html).toContain("🎯 اختبار النقل");
+
+      // Colored sections present
+      expect(html).toContain("border-l-emerald-400");
+      expect(html).toContain("bg-emerald-50/40");
+      expect(html).toContain("border-l-sky-400");
+      expect(html).toContain("bg-sky-50/40");
+      expect(html).toContain("border-l-violet-400");
+      expect(html).toContain("bg-violet-50/40");
+
+      // Zero Western numerals
+      const westernNums = findWesternNumeralsInRenderedHtml(html);
+      expect(westernNums).toEqual([]);
+    });
+
+    it("preserves amber-themed story-only layout for free-reading variant", () => {
+      const html = renderToString(
+        React.createElement(PrintableReadingSheet, {
+          level: level1,
+          story: freeReadingStory,
+        })
+      );
+
+      // Amber styling intact
+      expect(html).toContain("border-amber-300");
+      expect(html).toContain("bg-amber-50/20");
+
+      // No QAR or Grammar sections
+      expect(html).not.toContain("border-l-sky-400");
+      expect(html).not.toContain("border-l-violet-400");
+
+      // Zero Western numerals
+      const westernNums = findWesternNumeralsInRenderedHtml(html);
+      expect(westernNums).toEqual([]);
+    });
+  });
+
   describe("Page Integration", () => {
     it("includes PrintableReadingSheet inside the story cycle page", async () => {
       const pageComponent = await StoryCycleRunnerPage({

@@ -91,7 +91,7 @@ export default function PrintableReadingSheet({ level, story }: Props) {
         /* Standard & Transfer Test Printable Layout (Story + QAR + Grammar Lab) */
         <div className="space-y-4">
           {/* 1. Story Text Box */}
-          <section className="border border-slate-300 rounded-xl p-4 bg-slate-50/40 break-inside-avoid">
+          <section className="border border-emerald-200 border-l-4 border-l-emerald-400 rounded-xl p-4 bg-emerald-50/40 break-inside-avoid">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-black text-slate-800">
                 📖 نص القصة: «{story.titleAr ?? story.title}»
@@ -106,8 +106,8 @@ export default function PrintableReadingSheet({ level, story }: Props) {
           </section>
 
           {/* 2. QAR Comprehension Questions */}
-          <section className="border border-slate-300 rounded-xl p-4 bg-white break-inside-avoid">
-            <div className="flex items-center justify-between mb-3 border-b border-slate-200 pb-1.5">
+          <section className="border border-sky-200 border-l-4 border-l-sky-400 rounded-xl p-4 bg-sky-50/40 break-inside-avoid">
+            <div className="flex items-center justify-between mb-3 border-b border-sky-200 pb-1.5">
               <span className="text-xs font-black text-slate-900">
                 🔍 أسئلة الفهم (أين تعيش الإجابة؟):
               </span>
@@ -148,12 +148,12 @@ export default function PrintableReadingSheet({ level, story }: Props) {
 
           {/* 3. Inductive Language Lab */}
           {story.grammarDiscovery && (
-            <section className="border border-slate-300 rounded-xl p-3.5 bg-slate-50/50 break-inside-avoid">
-              <div className="flex items-center justify-between mb-2 border-b border-slate-200 pb-1">
+            <section className="border border-violet-200 border-l-4 border-l-violet-400 rounded-xl p-3.5 bg-violet-50/40 break-inside-avoid">
+              <div className="flex items-center justify-between mb-2 border-b border-violet-200 pb-1">
                 <span className="text-xs font-black text-slate-900">
                   🧩 معمل اللغة (اكتشف القاعدة):
                 </span>
-                <span className="text-[11px] font-black text-emerald-800">
+                <span className="text-[11px] font-black text-violet-800">
                   {story.grammarDiscovery.targetRule}
                 </span>
               </div>
@@ -165,7 +165,7 @@ export default function PrintableReadingSheet({ level, story }: Props) {
                   {story.grammarDiscovery.examples.map((ex, i) => (
                     <span
                       key={i}
-                      className="px-2 py-0.5 bg-white border border-slate-300 rounded text-[11px]"
+                      className="px-2 py-0.5 bg-white border border-violet-200 rounded text-[11px]"
                     >
                       «{ex}»
                     </span>
