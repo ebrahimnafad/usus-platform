@@ -56,6 +56,25 @@ export default function PrintableReadingSheet({
       }}
       dir="rtl"
     >
+      {/* Continuation mini-header — hidden on screen, shown on page 2+ in print via CSS */}
+      <div
+        className="reading-continuation-header hidden"
+        aria-hidden="true"
+        dir="rtl"
+      >
+        <span>أُسُس</span>
+        <span> | </span>
+        <span>{level.titleAr}</span>
+        <span> | </span>
+        <span>«{story.titleAr ?? story.title}»</span>
+        <span> | </span>
+        <span>
+          الاسم: <span className="text-slate-400">__________</span>
+        </span>
+        <span> | </span>
+        <span className="reading-print-page-number" />
+      </div>
+
       {/* A4 Header */}
       <header className="border-b-2 border-slate-800 pb-3 mb-4 flex flex-col gap-2">
         <div className="flex items-center justify-between text-xs font-black">
@@ -80,9 +99,6 @@ export default function PrintableReadingSheet({
               </span>
             )}
           </div>
-          <span className="text-slate-600 font-extrabold text-[11px]">
-            [الصفحة ١/١]
-          </span>
         </div>
 
         {/* Student metadata row */}

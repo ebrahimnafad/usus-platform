@@ -4,13 +4,13 @@
 
 **Blocked by:** 01: Print Isolation (pagination must work before continuation headers make sense), 04: Tashkeel + Story Toggle + Typography (header content is settled in 04 — the mini-header mirrors it).
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] The hardcoded `[الصفحة ١/١]` text is removed from the printable header
-- [ ] Page numbers are rendered dynamically — at minimum the current page number (via CSS `counter(page)` or equivalent)
-- [ ] If the browser supports `counter(pages)` (total page count), the format is "صفحة X من Y"; otherwise "صفحة X" is acceptable
-- [ ] When content flows to page 2+, a one-line mini-header appears at the top of each continuation page containing: أُسُس, the reading level title, the story title, a student name blank, and the page number
-- [ ] The mini-header does NOT appear on page 1 (the full header serves that purpose)
-- [ ] CSS changes to `globals.css` for page counters and continuation headers are additive — they do not break Math domain print output
-- [ ] New test: rendering `PrintableReadingSheet` confirms the hardcoded "الصفحة ١/١" string is absent from the HTML
-- [ ] Eastern Arabic Numerals invariant holds across all page elements
+- [x] The hardcoded `[الصفحة ١/١]` text is removed from the printable header
+- [x] Page numbers are rendered dynamically — at minimum the current page number (via CSS `counter(page)` or equivalent)
+- [x] If the browser supports `counter(pages)` (total page count), the format is "صفحة X من Y"; otherwise "صفحة X" is acceptable
+- [x] When content flows to page 2+, a one-line mini-header appears at the top of each continuation page containing: أُسُس, the reading level title, the story title, a student name blank, and the page number
+- [x] The mini-header does NOT appear on page 1 (the full header serves that purpose)
+- [x] CSS changes to `globals.css` for page counters and continuation headers are additive — they do not break Math domain print output
+- [x] New test: rendering `PrintableReadingSheet` confirms the hardcoded "الصفحة ١/١" string is absent from the HTML
+- [x] Eastern Arabic Numerals invariant holds across all page elements

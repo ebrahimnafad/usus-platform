@@ -24,7 +24,8 @@ describe("Ticket 06 — Zero-Overflow Printable A4 Reading Worksheets", () => {
       // 1. A4 Sheet structure & print classes
       expect(html).toContain("a4-sheet");
       expect(html).toContain("أُسُس — نادي القراءة والفهم القرائي");
-      expect(html).toContain("الصفحة ١/١");
+      // Ticket 05: hardcoded page number is replaced with dynamic CSS counter
+      expect(html).not.toContain("الصفحة ١/١");
       expect(html).toContain("الاسم:");
       expect(html).toContain("التاريخ:");
 
@@ -307,7 +308,8 @@ describe("Ticket 06 — Zero-Overflow Printable A4 Reading Worksheets", () => {
       const html = renderToString(pageComponent);
 
       expect(html).toContain("a4-sheet");
-      expect(html).toContain("الصفحة ١/١");
+      // Ticket 05: hardcoded "الصفحة ١/١" replaced with CSS counter
+      expect(html).not.toContain("الصفحة ١/١");
     });
   });
 
@@ -453,6 +455,73 @@ describe("Ticket 06 — Zero-Overflow Printable A4 Reading Worksheets", () => {
 
       expect(html).toContain("مع نص القصة");
       expect(html).toMatch(/<input[^>]*type="checkbox"[^>]*checked[^>]*>/);
+    });
+  });
+
+  describe("Continuation Headers and Page Numbers (Ticket 05)", () => {
+    it("does not contain hardcoded 'الصفحة ١/١' in the rendered HTML", () => {
+      const html = renderToString(
+        React.createElement(PrintableReadingSheet, {
+          level: level1,
+          story: standardStory,
+        })
+      );
+
+      expect(html).not.toContain("الصفحة ١/١");
+
+      // Eastern Arabic Numerals invariant
+      expect(findWesternNumeralsInRenderedHtml(html)).toEqual([]);
+    });
+
+    it("renders a continuation mini-header element with platform name, level, story title, and name blank", () => {
+      const html = renderToString(
+        React.createElement(PrintableReadingSheet, {
+          level: level1,
+          story: standardStory,
+        })
+      );
+
+      // The continuation header element is present in the DOM
+      expect(html).toContain("reading-continuation-header");
+
+      // Contains: platform name, level title, story title, name blank
+      expect(html).toContain("أُسُس");
+      expect(html).toContain(level1.titleAr);
+      expect(html).toContain(standardStory.titleAr ?? standardStory.title);
+
+      // Eastern Arabic Numerals invariant
+      expect(findWesternNumeralsInRenderedHtml(html)).toEqual([]);
+    });
+
+    it("continuation header is marked print-only (not visible on screen)", () => {
+      const html = renderToString(
+        React.createElement(PrintableReadingSheet, {
+          level: level1,
+          story: standardStory,
+        })
+      );
+
+      // The continuation header div should carry the hidden class (screen-hidden, print-visible via CSS)
+      expect(html).toMatch(
+        /reading-continuation-header[^"]*hidden|hidden[^"]*reading-continuation-header/
+      );
+    });
+
+    it("renders continuation header with correct content for free-reading variant", () => {
+      const html = renderToString(
+        React.createElement(PrintableReadingSheet, {
+          level: level1,
+          story: freeReadingStory,
+        })
+      );
+
+      // Also has continuation header
+      expect(html).toContain("reading-continuation-header");
+      // No hardcoded page number
+      expect(html).not.toContain("الصفحة ١/١");
+
+      // Eastern Arabic Numerals invariant
+      expect(findWesternNumeralsInRenderedHtml(html)).toEqual([]);
     });
   });
 });
