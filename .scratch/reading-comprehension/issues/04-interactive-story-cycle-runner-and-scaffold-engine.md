@@ -5,17 +5,17 @@ The core interactive story-cycle session runner at `/reading/level/[levelId]/sto
 
 **Blocked by:** 03: Reading level selection and story grid browser
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] Route `/reading/level/[levelId]/story/[storyId]` loads and renders the active story session with a horizontal 6-station stepper.
-- [ ] Teachers can freely switch between the 6 stations by clicking tabs or using step buttons.
-- [ ] Story text renders in the authentic **Amiri** (Naskh) Arabic font with comfortable line spacing and child-friendly font size.
-- [ ] Stations 1 & 2 display contextual Tashkeel toggles (full diacritics, partial, none) that transform the rendered text smoothly.
-- [ ] Station 2 (Guided Read) provides target word highlighting controls (colored, underlined, off) for sight words.
-- [ ] Stations 3–6 display a condensed, pinned version of the story text at the top of the screen that can be expanded if needed.
-- [ ] Station 3 renders the 3 QAR comprehension questions, each accompanied by an interactive "🔍 أين الدليل؟" button.
-- [ ] Clicking "أين الدليل؟" highlights the corresponding `textEvidenceSnippet` directly inside the pinned story text.
-- [ ] Station 4 renders the Inductive Grammar Lab: step 1 (examples), step 2 (observation), step 3 (concept label), and step 4 (production prompt).
-- [ ] Station 5 renders the Expression ladder prompt with support for oral-first acceptance.
-- [ ] Station 6 displays the session completion summary and link to the next story.
-- [ ] Component tests verify station switching, scaffold text transformations, and evidence snippet highlighting.
+- [x] Route `/reading/level/[levelId]/story/[storyId]` loads and renders the active story session with a horizontal 6-station stepper.
+- [x] Teachers can freely switch between the 6 stations by clicking tabs or using step buttons.
+- [x] Story text renders in the authentic **Amiri** (Naskh) Arabic font with comfortable line spacing and child-friendly font size.
+- [x] Stations 1 & 2 display contextual Tashkeel toggles (full diacritics, partial, none) that transform the rendered text smoothly.
+- [x] Station 2 (Guided Read) provides target word highlighting controls (colored, underlined, off) for sight words.
+- [x] Stations 3–6 display a condensed, pinned version of the story text at the top of the screen that can be expanded if needed.
+- [x] Station 3 renders the 3 QAR comprehension questions, each accompanied by an interactive "🔍 أين الدليل؟" button.
+- [x] Clicking "أين الدليل؟" highlights the corresponding `textEvidenceSnippet` directly inside the pinned story text.
+- [x] Station 4 renders the Inductive Grammar Lab: step 1 (examples), step 2 (observation), step 3 (concept label), and step 4 (production prompt).
+- [x] Station 5 renders the Expression ladder prompt with support for oral-first acceptance.
+- [x] Station 6 displays the session completion summary and link to the next story.
+- [x] Component tests verify station switching, scaffold text transformations, and evidence snippet highlighting.
