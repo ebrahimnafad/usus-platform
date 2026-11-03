@@ -13,11 +13,10 @@ export default function PrintableReadingSheet({ level, story }: Props) {
 
   return (
     <article
-      className="a4-sheet bg-white text-slate-900 mx-auto box-border p-6 hidden print:block overflow-hidden"
+      className="a4-sheet bg-white text-slate-900 mx-auto box-border p-6 hidden print:block"
       style={{
         width: "210mm",
         minHeight: "297mm",
-        maxHeight: "297mm",
       }}
       dir="rtl"
     >
@@ -92,7 +91,7 @@ export default function PrintableReadingSheet({ level, story }: Props) {
         /* Standard & Transfer Test Printable Layout (Story + QAR + Grammar Lab) */
         <div className="space-y-4">
           {/* 1. Story Text Box */}
-          <section className="border border-slate-300 rounded-xl p-4 bg-slate-50/40">
+          <section className="border border-slate-300 rounded-xl p-4 bg-slate-50/40 break-inside-avoid">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-black text-slate-800">
                 📖 نص القصة: «{story.titleAr ?? story.title}»
@@ -107,7 +106,7 @@ export default function PrintableReadingSheet({ level, story }: Props) {
           </section>
 
           {/* 2. QAR Comprehension Questions */}
-          <section className="border border-slate-300 rounded-xl p-4 bg-white">
+          <section className="border border-slate-300 rounded-xl p-4 bg-white break-inside-avoid">
             <div className="flex items-center justify-between mb-3 border-b border-slate-200 pb-1.5">
               <span className="text-xs font-black text-slate-900">
                 🔍 أسئلة الفهم (أين تعيش الإجابة؟):
@@ -149,7 +148,7 @@ export default function PrintableReadingSheet({ level, story }: Props) {
 
           {/* 3. Inductive Language Lab */}
           {story.grammarDiscovery && (
-            <section className="border border-slate-300 rounded-xl p-3.5 bg-slate-50/50">
+            <section className="border border-slate-300 rounded-xl p-3.5 bg-slate-50/50 break-inside-avoid">
               <div className="flex items-center justify-between mb-2 border-b border-slate-200 pb-1">
                 <span className="text-xs font-black text-slate-900">
                   🧩 معمل اللغة (اكتشف القاعدة):

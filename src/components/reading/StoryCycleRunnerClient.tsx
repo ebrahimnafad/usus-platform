@@ -285,7 +285,7 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
         </div>
       </section>
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-8 pt-6">
+      <main className="max-w-5xl mx-auto px-4 sm:px-8 pt-6 no-print">
         {/* Pinned Condensed Story for Stations 3–6 */}
         {activeStation >= 3 && (
           <PinnedStorySnippet

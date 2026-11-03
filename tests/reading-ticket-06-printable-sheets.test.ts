@@ -89,6 +89,36 @@ describe("Ticket 06 — Zero-Overflow Printable A4 Reading Worksheets", () => {
     });
   });
 
+  describe("Print Isolation and Natural Pagination (Ticket 01)", () => {
+    it("renders PrintableReadingSheet without overflow-hidden and without max-height", () => {
+      const html = renderToString(
+        React.createElement(PrintableReadingSheet, {
+          level: level1,
+          story: standardStory,
+        })
+      );
+
+      // Container should have a4-sheet but not overflow-hidden
+      expect(html).toContain("a4-sheet");
+      expect(html).not.toContain("overflow-hidden");
+      expect(html).not.toContain("max-height");
+      expect(html).not.toContain("maxHeight");
+
+      // Verify sections have break-inside avoid
+      expect(html).toContain("break-inside-avoid");
+    });
+
+    it("ensures StoryCycleRunnerPage has no-print on main wrapper to isolate printable sheet", async () => {
+      const pageComponent = await StoryCycleRunnerPage({
+        params: Promise.resolve({ levelId: "level-1", storyId: "1" }),
+      });
+      const html = renderToString(pageComponent);
+
+      // <main> wrapper must be hidden in print
+      expect(html).toMatch(/<main[^>]*class="[^"]*no-print[^"]*"/);
+    });
+  });
+
   describe("Page Integration", () => {
     it("includes PrintableReadingSheet inside the story cycle page", async () => {
       const pageComponent = await StoryCycleRunnerPage({
