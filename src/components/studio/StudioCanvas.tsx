@@ -17,6 +17,7 @@ import {
   PrinterIcon,
   WorksheetIcon,
 } from "@/components/studio/icons";
+import { printPdfViaIframe } from "@/lib/print-pdf-iframe";
 
 const VIEW_TABS = [
   { id: "worksheet", labelAr: "ورقة العمل", Icon: WorksheetIcon },
@@ -63,49 +64,15 @@ export function StudioCanvas({
   const handlePrint = async () => {
     if (typeof window === "undefined" || isPrinting) return;
     setIsPrinting(true);
+    const lessonAr = formatEasternNumber(bundle.lesson.lessonNumber);
+    const title = `ورقة عمل – ${bundle.grade.labelAr} – الدرس ${lessonAr} – ${bundle.seed}`;
     try {
-      // Dynamic title per Q4
-      const originalTitle = document.title;
-      const lessonAr = formatEasternNumber(bundle.lesson.lessonNumber);
-      document.title = `ورقة عمل – ${bundle.grade.labelAr} – الدرس ${lessonAr} – ${bundle.seed}`;
-
-      // Fetch PDF buffer per ADR-0011
-      const res = await fetch(pdfExportUrl);
-      if (!res.ok) {
-        throw new Error("Failed to fetch PDF for print");
-      }
-      const blob = await res.blob();
-      const blobUrl = URL.createObjectURL(blob);
-
-      const iframe = document.createElement("iframe");
-      iframe.style.position = "fixed";
-      iframe.style.right = "0";
-      iframe.style.bottom = "0";
-      iframe.style.width = "0";
-      iframe.style.height = "0";
-      iframe.style.border = "0";
-      iframe.src = blobUrl;
-
-      iframe.onload = () => {
-        setTimeout(() => {
-          try {
-            iframe.contentWindow?.focus();
-            iframe.contentWindow?.print();
-          } finally {
-            setTimeout(() => {
-              document.title = originalTitle;
-              document.body.removeChild(iframe);
-              URL.revokeObjectURL(blobUrl);
-              setIsPrinting(false);
-            }, 1000);
-          }
-        }, 100);
-      };
-
-      document.body.appendChild(iframe);
+      // Delegate full iframe-print lifecycle to the dedicated helper (ADR-0011).
+      await printPdfViaIframe(pdfExportUrl, title);
     } catch {
-      // Fallback to native print if fetch/iframe fails
+      // Fallback to native browser print on any failure.
       window.print();
+    } finally {
       setIsPrinting(false);
     }
   };

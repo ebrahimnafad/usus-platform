@@ -609,7 +609,7 @@ export function registerNumeralTraceVisualModel(): void {
           solved={solved}
           colorTheme={model.colorTheme ?? "indigo"}
         />
-        <span className="text-[11px] font-bold text-slate-700">
+        <span className="text-[11px] font-bold text-slate-700 pb-1">
           {toEasternArabicNumerals(model.labelAr)}
         </span>
       </div>

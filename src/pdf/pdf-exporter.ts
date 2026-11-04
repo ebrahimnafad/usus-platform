@@ -117,7 +117,7 @@ export async function exportWorksheetPdf(
     const twoPageBudgetPx = 1122 * 1.92;
     let scale =
       contentHeightPx > twoPageBudgetPx
-        ? Math.max(0.55, Math.min(1, twoPageBudgetPx / contentHeightPx))
+        ? Math.max(0.75, Math.min(1, twoPageBudgetPx / contentHeightPx)) // floor: ~12pt minimum for K-grade legibility
         : 1.0;
 
     let pdfBytes = await page.pdf({
@@ -141,9 +141,10 @@ export async function exportWorksheetPdf(
     );
     let pageCount = Math.max(countPdfPages(pdfBuffer), estimatedPageCount);
 
-    // If page-break-inside: avoid pushed an exercise onto page 3, tighten scale to guarantee <= 2 pages
-    if (pageCount > 2) {
-      scale = Math.max(0.5, scale * (1.8 / pageCount));
+    // If page-break-inside: avoid pushed an exercise onto page 3, allow up to 3 pages
+    // before tightening scale — floor of 0.65 prevents illegibly small text for K-grade.
+    if (pageCount > 3) {
+      scale = Math.max(0.65, scale * (1.8 / pageCount));
       pdfBytes = await page.pdf({
         format: "A4",
         landscape: false,

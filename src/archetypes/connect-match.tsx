@@ -162,8 +162,12 @@ function renderConnectMatchExercise({
 }: ArchetypeRenderProps): React.ReactElement {
   const data = exercise.data as ConnectMatchData;
   const rowCount = data.rightItems.length;
-  const rowHeight = 84;
-  const svgHeight = Math.max(rowCount * rowHeight, 84);
+  // ROW_HEIGHT_PX must exceed the tallest possible row (min-h-[76px] + content).
+  // Subitize groups of up to 5 items at "tiny" (30px) + padding stay comfortably
+  // under 100px, so SVG port y-coordinates computed from this constant stay aligned.
+  const ROW_HEIGHT_PX = 100;
+  const rowHeight = ROW_HEIGHT_PX;
+  const svgHeight = Math.max(rowCount * rowHeight, rowHeight);
 
   return (
     <div className="space-y-3" data-archetype="ConnectMatch">

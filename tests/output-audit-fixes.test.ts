@@ -4,6 +4,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 import React from "react";
 import { EverydayObjectSvg } from "@/visual-models/everyday-objects";
 import { VisualModelView } from "@/visual-models/registry";
+import * as fs from "fs";
+import * as path from "path";
 
 describe("Output Audit Fixes — Download PDF & Print Parity Seam Tests", () => {
   it("Seam 1 & 2: everyday-object visual models with total count >= 4 use tiny SVG size and ConnectMatch rows have min-h-[76px]", () => {
@@ -70,5 +72,60 @@ describe("Output Audit Fixes — Download PDF & Print Parity Seam Tests", () => 
     expect(panelHtml).toMatch(
       /data-studio-mobile-bar="true"[^>]*class="[^"]*no-print/
     );
+  });
+
+  it("Seam 4: printPdfViaIframe helper is exported as a function", async () => {
+    // Import the module — if the file doesn't exist or has TS errors, this fails.
+    const mod = await import("@/lib/print-pdf-iframe");
+    expect(typeof mod.printPdfViaIframe).toBe("function");
+  });
+
+  it("Seam 5: numeral-trace label span includes pb-1 padding class", () => {
+    // Read the source (not rendered HTML) to verify the padding class was added.
+    const srcPath = path.resolve(
+      __dirname,
+      "../src/visual-models/unit-2-models.tsx"
+    );
+    const src = fs.readFileSync(srcPath, "utf8");
+    // The span holding the label below NumeralTraceSvg must have pb-1
+    expect(src).toMatch(/text-\[11px\] font-bold text-slate-700 pb-1/);
+  });
+
+  it("Seam 6: ConnectMatch SVG rowHeight constant is at least 96px", () => {
+    const srcPath = path.resolve(
+      __dirname,
+      "../src/archetypes/connect-match.tsx"
+    );
+    const src = fs.readFileSync(srcPath, "utf8");
+    // ROW_HEIGHT_PX must be >= 96 to accommodate min-h-[76px] + content
+    const match = src.match(/ROW_HEIGHT_PX\s*=\s*(\d+)/);
+    expect(match).not.toBeNull();
+    const value = parseInt(match![1], 10);
+    expect(value).toBeGreaterThanOrEqual(96);
+  });
+
+  it("Seam 7: PDF exporter initial scale floor is at least 0.70", () => {
+    const srcPath = path.resolve(__dirname, "../src/pdf/pdf-exporter.ts");
+    const src = fs.readFileSync(srcPath, "utf8");
+    // The Math.max(X, Math.min(1, ...)) initial floor must be >= 0.70
+    const match = src.match(/Math\.max\((0\.\d+),\s*Math\.min\(1,/);
+    expect(match).not.toBeNull();
+    const value = parseFloat(match![1]);
+    expect(value).toBeGreaterThanOrEqual(0.7);
+  });
+
+  it("Seam 8: StudioCanvas delegates print to printPdfViaIframe (no inline iframe logic)", () => {
+    const srcPath = path.resolve(
+      __dirname,
+      "../src/components/studio/StudioCanvas.tsx"
+    );
+    const src = fs.readFileSync(srcPath, "utf8");
+    // The helper should be imported
+    expect(src).toContain("printPdfViaIframe");
+    // The vague Q4 comment should be gone
+    expect(src).not.toContain("per Q4");
+    // No inline iframe creation in StudioCanvas itself
+    expect(src).not.toContain('createElement("iframe")');
+    expect(src).not.toContain("createElement('iframe')");
   });
 });

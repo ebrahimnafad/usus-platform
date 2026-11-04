@@ -160,6 +160,46 @@ p { margin: 0; font-size: 13px; font-weight: 700; }
 .gap-1\\.5 { gap: 6px; }
 .gap-2 { gap: 8px; }
 .gap-3 { gap: 12px; }
+
+/* Section header background tints */
+[data-section-id="warm-up"] > div:first-child { background: rgb(254 243 199 / 0.9); border-radius: 16px; }
+[data-section-id="practice"] > div:first-child { background: rgb(224 242 254 / 0.9); border-radius: 16px; }
+[data-section-id="challenge"] > div:first-child { background: rgb(237 233 254 / 0.9); border-radius: 16px; }
+
+/* Badge/label text colors */
+.text-amber-950 { color: #451a03; }
+.text-sky-950 { color: #082f49; }
+.text-violet-950 { color: #2e1065; }
+.text-indigo-950 { color: #1e1b4b; }
+.text-teal-950 { color: #042f2e; }
+
+/* Border-radius utilities */
+.rounded-2xl { border-radius: 16px; }
+.rounded-3xl { border-radius: 24px; }
+.rounded-xl { border-radius: 12px; }
+.rounded-lg { border-radius: 8px; }
+.rounded-full { border-radius: 9999px; }
+
+/* Font-size utilities */
+.text-xl { font-size: 20px; }
+.text-base { font-size: 16px; }
+.text-sm { font-size: 14px; }
+.text-xs { font-size: 12px; }
+.text-\[11px\] { font-size: 11px; }
+
+/* Padding utilities */
+.p-3 { padding: 12px; }
+.p-4 { padding: 16px; }
+.px-3 { padding-left: 12px; padding-right: 12px; }
+.py-1\.5 { padding-top: 6px; padding-bottom: 6px; }
+.pb-1 { padding-bottom: 4px; }
+
+/* Vertical spacing */
+.space-y-3 > * + * { margin-top: 12px; }
+.space-y-4 > * + * { margin-top: 16px; }
+
+/* Shadow */
+.shadow-2xs { box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); }
 `;
 
 function sanitizeFilenamePart(value: string | number): string {
