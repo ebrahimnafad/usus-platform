@@ -34,6 +34,10 @@ _Avoid_: Lesson plan, teacher guide
 The intermediate screen at `/math` presenting all six grades as a visually rich card grid, serving as the entry point into the Teacher Studio for a specific grade.
 _Avoid_: Grade selector, grade picker, grade menu
 
+**Teacher Studio**:
+The per-grade workspace where a teacher chooses a Lesson, tunes how its Worksheet is generated, and previews, prints, or exports it. It is entered from the Grade Hub and scoped to one Grade.
+_Avoid_: Studio, worksheet editor, generator, builder
+
 ### Mathematics Worksheet Structure & Generation
 
 **Worksheet**:
@@ -65,8 +69,12 @@ A single mathematical problem or activity within a section of a worksheet.
 _Avoid_: Question, item, task, prompt
 
 **Difficulty Level**:
-One of three tiers—Easy, Intermediate, or Advanced—indicating cognitive demand, either progressing across a standard worksheet or selected to produce a differentiated worksheet.
-_Avoid_: Grade level, complexity tier, skill level
+One of three tiers—Easy, Intermediate, or Advanced—expressing the cognitive demand that holds across a whole worksheet.
+_Avoid_: Grade level, complexity tier, skill level, difficulty mode
+
+**Difficulty Mode**:
+The worksheet-wide policy for distributing difficulty: either **Scaffolded**, where demand ramps across the three Sections, or a single Difficulty Level held throughout. A worksheet is generated under exactly one Difficulty Mode, so Scaffolded and the three Difficulty Levels are mutually exclusive choices.
+_Avoid_: Difficulty setting, difficulty type, level mode, mixed difficulty
 
 **Visual Model**:
 A richly styled SVG mathematical diagram, manipulative illustration, or icon set used within an exercise to represent quantities, shapes, and relationships pictorially (such as five/ten frames, snap cubes, tally marks, 2D/3D shapes, coins, dice, number bonds, arrays, or bar models).

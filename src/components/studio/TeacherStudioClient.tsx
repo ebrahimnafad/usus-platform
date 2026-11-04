@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type {
   GeneratedWorksheetBundle,
   Grade,
@@ -74,6 +75,12 @@ export function TeacherStudio({
   isLoading = false,
   onNavigateState,
 }: TeacherStudioProps): React.ReactElement {
+  let router: ReturnType<typeof useRouter> | null = null;
+  try {
+    router = useRouter();
+  } catch {
+    router = null;
+  }
   const prefersReduced = useReducedMotion();
   const [selectedGradeId, setSelectedGradeId] = useState<GradeId>(
     gradeId ?? initialBundle.grade.id
@@ -127,7 +134,9 @@ export function TeacherStudio({
     }
 
     const queryString = buildStudioSearchParams(nextState);
-    if (typeof window !== "undefined") {
+    if (router) {
+      router.push(`/math/${grade.toLowerCase()}?${queryString}`);
+    } else if (typeof window !== "undefined") {
       window.location.search = queryString;
     }
   };
@@ -415,6 +424,38 @@ export function TeacherStudio({
                                   viewMode
                                 )
                               }
+                              onMouseEnter={() => {
+                                if (router) {
+                                  router.prefetch(
+                                    `/math/${lesson.grade.toLowerCase()}?${buildStudioSearchParams(
+                                      {
+                                        grade: lesson.grade,
+                                        lessonNumber: lesson.lessonNumber,
+                                        seed: initialBundle.seed,
+                                        difficultyLevel:
+                                          initialBundle.difficultyMode,
+                                        viewMode,
+                                      }
+                                    )}`
+                                  );
+                                }
+                              }}
+                              onFocus={() => {
+                                if (router) {
+                                  router.prefetch(
+                                    `/math/${lesson.grade.toLowerCase()}?${buildStudioSearchParams(
+                                      {
+                                        grade: lesson.grade,
+                                        lessonNumber: lesson.lessonNumber,
+                                        seed: initialBundle.seed,
+                                        difficultyLevel:
+                                          initialBundle.difficultyMode,
+                                        viewMode,
+                                      }
+                                    )}`
+                                  );
+                                }
+                              }}
                               className={`flex w-full flex-col gap-1 rounded-xl px-2.5 py-2 text-right transition ${
                                 isCurrent
                                   ? accents.activeButtonBg
