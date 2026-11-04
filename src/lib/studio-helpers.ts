@@ -34,11 +34,28 @@ export type StudioNavigationAction =
 export const DIFFICULTY_OPTIONS: Array<{
   value: WorksheetDifficultyMode;
   labelAr: string;
+  explainerAr: string;
 }> = [
-  { value: "scaffolded", labelAr: "متدرج" },
-  { value: "Easy", labelAr: "سهل" },
-  { value: "Intermediate", labelAr: "متوسط" },
-  { value: "Advanced", labelAr: "متقدم" },
+  {
+    value: "scaffolded",
+    labelAr: "متدرج",
+    explainerAr: "يبدأ سهلًا ويشتدّ عبر الأقسام الثلاثة",
+  },
+  {
+    value: "Easy",
+    labelAr: "سهل",
+    explainerAr: "كل التمارين بمستوى سهل",
+  },
+  {
+    value: "Intermediate",
+    labelAr: "متوسط",
+    explainerAr: "كل التمارين بمستوى متوسط",
+  },
+  {
+    value: "Advanced",
+    labelAr: "متقدم",
+    explainerAr: "كل التمارين بمستوى متقدم",
+  },
 ];
 
 export function formatGradePillLabelAr(grade: Grade): string {

@@ -62,7 +62,7 @@ describe("Ticket 01 — Hub Page and Domain Route Migration", () => {
       // 4. Studio controls intact (Grade pills, search, difficulty, accordion)
       expect(html).toContain("الروضة K");
       expect(html).toContain("الصف ١");
-      expect(html).toContain("مستوى الصعوبة");
+      expect(html).toContain("نمط الصعوبة");
       expect(html).toContain('data-grade-pill="K"');
 
       // 5. Strict Eastern Arabic Numerals invariant

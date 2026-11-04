@@ -5,6 +5,144 @@
   margin: 0;
 }
 
+/* ── Teacher Studio theme tokens (scoped to the studio shell) ───────── */
+.studio-shell-root {
+  --studio-panel: #fbfaf7;
+  --studio-seam: #e7e2d8;
+  --studio-dot: #e9e4da;
+  --studio-plate-shadow:
+    0 1px 2px rgb(28 25 23 / 0.06), 0 8px 24px -12px rgb(28 25 23 / 0.18);
+  --studio-radius: 1.25rem;
+}
+
+.studio-panel,
+.studio-mobile-bar {
+  background-color: var(--studio-panel);
+}
+
+.studio-panel {
+  transition: width 220ms ease-out;
+}
+
+/* Grade changes crossfade only accent-tinted surfaces; text snaps. */
+.studio-tint-surface {
+  transition-property: background-color, border-color;
+  transition-duration: 300ms;
+  transition-timing-function: ease-out;
+}
+
+.studio-catalogue {
+  position: relative;
+  isolation: isolate;
+}
+
+.studio-catalogue::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(var(--studio-dot) 1px, transparent 1px);
+  background-size: 16px 16px;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 28px,
+    #000 calc(100% - 28px),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 28px,
+    #000 calc(100% - 28px),
+    transparent 100%
+  );
+}
+
+.studio-unit-header {
+  background-color: var(--studio-panel);
+  box-shadow: 0 1px 0 var(--studio-seam);
+}
+
+.studio-panel-sheet {
+  height: var(--studio-sheet-height, 88dvh);
+  transition: height 180ms ease-out;
+}
+
+@media (min-width: 1024px) {
+  .studio-panel-sheet {
+    height: 100%;
+  }
+}
+
+.studio-pending-bar {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 2px;
+  overflow: hidden;
+  z-index: 30;
+  opacity: 0;
+  animation: studio-pending-reveal 0ms linear 150ms forwards;
+}
+
+.studio-pending-bar::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 32%;
+  background: inherit;
+  animation: studio-pending-travel 1.2s ease-in-out 150ms infinite;
+}
+
+@keyframes studio-pending-reveal {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes studio-pending-travel {
+  0% {
+    transform: translateY(-40%);
+  }
+  100% {
+    transform: translateY(340%);
+  }
+}
+
+.studio-panel :focus-visible,
+.studio-canvas :focus-visible,
+.studio-mobile-bar :focus-visible {
+  outline: 2px solid var(--studio-accent, #4338ca);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .studio-panel,
+  .studio-panel *,
+  .studio-canvas,
+  .studio-canvas *,
+  .studio-mobile-bar,
+  .studio-mobile-bar * {
+    transition-duration: 0ms !important;
+    animation-duration: 0ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+
+  .studio-pending-bar {
+    animation-delay: 0ms !important;
+  }
+
+  .studio-pending-bar::after {
+    top: 0;
+    height: 100%;
+    animation: none !important;
+  }
+}
+
 @layer base {
   html,
   body {
@@ -26,6 +164,19 @@
 
   .no-print {
     display: none !important;
+  }
+
+  .studio-shell-root,
+  .studio-workspace,
+  .studio-canvas {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+  }
+
+  .studio-canvas {
+    padding: 0 !important;
+    background: #ffffff !important;
   }
 
   .a4-sheet {

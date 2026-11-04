@@ -4,12 +4,12 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** ready-for-agent
+**Status:** closed
 
-- [ ] The curriculum panel renders standalone from explicit props: the current grade's catalog, current lesson number, seed, difficulty mode, and search query
-- [ ] The canvas renders standalone from a generated worksheet bundle, view mode, and zoom level
-- [ ] Neither half reaches for router hooks, global state, or the other half's state; the composite owns orchestration
-- [ ] The composite still renders panel plus canvas and every existing studio contract test passes with no edits
-- [ ] Rendered markup is unchanged: no new visible strings, no new attributes, no reordered sections
-- [ ] Navigating lessons, regenerating a seed, switching view modes, zooming, printing, and exporting the PDF all behave exactly as before
-- [ ] The legacy grade-query route, the scripted loading state, and the server-render helper keep working untouched
+- [x] The curriculum panel renders standalone from explicit props: the current grade's catalog, current lesson number, seed, difficulty mode, and search query
+- [x] The canvas renders standalone from a generated worksheet bundle, view mode, and zoom level
+- [x] Neither half reaches for router hooks, global state, or the other half's state; the composite owns orchestration
+- [x] The composite still renders panel plus canvas and every existing studio contract test passes with no edits
+- [x] Rendered markup is unchanged: no new visible strings, no new attributes, no reordered sections
+- [x] Navigating lessons, regenerating a seed, switching view modes, zooming, printing, and exporting the PDF all behave exactly as before
+- [x] The legacy grade-query route, the scripted loading state, and the server-render helper keep working untouched

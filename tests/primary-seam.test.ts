@@ -251,7 +251,7 @@ describe("Primary Seam — A4 Worksheet, Mirrored Answer Key, Teacher Notes Rend
     expect(worksheetHtml).toContain("تدرّب");
     expect(worksheetHtml).toContain("🚀");
     expect(worksheetHtml).toContain("تحدٍّ وتقييم");
-    expect(worksheetHtml).toContain("رمز النموذج: RENDER-٢٠٢٦");
+    expect(worksheetHtml).toContain("رمز الورقة: RENDER-٢٠٢٦");
     expect(worksheetHtml).toContain('data-visual-model="everyday-object"');
     // Student worksheet must NOT contain solved connection curves or teacher notes
     expect(worksheetHtml).not.toContain("data-solved-connection=");

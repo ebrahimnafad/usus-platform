@@ -110,6 +110,11 @@ export interface GradeAccentStyles {
   activeBadgeBg: string;
   activeTabBg: string;
   primaryButtonBg: string;
+  accentText: string;
+  accentTint: string;
+  accentBorder: string;
+  accentHex: string;
+  accentSoftHex: string;
 }
 
 export const GRADE_ACCENTS: Record<GradeColorToken, GradeAccentStyles> = {
@@ -118,36 +123,66 @@ export const GRADE_ACCENTS: Record<GradeColorToken, GradeAccentStyles> = {
     activeBadgeBg: "bg-rose-800 text-rose-100",
     activeTabBg: "bg-rose-600 text-white shadow-2xs",
     primaryButtonBg: "bg-rose-600 hover:bg-rose-700 text-white",
+    accentText: "text-rose-700",
+    accentTint: "bg-rose-50",
+    accentBorder: "border-rose-200",
+    accentHex: "#be123c",
+    accentSoftHex: "#fff1f2",
   },
   orange: {
     activeButtonBg: "bg-orange-600 text-white",
     activeBadgeBg: "bg-orange-800 text-orange-100",
     activeTabBg: "bg-orange-600 text-white shadow-2xs",
     primaryButtonBg: "bg-orange-600 hover:bg-orange-700 text-white",
+    accentText: "text-orange-700",
+    accentTint: "bg-orange-50",
+    accentBorder: "border-orange-200",
+    accentHex: "#c2410c",
+    accentSoftHex: "#fff7ed",
   },
   amber: {
     activeButtonBg: "bg-amber-600 text-white",
     activeBadgeBg: "bg-amber-800 text-amber-100",
     activeTabBg: "bg-amber-600 text-white shadow-2xs",
     primaryButtonBg: "bg-amber-600 hover:bg-amber-700 text-white",
+    accentText: "text-amber-700",
+    accentTint: "bg-amber-50",
+    accentBorder: "border-amber-200",
+    accentHex: "#b45309",
+    accentSoftHex: "#fffbeb",
   },
   emerald: {
     activeButtonBg: "bg-emerald-600 text-white",
     activeBadgeBg: "bg-emerald-800 text-emerald-100",
     activeTabBg: "bg-emerald-600 text-white shadow-2xs",
     primaryButtonBg: "bg-emerald-600 hover:bg-emerald-700 text-white",
+    accentText: "text-emerald-700",
+    accentTint: "bg-emerald-50",
+    accentBorder: "border-emerald-200",
+    accentHex: "#047857",
+    accentSoftHex: "#ecfdf5",
   },
   sky: {
     activeButtonBg: "bg-sky-600 text-white",
     activeBadgeBg: "bg-sky-800 text-sky-100",
     activeTabBg: "bg-sky-600 text-white shadow-2xs",
     primaryButtonBg: "bg-sky-600 hover:bg-sky-700 text-white",
+    accentText: "text-sky-700",
+    accentTint: "bg-sky-50",
+    accentBorder: "border-sky-200",
+    accentHex: "#0369a1",
+    accentSoftHex: "#f0f9ff",
   },
   violet: {
     activeButtonBg: "bg-violet-600 text-white",
     activeBadgeBg: "bg-violet-800 text-violet-100",
     activeTabBg: "bg-violet-600 text-white shadow-2xs",
     primaryButtonBg: "bg-violet-600 hover:bg-violet-700 text-white",
+    accentText: "text-violet-700",
+    accentTint: "bg-violet-50",
+    accentBorder: "border-violet-200",
+    accentHex: "#6d28d9",
+    accentSoftHex: "#f5f3ff",
   },
 };
 
@@ -156,6 +191,11 @@ export const DEFAULT_GRADE_ACCENTS: GradeAccentStyles = {
   activeBadgeBg: "bg-indigo-800 text-indigo-100",
   activeTabBg: "bg-indigo-600 text-white shadow-2xs",
   primaryButtonBg: "bg-indigo-600 hover:bg-indigo-700 text-white",
+  accentText: "text-indigo-700",
+  accentTint: "bg-indigo-50",
+  accentBorder: "border-indigo-200",
+  accentHex: "#4338ca",
+  accentSoftHex: "#eef2ff",
 };
 
 export function getGradeAccents(color?: GradeColorToken): GradeAccentStyles {

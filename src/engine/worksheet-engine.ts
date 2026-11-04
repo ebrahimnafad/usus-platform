@@ -300,7 +300,7 @@ export function generateWorksheet(
   const footerTextAr = `منصة أوراق العمل الرياضية للصفوف K–٥ • ${gradeObj.labelAr} • الدرس ${formatEasternNumber(
     lesson.lessonNumber
   )}`;
-  const seedBadgeAr = `رمز النموذج: ${seedAr}`;
+  const seedBadgeAr = `رمز الورقة: ${seedAr}`;
   const pageNumberAr = `صفحة ${formatEasternNumber(1)} من ${formatEasternNumber(1)}`;
 
   const worksheet: Worksheet = {

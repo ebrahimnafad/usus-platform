@@ -2,16 +2,13 @@ import React from "react";
 import { notFound } from "next/navigation";
 import { getCurriculumCatalog } from "@/curriculum/catalog";
 import { generateWorksheet } from "@/engine/worksheet-engine";
-import {
-  TeacherStudio,
-  type StudioSearchParamsInput,
-} from "@/components/studio/TeacherStudioClient";
+import type { StudioSearchParamsInput } from "@/lib/studio-state";
 import { normalizeGradeId } from "@/config/grades";
 import {
   resolveStudioStateFromSearchParams,
   VALID_GRADES,
 } from "@/lib/studio-state";
-import type { GradeId } from "@/domain/types";
+import { StudioPageContent } from "@/components/studio/StudioPageContent";
 
 export default async function GradeStudioPage({
   params,
@@ -27,7 +24,7 @@ export default async function GradeStudioPage({
     notFound();
   }
 
-  const catalog = getCurriculumCatalog();
+  const grade = getCurriculumCatalog().grades[normalizedGradeId];
   const resolved = (await searchParams) ?? {};
   const state = resolveStudioStateFromSearchParams({
     ...resolved,
@@ -42,14 +39,11 @@ export default async function GradeStudioPage({
   });
 
   return (
-    <TeacherStudio
+    <StudioPageContent
       gradeId={normalizedGradeId}
-      grades={catalog.gradeList}
-      initialBundle={bundle}
-      initialViewMode={state.viewMode}
-      initialSearchQuery={state.searchQuery}
-      initialZoomPercent={state.zoomPercent}
-      showGradePills={false}
+      grade={grade}
+      bundle={bundle}
+      state={state}
     />
   );
 }

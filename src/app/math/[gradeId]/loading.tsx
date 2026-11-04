@@ -1,17 +1,17 @@
 import React from "react";
-import { StudioSkeleton } from "@/components/studio/StudioSkeleton";
+import { StudioCanvasSkeleton } from "@/components/studio/StudioSkeleton";
 
+/**
+ * The route fallback covers the canvas only. The panel belongs to the layout
+ * and must never be replaced by a skeleton.
+ */
 export default function GradeStudioLoading(): React.ReactElement {
   return (
     <div
-      dir="rtl"
-      lang="ar"
-      className="flex min-h-screen flex-col bg-slate-100"
       data-studio-loading-root="true"
+      className="flex min-h-0 flex-1 flex-col bg-slate-100"
     >
-      {/* Top placeholder bar */}
-      <div className="no-print h-14 w-full bg-slate-300/80 animate-pulse" />
-      <StudioSkeleton />
+      <StudioCanvasSkeleton />
     </div>
   );
 }

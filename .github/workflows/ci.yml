@@ -18,4 +18,18 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run lint:numerals
+      - run: npm run lint:console
       - run: npm test
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # Install Microsoft Edge — the E2E suite uses channel:"msedge" (see AGENTS.md)
+      - run: npx playwright install msedge --with-deps
+      - run: npm run test:e2e
