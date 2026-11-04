@@ -15,7 +15,7 @@ import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import { StudioSkeleton } from "@/components/studio/StudioSkeleton";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { StudioHeader } from "@/components/math/studio-header";
-import { GRADES, getGradeConfig } from "@/config/grades";
+import { GRADES, getGradeConfig, getGradeAccents } from "@/config/grades";
 import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
 import {
   VALID_GRADES,
@@ -55,7 +55,12 @@ export interface TeacherStudioProps {
 
 export type TeacherStudioClientProps = TeacherStudioProps;
 
-export { resolveStudioStateFromSearchParams, GRADES, getGradeConfig };
+export {
+  resolveStudioStateFromSearchParams,
+  GRADES,
+  getGradeConfig,
+  getGradeAccents,
+};
 
 export function TeacherStudio({
   gradeId,
@@ -78,6 +83,9 @@ export function TeacherStudio({
     () => grades.find((g) => g.id === selectedGradeId) ?? grades[0],
     [grades, selectedGradeId]
   );
+
+  const gradeConfig = getGradeConfig(selectedGradeId);
+  const accents = getGradeAccents(gradeConfig?.color);
 
   const [expandedUnitNumbers, setExpandedUnitNumbers] = useState<number[]>(
     () =>
@@ -248,7 +256,7 @@ export function TeacherStudio({
                         }}
                         className={`rounded-xl px-2.5 py-1.5 text-xs font-extrabold transition ${
                           active
-                            ? "bg-indigo-600 text-white shadow-xs"
+                            ? `${accents.activeButtonBg} shadow-xs`
                             : "bg-slate-100 text-slate-800 hover:bg-slate-200"
                         }`}
                       >
@@ -302,8 +310,8 @@ export function TeacherStudio({
                         }
                         className={`rounded-lg px-2 py-1 text-xs font-extrabold transition ${
                           isSelected
-                            ? "bg-indigo-600 text-white"
-                            : "bg-white text-indigo-900 hover:bg-indigo-100"
+                            ? accents.activeButtonBg
+                            : "bg-white text-slate-800 hover:bg-slate-100"
                         }`}
                       >
                         {opt.labelAr}
@@ -409,9 +417,10 @@ export function TeacherStudio({
                               }
                               className={`flex w-full flex-col gap-1 rounded-xl px-2.5 py-2 text-right transition ${
                                 isCurrent
-                                  ? "bg-indigo-600 text-white"
+                                  ? accents.activeButtonBg
                                   : "text-slate-800 hover:bg-slate-100"
                               }`}
+                              aria-current={isCurrent ? "true" : undefined}
                             >
                               <div className="flex items-center justify-between gap-1 text-xs font-extrabold">
                                 <span>
@@ -426,7 +435,7 @@ export function TeacherStudio({
                                     data-standard-code="true"
                                     className={`rounded px-1.5 py-0.5 font-mono text-[10px] font-bold ${
                                       isCurrent
-                                        ? "bg-indigo-800 text-indigo-100"
+                                        ? accents.activeBadgeBg
                                         : "bg-slate-200 text-slate-700"
                                     }`}
                                   >
@@ -480,7 +489,7 @@ export function TeacherStudio({
                     onClick={() => setViewMode(tab.id)}
                     className={`rounded-lg px-3.5 py-1.5 text-xs font-extrabold transition ${
                       viewMode === tab.id
-                        ? "bg-indigo-600 text-white shadow-2xs"
+                        ? accents.activeTabBg
                         : "text-slate-700 hover:text-slate-900"
                     }`}
                   >
@@ -522,7 +531,7 @@ export function TeacherStudio({
                 <a
                   href={pdfExportUrl}
                   data-pdf-download="true"
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-3.5 py-1.5 text-xs font-extrabold text-white shadow-2xs transition hover:bg-indigo-700"
+                  className={`inline-flex items-center gap-1.5 rounded-xl ${accents.primaryButtonBg} px-3.5 py-1.5 text-xs font-extrabold shadow-2xs transition`}
                 >
                   📥 تحميل PDF
                 </a>

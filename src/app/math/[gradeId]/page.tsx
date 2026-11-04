@@ -6,6 +6,7 @@ import {
   TeacherStudio,
   type StudioSearchParamsInput,
 } from "@/components/studio/TeacherStudioClient";
+import { normalizeGradeId } from "@/config/grades";
 import {
   resolveStudioStateFromSearchParams,
   VALID_GRADES,
@@ -20,9 +21,7 @@ export default async function GradeStudioPage({
   searchParams?: Promise<StudioSearchParamsInput>;
 }): Promise<React.ReactElement> {
   const { gradeId: rawGradeId } = await params;
-  const normalizedGradeId = (
-    rawGradeId.toUpperCase() === "K" ? "K" : rawGradeId
-  ) as GradeId;
+  const normalizedGradeId = normalizeGradeId(rawGradeId);
 
   if (!VALID_GRADES.includes(normalizedGradeId)) {
     notFound();

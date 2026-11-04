@@ -1,5 +1,3 @@
-export { useReducedMotion } from "@/hooks/use-reduced-motion";
-
 /**
  * Standard Framer Motion transition curves and durations for the Usus platform.
  */

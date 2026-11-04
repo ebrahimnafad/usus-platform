@@ -9,6 +9,7 @@ import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { BackButton } from "@/components/layout/back-button";
 import { GradeCardVisualModel } from "@/components/math/grade-card-models";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
+import { toEasternArabicNumerals } from "@/lib/numerals";
 
 export interface StudioHeaderProps {
   gradeId: GradeId;
@@ -36,7 +37,11 @@ export function StudioHeader({
     color in GRADIENT_MAP
       ? GRADIENT_MAP[color as GradeColorToken]
       : "from-indigo-600 to-indigo-500";
-  const label = gradeLabel ?? config?.label ?? `الصف ${gradeId}`;
+  const fallbackLabel =
+    gradeId.toUpperCase() === "K"
+      ? "الروضة"
+      : `الصف ${toEasternArabicNumerals(gradeId)}`;
+  const label = gradeLabel ?? config?.label ?? fallbackLabel;
   const gradeKey = gradeId.toLowerCase();
   const prefersReduced = useReducedMotion();
 
