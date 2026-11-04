@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import type { ReadingLevel, ReadingStory } from "@/domain/reading-types";
 import {
   transformTashkeel,
@@ -136,7 +137,10 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
 
   // RENDER VARIANT 2: STANDARD OR TRANSFER-TEST STORY CYCLE
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 pb-24" dir="rtl">
+    <div
+      className="min-h-screen bg-slate-50 text-slate-900 pb-24 print:pb-0 print:min-h-0 print:bg-white"
+      dir="rtl"
+    >
       {/* Top Navigation Bar */}
       <header className="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-200 px-4 sm:px-8 py-3 no-print">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
@@ -160,35 +164,20 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
               </span>
             </Link>
             <span className="text-slate-300 font-bold">/</span>
-            <nav className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-slate-500">
-              <Link href="/" className="hover:text-emerald-700 transition">
-                الرئيسية
-              </Link>
-              <span className="text-slate-300">›</span>
-              <Link
-                href="/reading"
-                className="hover:text-emerald-700 transition"
-              >
-                القراءة
-              </Link>
-              <span className="text-slate-300">›</span>
-              <Link
-                href={`/reading/level/${level.id}`}
-                className="hover:text-emerald-700 transition"
-              >
-                {level.titleAr}
-              </Link>
-              <span className="text-slate-300">›</span>
-              <span
-                className={`px-2 py-0.5 rounded-lg border max-w-[140px] sm:max-w-none truncate ${
-                  isTransferTest
-                    ? "bg-indigo-50 text-indigo-900 border-indigo-200 font-black"
-                    : "bg-emerald-50 text-emerald-800 border-emerald-200"
-                }`}
-              >
-                {story.titleAr ?? story.title}
-              </span>
-            </nav>
+            <Breadcrumbs
+              segments={[
+                { label: "الرئيسية", href: "/" },
+                { label: "القراءة", href: "/reading" },
+                { label: level.titleAr, href: `/reading/level/${level.id}` },
+                { label: story.titleAr ?? story.title },
+              ]}
+              activeItemClassName={`px-2 py-0.5 rounded-lg border max-w-[140px] sm:max-w-none truncate ${
+                isTransferTest
+                  ? "bg-indigo-50 text-indigo-900 border-indigo-200 font-black"
+                  : "bg-emerald-50 text-emerald-800 border-emerald-200"
+              }`}
+              linkClassName="hover:text-emerald-700 transition"
+            />
           </div>
 
           <div className="flex items-center gap-2">

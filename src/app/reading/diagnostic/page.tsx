@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import {
   DIAGNOSTIC_QUESTIONS,
   evaluateDiagnosticAnswers,
@@ -48,16 +49,14 @@ export default function DiagnosticPage() {
               أُسُس
             </Link>
             <span className="text-slate-300">/</span>
-            <Link
-              href="/reading"
-              className="text-sm font-medium text-slate-600 hover:text-emerald-700 transition-colors"
-            >
-              نادي القراءة
-            </Link>
-            <span className="text-slate-300">/</span>
-            <span className="text-sm font-semibold text-emerald-800">
-              أداة التشخيص وتحديد المستوى
-            </span>
+            <Breadcrumbs
+              segments={[
+                { label: "نادي القراءة", href: "/reading" },
+                { label: "أداة التشخيص وتحديد المستوى" },
+              ]}
+              activeItemClassName="text-sm font-semibold text-emerald-800"
+              linkClassName="text-sm font-medium text-slate-600 hover:text-emerald-700 transition-colors"
+            />
           </div>
 
           <Link
@@ -80,7 +79,10 @@ export default function DiagnosticPage() {
             استبانة تشخيص مستوى القراءة والفهم
           </h1>
           <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-2xl">
-            أجب عن الأسئلة الستة التالية لتحديد قدرات الطفل بدقة بين التهجئة الصوتية، والتعرف البصري، والفهم الذاتي مقابل السماعي، وتحديد الجاهزية لدخول المستوى الأول (الانطلاق وبناء المعنى) أو مستويات أخرى، والحصول على رابط فوري للبدء.
+            أجب عن الأسئلة الستة التالية لتحديد قدرات الطفل بدقة بين التهجئة
+            الصوتية، والتعرف البصري، والفهم الذاتي مقابل السماعي، وتحديد
+            الجاهزية لدخول المستوى الأول (الانطلاق وبناء المعنى) أو مستويات
+            أخرى، والحصول على رابط فوري للبدء.
           </p>
 
           {/* Progress Bar */}
@@ -90,7 +92,8 @@ export default function DiagnosticPage() {
                 الأسئلة المجاب عنها:
               </span>
               <span className="font-mono bg-white px-2.5 py-0.5 rounded-md border border-slate-200 text-slate-800">
-                {formatEasternNumber(answeredCount)} من {formatEasternNumber(totalQuestions)}
+                {formatEasternNumber(answeredCount)} من{" "}
+                {formatEasternNumber(totalQuestions)}
               </span>
             </div>
             <div className="w-full sm:w-48 bg-slate-200 rounded-full h-2 overflow-hidden">
@@ -148,7 +151,9 @@ export default function DiagnosticPage() {
                       <button
                         type="button"
                         key={option.id}
-                        onClick={() => handleSelectOption(question.id, option.id)}
+                        onClick={() =>
+                          handleSelectOption(question.id, option.id)
+                        }
                         className={`w-full text-right p-3.5 rounded-lg border text-sm transition-all flex items-start gap-3 cursor-pointer ${
                           isSelected
                             ? "bg-emerald-50/80 border-emerald-500 text-emerald-950 font-medium shadow-xs"

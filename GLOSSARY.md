@@ -30,6 +30,10 @@ _Avoid_: Dependency, prior skill
 Pedagogical guidance and delivery context for the teacher (including co-presentation and enrichment notes) shown in the application but excluded from printable worksheets.
 _Avoid_: Lesson plan, teacher guide
 
+**Grade Hub**:
+The intermediate screen at `/math` presenting all six grades as a visually rich card grid, serving as the entry point into the Teacher Studio for a specific grade.
+_Avoid_: Grade selector, grade picker, grade menu
+
 ### Mathematics Worksheet Structure & Generation
 
 **Worksheet**:

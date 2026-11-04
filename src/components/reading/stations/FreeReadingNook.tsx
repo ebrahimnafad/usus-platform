@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import type { ReadingLevel, ReadingStory } from "@/domain/reading-types";
 import TeacherShieldDrawer from "../TeacherShieldDrawer";
 import PrintableReadingSheet from "../PrintableReadingSheet";
@@ -38,26 +39,17 @@ export default function FreeReadingNook({
               </span>
             </Link>
             <span className="text-amber-300 font-bold">/</span>
-            <nav className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-amber-900/60">
-              <Link href="/" className="hover:text-amber-900 transition">
-                الرئيسية
-              </Link>
-              <span className="text-amber-300">›</span>
-              <Link href="/reading" className="hover:text-amber-900 transition">
-                القراءة
-              </Link>
-              <span className="text-amber-300">›</span>
-              <Link
-                href={`/reading/level/${level.id}`}
-                className="hover:text-amber-900 transition"
-              >
-                {level.titleAr}
-              </Link>
-              <span className="text-amber-300">›</span>
-              <span className="text-amber-900 bg-amber-100 px-2.5 py-0.5 rounded-lg border border-amber-300">
-                🌟 ركن القراءة الهادئة
-              </span>
-            </nav>
+            <Breadcrumbs
+              segments={[
+                { label: "الرئيسية", href: "/" },
+                { label: "القراءة", href: "/reading" },
+                { label: level.titleAr, href: `/reading/level/${level.id}` },
+                { label: "🌟 ركن القراءة الهادئة" },
+              ]}
+              listClassName="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-amber-900/60"
+              activeItemClassName="text-amber-900 bg-amber-100 px-2.5 py-0.5 rounded-lg border border-amber-300 font-bold"
+              linkClassName="hover:text-amber-900 transition"
+            />
           </div>
 
           <div className="flex items-center gap-2">

@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { getReadingLevel } from "@/curriculum/reading-catalog";
 import { toEasternArabicNumerals } from "@/lib/numerals";
 
@@ -59,22 +60,15 @@ export default async function ReadingLevelGridPage({ params }: Props) {
               </span>
             </Link>
             <span className="text-slate-300 font-bold">/</span>
-            <nav className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-slate-500">
-              <Link href="/" className="hover:text-emerald-700 transition">
-                الرئيسية
-              </Link>
-              <span className="text-slate-300">›</span>
-              <Link
-                href="/reading"
-                className="hover:text-emerald-700 transition"
-              >
-                القراءة
-              </Link>
-              <span className="text-slate-300">›</span>
-              <span className="text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-lg border border-emerald-200">
-                {level.titleAr}
-              </span>
-            </nav>
+            <Breadcrumbs
+              segments={[
+                { label: "الرئيسية", href: "/" },
+                { label: "القراءة", href: "/reading" },
+                { label: level.titleAr },
+              ]}
+              activeItemClassName="text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-lg border border-emerald-200"
+              linkClassName="hover:text-emerald-700 transition"
+            />
           </div>
           <Link
             href="/reading"

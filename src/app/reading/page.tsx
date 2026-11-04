@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { toEasternArabicNumerals } from "@/lib/numerals";
 import { READING_LEVEL_1 } from "@/curriculum/reading-catalog";
 
@@ -28,15 +29,14 @@ export default function ReadingHubPage() {
               </span>
             </Link>
             <span className="text-slate-300 font-bold">/</span>
-            <nav className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-slate-500">
-              <Link href="/" className="hover:text-emerald-700 transition">
-                الرئيسية
-              </Link>
-              <span className="text-slate-300">›</span>
-              <span className="text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-lg border border-emerald-200">
-                القراءة والفهم
-              </span>
-            </nav>
+            <Breadcrumbs
+              segments={[
+                { label: "الرئيسية", href: "/" },
+                { label: "القراءة والفهم" },
+              ]}
+              activeItemClassName="text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-lg border border-emerald-200"
+              linkClassName="hover:text-emerald-700 transition"
+            />
           </div>
           <Link
             href="/"
