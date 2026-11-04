@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import HomePage from "@/app/page";
 import MathPage from "@/app/math/page";
+import GradeStudioPage from "@/app/math/[gradeId]/page";
 import { GRADES } from "@/config/grades";
 
 describe("E2E Navigation Flow — Home to Math Grade Hub to Grades", () => {
@@ -29,6 +30,23 @@ describe("E2E Navigation Flow — Home to Math Grade Hub to Grades", () => {
       expect(hubHtml).toContain(grade.label);
       expect(hubHtml).toContain(grade.shortLabel);
     }
+  });
+
+  it("navigating from hub to /math/k loads Grade K studio with back navigation to hub", async () => {
+    const studioElement = await GradeStudioPage({
+      params: Promise.resolve({ gradeId: "k" }),
+      searchParams: Promise.resolve({ lesson: "1" }),
+    });
+    const studioHtml = renderToStaticMarkup(studioElement);
+
+    // Studio loaded for Grade K
+    expect(studioHtml).toContain("الروضة");
+    expect(studioHtml).toContain('data-math-topbar="true"');
+    expect(studioHtml).toContain('data-layout-id="grade-k"');
+
+    // Back button and breadcrumb link to /math (Grade Hub)
+    expect(studioHtml).toContain('aria-label="العودة لاختيار الصف"');
+    expect(studioHtml).toContain('href="/math"');
   });
 
   it("guarantees RTL order and proper responsive grid classes", async () => {

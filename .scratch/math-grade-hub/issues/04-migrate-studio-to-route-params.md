@@ -4,16 +4,16 @@
 
 **Blocked by:** 01 (grade config), 02 (Breadcrumbs), 03 (Grade Hub — so `/math` serves the hub and `/math/[gradeId]` serves the studio)
 
-**Status:** ready-for-agent
+**Status:** closed
 
-- [ ] `/math/[gradeId]` renders the Teacher Studio with the correct grade loaded
-- [ ] `TeacherStudioClient` accepts `gradeId` as a prop instead of reading from URL search params
-- [ ] Grade pill buttons are removed from the sidebar
-- [ ] `StudioHeader` renders: grade label, gradient-wash background, visual model icon, back arrow, breadcrumbs
-- [ ] Back arrow navigates to `/math` (the Grade Hub)
-- [ ] Clicking "الرياضيات" in the breadcrumb navigates to `/math`
-- [ ] `StudioHeader` has `layoutId` matching the corresponding grade card
-- [ ] `BackButton` component with `aria-label="العودة لاختيار الصف"`
-- [ ] Grade theme context provides the active grade's color to descendant components
-- [ ] Existing E2E test (`math-studio.spec.ts`) updated for new URL structure and passes
-- [ ] E2E test: navigate from hub to studio, verify studio loads with correct grade, navigate back to hub
+- [x] `/math/[gradeId]` renders the Teacher Studio with the correct grade loaded
+- [x] `TeacherStudioClient` accepts `gradeId` as a prop instead of reading from URL search params
+- [x] Grade pill buttons are removed from the sidebar
+- [x] `StudioHeader` renders: grade label, gradient-wash background, visual model icon, back arrow, breadcrumbs
+- [x] Back arrow navigates to `/math` (the Grade Hub)
+- [x] Clicking "الرياضيات" in the breadcrumb navigates to `/math`
+- [x] `StudioHeader` has `layoutId` matching the corresponding grade card
+- [x] `BackButton` component with `aria-label="العودة لاختيار الصف"`
+- [x] Grade theme context provides the active grade's color to descendant components
+- [x] Existing E2E test (`math-studio.spec.ts`) updated for new URL structure and passes
+- [x] E2E test: navigate from hub to studio, verify studio loads with correct grade, navigate back to hub

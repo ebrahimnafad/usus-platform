@@ -11,6 +11,7 @@ import type {
 } from "@/domain/types";
 import { WorksheetSurface } from "@/components/worksheet/WorksheetSurface";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { StudioHeader } from "@/components/math/studio-header";
 import { GRADES, getGradeConfig } from "@/config/grades";
 import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
 import {
@@ -37,12 +38,14 @@ import {
 export type { StudioResolvedState, ViewMode, StudioSearchParamsInput };
 
 export interface TeacherStudioProps {
+  gradeId?: GradeId;
   grades: Grade[];
   initialBundle: GeneratedWorksheetBundle;
   initialViewMode?: ViewMode;
   initialSearchQuery?: string;
   initialZoomPercent?: number;
   expandAllUnitsByDefault?: boolean;
+  showGradePills?: boolean;
   onNavigateState?: (nextState: StudioResolvedState) => void;
 }
 
@@ -51,16 +54,18 @@ export type TeacherStudioClientProps = TeacherStudioProps;
 export { resolveStudioStateFromSearchParams, GRADES, getGradeConfig };
 
 export function TeacherStudio({
+  gradeId,
   grades,
   initialBundle,
   initialViewMode = "worksheet",
   initialSearchQuery = "",
   initialZoomPercent = 100,
   expandAllUnitsByDefault = false,
+  showGradePills = !Boolean(gradeId),
   onNavigateState,
 }: TeacherStudioProps): React.ReactElement {
   const [selectedGradeId, setSelectedGradeId] = useState<GradeId>(
-    initialBundle.grade.id
+    gradeId ?? initialBundle.grade.id
   );
 
   const selectedGrade = useMemo(
@@ -169,32 +174,11 @@ export function TeacherStudio({
       className="flex min-h-screen flex-col bg-slate-100"
       data-studio-root="true"
     >
-      {/* Slim Top Navigation Bar */}
-      <header
-        data-math-topbar="true"
-        className="no-print sticky top-0 z-30 flex h-12 w-full items-center justify-between border-b border-slate-200 bg-white px-4 shadow-2xs"
-      >
-        <div className="flex items-center gap-3">
-          <Link
-            href="/"
-            className="flex items-center gap-2 font-black text-indigo-950 transition hover:text-indigo-700"
-          >
-            <span className="text-base font-extrabold tracking-tight">
-              أُسُس
-            </span>
-          </Link>
-          <span className="text-slate-300">/</span>
-          <Breadcrumbs
-            segments={[
-              { label: "الرئيسية", href: "/" },
-              { label: "الرياضيات" },
-            ]}
-            listClassName="flex items-center gap-1.5 text-xs font-semibold text-slate-500"
-            activeItemClassName="font-bold text-indigo-900"
-            linkClassName="transition hover:text-slate-800"
-          />
-        </div>
-      </header>
+      {/* Studio Header with Grade Gradient & Breadcrumbs */}
+      <StudioHeader
+        gradeId={selectedGradeId}
+        gradeLabel={selectedGrade.labelAr}
+      />
 
       <div className="flex flex-1 flex-col lg:flex-row">
         {/* Right Sidebar: Curriculum Browser & Generation Controls */}
@@ -209,39 +193,41 @@ export function TeacherStudio({
             </p>
           </div>
 
-          {/* Grade Switcher Pills (الروضة K through الصف ٥) */}
-          <div className="mb-4">
-            <label className="mb-1.5 block text-xs font-extrabold text-slate-700">
-              الصف الدراسي:
-            </label>
-            <div
-              className="grid grid-cols-2 gap-1.5"
-              role="group"
-              aria-label="اختيار الصف الدراسي"
-            >
-              {grades.map((g) => {
-                const active = g.id === selectedGradeId;
-                return (
-                  <button
-                    key={g.id}
-                    type="button"
-                    data-grade-pill={g.id}
-                    onClick={() => {
-                      setSelectedGradeId(g.id);
-                      setExpandedUnitNumbers([1]);
-                    }}
-                    className={`rounded-xl px-2.5 py-1.5 text-xs font-extrabold transition ${
-                      active
-                        ? "bg-indigo-600 text-white shadow-xs"
-                        : "bg-slate-100 text-slate-800 hover:bg-slate-200"
-                    }`}
-                  >
-                    {formatGradePillLabelAr(g)}
-                  </button>
-                );
-              })}
+          {/* Grade Switcher Pills (hidden when navigated via route params) */}
+          {showGradePills && (
+            <div className="mb-4">
+              <label className="mb-1.5 block text-xs font-extrabold text-slate-700">
+                الصف الدراسي:
+              </label>
+              <div
+                className="grid grid-cols-2 gap-1.5"
+                role="group"
+                aria-label="اختيار الصف الدراسي"
+              >
+                {grades.map((g) => {
+                  const active = g.id === selectedGradeId;
+                  return (
+                    <button
+                      key={g.id}
+                      type="button"
+                      data-grade-pill={g.id}
+                      onClick={() => {
+                        setSelectedGradeId(g.id);
+                        setExpandedUnitNumbers([1]);
+                      }}
+                      className={`rounded-xl px-2.5 py-1.5 text-xs font-extrabold transition ${
+                        active
+                          ? "bg-indigo-600 text-white shadow-xs"
+                          : "bg-slate-100 text-slate-800 hover:bg-slate-200"
+                      }`}
+                    >
+                      {formatGradePillLabelAr(g)}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Search input */}
           <div className="mb-4">
