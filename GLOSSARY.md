@@ -84,6 +84,10 @@ _Avoid_: Clip art, plain wireframe, static image
 A short prompt accompanying an exercise or solution that guides the student's mathematical reasoning (e.g., "make ١٠ first").
 _Avoid_: Tip, clue, help text
 
+**Subitize Grouping**:
+A visual decomposition of an object quantity into instantly recognizable sub-groups (e.g., 5 = 3 + 2) rendered with dashed-border containers, enabling students to perceive total quantity without counting one by one.
+_Avoid_: Cluster, chunk, partition
+
 **Eastern Arabic Numerals**:
 The numeral digits `٠١٢٣٤٥٦٧٨٩` used exclusively across the user interface, worksheets, and answer keys (except inside standard codes).
 _Avoid_: Hindi numerals, Arabic-Indic digits

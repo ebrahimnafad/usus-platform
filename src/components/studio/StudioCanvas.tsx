@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import type {
   GeneratedWorksheetBundle,
   GradeId,
@@ -57,6 +57,58 @@ export function StudioCanvas({
     difficultyLevel: bundle.difficultyMode,
     viewMode,
   });
+
+  const [isPrinting, setIsPrinting] = useState(false);
+
+  const handlePrint = async () => {
+    if (typeof window === "undefined" || isPrinting) return;
+    setIsPrinting(true);
+    try {
+      // Dynamic title per Q4
+      const originalTitle = document.title;
+      const lessonAr = formatEasternNumber(bundle.lesson.lessonNumber);
+      document.title = `ورقة عمل – ${bundle.grade.labelAr} – الدرس ${lessonAr} – ${bundle.seed}`;
+
+      // Fetch PDF buffer per ADR-0011
+      const res = await fetch(pdfExportUrl);
+      if (!res.ok) {
+        throw new Error("Failed to fetch PDF for print");
+      }
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+
+      const iframe = document.createElement("iframe");
+      iframe.style.position = "fixed";
+      iframe.style.right = "0";
+      iframe.style.bottom = "0";
+      iframe.style.width = "0";
+      iframe.style.height = "0";
+      iframe.style.border = "0";
+      iframe.src = blobUrl;
+
+      iframe.onload = () => {
+        setTimeout(() => {
+          try {
+            iframe.contentWindow?.focus();
+            iframe.contentWindow?.print();
+          } finally {
+            setTimeout(() => {
+              document.title = originalTitle;
+              document.body.removeChild(iframe);
+              URL.revokeObjectURL(blobUrl);
+              setIsPrinting(false);
+            }, 1000);
+          }
+        }, 100);
+      };
+
+      document.body.appendChild(iframe);
+    } catch {
+      // Fallback to native print if fetch/iframe fails
+      window.print();
+      setIsPrinting(false);
+    }
+  };
 
   return (
     <main
@@ -156,11 +208,13 @@ export function StudioCanvas({
 
           <button
             type="button"
-            onClick={() => window.print()}
-            className="flex min-h-8 items-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-1 text-[11px] font-extrabold text-white shadow-xs transition-colors duration-150 hover:bg-emerald-700"
+            data-print-trigger="true"
+            disabled={isPrinting}
+            onClick={handlePrint}
+            className="flex min-h-8 items-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-1 text-[11px] font-extrabold text-white shadow-xs transition-colors duration-150 hover:bg-emerald-700 disabled:opacity-50"
           >
             <PrinterIcon size={14} />
-            طباعة
+            {isPrinting ? "جاري التجهيز..." : "طباعة"}
           </button>
         </div>
       </div>

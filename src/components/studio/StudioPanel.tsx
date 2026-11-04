@@ -837,7 +837,7 @@ export function StudioPanel({
 
       <div
         data-studio-mobile-bar="true"
-        className="studio-mobile-bar fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-2 border-t border-[var(--studio-seam)] bg-[var(--studio-panel)] px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-8px_24px_-12px_rgb(28_25_23_/_0.25)] lg:hidden"
+        className="studio-mobile-bar no-print fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-2 border-t border-[var(--studio-seam)] bg-[var(--studio-panel)] px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-8px_24px_-12px_rgb(28_25_23_/_0.25)] lg:hidden"
       >
         <button
           ref={triggerRef}

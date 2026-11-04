@@ -39,6 +39,7 @@ export function registerBuiltInVisualModels(): void {
     const primary = model.count ?? 1;
     const secondary = model.secondaryCount ?? 0;
     const total = primary + secondary;
+    const effectiveSize = model.size ?? (total >= 4 ? "tiny" : "small");
 
     if (total <= 1) {
       return (
@@ -88,7 +89,7 @@ export function registerBuiltInVisualModels(): void {
               <EverydayObjectSvg
                 key={`p-${idx}`}
                 objectId={model.id}
-                size={model.size ?? "small"}
+                size={effectiveSize}
               />
             ))}
           </div>
@@ -98,7 +99,7 @@ export function registerBuiltInVisualModels(): void {
                 <EverydayObjectSvg
                   key={`s-${idx}`}
                   objectId={model.id}
-                  size={model.size ?? "small"}
+                  size={effectiveSize}
                 />
               ))}
             </div>

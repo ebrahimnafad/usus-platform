@@ -101,7 +101,7 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 70px;
+  min-height: 76px;
   padding: 4px 10px;
   margin-top: 4px;
   border-radius: 10px;

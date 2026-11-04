@@ -176,7 +176,7 @@ function renderConnectMatchExercise({
           {data.rightItems.map((item, idx) => (
             <div
               key={item.id}
-              className="flex h-[76px] items-center justify-between rounded-xl border-2 border-slate-200 bg-white px-3 py-1.5 shadow-2xs"
+              className="flex min-h-[76px] items-center justify-between rounded-xl border-2 border-slate-200 bg-white px-3 py-1.5 shadow-2xs"
               data-match-right-id={item.id}
             >
               <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold text-white">
@@ -260,7 +260,7 @@ function renderConnectMatchExercise({
           {data.leftItems.map((item, idx) => (
             <div
               key={item.id}
-              className="flex h-[76px] items-center justify-between rounded-xl border-2 border-slate-200 bg-white px-3 py-1.5 shadow-2xs"
+              className="flex min-h-[76px] items-center justify-between rounded-xl border-2 border-slate-200 bg-white px-3 py-1.5 shadow-2xs"
               data-match-left-id={item.id}
             >
               <span
