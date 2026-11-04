@@ -4,11 +4,11 @@
 
 **Blocked by:** 01 (Framer Motion)
 
-**Status:** ready-for-agent
+**Status:** closed
 
-- [ ] Home page domain cards have staggered fade-up entrance animation
-- [ ] Card hover: lift + border glow in domain accent color (indigo / emerald)
-- [ ] SVG illustrations have subtle hover animation
-- [ ] All animations suppressed when `prefers-reduced-motion` is active
-- [ ] Card content, links (`/math`, `/reading`), and visual layout unchanged
-- [ ] E2E test: home page renders both domain cards with correct links and text
+- [x] Home page domain cards have staggered fade-up entrance animation
+- [x] Card hover: lift + border glow in domain accent color (indigo / emerald)
+- [x] SVG illustrations have subtle hover animation
+- [x] All animations suppressed when `prefers-reduced-motion` is active
+- [x] Card content, links (`/math`, `/reading`), and visual layout unchanged
+- [x] E2E test: home page renders both domain cards with correct links and text
