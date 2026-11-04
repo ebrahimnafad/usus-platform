@@ -79,7 +79,8 @@ export async function printPdfViaIframe(
             iframe.contentWindow?.focus();
             iframe.contentWindow?.print();
           } finally {
-            // Revoke/cleanup after print has had time to spool.
+            // Cleanup starts after print() returns; actual elapsed time is
+            // ~100ms (renderer warm-up) + POST_PRINT_CLEANUP_DELAY_MS.
             window.setTimeout(() => {
               cleanup();
               resolve();

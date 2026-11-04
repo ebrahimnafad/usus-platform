@@ -144,6 +144,7 @@ export async function exportWorksheetPdf(
     // If page-break-inside: avoid pushed an exercise onto page 3, allow up to 3 pages
     // before tightening scale — floor of 0.65 prevents illegibly small text for K-grade.
     if (pageCount > 3) {
+      // 1.8 gives slight headroom below the 2-page line, empirically validated.
       scale = Math.max(0.65, scale * (1.8 / pageCount));
       pdfBytes = await page.pdf({
         format: "A4",

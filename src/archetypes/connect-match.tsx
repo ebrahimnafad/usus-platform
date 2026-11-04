@@ -42,6 +42,14 @@ const CONNECTION_STROKE_COLORS = [
   "#E11D48", // rose
 ];
 
+/**
+ * Row height in px. Must exceed the tallest possible ConnectMatch row
+ * (min-h-[76px] + content). Subitize groups of up to 5 items at "tiny"
+ * (30px) + padding stay comfortably under 100px, so SVG port y-coordinates
+ * computed from this constant remain aligned with their DOM anchor points.
+ */
+const ROW_HEIGHT_PX = 100;
+
 function generateConnectMatchExercise(
   ctx: ArchetypeGeneratorContext
 ): Exercise {
@@ -162,12 +170,7 @@ function renderConnectMatchExercise({
 }: ArchetypeRenderProps): React.ReactElement {
   const data = exercise.data as ConnectMatchData;
   const rowCount = data.rightItems.length;
-  // ROW_HEIGHT_PX must exceed the tallest possible row (min-h-[76px] + content).
-  // Subitize groups of up to 5 items at "tiny" (30px) + padding stay comfortably
-  // under 100px, so SVG port y-coordinates computed from this constant stay aligned.
-  const ROW_HEIGHT_PX = 100;
-  const rowHeight = ROW_HEIGHT_PX;
-  const svgHeight = Math.max(rowCount * rowHeight, rowHeight);
+  const svgHeight = Math.max(rowCount * ROW_HEIGHT_PX, ROW_HEIGHT_PX);
 
   return (
     <div className="space-y-3" data-archetype="ConnectMatch">
@@ -212,13 +215,13 @@ function renderConnectMatchExercise({
             }
           >
             {data.rightItems.map((rightItem, rIdx) => {
-              const yRight = rIdx * rowHeight + rowHeight / 2;
+              const yRight = rIdx * ROW_HEIGHT_PX + ROW_HEIGHT_PX / 2;
               const matchedLeftId = data.solutionMap[rightItem.id];
               const lIdx = data.leftItems.findIndex(
                 (li) => li.id === matchedLeftId
               );
               const yLeft =
-                (lIdx >= 0 ? lIdx : rIdx) * rowHeight + rowHeight / 2;
+                (lIdx >= 0 ? lIdx : rIdx) * ROW_HEIGHT_PX + ROW_HEIGHT_PX / 2;
               const strokeColor =
                 CONNECTION_STROKE_COLORS[
                   rIdx % CONNECTION_STROKE_COLORS.length
