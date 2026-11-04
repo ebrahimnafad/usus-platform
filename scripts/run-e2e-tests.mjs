@@ -19,8 +19,8 @@ async function waitUrl(url, timeoutMs = 30000) {
 }
 
 async function main() {
-  console.log(`Starting Next.js server on port ${PORT}...`);
-  const server = spawn("npx", ["next", "start", "-p", String(PORT)], {
+  console.log(`Starting Next.js dev server on port ${PORT}...`);
+  const server = spawn("npx", ["next", "dev", "-p", String(PORT)], {
     shell: true,
     stdio: "inherit",
   });
