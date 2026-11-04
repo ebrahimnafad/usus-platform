@@ -1,4 +1,5 @@
 import React from "react";
+import { registerExerciseArchetype } from "@/archetypes/registry";
 import type {
   ColorThemeId,
   Exercise,
@@ -563,3 +564,5 @@ export const classifyAndCountArchetype = {
   generate: generateClassifyAndCountExercise,
   render: renderClassifyAndCountExercise,
 };
+
+registerExerciseArchetype(classifyAndCountArchetype);

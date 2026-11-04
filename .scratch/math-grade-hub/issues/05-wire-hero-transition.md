@@ -4,13 +4,13 @@
 
 **Blocked by:** 03 (Grade Hub with `layoutId` on cards), 04 (Studio with `layoutId` on header)
 
-**Status:** ready-for-agent
+**Status:** closed
 
-- [ ] Clicking a grade card triggers a smooth hero transition: card morphs into studio header
-- [ ] Card elements map to header elements: container shape/position, color → gradient, visual model → icon
-- [ ] Sidebar and canvas fade in after the header animation settles
-- [ ] If data isn't ready after animation, sidebar shows a skeleton shimmer
-- [ ] Back navigation (back arrow or breadcrumb) reverses the hero transition
-- [ ] Card appears at its original grid position after reverse transition
-- [ ] With `prefers-reduced-motion`: navigation is instant, no animation, pages swap directly
-- [ ] E2E test: full round-trip hub → studio → hub works in both normal and reduced-motion modes
+- [x] Clicking a grade card triggers a smooth hero transition: card morphs into studio header
+- [x] Card elements map to header elements: container shape/position, color → gradient, visual model → icon
+- [x] Sidebar and canvas fade in after the header animation settles
+- [x] If data isn't ready after animation, sidebar shows a skeleton shimmer
+- [x] Back navigation (back arrow or breadcrumb) reverses the hero transition
+- [x] Card appears at its original grid position after reverse transition
+- [x] With `prefers-reduced-motion`: navigation is instant, no animation, pages swap directly
+- [x] E2E test: full round-trip hub → studio → hub works in both normal and reduced-motion modes

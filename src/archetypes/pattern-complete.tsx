@@ -1,4 +1,5 @@
 import React from "react";
+import { registerExerciseArchetype } from "@/archetypes/registry";
 import type {
   ColorThemeId,
   EverydayObjectId,
@@ -544,3 +545,5 @@ export const patternCompleteArchetype = {
   generate: generatePatternCompleteExercise,
   render: renderPatternCompleteExercise,
 };
+
+registerExerciseArchetype(patternCompleteArchetype);

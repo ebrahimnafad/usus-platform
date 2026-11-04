@@ -1509,3 +1509,4 @@ export function registerShapesSolidsCoinsVisualModels(): void {
     );
   });
 }
+registerShapesSolidsCoinsVisualModels();

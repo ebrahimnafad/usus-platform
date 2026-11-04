@@ -1,4 +1,5 @@
 import React from "react";
+import { registerExerciseArchetype } from "@/archetypes/registry";
 import type {
   ColorThemeId,
   EverydayObjectId,
@@ -464,3 +465,5 @@ export const pictureGraphReadArchetype = {
   generate: generatePictureGraphReadExercise,
   render: renderPictureGraphReadExercise,
 };
+
+registerExerciseArchetype(pictureGraphReadArchetype);

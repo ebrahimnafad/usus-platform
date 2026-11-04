@@ -1,10 +1,10 @@
 import type { Lesson, LessonBlueprint } from "@/domain/types";
-import { lessonK1Blueprint } from "@/blueprints/grade-k/lesson-k1";
+import { DEFAULT_TIER_TEMPLATE } from "@/blueprints/default-tier-template";
 
 /**
  * Builds a fallback LessonBlueprint for a lesson that has no authored blueprint.
- * Reuses the default tier template (currently K-1's tiers) so unauthored lessons
- * still generate a valid three-section Worksheet and Answer Key.
+ * Reuses the default tier template so unauthored lessons still generate a valid
+ * three-section Worksheet and Answer Key, without depending on a specific lesson.
  */
 export function createFallbackBlueprint(lesson: Lesson): LessonBlueprint {
   return {
@@ -13,6 +13,6 @@ export function createFallbackBlueprint(lesson: Lesson): LessonBlueprint {
     lessonNumber: lesson.lessonNumber,
     titleAr: lesson.titleAr,
     teacherNotes: lesson.teacherNotes,
-    tiers: lessonK1Blueprint.tiers,
+    tiers: DEFAULT_TIER_TEMPLATE,
   };
 }

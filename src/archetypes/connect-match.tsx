@@ -1,4 +1,5 @@
 import React from "react";
+import { registerExerciseArchetype } from "@/archetypes/registry";
 import type {
   ConnectMatchData,
   ConnectMatchPair,
@@ -303,3 +304,5 @@ export const connectMatchArchetype = {
   generate: generateConnectMatchExercise,
   render: renderConnectMatchExercise,
 };
+
+registerExerciseArchetype(connectMatchArchetype);

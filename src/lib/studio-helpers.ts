@@ -2,6 +2,7 @@ import type {
   Grade,
   GradeId,
   Unit,
+  ViewMode,
   WorksheetDifficultyMode,
 } from "@/domain/types";
 import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
@@ -14,7 +15,7 @@ import {
   type StudioResolvedState,
 } from "@/lib/studio-state";
 
-export type ViewMode = "worksheet" | "answer-key" | "teacher-notes";
+export type { ViewMode } from "@/domain/types";
 
 export type StudioNavigationAction =
   | { type: "select-grade"; grade: GradeId }

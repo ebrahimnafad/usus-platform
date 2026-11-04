@@ -143,3 +143,4 @@ export function VisualModelView({
     </div>
   );
 }
+registerBuiltInVisualModels();

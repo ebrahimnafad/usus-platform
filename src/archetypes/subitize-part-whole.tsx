@@ -1,4 +1,5 @@
 import React from "react";
+import { registerExerciseArchetype } from "@/archetypes/registry";
 import type {
   ColorThemeId,
   Exercise,
@@ -498,3 +499,5 @@ export const subitizePartWholeArchetype = {
   generate: generateSubitizePartWholeExercise,
   render: renderSubitizePartWholeExercise,
 };
+
+registerExerciseArchetype(subitizePartWholeArchetype);

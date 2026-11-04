@@ -523,5 +523,32 @@ describe("Ticket 06 — Zero-Overflow Printable A4 Reading Worksheets", () => {
       // Eastern Arabic Numerals invariant
       expect(findWesternNumeralsInRenderedHtml(html)).toEqual([]);
     });
+
+    it("ensures native @page reading-page rule suppresses continuation header on page 1 and configures @top-center for page 2+", () => {
+      const html = renderToString(
+        React.createElement(PrintableReadingSheet, {
+          level: level1,
+          story: standardStory,
+        })
+      );
+
+      // 1. Scoped @page reading-page is present
+      expect(html).toContain("@page reading-page");
+      // 2. Page 1 explicitly suppresses the continuation header
+      expect(html).toContain("@page reading-page:first");
+      expect(html).toContain("content: none !important");
+      // 3. Continuation header format on page 2+ uses Eastern Arabic Numerals
+      expect(html).toContain("counter(page, arabic-indic)");
+      expect(html).toContain("reading-a4-sheet");
+    });
+
+    it("ensures StoryCycleRunnerPage wrapper div has print:pb-0 to avoid spurious multi-page overflows", async () => {
+      const pageComponent = await StoryCycleRunnerPage({
+        params: Promise.resolve({ levelId: "level-1", storyId: "1" }),
+      });
+      const html = renderToString(pageComponent);
+
+      expect(html).toContain("print:pb-0");
+    });
   });
 });

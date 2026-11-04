@@ -8,6 +8,7 @@ import { getGradeConfig, type GradeColorToken } from "@/config/grades";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { BackButton } from "@/components/layout/back-button";
 import { GradeCardVisualModel } from "@/components/math/grade-card-models";
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 
 export interface StudioHeaderProps {
   gradeId: GradeId;
@@ -37,12 +38,16 @@ export function StudioHeader({
       : "from-indigo-600 to-indigo-500";
   const label = gradeLabel ?? config?.label ?? `الصف ${gradeId}`;
   const gradeKey = gradeId.toLowerCase();
+  const prefersReduced = useReducedMotion();
 
   return (
     <motion.header
-      layoutId={`grade-${gradeKey}`}
-      data-layout-id={`grade-${gradeKey}`}
+      layoutId={!prefersReduced ? `grade-${gradeKey}` : undefined}
+      data-layout-id={!prefersReduced ? `grade-${gradeKey}` : undefined}
       data-math-topbar="true"
+      transition={
+        !prefersReduced ? { duration: 0.35, ease: "easeOut" } : { duration: 0 }
+      }
       className={`no-print sticky top-0 z-30 flex h-14 w-full items-center justify-between bg-gradient-to-l ${gradientClass} px-4 shadow-sm text-white ${className}`}
     >
       {/* Right side in RTL: Back button + Logo + Breadcrumbs */}
@@ -85,13 +90,25 @@ export function StudioHeader({
       <div className="flex items-center gap-2">
         <div className="hidden sm:flex items-center gap-2 rounded-xl bg-white/15 px-3 py-1 backdrop-blur-xs border border-white/20">
           {config && (
-            <div className="h-5 w-8 flex items-center justify-center overflow-hidden">
+            <motion.div
+              layoutId={!prefersReduced ? `grade-model-${gradeKey}` : undefined}
+              data-model-layout-id={
+                !prefersReduced ? `grade-model-${gradeKey}` : undefined
+              }
+              className="h-5 w-8 flex items-center justify-center overflow-hidden"
+            >
               <GradeCardVisualModel modelKey={config.visualModel} />
-            </div>
+            </motion.div>
           )}
-          <span className="text-xs font-black text-white">
+          <motion.span
+            layoutId={!prefersReduced ? `grade-badge-${gradeKey}` : undefined}
+            data-badge-layout-id={
+              !prefersReduced ? `grade-badge-${gradeKey}` : undefined
+            }
+            className="text-xs font-black text-white"
+          >
             {config?.shortLabel ?? label}
-          </span>
+          </motion.span>
         </div>
       </div>
     </motion.header>

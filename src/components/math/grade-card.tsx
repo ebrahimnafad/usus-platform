@@ -96,7 +96,8 @@ export function GradeCard({ grade }: GradeCardProps): React.ReactElement {
 
   return (
     <motion.div
-      layoutId={`grade-${gradeKey}`}
+      layoutId={!prefersReduced ? `grade-${gradeKey}` : undefined}
+      data-layout-id={!prefersReduced ? `grade-${gradeKey}` : undefined}
       variants={CARD_VARIANTS}
       whileHover={
         !prefersReduced
@@ -113,11 +114,15 @@ export function GradeCard({ grade }: GradeCardProps): React.ReactElement {
         {/* Top Header: Grade Badge & Model Tag */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <span
+            <motion.span
+              layoutId={!prefersReduced ? `grade-badge-${gradeKey}` : undefined}
+              data-badge-layout-id={
+                !prefersReduced ? `grade-badge-${gradeKey}` : undefined
+              }
               className={`inline-flex items-center justify-center rounded-xl px-3 py-1 text-sm font-black shadow-xs ${theme.badgeBg} ${theme.badgeText}`}
             >
               {grade.shortLabel}
-            </span>
+            </motion.span>
             <span className="text-xs font-bold text-slate-500">
               {grade.label}
             </span>
@@ -135,6 +140,10 @@ export function GradeCard({ grade }: GradeCardProps): React.ReactElement {
         {/* Visual Model Container */}
         <div className="mb-5 flex h-28 w-full items-center justify-center rounded-2xl bg-slate-50/70 p-3 border border-slate-100 group-hover:bg-slate-50/90 transition-colors">
           <motion.div
+            layoutId={!prefersReduced ? `grade-model-${gradeKey}` : undefined}
+            data-model-layout-id={
+              !prefersReduced ? `grade-model-${gradeKey}` : undefined
+            }
             className="flex h-full w-full items-center justify-center"
             whileHover={
               !prefersReduced

@@ -1634,3 +1634,10 @@ export function createDigitCardSpec(
 }
 
 export type { EverydayObjectId, VisualSize };
+
+registerFiveFrameVisualModel();
+registerNumeralTraceVisualModel();
+registerSnapCubesVisualModel();
+registerTallyMarksVisualModel();
+registerDicePatternVisualModel();
+registerCircularArrangementVisualModel();
