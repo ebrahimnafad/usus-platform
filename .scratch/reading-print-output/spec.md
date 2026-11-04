@@ -2,6 +2,8 @@
 
 > **Triage**: `ready-for-agent`
 
+> **Implementation note**: during `/implement`, the per-ticket files under `issues/` are the authoritative checklist. This spec is background context. If the two conflict, the ticket file wins.
+
 ## Problem Statement
 
 When a teacher clicks **🖨️ طباعة ورقة العمل** in the Reading domain's Story Cycle Runner, the printed output is broken and unusable as a standalone document:

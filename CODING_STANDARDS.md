@@ -51,6 +51,16 @@ All user-visible numbers must use Eastern Arabic Numerals (`٠١٢٣٤٥٦٧٨٩
 - SVG technical attributes (`viewBox`, coordinates, widths/heights)
 - Non-user-facing internal identifiers
 
+**CSS counter exception**: the browser keyword `arabic-indic` is the correct CSS value for producing Eastern Arabic digit output (e.g., `counter(page, arabic-indic)`). It cannot be renamed. When used, the same line or the immediately adjacent comment must cite ADR-0001 and spell out "Eastern Arabic Numerals" so the naming contradiction is immediately explained to the reader.
+
+```css
+/* Good — inline citation */
+content: "صفحة " counter(page, arabic-indic); /* eastern arabic per ADR-0001 */
+
+/* Bad — keyword used with no context */
+content: counter(page, arabic-indic);
+```
+
 **Why**: Hard product constraint (ADR-0001). The seam tests enforce this for rendered HTML/SVG, but new components should follow it by convention.
 
 ## 4. Single registration point for slices

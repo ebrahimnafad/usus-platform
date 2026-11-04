@@ -224,5 +224,5 @@ describe("Ticket 06 — Secondary Seam: Headless Browser A4 PDF Exporter & /api/
     const pageCountHeader = Number(response.headers.get("X-PDF-Page-Count"));
     expect(pageCountHeader).toBeGreaterThanOrEqual(1);
     expect(pageCountHeader).toBeLessThanOrEqual(2);
-  }, 60000);
+  }, 120_000); // Playwright + Edge startup needs headroom; 60 s was the cliff edge
 });
