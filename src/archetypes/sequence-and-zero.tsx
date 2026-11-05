@@ -24,6 +24,11 @@ import {
   type ArchetypeRenderProps,
 } from "@/archetypes/registry";
 import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
+import {
+  ANSWER_SLOT_SIZE_CLASS,
+  AnswerLine,
+  AnswerSlot,
+} from "@/components/worksheet/AnswerSlot";
 
 export type SequenceMode = "forward" | "backward" | "zero-take-away";
 
@@ -462,24 +467,18 @@ function renderSequenceAndZeroExercise({
                 )}
 
                 {step.isMissing ? (
-                  isAnswerKey ? (
-                    <span
-                      className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-600 text-xl font-black text-white shadow-xs"
-                      data-solved-missing-number={step.valueAr}
-                    >
-                      {step.valueAr}
-                    </span>
-                  ) : (
-                    <span
-                      className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border-2 border-dashed border-amber-500 bg-white text-lg font-black text-amber-600"
-                      aria-label="مربع العدد المفقود في التسلسل"
-                    >
-                      ؟
-                    </span>
-                  )
+                  <AnswerSlot
+                    solved={isAnswerKey}
+                    answer={step.valueAr}
+                    ariaLabel="مربع العدد المفقود في التسلسل"
+                    tone="amber"
+                    solvedDataAttributes={{
+                      "data-solved-missing-number": step.valueAr,
+                    }}
+                  />
                 ) : (
                   <span
-                    className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border-2 border-indigo-500 bg-indigo-50 text-xl font-black text-indigo-950"
+                    className={`inline-flex ${ANSWER_SLOT_SIZE_CLASS} items-center justify-center rounded-2xl border-2 border-indigo-500 bg-indigo-50 text-xl font-black text-indigo-950`}
                     {...(isAnswerKey
                       ? { "data-solved-sequence-step": step.valueAr }
                       : {})}
@@ -518,16 +517,12 @@ function renderSequenceAndZeroExercise({
           🤔 سؤال التفكير العددي:{" "}
           {toEasternArabicNumerals(data.reasoningPromptAr)}
         </span>
-        {isAnswerKey ? (
-          <span
-            className="rounded-lg bg-emerald-600 px-2.5 py-1 text-white"
-            data-solved-reasoning-answer="true"
-          >
-            الإجابة: {toEasternArabicNumerals(data.reasoningAnswerAr)}
-          </span>
-        ) : (
-          <span className="inline-block h-6 w-36 rounded-lg border-2 border-dashed border-amber-400 bg-white" />
-        )}
+        <AnswerLine
+          solved={isAnswerKey}
+          answer={toEasternArabicNumerals(data.reasoningAnswerAr)}
+          ariaLabel="سطر كتابة إجابة سؤال التفكير العددي"
+          solvedDataAttributes={{ "data-solved-reasoning-answer": "true" }}
+        />
       </div>
     </div>
   );

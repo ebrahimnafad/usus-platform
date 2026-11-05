@@ -403,7 +403,11 @@ export function PictureGraphSvg({
   const topHeaderH = 34;
   const bottomAxisH = 36;
   const rightCategoryColW = 116;
-  const leftSummaryColW = 54;
+  // The count summary is answer-key-only. In worksheet mode the child derives
+  // the count and writes it in the dedicated response row, so a second "؟"
+  // column here would create two competing answer slots for one quantity.
+  const showSummaryColumn = solved;
+  const leftSummaryColW = showSummaryColumn ? 54 : 0;
   const padX = 12;
 
   const cellsGridW = safeMax * cellWidth;
@@ -589,27 +593,30 @@ export function PictureGraphSvg({
               );
             })}
 
-            <rect
-              x={padX + 7}
-              y={rowY + 6}
-              width={leftSummaryColW - 14}
-              height={rowHeight - 12}
-              rx="8"
-              fill={solved ? "#ECFDF5" : "#F8FAFC"}
-              stroke={solved ? "#059669" : "#94A3B8"}
-              strokeWidth="1.8"
-              strokeDasharray={solved ? "none" : "4 3"}
-            />
-            <text
-              x={padX + leftSummaryColW / 2}
-              y={rowCenterY + 5}
-              textAnchor="middle"
-              fontSize="14"
-              fontWeight="900"
-              fill={solved ? "#047857" : "#94A3B8"}
-            >
-              {solved ? formatEasternNumber(cat.count) : "؟"}
-            </text>
+            {showSummaryColumn && (
+              <>
+                <rect
+                  x={padX + 7}
+                  y={rowY + 6}
+                  width={leftSummaryColW - 14}
+                  height={rowHeight - 12}
+                  rx="8"
+                  fill="#ECFDF5"
+                  stroke="#059669"
+                  strokeWidth="1.8"
+                />
+                <text
+                  x={padX + leftSummaryColW / 2}
+                  y={rowCenterY + 5}
+                  textAnchor="middle"
+                  fontSize="14"
+                  fontWeight="900"
+                  fill="#047857"
+                >
+                  {formatEasternNumber(cat.count)}
+                </text>
+              </>
+            )}
           </g>
         );
       })}
@@ -654,16 +661,18 @@ export function PictureGraphSvg({
             </g>
           );
         })}
-        <text
-          x={padX + leftSummaryColW / 2}
-          y={gridBottomY + 22}
-          textAnchor="middle"
-          fontSize="10.5"
-          fontWeight="900"
-          fill="#312E81"
-        >
-          العدد
-        </text>
+        {showSummaryColumn && (
+          <text
+            x={padX + leftSummaryColW / 2}
+            y={gridBottomY + 22}
+            textAnchor="middle"
+            fontSize="10.5"
+            fontWeight="900"
+            fill="#312E81"
+          >
+            العدد
+          </text>
+        )}
       </g>
     </svg>
   );

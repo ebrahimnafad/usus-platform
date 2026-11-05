@@ -18,7 +18,7 @@ import {
 const GRADE_IDS: GradeId[] = ["K", "1", "2", "3", "4", "5"];
 
 const GRADE_FILES: Record<GradeId, string> = {
-  K: "Grade K/Grade K Curriculum.md",
+  K: "Grade K/Grade_K_Curriculum.md",
   "1": "Grade 1/Grade 1 Curriculum.md",
   "2": "Grade 2/Grade 2 Curriculum.md",
   "3": "Grade 3/Grade 3 Curriculum.md",

@@ -48,6 +48,10 @@ const TIER_LABELS_AR: Record<DifficultyLevel, string> = {
   Advanced: "متقدم",
 };
 
+function escapeCssString(value: string): string {
+  return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+}
+
 export interface WorksheetSurfaceProps {
   bundle: GeneratedWorksheetBundle;
   viewMode: ViewMode;
@@ -254,6 +258,66 @@ export function WorksheetSurface({
 
   const isAnswerKey = viewMode === "answer-key";
 
+  // Running identity for continuation pages. Page 1 already carries the full
+  // illustrated header, so its @top-center margin box is suppressed below.
+  const runningHeaderAr = `${isAnswerKey ? "مفتاح الإجابة • " : ""}${
+    header.gradeLabelAr
+  } • الدرس ${header.lessonNumberAr} • ${worksheet.seedBadgeAr}`;
+
+  const worksheetPrintCss = `
+@page worksheet-page {
+  size: A4 portrait;
+  margin: 10mm 10mm 14mm;
+  @top-center {
+    content: "${escapeCssString(runningHeaderAr)}";
+    font-family: "Cairo", "Readex Pro", "Segoe UI", Tahoma, sans-serif;
+    font-size: 8pt;
+    font-weight: 700;
+    color: #475569;
+    direction: rtl;
+  }
+  @bottom-center {
+    /* eastern arabic per ADR-0001 */
+    content: "صفحة " counter(page, arabic-indic) " من " counter(pages, arabic-indic);
+    font-family: "Cairo", "Readex Pro", "Segoe UI", Tahoma, sans-serif;
+    font-size: 8pt;
+    font-weight: 700;
+    color: #475569;
+    direction: rtl;
+  }
+}
+@page worksheet-page:first {
+  @top-center { content: none !important; }
+}
+@media print {
+  .a4-sheet[data-worksheet-surface="true"] {
+    page: worksheet-page;
+    display: block !important;
+    width: auto !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .a4-sheet[data-worksheet-surface="true"] > [data-worksheet-footer="true"] {
+    display: none !important;
+  }
+
+  .a4-sheet[data-worksheet-surface="true"] [data-section-id] {
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+
+  .a4-sheet[data-worksheet-surface="true"]
+    [data-section-id] > div:first-child {
+    break-after: avoid !important;
+    page-break-after: avoid !important;
+  }
+}
+`;
+
   return (
     <article
       dir="rtl"
@@ -265,7 +329,9 @@ export function WorksheetSurface({
       className="a4-sheet mx-auto flex min-h-[297mm] w-[210mm] flex-col justify-between rounded-none border border-slate-200 bg-white p-[10mm] text-slate-900 shadow-xl print:m-0 print:border-none print:shadow-none"
       data-view-mode={viewMode}
       data-lesson-id={toEasternArabicNumerals(worksheet.lessonId)}
+      data-worksheet-surface="true"
     >
+      <style>{worksheetPrintCss}</style>
       <div className="space-y-4">
         {!isAuthoredBlueprint && (
           <div
@@ -462,8 +528,11 @@ export function WorksheetSurface({
         </div>
       </div>
 
-      {/* A4 Footer */}
-      <footer className="mt-4 flex items-center justify-between border-t-2 border-slate-200 pt-2.5 text-xs font-bold text-slate-600">
+      {/* A4 Footer — screen preview only; print uses @page margin boxes */}
+      <footer
+        data-worksheet-footer="true"
+        className="mt-4 flex items-center justify-between border-t-2 border-slate-200 pt-2.5 text-xs font-bold text-slate-600"
+      >
         <span>{toEasternArabicNumerals(worksheet.footerTextAr)}</span>
         <span className="rounded-lg bg-slate-100 px-2.5 py-1 font-extrabold text-slate-800">
           {toEasternArabicNumerals(worksheet.seedBadgeAr)}

@@ -64,8 +64,9 @@ async function launchHeadlessBrowser(): Promise<Browser> {
 
 /**
  * Secondary Seam — Renders a Worksheet or Answer Key via Playwright (headless Chromium / msedge)
- * with `@page { size: A4 portrait; margin: 0; }` and `print-color-adjust: exact`
- * into a downloadable A4 PDF binary buffer within the 1–2 page budget.
+ * with a named A4 portrait page (`worksheet-page`), running margin boxes, and
+ * `print-color-adjust: exact` into a downloadable A4 PDF binary buffer within
+ * the 1–3 page budget.
  */
 export async function exportWorksheetPdf(
   input: ExportWorksheetPdfInput
@@ -104,20 +105,22 @@ export async function exportWorksheetPdf(
     if (loadedFromUrl) {
       await page.evaluate(() => document.fonts?.ready);
     } else {
-      await page.setContent(doc.html, { waitUntil: "domcontentloaded" });
+      await page.setContent(doc.html, { waitUntil: "networkidle" });
       await page.evaluate(() => document.fonts?.ready);
     }
 
-    // Measure document height in A4 portrait pixels (297mm ≈ 1122.5px at 96 DPI)
+    // Measure document height in A4 portrait pixels (297mm ≈ 1122.5px at 96 DPI).
+    // Worksheet pages reserve 10mm top + 14mm bottom for the running margin boxes.
     const contentHeightPx = await page.evaluate(() => {
       const sheet = document.querySelector(".a4-sheet") as HTMLElement | null;
       return sheet ? sheet.scrollHeight : document.body.scrollHeight;
     });
 
-    const twoPageBudgetPx = 1122 * 1.92;
+    const PRINTABLE_PAGE_HEIGHT_PX = ((297 - 10 - 14) / 25.4) * 96;
+    const twoPageBudgetPx = PRINTABLE_PAGE_HEIGHT_PX * 2;
     let scale =
       contentHeightPx > twoPageBudgetPx
-        ? Math.max(0.75, Math.min(1, twoPageBudgetPx / contentHeightPx)) // floor: ~12pt minimum for K-grade legibility
+        ? Math.max(0.75, Math.min(1, twoPageBudgetPx / contentHeightPx)) // legibility floor for K-grade glyphs
         : 1.0;
 
     let pdfBytes = await page.pdf({
@@ -137,12 +140,12 @@ export async function exportWorksheetPdf(
     let pdfBuffer = Buffer.from(pdfBytes);
     const estimatedPageCount = Math.max(
       1,
-      Math.ceil((contentHeightPx * scale) / 1122.5)
+      Math.ceil((contentHeightPx * scale) / PRINTABLE_PAGE_HEIGHT_PX)
     );
     let pageCount = Math.max(countPdfPages(pdfBuffer), estimatedPageCount);
 
-    // If page-break-inside: avoid pushed an exercise onto page 3, allow up to 3 pages
-    // before tightening scale — floor of 0.65 prevents illegibly small text for K-grade.
+    // If page-break-inside: avoid pushed an exercise past the 3-page budget,
+    // tighten scale once. The 0.65 floor keeps K-grade labels legible.
     if (pageCount > 3) {
       // 1.8 gives slight headroom below the 2-page line, empirically validated.
       scale = Math.max(0.65, scale * (1.8 / pageCount));
@@ -162,7 +165,7 @@ export async function exportWorksheetPdf(
       pdfBuffer = Buffer.from(pdfBytes);
       const retriedEstimate = Math.max(
         1,
-        Math.ceil((contentHeightPx * scale) / 1122.5)
+        Math.ceil((contentHeightPx * scale) / PRINTABLE_PAGE_HEIGHT_PX)
       );
       pageCount = Math.max(countPdfPages(pdfBuffer), retriedEstimate);
     }

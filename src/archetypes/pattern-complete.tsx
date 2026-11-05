@@ -28,6 +28,10 @@ import {
   type ArchetypeRenderProps,
 } from "@/archetypes/registry";
 import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
+import {
+  ANSWER_SLOT_SIZE_CLASS,
+  AnswerLine,
+} from "@/components/worksheet/AnswerSlot";
 
 export type PatternUnitRule = "AB" | "ABC";
 export type PatternDirection = "forward" | "backward";
@@ -441,10 +445,14 @@ function renderPatternCompleteExercise({
                   ) : (
                     <div className="flex flex-1 flex-col items-center justify-center gap-1 py-2">
                       <span
-                        className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border-2 border-dashed border-amber-500 bg-white text-xl font-black text-amber-600 shadow-2xs"
+                        data-answer-slot="unknown"
+                        role="img"
                         aria-label="الخانة المفقودة في النمط"
+                        className={`inline-flex ${ANSWER_SLOT_SIZE_CLASS} items-center justify-center rounded-2xl border-2 border-dashed border-amber-500 bg-white text-xl font-black shadow-2xs`}
                       >
-                        ؟
+                        <span aria-hidden="true" className="text-slate-400">
+                          ؟
+                        </span>
                       </span>
                       <span className="text-[10px] font-extrabold text-amber-900">
                         {data.direction === "backward"
@@ -524,16 +532,12 @@ function renderPatternCompleteExercise({
           🤔 سؤال التفكير والخصائص:{" "}
           {toEasternArabicNumerals(data.attributePromptAr)}
         </span>
-        {isAnswerKey ? (
-          <span
-            className="rounded-lg bg-emerald-600 px-2.5 py-1 text-white"
-            data-solved-attribute-answer="true"
-          >
-            الإجابة: {toEasternArabicNumerals(data.attributeAnswerAr)}
-          </span>
-        ) : (
-          <span className="inline-block h-6 w-36 rounded-lg border-2 border-dashed border-amber-400 bg-white" />
-        )}
+        <AnswerLine
+          solved={isAnswerKey}
+          answer={toEasternArabicNumerals(data.attributeAnswerAr)}
+          ariaLabel="سطر كتابة إجابة سؤال الخصائص"
+          solvedDataAttributes={{ "data-solved-attribute-answer": "true" }}
+        />
       </div>
     </div>
   );

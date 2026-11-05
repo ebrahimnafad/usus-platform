@@ -21,6 +21,7 @@ import {
   type ArchetypeRenderProps,
 } from "@/archetypes/registry";
 import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
+import { AnswerLine, AnswerSlot } from "@/components/worksheet/AnswerSlot";
 
 export type Unit2ModelingKind =
   | "five-frame"
@@ -335,22 +336,17 @@ function renderModelCountAndTraceExercise({
               <span className="text-[11px] font-extrabold text-slate-600">
                 العدد الكلي
               </span>
-              {isAnswerKey ? (
-                <span
-                  className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-600 text-2xl font-black text-white shadow-xs"
-                  data-solved-model-count={item.targetNumberAr}
-                  data-solved-written-digit={item.targetNumberAr}
-                >
-                  {item.targetNumberAr}
-                </span>
-              ) : (
-                <span
-                  className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border-2 border-dashed border-indigo-400 bg-indigo-50/30 text-lg font-bold text-slate-400"
-                  aria-label="مربع كتابة العدد"
-                >
-                  ؟
-                </span>
-              )}
+              <AnswerSlot
+                solved={isAnswerKey}
+                answer={item.targetNumberAr}
+                ariaLabel="مربع كتابة العدد"
+                kind="write"
+                tone="indigo"
+                solvedDataAttributes={{
+                  "data-solved-model-count": item.targetNumberAr,
+                  "data-solved-written-digit": item.targetNumberAr,
+                }}
+              />
               <span className="text-[10px] font-bold text-slate-500">
                 {isAnswerKey
                   ? `✓ كُتب الرقم ${item.targetNumberAr}`
@@ -367,13 +363,11 @@ function renderModelCountAndTraceExercise({
           <span>
             🤔 سؤال التفكير: {toEasternArabicNumerals(data.comparisonPromptAr)}
           </span>
-          {isAnswerKey && data.comparisonAnswerAr ? (
-            <span className="rounded-lg bg-emerald-600 px-2.5 py-1 text-white">
-              الإجابة: {toEasternArabicNumerals(data.comparisonAnswerAr)}
-            </span>
-          ) : (
-            <span className="inline-block h-6 w-32 rounded-lg border-2 border-dashed border-amber-400 bg-white" />
-          )}
+          <AnswerLine
+            solved={isAnswerKey && Boolean(data.comparisonAnswerAr)}
+            answer={toEasternArabicNumerals(data.comparisonAnswerAr ?? "")}
+            ariaLabel="سطر كتابة إجابة سؤال التفكير"
+          />
         </div>
       )}
     </div>

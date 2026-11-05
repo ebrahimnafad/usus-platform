@@ -17,12 +17,14 @@ export async function GET(request: Request): Promise<Response> {
   const viewMode: PrintableViewMode =
     state.viewMode === "answer-key" ? "answer-key" : "worksheet";
 
+  const baseUrl = new URL(request.url).origin;
   const result = await exportWorksheetPdf({
     grade: state.grade,
     lessonNumber: state.lessonNumber,
     seed: state.seed,
     difficultyLevel: state.difficultyLevel,
     viewMode,
+    baseUrl,
   });
 
   return new Response(new Uint8Array(result.pdfBuffer), {

@@ -25,6 +25,11 @@ import {
   type ArchetypeRenderProps,
 } from "@/archetypes/registry";
 import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
+import {
+  ANSWER_SLOT_SIZE_CLASS,
+  AnswerLine,
+  AnswerSlot,
+} from "@/components/worksheet/AnswerSlot";
 
 export type SubitizeMode = "identify-quantity" | "both-parts-to-5";
 
@@ -405,21 +410,15 @@ function renderSubitizePartWholeExercise({
                 <span className="text-center text-[10px] font-extrabold text-sky-950">
                   الموجود (الجزء ١)
                 </span>
-                {isAnswerKey ? (
-                  <span
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-600 text-lg font-black text-white shadow-2xs"
-                    data-solved-subitize-filled={card.filledCountAr}
-                  >
-                    {card.filledCountAr}
-                  </span>
-                ) : (
-                  <span
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-xl border-2 border-dashed border-sky-500 bg-white text-base font-black text-sky-600"
-                    aria-label="مربع كتابة العدد الموجود"
-                  >
-                    ؟
-                  </span>
-                )}
+                <AnswerSlot
+                  solved={isAnswerKey}
+                  answer={card.filledCountAr}
+                  ariaLabel="مربع كتابة العدد الموجود"
+                  tone="sky"
+                  solvedDataAttributes={{
+                    "data-solved-subitize-filled": card.filledCountAr,
+                  }}
+                />
                 <span className="text-[9px] font-bold text-slate-500">
                   كم قرصاً موجوداً؟
                 </span>
@@ -430,21 +429,15 @@ function renderSubitizePartWholeExercise({
                 <span className="text-center text-[10px] font-extrabold text-amber-950">
                   الفارغ (الجزء ٢)
                 </span>
-                {isAnswerKey ? (
-                  <span
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-amber-600 text-lg font-black text-white shadow-2xs"
-                    data-solved-subitize-missing={card.missingCountAr}
-                  >
-                    {card.missingCountAr}
-                  </span>
-                ) : (
-                  <span
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-xl border-2 border-dashed border-amber-500 bg-white text-base font-black text-amber-600"
-                    aria-label="مربع كتابة العدد الفارغ المكمل لخمسة"
-                  >
-                    ؟
-                  </span>
-                )}
+                <AnswerSlot
+                  solved={isAnswerKey}
+                  answer={card.missingCountAr}
+                  ariaLabel="مربع كتابة العدد الفارغ المكمل لخمسة"
+                  tone="amber"
+                  solvedDataAttributes={{
+                    "data-solved-subitize-missing": card.missingCountAr,
+                  }}
+                />
                 <span className="text-[9px] font-bold text-slate-500">
                   كم خانة فارغة؟
                 </span>
@@ -456,7 +449,7 @@ function renderSubitizePartWholeExercise({
                   الكل (المجموع)
                 </span>
                 <span
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-700 text-lg font-black text-white shadow-2xs"
+                  className={`inline-flex ${ANSWER_SLOT_SIZE_CLASS} items-center justify-center rounded-2xl bg-indigo-700 text-xl font-black text-white shadow-2xs`}
                   {...(isAnswerKey
                     ? { "data-solved-subitize-total": card.totalCountAr }
                     : {})}
@@ -478,16 +471,12 @@ function renderSubitizePartWholeExercise({
           🤔 سؤال التعرّف السريع (الأجزاء والكل):{" "}
           {toEasternArabicNumerals(data.reasoningPromptAr)}
         </span>
-        {isAnswerKey ? (
-          <span
-            className="rounded-lg bg-emerald-600 px-2.5 py-1 text-white"
-            data-solved-subitize-reasoning="true"
-          >
-            الإجابة: {toEasternArabicNumerals(data.reasoningAnswerAr)}
-          </span>
-        ) : (
-          <span className="inline-block h-6 w-36 rounded-lg border-2 border-dashed border-amber-400 bg-white" />
-        )}
+        <AnswerLine
+          solved={isAnswerKey}
+          answer={toEasternArabicNumerals(data.reasoningAnswerAr)}
+          ariaLabel="سطر كتابة إجابة سؤال التفكير"
+          solvedDataAttributes={{ "data-solved-subitize-reasoning": "true" }}
+        />
       </div>
     </div>
   );

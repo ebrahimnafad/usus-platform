@@ -25,6 +25,8 @@ export interface PrintCleanA4Document {
 }
 
 const PRINT_CLEAN_A4_CSS = `
+/* Default page box. WorksheetSurface declares the named \`worksheet-page\`
+   with its own margins + running margin boxes (ADR-0012). */
 @page {
   size: A4 portrait;
   margin: 0;
@@ -49,14 +51,7 @@ html, body {
 
 .a4-sheet {
   direction: rtl;
-  width: 210mm;
-  min-height: 297mm;
-  margin: 0 auto;
-  padding: 8mm 10mm;
   background: #ffffff;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
 }
 
 .break-inside-avoid,
@@ -237,6 +232,8 @@ export async function buildPrintCleanA4Html(
 <head>
   <meta charset="utf-8" />
   <style>${PRINT_CLEAN_A4_CSS}</style>
+  <!-- Tailwind CDN guarantees fallback path matches live /print route styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
   <main class="min-h-screen bg-white p-0">${surfaceMarkup}</main>

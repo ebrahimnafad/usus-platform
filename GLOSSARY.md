@@ -68,6 +68,10 @@ _Avoid_: Part, block, page region
 A single mathematical problem or activity within a section of a worksheet.
 _Avoid_: Question, item, task, prompt
 
+**Answer Slot**:
+The standardized writing target for a student response: a 48×48 px square for a single number or a 32×160 px line for a short written explanation. A `؟` appears only when the slot represents an unknown value inside a mathematical model; reproduction/tracing boxes and free-response lines stay blank.
+_Avoid_: Answer box, blank, placeholder, input field
+
 **Difficulty Level**:
 One of three tiers—Easy, Intermediate, or Advanced—expressing the cognitive demand that holds across a whole worksheet.
 _Avoid_: Grade level, complexity tier, skill level, difficulty mode

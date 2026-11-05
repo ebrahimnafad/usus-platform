@@ -65,7 +65,13 @@ export function StudioCanvas({
     if (typeof window === "undefined" || isPrinting) return;
     setIsPrinting(true);
     const lessonAr = formatEasternNumber(bundle.lesson.lessonNumber);
-    const title = `ورقة عمل – ${bundle.grade.labelAr} – الدرس ${lessonAr} – ${bundle.seed}`;
+    const viewLabel =
+      viewMode === "answer-key"
+        ? "مفتاح الإجابة"
+        : viewMode === "teacher-notes"
+          ? "ملاحظات المعلم"
+          : "ورقة عمل";
+    const title = `${viewLabel} – ${bundle.grade.labelAr} – الدرس ${lessonAr} – ${bundle.seed}`;
     try {
       // Delegate full iframe-print lifecycle to the dedicated helper (ADR-0011).
       await printPdfViaIframe(pdfExportUrl, title);

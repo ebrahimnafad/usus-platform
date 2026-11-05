@@ -23,6 +23,7 @@ import {
   type ArchetypeRenderProps,
 } from "@/archetypes/registry";
 import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
+import { AnswerLine, AnswerSlot } from "@/components/worksheet/AnswerSlot";
 
 export type ClassifyDomainMode =
   "shapes-2d" | "solids-3d" | "mixed-shapes-solids";
@@ -492,21 +493,16 @@ function renderClassifyAndCountExercise({
                 </div>
               </div>
 
-              {isAnswerKey ? (
-                <span
-                  className={`inline-flex h-8 w-8 items-center justify-center rounded-xl text-sm font-black ${ringStyle.badge}`}
-                  data-solved-part-count={formatEasternNumber(group.count)}
-                >
-                  {formatEasternNumber(group.count)}
-                </span>
-              ) : (
-                <span
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-xl border-2 border-dashed border-indigo-400 bg-indigo-50/30 text-xs font-bold text-slate-400"
-                  aria-label="مربع كتابة عدد الجزء"
-                >
-                  ؟
-                </span>
-              )}
+              <AnswerSlot
+                solved={isAnswerKey}
+                answer={formatEasternNumber(group.count)}
+                ariaLabel="مربع كتابة عدد الجزء"
+                tone="indigo"
+                solvedClassName={ringStyle.badge}
+                solvedDataAttributes={{
+                  "data-solved-part-count": formatEasternNumber(group.count),
+                }}
+              />
             </div>
           );
         })}
@@ -522,21 +518,15 @@ function renderClassifyAndCountExercise({
             </div>
           </div>
 
-          {isAnswerKey ? (
-            <span
-              className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-700 text-base font-black text-white shadow-xs"
-              data-solved-total-count={formatEasternNumber(data.totalCount)}
-            >
-              {formatEasternNumber(data.totalCount)}
-            </span>
-          ) : (
-            <span
-              className="inline-flex h-9 w-9 items-center justify-center rounded-xl border-2 border-dashed border-indigo-600 bg-white text-xs font-bold text-indigo-400"
-              aria-label="مربع كتابة العدد الكلي"
-            >
-              ؟
-            </span>
-          )}
+          <AnswerSlot
+            solved={isAnswerKey}
+            answer={formatEasternNumber(data.totalCount)}
+            ariaLabel="مربع كتابة العدد الكلي"
+            tone="indigo"
+            solvedDataAttributes={{
+              "data-solved-total-count": formatEasternNumber(data.totalCount),
+            }}
+          />
         </div>
       </div>
 
@@ -546,13 +536,11 @@ function renderClassifyAndCountExercise({
           🤔 سؤال التفكير (الأجزاء والكل):{" "}
           {toEasternArabicNumerals(data.comparisonPromptAr)}
         </span>
-        {isAnswerKey ? (
-          <span className="rounded-lg bg-emerald-600 px-2.5 py-1 text-white">
-            الإجابة: {toEasternArabicNumerals(data.comparisonAnswerAr)}
-          </span>
-        ) : (
-          <span className="inline-block h-6 w-36 rounded-lg border-2 border-dashed border-amber-400 bg-white" />
-        )}
+        <AnswerLine
+          solved={isAnswerKey}
+          answer={toEasternArabicNumerals(data.comparisonAnswerAr)}
+          ariaLabel="سطر كتابة إجابة سؤال التفكير"
+        />
       </div>
     </div>
   );

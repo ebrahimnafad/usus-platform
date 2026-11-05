@@ -17,6 +17,7 @@ import {
   type ArchetypeRenderProps,
 } from "@/archetypes/registry";
 import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
+import { AnswerLine } from "@/components/worksheet/AnswerSlot";
 
 export interface ConnectMatchBlueprintParams {
   pairCount?: number;
@@ -292,13 +293,11 @@ function renderConnectMatchExercise({
           <span>
             🤔 سؤال التفكير: {toEasternArabicNumerals(data.comparisonPromptAr)}
           </span>
-          {mode === "answer-key" && data.comparisonAnswerAr ? (
-            <span className="rounded-lg bg-emerald-600 px-2.5 py-1 text-white">
-              الإجابة: {data.comparisonAnswerAr}
-            </span>
-          ) : (
-            <span className="inline-block h-6 w-28 rounded-lg border-2 border-dashed border-amber-400 bg-white" />
-          )}
+          <AnswerLine
+            solved={mode === "answer-key" && Boolean(data.comparisonAnswerAr)}
+            answer={data.comparisonAnswerAr}
+            ariaLabel="سطر كتابة إجابة سؤال التفكير"
+          />
         </div>
       )}
     </div>

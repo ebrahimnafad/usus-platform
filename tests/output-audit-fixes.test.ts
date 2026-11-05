@@ -128,4 +128,47 @@ describe("Output Audit Fixes — Download PDF & Print Parity Seam Tests", () => 
     expect(src).not.toContain('createElement("iframe")');
     expect(src).not.toContain("createElement('iframe')");
   });
+
+  it("Seam 9: worksheet print uses a named page with running margin boxes", () => {
+    const html = renderWorksheetSurface({
+      grade: "K",
+      lessonNumber: 8,
+      seed: "K1-2026",
+      viewMode: "worksheet",
+      difficultyLevel: "scaffolded",
+    });
+
+    // Named page + running header/footer, not the old zero-margin single sheet.
+    expect(html).toContain('data-worksheet-surface="true"');
+    expect(html).toContain("@page worksheet-page");
+    expect(html).toContain("@page worksheet-page:first");
+    expect(html).toContain("@top-center");
+    expect(html).toContain("@bottom-center");
+    expect(html).toContain("counter(page, arabic-indic)");
+    expect(html).toContain("counter(pages, arabic-indic)");
+    expect(html).toContain("الروضة • الدرس ٨");
+    expect(html).toContain("رمز الورقة: K١-٢٠٢٦");
+
+    // The in-flow footer must not print alongside the running footer.
+    expect(html).toContain('data-worksheet-footer="true"');
+  });
+
+  it("Seam 10: worksheet print switches the flex sheet to block flow and keeps section headers with content", () => {
+    const html = renderWorksheetSurface({
+      grade: "K",
+      lessonNumber: 8,
+      seed: "K1-2026",
+      viewMode: "worksheet",
+      difficultyLevel: "scaffolded",
+    });
+
+    // Chromium drops exercises when a tall flex sheet is fragmented in print.
+    expect(html).toMatch(
+      /\.a4-sheet\[data-worksheet-surface="true"\]\s*\{[^}]*display:\s*block !important/s
+    );
+    expect(html).toMatch(
+      /\[data-section-id\]\s*>\s*div:first-child\s*\{[^}]*break-after:\s*avoid/s
+    );
+    expect(html).toContain("box-decoration-break: clone");
+  });
 });

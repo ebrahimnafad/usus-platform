@@ -27,6 +27,7 @@ import {
   type ArchetypeRenderProps,
 } from "@/archetypes/registry";
 import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
+import { AnswerSlot } from "@/components/worksheet/AnswerSlot";
 
 export type PictureGraphCountsPattern =
   "increasing-by-1" | "decreasing-by-1" | "with-equal-pair" | "mixed";
@@ -385,21 +386,15 @@ function renderPictureGraphReadExercise({
                 </div>
               )}
 
-              {isAnswerKey ? (
-                <span
-                  className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-600 text-xl font-black text-white shadow-xs"
-                  data-solved-category-count={cat.countAr}
-                >
-                  {cat.countAr}
-                </span>
-              ) : (
-                <span
-                  className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border-2 border-dashed border-indigo-400 bg-indigo-50/30 text-base font-bold text-slate-400"
-                  aria-label="مربع كتابة عدد الفئة"
-                >
-                  ؟
-                </span>
-              )}
+              <AnswerSlot
+                solved={isAnswerKey}
+                answer={cat.countAr}
+                ariaLabel="مربع كتابة عدد الفئة"
+                tone="indigo"
+                solvedDataAttributes={{
+                  "data-solved-category-count": cat.countAr,
+                }}
+              />
             </div>
           </div>
         ))}
