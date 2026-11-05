@@ -5,6 +5,7 @@ import {
   type PrintCleanA4Document,
   type PrintableViewMode,
 } from "@/pdf/print-document";
+import { PAGE_BUDGET } from "@/components/worksheet/layout-standard";
 
 export interface ExportWorksheetPdfInput {
   grade: GradeId;
@@ -20,7 +21,10 @@ export interface ExportedPdfResult extends PrintCleanA4Document {
   pdfBuffer: Buffer;
   contentType: "application/pdf";
   pageCount: number;
+  withinPageBudget: boolean;
 }
+
+export const PRINT_SCALE = 1;
 export function countPdfPages(pdfBuffer: Buffer): number {
   const rawLatin1 = pdfBuffer.toString("latin1");
   const pageMatches = rawLatin1.match(/\/Type\s*\/Page\b(?!s)/g);
@@ -65,8 +69,8 @@ async function launchHeadlessBrowser(): Promise<Browser> {
 /**
  * Secondary Seam — Renders a Worksheet or Answer Key via Playwright (headless Chromium / msedge)
  * with a named A4 portrait page (`worksheet-page`), running margin boxes, and
- * `print-color-adjust: exact` into a downloadable A4 PDF binary buffer within
- * the 1–3 page budget.
+ * `print-color-adjust: exact` into a downloadable A4 PDF binary buffer at
+ * full scale, reporting whether it stays within the 2-page budget.
  */
 export async function exportWorksheetPdf(
   input: ExportWorksheetPdfInput
@@ -99,6 +103,7 @@ export async function exportWorksheetPdf(
         loadedFromUrl = Boolean(resp && resp.ok());
       } catch {
         loadedFromUrl = false;
+        await page.goto("about:blank").catch(() => undefined);
       }
     }
 
@@ -109,26 +114,15 @@ export async function exportWorksheetPdf(
       await page.evaluate(() => document.fonts?.ready);
     }
 
-    // Measure document height in A4 portrait pixels (297mm ≈ 1122.5px at 96 DPI).
-    // Worksheet pages reserve 10mm top + 14mm bottom for the running margin boxes.
-    const contentHeightPx = await page.evaluate(() => {
-      const sheet = document.querySelector(".a4-sheet") as HTMLElement | null;
-      return sheet ? sheet.scrollHeight : document.body.scrollHeight;
-    });
-
-    const PRINTABLE_PAGE_HEIGHT_PX = ((297 - 10 - 14) / 25.4) * 96;
-    const twoPageBudgetPx = PRINTABLE_PAGE_HEIGHT_PX * 2;
-    let scale =
-      contentHeightPx > twoPageBudgetPx
-        ? Math.max(0.75, Math.min(1, twoPageBudgetPx / contentHeightPx)) // legibility floor for K-grade glyphs
-        : 1.0;
-
-    let pdfBytes = await page.pdf({
+    // Always full scale (ADR-0013): every standardized size prints at its
+    // real size. A sheet over budget is a blueprint error caught by the
+    // layout guard, never shrunk here.
+    const pdfBytes = await page.pdf({
       format: "A4",
       landscape: false,
       printBackground: true,
       preferCSSPageSize: true,
-      scale,
+      scale: PRINT_SCALE,
       margin: {
         top: "0mm",
         right: "0mm",
@@ -137,44 +131,15 @@ export async function exportWorksheetPdf(
       },
     });
 
-    let pdfBuffer = Buffer.from(pdfBytes);
-    const estimatedPageCount = Math.max(
-      1,
-      Math.ceil((contentHeightPx * scale) / PRINTABLE_PAGE_HEIGHT_PX)
-    );
-    let pageCount = Math.max(countPdfPages(pdfBuffer), estimatedPageCount);
-
-    // If page-break-inside: avoid pushed an exercise past the 3-page budget,
-    // tighten scale once. The 0.65 floor keeps K-grade labels legible.
-    if (pageCount > 3) {
-      // 1.8 gives slight headroom below the 2-page line, empirically validated.
-      scale = Math.max(0.65, scale * (1.8 / pageCount));
-      pdfBytes = await page.pdf({
-        format: "A4",
-        landscape: false,
-        printBackground: true,
-        preferCSSPageSize: true,
-        scale,
-        margin: {
-          top: "0mm",
-          right: "0mm",
-          bottom: "0mm",
-          left: "0mm",
-        },
-      });
-      pdfBuffer = Buffer.from(pdfBytes);
-      const retriedEstimate = Math.max(
-        1,
-        Math.ceil((contentHeightPx * scale) / PRINTABLE_PAGE_HEIGHT_PX)
-      );
-      pageCount = Math.max(countPdfPages(pdfBuffer), retriedEstimate);
-    }
+    const pdfBuffer = Buffer.from(pdfBytes);
+    const pageCount = countPdfPages(pdfBuffer);
 
     return {
       ...doc,
       pdfBuffer,
       contentType: "application/pdf",
       pageCount,
+      withinPageBudget: pageCount <= PAGE_BUDGET,
     };
   } finally {
     await browser.close();

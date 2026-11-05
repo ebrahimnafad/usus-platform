@@ -4,6 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import React from "react";
 import { EverydayObjectSvg } from "@/visual-models/everyday-objects";
 import { VisualModelView } from "@/visual-models/registry";
+import { PRINT_SCALE } from "@/pdf/pdf-exporter";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -104,14 +105,12 @@ describe("Output Audit Fixes — Download PDF & Print Parity Seam Tests", () => 
     expect(value).toBeGreaterThanOrEqual(96);
   });
 
-  it("Seam 7: PDF exporter initial scale floor is at least 0.70", () => {
+  it("Seam 7: PDF exporter always prints at full scale (ADR-0013)", () => {
+    expect(PRINT_SCALE).toBe(1);
     const srcPath = path.resolve(__dirname, "../src/pdf/pdf-exporter.ts");
     const src = fs.readFileSync(srcPath, "utf8");
-    // The Math.max(X, Math.min(1, ...)) initial floor must be >= 0.70
-    const match = src.match(/Math\.max\((0\.\d+),\s*Math\.min\(1,/);
-    expect(match).not.toBeNull();
-    const value = parseFloat(match![1]);
-    expect(value).toBeGreaterThanOrEqual(0.7);
+    expect(src).toContain("scale: PRINT_SCALE");
+    expect(src).not.toMatch(/scale:\s*scale\b/);
   });
 
   it("Seam 8: StudioCanvas delegates print to printPdfViaIframe (no inline iframe logic)", () => {

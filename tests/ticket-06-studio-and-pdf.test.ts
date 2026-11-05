@@ -203,10 +203,8 @@ describe("Ticket 06 — Secondary Seam: Headless Browser A4 PDF Exporter & /api/
     );
     expect(worksheetPdf.pdfBuffer.byteLength).toBeGreaterThan(5000);
     expect(worksheetPdf.pageCount).toBeGreaterThanOrEqual(1);
-    // The scale floor of 0.75 (enforcing ~12pt minimum for K-grade legibility) takes
-    // priority over the two-page budget when content is dense.  The spec explicitly
-    // allows 3 pages when squeezing to 2 would produce illegibly small text.
-    expect(worksheetPdf.pageCount).toBeLessThanOrEqual(3);
+    expect(typeof worksheetPdf.withinPageBudget).toBe("boolean");
+    expect(worksheetPdf.withinPageBudget).toBe(worksheetPdf.pageCount <= 2);
     expect(worksheetPdf.filename).toBe("worksheet-K-1-PDF-2026-worksheet.pdf");
 
     // 3. Headless browser PDF export for Answer Key via GET /api/pdf route handler
@@ -226,8 +224,8 @@ describe("Ticket 06 — Secondary Seam: Headless Browser A4 PDF Exporter & /api/
     expect(routePdfBuffer.byteLength).toBeGreaterThan(5000);
     const pageCountHeader = Number(response.headers.get("X-PDF-Page-Count"));
     expect(pageCountHeader).toBeGreaterThanOrEqual(1);
-    // Scale floor of 0.75 (enforcing ~12pt legibility for K-grade) takes priority
-    // over the two-page budget; up to 3 pages is acceptable per spec.
-    expect(pageCountHeader).toBeLessThanOrEqual(3);
+    expect(response.headers.get("X-PDF-Within-Page-Budget")).toBe(
+      String(pageCountHeader <= 2)
+    );
   }, 120_000); // Playwright + Edge startup needs headroom; 60 s was the cliff edge
 });

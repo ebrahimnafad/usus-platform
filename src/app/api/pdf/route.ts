@@ -33,6 +33,7 @@ export async function GET(request: Request): Promise<Response> {
       "Content-Type": result.contentType,
       "Content-Disposition": `attachment; filename="${result.filename}"`,
       "X-PDF-Page-Count": String(result.pageCount),
+      "X-PDF-Within-Page-Budget": String(result.withinPageBudget),
       "Cache-Control": "no-store",
     },
   });

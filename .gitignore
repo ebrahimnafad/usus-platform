@@ -6,3 +6,4 @@ coverage/
 *.tsbuildinfo
 .env*.local
 .worktrees/
+layout-guard-output/

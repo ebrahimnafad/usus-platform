@@ -8,6 +8,10 @@ import type {
 import { getExerciseArchetype } from "@/archetypes/registry";
 import "@/registry/bootstrap";
 import {
+  EXERCISE_BODY_WIDTH_PX,
+  TYPE_SCALE_PX,
+} from "@/components/worksheet/layout-standard";
+import {
   formatEasternNumber,
   formatLessonCodeAr,
   toEasternArabicNumerals,
@@ -271,7 +275,7 @@ export function WorksheetSurface({
   @top-center {
     content: "${escapeCssString(runningHeaderAr)}";
     font-family: "Cairo", "Readex Pro", "Segoe UI", Tahoma, sans-serif;
-    font-size: 8pt;
+    font-size: ${TYPE_SCALE_PX.metadata}px;
     font-weight: 700;
     color: #475569;
     direction: rtl;
@@ -280,7 +284,7 @@ export function WorksheetSurface({
     /* eastern arabic per ADR-0001 */
     content: "صفحة " counter(page, arabic-indic) " من " counter(pages, arabic-indic);
     font-family: "Cairo", "Readex Pro", "Segoe UI", Tahoma, sans-serif;
-    font-size: 8pt;
+    font-size: ${TYPE_SCALE_PX.metadata}px;
     font-weight: 700;
     color: #475569;
     direction: rtl;
@@ -491,7 +495,10 @@ export function WorksheetSurface({
                             <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-sm font-extrabold text-white shadow-2xs">
                               {formatEasternNumber(exercise.exerciseNumber)}
                             </span>
-                            <p className="text-sm font-extrabold text-slate-900">
+                            <p
+                              data-exercise-prompt="true"
+                              className="text-sm font-extrabold text-slate-900"
+                            >
                               {toEasternArabicNumerals(exercise.promptAr)}
                             </p>
                           </div>
@@ -500,10 +507,15 @@ export function WorksheetSurface({
                           </span>
                         </div>
 
-                        {archetypeDef.render({
-                          exercise,
-                          mode: isAnswerKey ? "answer-key" : "worksheet",
-                        })}
+                        <div
+                          data-exercise-body="true"
+                          style={{ width: EXERCISE_BODY_WIDTH_PX }}
+                        >
+                          {archetypeDef.render({
+                            exercise,
+                            mode: isAnswerKey ? "answer-key" : "worksheet",
+                          })}
+                        </div>
 
                         {isAnswerKey && (
                           <div
