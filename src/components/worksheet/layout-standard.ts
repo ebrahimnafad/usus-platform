@@ -25,6 +25,7 @@ export const CANONICAL_SIZES_PX: {
   answerSlotDigit: PixelSize;
   answerSlotLine: PixelSize;
   fiveFrameCell: PixelSize;
+  fiveFrameWidth: number;
   numberBondCircle: PixelSize;
   numberBondBox: PixelSize;
   equationStripHeight: number;

@@ -15,6 +15,8 @@ export interface ExportWorksheetPdfInput {
   viewMode?: PrintableViewMode;
   /** Optional base URL to render the live `/print` route when a server is listening */
   baseUrl?: string;
+  /** When true, throws an Error if the rendered PDF exceeds PAGE_BUDGET at full scale */
+  enforcePageBudget?: boolean;
 }
 
 export interface ExportedPdfResult extends PrintCleanA4Document {
@@ -133,13 +135,20 @@ export async function exportWorksheetPdf(
 
     const pdfBuffer = Buffer.from(pdfBytes);
     const pageCount = countPdfPages(pdfBuffer);
+    const withinPageBudget = pageCount <= PAGE_BUDGET;
+
+    if (input.enforcePageBudget && !withinPageBudget) {
+      throw new Error(
+        `Worksheet PDF exceeded the ${PAGE_BUDGET}-page budget (${pageCount} pages) at full scale`
+      );
+    }
 
     return {
       ...doc,
       pdfBuffer,
       contentType: "application/pdf",
       pageCount,
-      withinPageBudget: pageCount <= PAGE_BUDGET,
+      withinPageBudget,
     };
   } finally {
     await browser.close();

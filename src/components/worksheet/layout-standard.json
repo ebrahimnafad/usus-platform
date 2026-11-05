@@ -6,6 +6,7 @@
     "answerSlotDigit": { "width": 48, "height": 48 },
     "answerSlotLine": { "width": 160, "height": 32 },
     "fiveFrameCell": { "width": 48, "height": 48 },
+    "fiveFrameWidth": 240,
     "numberBondCircle": { "width": 56, "height": 56 },
     "numberBondBox": { "width": 212, "height": 160 },
     "equationStripHeight": 48

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import {
@@ -14,7 +14,30 @@ import {
 } from "@/components/worksheet/layout-standard";
 import { ExerciseColumns } from "@/components/worksheet/ExerciseColumns";
 import { renderWorksheetSurface } from "@/lib/render-worksheet-surface";
-import { PRINT_SCALE } from "@/pdf/pdf-exporter";
+import { exportWorksheetPdf, PRINT_SCALE } from "@/pdf/pdf-exporter";
+
+let mockPdfPageCount = 3;
+
+vi.mock("playwright", () => ({
+  chromium: {
+    launch: async () => ({
+      newPage: async () => ({
+        emulateMedia: async () => undefined,
+        goto: async () => ({ ok: () => true }),
+        setContent: async () => undefined,
+        evaluate: async () => undefined,
+        pdf: async () => {
+          const pages = Array.from(
+            { length: mockPdfPageCount },
+            (_, idx) => `${idx + 1} 0 obj << /Type /Page >> endobj`
+          ).join("\n");
+          return Buffer.from(`%PDF-1.4\n${pages}\n`, "latin1");
+        },
+      }),
+      close: async () => undefined,
+    }),
+  },
+}));
 
 /**
  * These values are copied from WORKSHEET_CONSTITUTION.md §3–4 on purpose.
@@ -41,6 +64,7 @@ describe("Layout standard matches WORKSHEET_CONSTITUTION.md", () => {
       answerSlotDigit: { width: 48, height: 48 },
       answerSlotLine: { width: 160, height: 32 },
       fiveFrameCell: { width: 48, height: 48 },
+      fiveFrameWidth: 240,
       numberBondCircle: { width: 56, height: 56 },
       numberBondBox: { width: 212, height: 160 },
       equationStripHeight: 48,
@@ -63,6 +87,45 @@ describe("Layout standard matches WORKSHEET_CONSTITUTION.md", () => {
     expect(PRINT_SCALE).toBe(1);
     expect(PAGE_BUDGET).toBe(2);
     expect(PRINTABLE_AREA_MM).toEqual({ width: 190, height: 273 });
+  });
+
+  it("§2.2 exportWorksheetPdf reports withinPageBudget by default and throws when enforcePageBudget is true and pageCount > PAGE_BUDGET", async () => {
+    mockPdfPageCount = 3;
+
+    const unforced = await exportWorksheetPdf({
+      grade: "K",
+      lessonNumber: 1,
+      seed: "BUDGET-TEST",
+      difficultyLevel: "scaffolded",
+      viewMode: "worksheet",
+    });
+    expect(unforced.pageCount).toBe(3);
+    expect(unforced.withinPageBudget).toBe(false);
+
+    await expect(
+      exportWorksheetPdf({
+        grade: "K",
+        lessonNumber: 1,
+        seed: "BUDGET-TEST",
+        difficultyLevel: "scaffolded",
+        viewMode: "worksheet",
+        enforcePageBudget: true,
+      })
+    ).rejects.toThrow(
+      "Worksheet PDF exceeded the 2-page budget (3 pages) at full scale"
+    );
+
+    mockPdfPageCount = 2;
+    const withinBudget = await exportWorksheetPdf({
+      grade: "K",
+      lessonNumber: 1,
+      seed: "BUDGET-TEST",
+      difficultyLevel: "scaffolded",
+      viewMode: "worksheet",
+      enforcePageBudget: true,
+    });
+    expect(withinBudget.pageCount).toBe(2);
+    expect(withinBudget.withinPageBudget).toBe(true);
   });
 });
 

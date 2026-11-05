@@ -2,7 +2,7 @@
 // real print route, at full scale, in Microsoft Edge (Chromium is not installed).
 //
 // Usage: node scripts/layout-guard.mjs [--base-url=http://localhost:3000]
-//          [--lessons=K-1..K-26|K-12,K-20] [--seeds=5] [--png=first|all|none]
+//          [--lessons=K-1..K-26|K-12,K-20] [--seeds=5] [--png=all|first|none]
 //          [--concurrency=4]
 
 import { execFile, execFileSync, spawn } from "child_process";
@@ -44,7 +44,7 @@ function parseArgs(argv) {
     baseUrl: args["base-url"],
     lessons: args.lessons,
     seedCount: Math.min(SEEDS.length, Math.max(1, Number(args.seeds ?? 5))),
-    png: args.png ?? "first",
+    png: args.png ?? "all",
     concurrency: Math.max(1, Number(args.concurrency ?? 4)),
   };
 }
@@ -128,7 +128,7 @@ async function discoverAuthoredLessons(baseUrl) {
 
 /** Runs inside the page. Returns every [guard] violation on the sheet. */
 function measureSheet(std) {
-  const TOL = 0.5;
+  const TOL = 0;
   const violations = [];
   const sheet = document.querySelector(
     '.a4-sheet[data-worksheet-surface="true"]'
@@ -153,8 +153,8 @@ function measureSheet(std) {
   };
   const label = (el) => {
     const data = [...el.attributes]
-      .filter((a) => a.name.startsWith("data-"))
-      .map((a) => `${a.name}="${a.value}"`)
+      .filter((attr) => attr.name.startsWith("data-"))
+      .map((attr) => `${attr.name}="${attr.value}"`)
       .join(" ");
     const text = (el.textContent ?? "").trim().replace(/\s+/g, " ").slice(0, 40);
     return `<${el.tagName.toLowerCase()}${data ? " " + data : ""}>${text ? ` "${text}"` : ""}`;
@@ -166,21 +166,27 @@ function measureSheet(std) {
     const cs = getComputedStyle(el);
     return cs.display !== "none" && cs.visibility !== "hidden";
   };
-  const hasArea = (r) => r.width > TOL && r.height > TOL;
-  const excess = (r, c) =>
-    Math.max(c.left - r.left, r.right - c.right, c.top - r.top, r.bottom - c.bottom);
+  const hasArea = (elementRect) =>
+    Math.round(elementRect.width) > TOL && Math.round(elementRect.height) > TOL;
+  const excess = (elementRect, containerRect) =>
+    Math.max(
+      containerRect.left - elementRect.left,
+      elementRect.right - containerRect.right,
+      containerRect.top - elementRect.top,
+      elementRect.bottom - containerRect.bottom
+    );
   const isSvgInternal = (el) => el instanceof SVGElement && el.ownerSVGElement;
   const NON_RENDERED_SVG = "defs, clipPath, mask, pattern, marker, symbol, linearGradient, radialGradient, filter, title, desc";
 
   // 3.1 containment: page header and Sections inside the sheet, Section
   // chrome inside its Section, everything in a card inside that card.
   const containWithin = (container, elements, kind) => {
-    const c = container.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
     for (const el of elements) {
       if (isSvgInternal(el) || !isShown(el)) continue;
-      const r = el.getBoundingClientRect();
-      if (!hasArea(r)) continue;
-      const over = excess(r, c);
+      const elementRect = el.getBoundingClientRect();
+      if (!hasArea(elementRect)) continue;
+      const over = Math.round(excess(elementRect, containerRect));
       if (over > TOL) push("overflow", el, `extends ${over.toFixed(1)}px past its ${kind}`);
     }
   };
@@ -199,12 +205,12 @@ function measureSheet(std) {
   // SVG content outside its viewport is silently clipped.
   for (const svg of sheet.querySelectorAll("svg")) {
     if (svg.ownerSVGElement || !isShown(svg)) continue;
-    const c = svg.getBoundingClientRect();
+    const containerRect = svg.getBoundingClientRect();
     for (const el of svg.querySelectorAll("*")) {
       if (!(el instanceof SVGGraphicsElement) || el.closest(NON_RENDERED_SVG)) continue;
-      const r = el.getBoundingClientRect();
-      if (!hasArea(r)) continue;
-      const over = excess(r, c);
+      const elementRect = el.getBoundingClientRect();
+      if (!hasArea(elementRect)) continue;
+      const over = Math.round(excess(elementRect, containerRect));
       if (over > TOL) push("svg-clipped", el, `drawn ${over.toFixed(1)}px outside its SVG`);
     }
   }
@@ -216,7 +222,7 @@ function measureSheet(std) {
     if (cs.overflowX === "visible" && cs.overflowY === "visible") continue;
     const dx = el.scrollWidth - el.clientWidth;
     const dy = el.scrollHeight - el.clientHeight;
-    if (dx > 1 || dy > 1) push("clipped", el, `content clipped by ${Math.max(dx, dy)}px`);
+    if (dx > 0 || dy > 0) push("clipped", el, `content clipped by ${Math.max(dx, dy)}px`);
   }
 
   // 3.1 overlapping siblings
@@ -230,14 +236,62 @@ function measureSheet(std) {
       return hasArea(el.getBoundingClientRect());
     });
     for (let i = 0; i < kids.length; i++) {
-      const a = kids[i].getBoundingClientRect();
+      const firstRect = kids[i].getBoundingClientRect();
       for (let j = i + 1; j < kids.length; j++) {
-        const b = kids[j].getBoundingClientRect();
-        const ix = Math.min(a.right, b.right) - Math.max(a.left, b.left);
-        const iy = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
+        const secondRect = kids[j].getBoundingClientRect();
+        const ix = Math.round(
+          Math.min(firstRect.right, secondRect.right) - Math.max(firstRect.left, secondRect.left)
+        );
+        const iy = Math.round(
+          Math.min(firstRect.bottom, secondRect.bottom) - Math.max(firstRect.top, secondRect.top)
+        );
         if (ix > TOL && iy > TOL) {
           push("overlap", kids[i], `overlaps ${label(kids[j])} by ${ix.toFixed(1)}×${iy.toFixed(1)}px`);
         }
+      }
+    }
+  }
+
+  // 3.2 exercise body width (660 px) and column layout widths (660 / 324 / 212 px)
+  for (const body of sheet.querySelectorAll('[data-exercise-body="true"]')) {
+    if (!isShown(body)) continue;
+    const elementRect = body.getBoundingClientRect();
+    if (Math.abs(Math.round(elementRect.width) - std.exerciseBodyWidthPx) > TOL) {
+      push(
+        "column-layout",
+        body,
+        `exercise body width is ${elementRect.width.toFixed(1)}px, expected ${std.exerciseBodyWidthPx}px`
+      );
+    }
+  }
+  const columnWidthByAttr = {
+    one: std.columnWidthsPx["1"],
+    two: std.columnWidthsPx["2"],
+    three: std.columnWidthsPx["3"],
+    1: std.columnWidthsPx["1"],
+    2: std.columnWidthsPx["2"],
+    3: std.columnWidthsPx["3"],
+  };
+  for (const grid of sheet.querySelectorAll("[data-exercise-columns]")) {
+    if (!isShown(grid)) continue;
+    const expectedWidth = columnWidthByAttr[grid.dataset.exerciseColumns];
+    if (expectedWidth === undefined) {
+      push(
+        "column-layout",
+        grid,
+        `unknown column layout "${grid.dataset.exerciseColumns}"`
+      );
+      continue;
+    }
+    for (const child of grid.children) {
+      if (!isShown(child)) continue;
+      const elementRect = child.getBoundingClientRect();
+      if (Math.abs(Math.round(elementRect.width) - expectedWidth) > TOL) {
+        push(
+          "column-layout",
+          child,
+          `column child width is ${elementRect.width.toFixed(1)}px, expected ${expectedWidth}px`
+        );
       }
     }
   }
@@ -248,6 +302,7 @@ function measureSheet(std) {
     ['[data-answer-slot="unknown"], [data-answer-slot="write"], [data-answer-slot="solved-digit"]', sizes.answerSlotDigit, "Answer Slot"],
     ['[data-answer-slot="line"], [data-answer-slot="solved-line"]', sizes.answerSlotLine, "Answer Slot line"],
     ["[data-rtl-cell]", sizes.fiveFrameCell, "five-frame cell"],
+    ['[data-visual-model="five-frame"]', { width: sizes.fiveFrameWidth }, "five-frame"],
     ['[data-visual-model="number-bond"]', sizes.numberBondBox, "Number Bond"],
     ["[data-number-bond-circle]", sizes.numberBondCircle, "Number Bond circle"],
     ['[data-visual-model="equation-strip"]', { height: sizes.equationStripHeight }, "Equation Strip"],
@@ -255,12 +310,20 @@ function measureSheet(std) {
   for (const [selector, size, name] of canonical) {
     for (const el of sheet.querySelectorAll(selector)) {
       if (!isShown(el)) continue;
-      const r = el.getBoundingClientRect();
-      const wrongWidth = size.width !== undefined && Math.abs(r.width - size.width) > TOL;
-      const wrongHeight = size.height !== undefined && Math.abs(r.height - size.height) > TOL;
+      const elementRect = el.getBoundingClientRect();
+      const wrongWidth =
+        size.width !== undefined &&
+        Math.abs(Math.round(elementRect.width) - size.width) > TOL;
+      const wrongHeight =
+        size.height !== undefined &&
+        Math.abs(Math.round(elementRect.height) - size.height) > TOL;
       if (wrongWidth || wrongHeight) {
         const expected = `${size.width ?? "any"}×${size.height ?? "any"}`;
-        push("canonical-size", el, `${name} is ${r.width.toFixed(1)}×${r.height.toFixed(1)}px, expected ${expected}`);
+        push(
+          "canonical-size",
+          el,
+          `${name} is ${elementRect.width.toFixed(1)}×${elementRect.height.toFixed(1)}px, expected ${expected}`
+        );
       }
     }
   }
@@ -277,15 +340,16 @@ function measureSheet(std) {
     if (parent.closest("style, script")) continue;
     let size = parseFloat(getComputedStyle(parent).fontSize);
     if (parent instanceof SVGElement) {
-      const m = parent.getScreenCTM();
-      if (m) size *= Math.hypot(m.a, m.b);
+      const ctm = parent.getScreenCTM();
+      if (ctm) size *= Math.hypot(ctm.a, ctm.b);
     }
-    const onScale = allowed.some((s) => Math.abs(s - size) <= 0.25);
-    if (size < std.minTextPx - 0.25 || !onScale) {
+    const roundedSize = Math.round(size);
+    const onScale = allowed.some((allowedSize) => Math.abs(allowedSize - roundedSize) <= TOL);
+    if (roundedSize < std.minTextPx || !onScale) {
       const key = `${size.toFixed(1)}|${where(parent).exercise}|${parent.tagName}`;
       if (reportedSizes.has(key)) continue;
       reportedSizes.add(key);
-      const rule = size < std.minTextPx - 0.25 ? "text-too-small" : "off-type-scale";
+      const rule = roundedSize < std.minTextPx ? "text-too-small" : "off-type-scale";
       push(rule, parent, `${size.toFixed(1)}px (allowed: ${allowed.join(", ")}px)`);
     }
 
@@ -296,21 +360,28 @@ function measureSheet(std) {
       box = box.parentElement;
     }
     if (!box) continue;
-    const c = box.getBoundingClientRect();
+    const containerRect = box.getBoundingClientRect();
     const lineHeight = parseFloat(getComputedStyle(parent).lineHeight);
     const range = document.createRange();
     range.selectNodeContents(node);
-    for (const r of range.getClientRects()) {
-      if (!hasArea(r)) continue;
+    for (const elementRect of range.getClientRects()) {
+      if (!hasArea(elementRect)) continue;
       // A text range spans the font's full ascent and descent, which can
       // exceed a tight line box without any ink leaving it; only spill past
       // that allowance counts vertically.
       const glyphAllowance = Number.isFinite(lineHeight)
-        ? Math.max(0, (r.height - lineHeight) / 2)
+        ? Math.max(0, elementRect.height - lineHeight)
         : 0;
-      const overX = Math.max(c.left - r.left, r.right - c.right);
-      const overY = Math.max(c.top - r.top, r.bottom - c.bottom) - glyphAllowance;
-      const over = Math.max(overX, overY);
+      const overX = Math.max(
+        containerRect.left - elementRect.left,
+        elementRect.right - containerRect.right
+      );
+      const overY =
+        Math.max(
+          containerRect.top - elementRect.top,
+          elementRect.bottom - elementRect.bottom
+        ) - glyphAllowance;
+      const over = Math.round(Math.max(overX, overY));
       if (over > TOL) {
         push("text-overflow", box, `text spills ${over.toFixed(1)}px out of its box`);
         break;
@@ -323,28 +394,57 @@ function measureSheet(std) {
     const range = document.createRange();
     range.selectNodeContents(prompt);
     const tops = [];
-    for (const r of range.getClientRects()) {
-      if (hasArea(r) && !tops.some((t) => Math.abs(t - r.top) < 4)) tops.push(r.top);
+    for (const elementRect of range.getClientRects()) {
+      if (
+        hasArea(elementRect) &&
+        !tops.some((lineTop) => Math.abs(lineTop - elementRect.top) < 4)
+      ) {
+        tops.push(elementRect.top);
+      }
     }
     if (tops.length > std.promptMaxLines) {
       push("prompt-too-long", prompt, `${tops.length} lines (max ${std.promptMaxLines})`);
     }
   }
 
-  // 2.3 an exercise taller than a page cannot avoid being split
+  // 2.3 break-inside: avoid on [data-exercise-id], break-after: avoid on
+  // [data-section-id] > :first-child, and no exercise taller than a page
+  for (const card of cards) {
+    if (!isShown(card)) continue;
+    const breakInside = getComputedStyle(card).breakInside;
+    if (breakInside !== "avoid") {
+      push(
+        "exercise-split",
+        card,
+        `break-inside is "${breakInside}", expected "avoid"`
+      );
+    }
+  }
   for (const section of sections) {
     const cs = getComputedStyle(section);
     const chrome = ["borderTopWidth", "paddingTop", "paddingBottom", "borderBottomWidth"]
-      .map((p) => parseFloat(cs[p]))
-      .reduce((a, b) => a + b, 0);
-    const sectionHeader = section.firstElementChild;
+      .map((prop) => parseFloat(cs[prop]))
+      .reduce((sum, val) => sum + val, 0);
+    const sectionHeader = section.querySelector(":scope > :first-child");
+    if (sectionHeader && isShown(sectionHeader)) {
+      const breakAfter = getComputedStyle(sectionHeader).breakAfter;
+      if (breakAfter !== "avoid") {
+        push(
+          "exercise-split",
+          sectionHeader,
+          `section header break-after is "${breakAfter}", expected "avoid"`
+        );
+      }
+    }
     const headerBlock = sectionHeader
       ? sectionHeader.getBoundingClientRect().height +
         parseFloat(getComputedStyle(sectionHeader).marginBottom)
       : 0;
     section.querySelectorAll("[data-exercise-id]").forEach((card, i) => {
-      const need = card.getBoundingClientRect().height + chrome + (i === 0 ? headerBlock : 0);
-      if (need > pageHeightPx + TOL) {
+      const need = Math.round(
+        card.getBoundingClientRect().height + chrome + (i === 0 ? headerBlock : 0)
+      );
+      if (need > Math.round(pageHeightPx) + TOL) {
         push("exercise-split", card, `needs ${need.toFixed(0)}px but a page holds ${pageHeightPx.toFixed(0)}px`);
       }
     });
@@ -417,7 +517,9 @@ async function main() {
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
   const pdftoppm = options.png === "none" ? null : findPdftoppm();
   if (options.png !== "none" && !pdftoppm) {
-    process.stdout.write("pdftoppm not found on PATH: page PNGs will be skipped\n");
+    process.stdout.write(
+      "pdftoppm not found on PATH: falling back to Playwright fullPage screenshots for PNG output\n"
+    );
   }
 
   const browser = await chromium.launch({ channel: "msedge", headless: true });
@@ -438,7 +540,7 @@ async function main() {
     const violations = [];
     let pageCount = 0;
     try {
-      await page.goto(printUrl(baseUrl, job), { waitUntil: "load", timeout: 30000 });
+      await page.goto(printUrl(baseUrl, job), { waitUntil: "load", timeout: 60000 });
       await page.addStyleTag({ content: PRINT_WIDTH_CSS });
       await page.evaluate(() => document.fonts.ready);
       violations.push(...(await page.evaluate(measureSheet, STANDARD)));
@@ -459,15 +561,22 @@ async function main() {
       }
 
       const wantPng =
-        pdftoppm &&
+        options.png !== "none" &&
         (options.png === "all" || job.seed === seeds[0]);
       if (wantPng) {
         const dir = path.join(OUTPUT_DIR, "png", id, job.mode, job.view);
         fs.mkdirSync(dir, { recursive: true });
-        const pdfPath = path.join(dir, `${job.seed}.pdf`);
-        fs.writeFileSync(pdfPath, pdf);
-        await execFileAsync(pdftoppm, ["-png", "-r", "96", pdfPath, path.join(dir, job.seed)]);
-        fs.rmSync(pdfPath);
+        if (pdftoppm) {
+          const pdfPath = path.join(dir, `${job.seed}.pdf`);
+          fs.writeFileSync(pdfPath, pdf);
+          await execFileAsync(pdftoppm, ["-png", "-r", "96", pdfPath, path.join(dir, job.seed)]);
+          fs.rmSync(pdfPath);
+        } else {
+          await page.screenshot({
+            path: path.join(dir, `${job.seed}.png`),
+            fullPage: true,
+          });
+        }
       }
     } catch (error) {
       violations.push({
