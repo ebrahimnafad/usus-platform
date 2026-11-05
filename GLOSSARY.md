@@ -88,6 +88,30 @@ _Avoid_: Clip art, plain wireframe, static image
 A short prompt accompanying an exercise or solution that guides the student's mathematical reasoning (e.g., "make ١٠ first").
 _Avoid_: Tip, clue, help text
 
+**Part**:
+One of the smaller quantities (الجزء) that together make up a Total; in addition, each quantity being joined is a Part.
+_Avoid_: Addend, piece, group
+
+**Total**:
+The whole quantity (الكلّ) formed by joining Parts; in addition, the result is the Total.
+_Avoid_: Sum, whole, answer, result
+
+**Number Bond**:
+A Visual Model showing the relationship between one Total and its two Parts: the Total circle on top, joined to two Part circles below, with the first Part on the right.
+_Avoid_: Part-part-whole diagram, cherry model, fact family
+
+**Equation**:
+Two sides joined by an equal sign (معادلة), stating that both sides have the same value; an Equation can be judged true or false.
+_Avoid_: Number sentence, fact, sum
+
+**Expression**:
+Parts joined by an operation sign with no equal sign (تعبير), such as `٣ + ٢`.
+_Avoid_: Problem, fact, equation
+
+**Balance Scale**:
+A Visual Model of a two-pan scale whose tilt shows whether two sides of an Equation have the same value.
+_Avoid_: Teeter-totter, seesaw
+
 **Subitize Grouping**:
 A visual decomposition of an object quantity into instantly recognizable sub-groups (e.g., 5 = 3 + 2) rendered with dashed-border containers, enabling students to perceive total quantity without counting one by one.
 _Avoid_: Cluster, chunk, partition

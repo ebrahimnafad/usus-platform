@@ -14,6 +14,10 @@ Uses the five default canonical triage role strings (`needs-triage`, `needs-info
 
 Single-context layout (`GLOSSARY.md` and `docs/adr/` at the repo root). See `docs/agents/domain.md`.
 
+### Worksheet rules
+
+Read `WORKSHEET_CONSTITUTION.md` before designing, authoring, or reviewing any math Worksheet, Lesson Blueprint, Exercise Archetype, or Visual Model. To start a new batch of lessons, follow `docs/agents/worksheet-batch-playbook.md`.
+
 ### Environment
 
 Headless browser testing uses Playwright with `channel: 'msedge'` — Microsoft Edge is installed; Chromium is not.
