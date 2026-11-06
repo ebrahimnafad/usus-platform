@@ -215,6 +215,19 @@ describe("Ticket 04 (Unit 3) — Slice 1: JudgeEquality Archetype (mode whats-wr
       true
     );
 
+    // K-36 Advanced (e.g. seed YHZ3JF): five-frame-and-digit places the non-zero Part on the five frame
+    const k36Adv = generateWorksheet({
+      grade: "K",
+      lessonNumber: 36,
+      seed: "YHZ3JF",
+      difficultyLevel: "Advanced",
+    });
+    const k36AdvPractice = k36Adv.worksheet.sections[1].exercises[0];
+    const k36AdvData = k36AdvPractice.data as any;
+    for (const item of k36AdvData.items) {
+      expect(item.part1).toBeGreaterThanOrEqual(1);
+    }
+
     // K-37 Problem of the Day: "How many more do you need?" uses unknown Part
     const k37Pod = k37.worksheet.sections[2].exercises[1];
     expect(k37Pod.archetype).toBe("JoinParts");

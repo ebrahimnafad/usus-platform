@@ -254,6 +254,8 @@ function measureSheet(std) {
   }
   for (const card of cards)
     containWithin(card, card.querySelectorAll("*"), "exercise card");
+  for (const colChild of sheet.querySelectorAll("[data-exercise-columns] > *"))
+    containWithin(colChild, colChild.querySelectorAll("*"), "column cell");
 
   // SVG content outside its viewport is silently clipped.
   for (const svg of sheet.querySelectorAll("svg")) {

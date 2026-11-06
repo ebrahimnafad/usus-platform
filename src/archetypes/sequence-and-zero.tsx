@@ -121,9 +121,10 @@ function buildStepVisualModel(
 
   if (visualKind === "everyday-object") {
     const def = getEverydayObjectById(objectId);
+    const count = Math.max(1, value);
     return createEverydayObjectSpec(def, {
-      count: Math.max(1, value),
-      size: "small",
+      count,
+      size: count >= 4 ? undefined : "small",
       colorTheme,
       labelAr: `${formatEasternNumber(value)} (${def.labelAr})`,
     });
@@ -398,7 +399,14 @@ function renderSequenceAndZeroExercise({
     >
       {/* RTL Sequence Steps Grid */}
       <div dir="rtl" data-sequence-strip="rtl">
-        <ExerciseColumns columns={data.visualKind === "five-frame" ? 2 : 3}>
+        <ExerciseColumns
+          columns={
+            data.visualKind === "five-frame" ||
+            data.visualKind === "everyday-object"
+              ? 2
+              : 3
+          }
+        >
           {data.steps.slice(0, 4).map((step, idx) => {
             const isSolvedStep = isAnswerKey && step.isMissing;
             return (

@@ -387,7 +387,7 @@ function generateJoinPartsExercise(ctx: ArchetypeGeneratorContext): Exercise {
   const itemCount = Math.max(1, Math.min(2, params.itemCount ?? 2));
 
   const usesZeroCapableModel = representationPool.every(
-    (r) => r === "five-frame" || r === "domino"
+    (r) => r === "five-frame" || r === "domino" || r === "five-frame-and-digit"
   );
   const effectiveMinPart =
     params.minPart !== undefined
@@ -405,7 +405,24 @@ function generateJoinPartsExercise(ctx: ArchetypeGeneratorContext): Exercise {
       count: itemCount,
     },
     ctx.usedFacts
-  );
+  ).map((fact, idx) => {
+    const itemRep = representationPool[idx % representationPool.length];
+    // In five-frame-and-digit, the five frame should always show the non-zero concrete Part
+    // when one of the Parts is 0 (e.g. 0+4 -> 4 on the five frame + digit 0)
+    if (
+      itemRep === "five-frame-and-digit" &&
+      fact.part1 === 0 &&
+      fact.part2 > 0
+    ) {
+      return {
+        part1: fact.part2,
+        part2: 0,
+        total: fact.total,
+        key: `${fact.part2}+0`,
+      };
+    }
+    return fact;
+  });
 
   // Unknown position rule: Total is unknown, except a Part may be unknown only in Challenge & Assessment or at Advanced (§6.3)
   const allowMissingPart =
@@ -595,20 +612,27 @@ function renderJoinPartsExercise({
             data-fact={toEasternArabicNumerals(item.factKey)}
           >
             {/* Item header bar + Concrete/Pictorial Representation */}
-            <div
-              className={`flex items-center ${
-                columns === 1 ? "gap-3" : "w-full justify-between gap-1"
-              }`}
-            >
-              <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-[13px] font-extrabold leading-none text-white">
-                {formatEasternNumber(idx + 1)}
-              </span>
-              <div className="flex items-center gap-1">
-                <VisualModelView
-                  model={item.representationModel}
-                  solved={isAnswerKey}
-                />
-                {item.companionDigitModel && (
+            {item.companionDigitModel && columns !== 1 ? (
+              <div className="flex w-full flex-col gap-1">
+                <div className="flex w-full items-center justify-between">
+                  <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-[13px] font-extrabold leading-none text-white">
+                    {formatEasternNumber(idx + 1)}
+                  </span>
+                  {isAnswerKey ? (
+                    <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[13px] font-extrabold leading-none text-emerald-900">
+                      {item.totalAr}
+                    </span>
+                  ) : (
+                    <span className="text-[13px] font-extrabold leading-none text-slate-600">
+                      {item.part1Ar} و{item.part2Ar}
+                    </span>
+                  )}
+                </div>
+                <div className="flex w-full items-center justify-center gap-1">
+                  <VisualModelView
+                    model={item.representationModel}
+                    solved={isAnswerKey}
+                  />
                   <div className="flex items-center gap-1">
                     <span
                       className="text-[28px] font-black leading-none text-indigo-700"
@@ -621,18 +645,48 @@ function renderJoinPartsExercise({
                       solved={isAnswerKey}
                     />
                   </div>
+                </div>
+              </div>
+            ) : (
+              <div
+                className={`flex items-center ${
+                  columns === 1 ? "gap-3" : "w-full justify-between gap-1"
+                }`}
+              >
+                <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-[13px] font-extrabold leading-none text-white">
+                  {formatEasternNumber(idx + 1)}
+                </span>
+                <div className="flex items-center gap-1">
+                  <VisualModelView
+                    model={item.representationModel}
+                    solved={isAnswerKey}
+                  />
+                  {item.companionDigitModel && (
+                    <div className="flex items-center gap-1">
+                      <span
+                        className="text-[28px] font-black leading-none text-indigo-700"
+                        aria-hidden="true"
+                      >
+                        +
+                      </span>
+                      <VisualModelView
+                        model={item.companionDigitModel}
+                        solved={isAnswerKey}
+                      />
+                    </div>
+                  )}
+                </div>
+                {isAnswerKey ? (
+                  <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[13px] font-extrabold leading-none text-emerald-900">
+                    {item.totalAr}
+                  </span>
+                ) : (
+                  <span className="text-[13px] font-extrabold leading-none text-slate-600">
+                    {item.part1Ar} و{item.part2Ar}
+                  </span>
                 )}
               </div>
-              {isAnswerKey ? (
-                <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[13px] font-extrabold leading-none text-emerald-900">
-                  {item.totalAr}
-                </span>
-              ) : (
-                <span className="text-[13px] font-extrabold leading-none text-slate-600">
-                  {item.part1Ar} و{item.part2Ar}
-                </span>
-              )}
-            </div>
+            )}
 
             {/* Response Form (Parts Table, Number Bond, or Equation Strip) */}
             <div className="flex flex-wrap items-center justify-center gap-1">

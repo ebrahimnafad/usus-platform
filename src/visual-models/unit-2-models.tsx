@@ -1025,12 +1025,12 @@ export function TallyMarksSvg({
 
   const showSticks = variant === "sticks" || variant === "tally-and-sticks";
   const showTally = variant === "tally" || variant === "tally-and-sticks";
-  const svgWidth = variant === "tally-and-sticks" ? 210 : compact ? 84 : 124;
+  const svgWidth = variant === "tally-and-sticks" ? 186 : compact ? 84 : 124;
 
   // RTL vertical positions for the 4 vertical strokes (right to left)
   const tallyBaseRightX =
-    variant === "tally-and-sticks" ? 190 : compact ? 68 : 98;
-  const spacing = compact ? 13 : 18;
+    variant === "tally-and-sticks" ? 168 : compact ? 68 : 98;
+  const spacing = variant === "tally-and-sticks" ? 16 : compact ? 13 : 18;
   const svgHeight = compact ? 40 : 68;
 
   return (
@@ -1115,8 +1115,9 @@ export function TallyMarksSvg({
       {showSticks && (
         <g data-craft-sticks="true">
           {Array.from({ length: safeCount }, (_, idx) => {
-            const stickRightX = variant === "tally-and-sticks" ? 92 : 98;
-            const x = stickRightX - idx * 17;
+            const stickSpacing = variant === "tally-and-sticks" ? 15 : 17;
+            const stickRightX = variant === "tally-and-sticks" ? 78 : 98;
+            const x = stickRightX - idx * stickSpacing;
             const stickColors = [
               "#0EA5E9",
               "#10B981",
