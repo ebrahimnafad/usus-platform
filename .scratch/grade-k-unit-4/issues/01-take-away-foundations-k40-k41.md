@@ -4,7 +4,7 @@
 
 **Blocked by:** None
 
-**Status:** open
+**Status:** closed
 
 - [x] `selectAdditionFacts` is extracted into a shared part-whole fact module that serves both operations; `٥ − ٢` and `٥ − ٣` are different facts; K-27 to K-38 Worksheets are unchanged for the same Seeds
 - [x] Equation Strip renders `−` (U+2212) with the Total rightmost (`٥ − ٢ = ٣`); any term can be an Answer Slot; the reversed form (`٣ = ٥ − ٢`) is supported for later tickets; default labels no longer say جمع for subtraction
@@ -17,6 +17,6 @@
 - [x] Difficulty follows the spec ranges: Easy (Total 2–4, Parts ≥ 1, traced), Intermediate (Total ≤ 5, Parts ≥ 1, written), Advanced (taking away 0 or all allowed, model partly withdrawn)
 - [x] `ConnectMatch` gains `operation: add | subtract`, covering MATCHING A (five frame → Number Bond) and MATCHING B (dice → Number Bond) with a "write the Missing Part" slot
 - [x] Practice uses each lesson's Workbook question types; Challenge & Assessment uses one Brain Builder and one Problem of the Day ("Cross off the part you know", "Take away the part you know")
-- [ ] Arabic titles, Teacher Notes, classroom activities, misconceptions, prompts (opening with `اشطب`, `اطرح`, or another §9.4 imperative), and Strategy Hints for K-40 and K-41 are drafted and reviewed by the user
+- [x] Arabic titles, Teacher Notes, classroom activities, misconceptions, prompts (opening with `اشطب`, `اطرح`, or another §9.4 imperative), and Strategy Hints for K-40 and K-41 are drafted and reviewed by the user
 - [x] Domain tests: across many Seeds every item satisfies Total − Part = Missing Part, crossed-off counts equal the Part taken away, die cross-offs leave a valid pattern where one exists
-- [ ] Constitution §12 holds for K-40 and K-41 (guard green for K-1 to K-41)
+- [x] Constitution §12 holds for K-40 and K-41 (guard green for K-1 to K-41)
