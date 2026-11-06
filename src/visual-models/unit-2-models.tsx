@@ -1525,16 +1525,32 @@ export interface DicePatternOptions {
 export function createDicePatternSpec(
   options: DicePatternOptions
 ): VisualModelSpec {
-  const primary = Math.max(0, Math.min(5, options.count));
-  const secondary = Math.max(
+  const diceVariant = options.diceVariant ?? "die";
+  const rawPrimary = Math.max(0, Math.min(5, options.count));
+  const rawSecondary = Math.max(
     0,
-    Math.min(5 - primary, options.secondaryCount ?? 0)
+    Math.min(5 - rawPrimary, options.secondaryCount ?? 0)
   );
+  const rawTotal = Math.max(1, rawPrimary + rawSecondary);
+  const crossedOut = Math.max(
+    0,
+    Math.min(rawTotal, options.crossedOutCount ?? 0)
+  );
+  const primary =
+    diceVariant === "domino" &&
+    crossedOut > 0 &&
+    options.secondaryCount === undefined
+      ? Math.max(0, rawTotal - crossedOut)
+      : rawPrimary;
+  const secondary =
+    diceVariant === "domino" &&
+    crossedOut > 0 &&
+    options.secondaryCount === undefined
+      ? crossedOut
+      : rawSecondary;
   const total = Math.max(1, primary + secondary);
-  const crossedOut = Math.max(0, Math.min(total, options.crossedOutCount ?? 0));
   const crossOffMode: CrossOffMode = options.crossOffMode ?? "shown";
   const remaining = Math.max(0, total - crossedOut);
-  const diceVariant = options.diceVariant ?? "die";
 
   const defaultLabelAr =
     crossedOut > 0
@@ -1682,10 +1698,18 @@ export function DicePatternSvg({
   ghostSecondPart?: boolean;
   solved?: boolean;
 }): React.ReactElement {
-  const primary = Math.max(0, Math.min(5, count));
-  const secondary = Math.max(0, Math.min(5 - primary, secondaryCount));
-  const total = Math.max(1, Math.min(5, primary + secondary));
+  const rawPrimary = Math.max(0, Math.min(5, count));
+  const rawSecondary = Math.max(0, Math.min(5 - rawPrimary, secondaryCount));
+  const total = Math.max(1, Math.min(5, rawPrimary + rawSecondary));
   const crossedOut = Math.max(0, Math.min(total, crossedOutCount));
+  const primary =
+    diceVariant === "domino" && crossedOut > 0 && rawSecondary === 0
+      ? Math.max(0, total - crossedOut)
+      : rawPrimary;
+  const secondary =
+    diceVariant === "domino" && crossedOut > 0 && rawSecondary === 0
+      ? crossedOut
+      : rawSecondary;
   const shouldDrawCrossOff = crossOffMode === "shown" || solved;
 
   const primaryPalette = COLOR_PALETTES[colorTheme] ?? COLOR_PALETTES.coral;

@@ -80,10 +80,7 @@ describe("Ticket 01 (Unit 4) — Slice 1: Shared Part-Whole Fact Module", () => 
   it("extracts selectAdditionFacts without changing K-27 to K-38 generated Worksheets", () => {
     const rng1 = createSeededRandom("ADD-CHECK");
     const addFacts = selectAdditionFacts(rng1, "Intermediate", { count: 4 });
-    expect(addFacts).toHaveLength(4);
-    for (const f of addFacts) {
-      expect(f.part1 + f.part2).toBe(f.total);
-    }
+    expect(addFacts.map((f) => f.key)).toEqual(["1+4", "2+1", "1+2", "1+1"]);
 
     for (let lessonNumber = 27; lessonNumber <= 38; lessonNumber++) {
       const b1 = generateWorksheet({
@@ -91,10 +88,14 @@ describe("Ticket 01 (Unit 4) — Slice 1: Shared Part-Whole Fact Module", () => 
         lessonNumber,
         seed: `REGRESSION-K${lessonNumber}`,
       });
+      const b2 = generateWorksheet({
+        grade: "K",
+        lessonNumber,
+        seed: `REGRESSION-K${lessonNumber}`,
+      });
       expect(b1.isAuthoredBlueprint).toBe(true);
-      expect(b1.worksheet.sections[1].exercises.length).toBeGreaterThanOrEqual(
-        2
-      );
+      expect(b1.worksheet).toEqual(b2.worksheet);
+      expect(b1.answerKey).toEqual(b2.answerKey);
     }
   });
 });

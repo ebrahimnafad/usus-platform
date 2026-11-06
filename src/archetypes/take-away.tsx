@@ -43,6 +43,8 @@ export type TakeAwayResponseForm = "number-bond" | "equation" | "answer-slot";
 export type TakeAwayAction =
   "trace" | "write" | "cross-off-and-write" | "draw-and-cross-off";
 
+export type TakeAwayUnknownKind = "missingPart" | "partTakenAway" | "total";
+
 export interface TakeAwayBlueprintParams {
   representation?: TakeAwayRepresentation;
   allowedRepresentations?: TakeAwayRepresentation[];
@@ -52,7 +54,7 @@ export interface TakeAwayBlueprintParams {
   totalRange?: [number, number];
   minPart?: number;
   itemCount?: number;
-  unknownPosition?: "missingPart" | "partTakenAway" | "total";
+  unknownPosition?: TakeAwayUnknownKind;
   swapBondParts?: boolean;
   equationLayout?: EquationLayout;
   showCompanionBond?: boolean;
@@ -72,6 +74,7 @@ export interface TakeAwayItem {
   factKey: string;
   representation: TakeAwayRepresentation;
   crossOffMode: CrossOffMode | "none";
+  unknownKind: TakeAwayUnknownKind;
   unknownPosition: BondMissingPosition;
   swapBondParts: boolean;
   tracePositions: Array<"total" | "part1" | "part2">;
@@ -139,16 +142,17 @@ function buildTakeAwayRepresentationModel(params: {
 
   if (representation === "five-frame") {
     if (action === "draw-and-cross-off") {
+      // Student draws the Total (all `total` counters start as ghost outlines) then crosses off `partTakenAway`
       return createFiveFrameSpec({
-        count: missingPart,
+        count: 0,
         secondaryCount: 0,
-        ghostTargetCount: partTakenAway,
+        ghostTargetCount: total,
         crossedOutCount: effectiveCrossedOut,
         crossOffMode: "student",
         colorTheme: primaryTheme,
         secondaryColorTheme: secondaryTheme,
         highlightEmptySlots: true,
-        labelAr: `لوحة الخمسة: الكلّ ${totalAr}، اشطب ${partAr} فيبقى ${missingAr}`,
+        labelAr: `لوحة الخمسة: ارسم الكلّ ${totalAr} واشطب ${partAr} فيبقى ${missingAr}`,
       });
     }
 
@@ -269,7 +273,7 @@ function generateTakeAwayExercise(ctx: ArchetypeGeneratorContext): Exercise {
   const allowNonStandardUnknown =
     ctx.sectionId === "challenge" || ctx.difficultyLevel === "Advanced";
   const requestedUnknown = params.unknownPosition ?? "missingPart";
-  const resolvedUnknownKind: "missingPart" | "partTakenAway" | "total" =
+  const resolvedUnknownKind: TakeAwayUnknownKind =
     requestedUnknown !== "missingPart" && allowNonStandardUnknown
       ? requestedUnknown
       : "missingPart";
@@ -277,13 +281,6 @@ function generateTakeAwayExercise(ctx: ArchetypeGeneratorContext): Exercise {
   // Number Bond puts the Part taken away in the right circle (part1) and Missing Part on the left (part2); swapped only at Advanced
   const swapBondParts =
     Boolean(params.swapBondParts) && ctx.difficultyLevel === "Advanced";
-
-  const defaultCrossOffMode: CrossOffMode | "none" =
-    action === "cross-off-and-write" || action === "draw-and-cross-off"
-      ? "student"
-      : "shown";
-  const crossOffMode: CrossOffMode | "none" =
-    params.crossOffMode ?? defaultCrossOffMode;
 
   const items: TakeAwayItem[] = facts.map((fact, idx) => {
     const [primaryTheme, secondaryTheme] =
@@ -407,6 +404,7 @@ function generateTakeAwayExercise(ctx: ArchetypeGeneratorContext): Exercise {
       factKey: fact.key,
       representation: itemRep,
       crossOffMode: itemCrossOffMode,
+      unknownKind: resolvedUnknownKind,
       unknownPosition:
         responseForm === "equation" ? eqMissingPos : bondMissingPos,
       swapBondParts,
@@ -488,11 +486,24 @@ function renderTakeAwayExercise({
     >
       <ExerciseColumns columns={columns}>
         {data.items.map((item, idx) => {
-          const slotMissingIsPartTakenAway =
-            item.unknownPosition === "part1" && !item.swapBondParts;
-          const slotValueAr = slotMissingIsPartTakenAway
-            ? item.partTakenAwayAr
-            : item.missingPartAr;
+          const solvedUnknownAr =
+            item.unknownKind === "partTakenAway"
+              ? item.partTakenAwayAr
+              : item.unknownKind === "total"
+                ? item.totalAr
+                : item.missingPartAr;
+
+          const worksheetSummaryAr =
+            item.unknownKind === "partTakenAway"
+              ? `الكلّ ${item.totalAr} وبقي ${item.missingPartAr}`
+              : item.unknownKind === "total"
+                ? `شُطب ${item.partTakenAwayAr} وبقي ${item.missingPartAr}`
+                : `${item.totalAr} − ${item.partTakenAwayAr}`;
+
+          const isWideModelInMultiColumn =
+            columns !== 1 &&
+            (item.representation === "five-frame" ||
+              item.representation === "five-frame-and-digit");
 
           return (
             <div
@@ -505,20 +516,20 @@ function renderTakeAwayExercise({
               data-take-away-item-id={toEasternArabicNumerals(item.id)}
               data-fact={toEasternArabicNumerals(item.factKey)}
             >
-              {/* Item header bar + Concrete/Pictorial Representation */}
-              {item.companionDigitModel && columns !== 1 ? (
-                <div className="flex w-full flex-col gap-1">
+              {/* Item header bar + Concrete/Pictorial Representation (CODING_STANDARDS.md §5) */}
+              {isWideModelInMultiColumn ? (
+                <div className="flex w-full flex-1 flex-col items-center justify-center gap-0.5">
                   <div className="flex w-full items-center justify-between">
                     <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-[13px] font-extrabold leading-none text-white">
                       {formatEasternNumber(idx + 1)}
                     </span>
                     {isAnswerKey ? (
                       <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[13px] font-extrabold leading-none text-emerald-900">
-                        {item.missingPartAr}
+                        {solvedUnknownAr}
                       </span>
                     ) : (
                       <span className="text-[13px] font-extrabold leading-none text-slate-600">
-                        {item.totalAr} − {item.partTakenAwayAr}
+                        {worksheetSummaryAr}
                       </span>
                     )}
                   </div>
@@ -527,30 +538,32 @@ function renderTakeAwayExercise({
                       model={item.representationModel}
                       solved={isAnswerKey}
                     />
-                    <div className="flex items-center gap-1">
-                      <span
-                        className="text-[28px] font-black leading-none text-indigo-700"
-                        aria-hidden="true"
-                      >
-                        −
-                      </span>
-                      <VisualModelView
-                        model={item.companionDigitModel}
-                        solved={isAnswerKey}
-                      />
-                    </div>
+                    {item.companionDigitModel && (
+                      <div className="flex items-center gap-1">
+                        <span
+                          className="text-[28px] font-black leading-none text-indigo-700"
+                          aria-hidden="true"
+                        >
+                          −
+                        </span>
+                        <VisualModelView
+                          model={item.companionDigitModel}
+                          solved={isAnswerKey}
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               ) : (
                 <div
-                  className={`flex items-center ${
+                  className={`flex flex-1 items-center ${
                     columns === 1 ? "gap-3" : "w-full justify-between gap-1"
                   }`}
                 >
                   <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-[13px] font-extrabold leading-none text-white">
                     {formatEasternNumber(idx + 1)}
                   </span>
-                  <div className="flex items-center gap-1">
+                  <div className="flex flex-1 items-center justify-center gap-1">
                     <VisualModelView
                       model={item.representationModel}
                       solved={isAnswerKey}
@@ -572,11 +585,11 @@ function renderTakeAwayExercise({
                   </div>
                   {isAnswerKey ? (
                     <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[13px] font-extrabold leading-none text-emerald-900">
-                      {item.missingPartAr}
+                      {solvedUnknownAr}
                     </span>
                   ) : (
                     <span className="text-[13px] font-extrabold leading-none text-slate-600">
-                      {item.totalAr} − {item.partTakenAwayAr}
+                      {worksheetSummaryAr}
                     </span>
                   )}
                 </div>
@@ -590,17 +603,43 @@ function renderTakeAwayExercise({
                     className="inline-flex items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-white px-2.5 py-1 shadow-2xs"
                     data-take-away-slot-box="true"
                   >
+                    {data.action === "trace" && (
+                      <div className="inline-flex items-center gap-1 border-l border-slate-200 pl-2">
+                        <span
+                          className={`text-[28px] font-black leading-none ${
+                            isAnswerKey ? "text-emerald-700" : "text-slate-400"
+                          }`}
+                          data-trace-state={isAnswerKey ? "solid" : "dotted"}
+                        >
+                          {item.totalAr}
+                        </span>
+                        <span
+                          className="text-[28px] font-black leading-none text-indigo-700"
+                          aria-hidden="true"
+                        >
+                          −
+                        </span>
+                        <span
+                          className={`text-[28px] font-black leading-none ${
+                            isAnswerKey ? "text-emerald-700" : "text-slate-400"
+                          }`}
+                          data-trace-state={isAnswerKey ? "solid" : "dotted"}
+                        >
+                          {item.partTakenAwayAr}
+                        </span>
+                      </div>
+                    )}
                     <span className="text-[13px] font-extrabold leading-none text-indigo-950">
                       كم بقي؟
                     </span>
                     <AnswerSlot
                       solved={isAnswerKey}
-                      answer={slotValueAr}
+                      answer={solvedUnknownAr}
                       ariaLabel="مربع كتابة الجزء الناقص (كم بقي؟)"
-                      kind={data.action === "trace" ? "write" : "unknown"}
+                      kind="unknown"
                       tone="amber"
                       solvedDataAttributes={{
-                        "data-solved-take-away": slotValueAr,
+                        "data-solved-take-away": solvedUnknownAr,
                       }}
                     />
                   </div>

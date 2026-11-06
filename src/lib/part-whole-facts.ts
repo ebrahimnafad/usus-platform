@@ -21,6 +21,26 @@ export interface FactSelectionLimits {
   count: number;
 }
 
+function resolveFactBounds(
+  difficultyLevel: DifficultyLevel,
+  limits: FactSelectionLimits
+): { minPart: number; minTotal: number; maxTotal: number } {
+  const defaultMaxTotal = difficultyLevel === "Easy" ? 4 : 5;
+  const defaultMinPart = difficultyLevel === "Advanced" ? 0 : 1;
+
+  const minPart = limits.minPart ?? defaultMinPart;
+  const minTotal = Math.max(
+    minPart * 2,
+    limits.totalRange ? limits.totalRange[0] : Math.max(2, minPart * 2)
+  );
+  const maxTotal = Math.min(
+    5,
+    limits.totalRange ? limits.totalRange[1] : defaultMaxTotal
+  );
+
+  return { minPart, minTotal, maxTotal };
+}
+
 function pickFromCandidates<T extends { key: string }>(
   rng: SeededRandom,
   candidates: T[],
@@ -66,17 +86,9 @@ export function selectAdditionFacts(
   limits: FactSelectionLimits,
   usedFacts?: Set<string>
 ): AdditionFact[] {
-  const defaultMaxTotal = difficultyLevel === "Easy" ? 4 : 5;
-  const defaultMinPart = difficultyLevel === "Advanced" ? 0 : 1;
-
-  const minPart = limits.minPart ?? defaultMinPart;
-  const minTotal = Math.max(
-    minPart * 2,
-    limits.totalRange ? limits.totalRange[0] : Math.max(2, minPart * 2)
-  );
-  const maxTotal = Math.min(
-    5,
-    limits.totalRange ? limits.totalRange[1] : defaultMaxTotal
+  const { minPart, minTotal, maxTotal } = resolveFactBounds(
+    difficultyLevel,
+    limits
   );
 
   const candidates: AdditionFact[] = [];
@@ -109,17 +121,9 @@ export function selectSubtractionFacts(
   limits: FactSelectionLimits,
   usedFacts?: Set<string>
 ): SubtractionFact[] {
-  const defaultMaxTotal = difficultyLevel === "Easy" ? 4 : 5;
-  const defaultMinPart = difficultyLevel === "Advanced" ? 0 : 1;
-
-  const minPart = limits.minPart ?? defaultMinPart;
-  const minTotal = Math.max(
-    minPart * 2,
-    limits.totalRange ? limits.totalRange[0] : Math.max(2, minPart * 2)
-  );
-  const maxTotal = Math.min(
-    5,
-    limits.totalRange ? limits.totalRange[1] : defaultMaxTotal
+  const { minPart, minTotal, maxTotal } = resolveFactBounds(
+    difficultyLevel,
+    limits
   );
 
   const candidates: SubtractionFact[] = [];
