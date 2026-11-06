@@ -1,10 +1,10 @@
 # Grade K Unit 3 — Add to 5 (with a pixel-exact layout standard)
 
-**Status:** ready-for-agent
+**Status:** closed
 
 ## Problem Statement
 
-Grade K Units 1–2 (Lessons K-1 to K-26) are authored; Unit 3 *Add to 5* (K-27 to K-38) shows only a fallback preview and has no Arabic titles or **Teacher Notes**. Unit 3 introduces ideas the platform cannot yet draw or name: **Parts** and a **Total**, the **Number Bond**, **Equations** and **Expressions**, true/false judgment, and the **Balance Scale**.
+Grade K Units 1–2 (Lessons K-1 to K-26) are authored; Unit 3 _Add to 5_ (K-27 to K-38) shows only a fallback preview and has no Arabic titles or **Teacher Notes**. Unit 3 introduces ideas the platform cannot yet draw or name: **Parts** and a **Total**, the **Number Bond**, **Equations** and **Expressions**, true/false judgment, and the **Balance Scale**.
 
 At the same time, nothing guarantees that a printed **Worksheet** is free of jammed, clipped, or overflowing content. Only **Answer Slot** sizes are tested; each **Exercise Archetype** sizes itself (the source of past bugs such as the fixed-height ConnectMatch rows), and the PDF exporter shrinks oversized sheets to 0.75×/0.65×, so the same 48 px Answer Slot prints at different physical sizes on different sheets.
 
@@ -47,15 +47,13 @@ All rules in [`WORKSHEET_CONSTITUTION.md`](../../WORKSHEET_CONSTITUTION.md) appl
 
 4. **Exercise Archetypes** (constitution §11.2 reuse ladder):
 
-   | Need | Ladder step | Reason |
-   | --- | --- | --- |
-   | MATCHING A–F | Extend `ConnectMatch` | Same student action (match); only new endpoint types |
-   | Parts → Total (tables, bonds, equations, COLOR CODE) | New `JoinParts` | New student action: join two Parts into a Total |
-   | True/False, What's Wrong?, Teeter Tots | New `JudgeEquality` | New student action: judge whether two sides are equal |
-   | Number Bond, Equation Strip, Balance Scale | New Visual Models | New representations |
-   | Five frame with two Parts | Add a mode to the five frame | Same representation, adds two-tone Parts |
-
-
+   | Need                                                 | Ladder step                  | Reason                                                |
+   | ---------------------------------------------------- | ---------------------------- | ----------------------------------------------------- |
+   | MATCHING A–F                                         | Extend `ConnectMatch`        | Same student action (match); only new endpoint types  |
+   | Parts → Total (tables, bonds, equations, COLOR CODE) | New `JoinParts`              | New student action: join two Parts into a Total       |
+   | True/False, What's Wrong?, Teeter Tots               | New `JudgeEquality`          | New student action: judge whether two sides are equal |
+   | Number Bond, Equation Strip, Balance Scale           | New Visual Models            | New representations                                   |
+   | Five frame with two Parts                            | Add a mode to the five frame | Same representation, adds two-tone Parts              |
    - **`JoinParts`** (اجمع الجزأين): two Parts in one representation (five frame, snap cubes, tally marks, dice/domino, pictures) and one response form (parts-and-total table, Number Bond, Equation). Response actions: trace, write, or draw (color counters into an empty five frame). The unknown is the Total, except in Challenge & Assessment or at Advanced, where a Part may be unknown ("How many more do you need?").
    - **`JudgeEquality`** (صح أم خطأ): modes `true-false` (circle صح / خطأ), `whats-wrong` (cross off the one false item in a row of Equations, Expressions, or Number Bonds), `balance` (fill a Balance Scale from a number bank so both pans are equal).
    - **`ConnectMatch`** extended with Number Bond, Equation, parts-table, and tally-expression endpoints, plus an optional "write the missing Total" Answer Slot per row.
@@ -76,7 +74,7 @@ All rules in [`WORKSHEET_CONSTITUTION.md`](../../WORKSHEET_CONSTITUTION.md) appl
 
 ## Out of Scope
 
-- Unit 4 *Subtract to 5* and later units (the new Visual Models are built to be reused there).
+- Unit 4 _Subtract to 5_ and later units (the new Visual Models are built to be reused there).
 - Pixel-diff visual regression baselines.
 - Interactive or timed on-screen flash activities (these stay in Teacher Notes).
 
