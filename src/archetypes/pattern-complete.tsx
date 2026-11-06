@@ -106,7 +106,7 @@ function buildCandidatePool(
       ? params.candidateObjectIds
       : EVERYDAY_OBJECT_CATALOG.map((o) => o.id);
   const objectSpecs = objectIds.map((id) =>
-    createEverydayObjectSpec(getEverydayObjectById(id), { size: "medium" })
+    createEverydayObjectSpec(getEverydayObjectById(id), { size: "large" })
   );
 
   const shapeIds =
@@ -119,7 +119,7 @@ function buildCandidatePool(
       colorTheme:
         def.defaultColorTheme ??
         DISTINCT_COLOR_THEMES[idx % DISTINCT_COLOR_THEMES.length],
-      size: "medium",
+      size: "large",
     });
   });
 
@@ -133,7 +133,7 @@ function buildCandidatePool(
       colorTheme:
         def.defaultColorTheme ??
         DISTINCT_COLOR_THEMES[idx % DISTINCT_COLOR_THEMES.length],
-      size: "medium",
+      size: "large",
     });
   });
 
@@ -418,9 +418,17 @@ function renderPatternCompleteExercise({
                     </div>
 
                     {isAnswerKey ? (
-                      <VisualModelView model={slot.item} solved={true} />
+                      <div
+                        className="flex flex-1 flex-col items-center justify-center py-1 [&>div]:flex-col [&>div]:justify-center [&>div]:gap-1 [&>div]:text-center"
+                        data-pattern-slot-body="centered"
+                      >
+                        <VisualModelView model={slot.item} solved={true} />
+                      </div>
                     ) : (
-                      <div className="flex flex-1 flex-col items-center justify-center gap-0.5">
+                      <div
+                        className="flex flex-1 flex-col items-center justify-center gap-0.5"
+                        data-pattern-slot-body="centered"
+                      >
                         <span
                           data-answer-slot="unknown"
                           role="img"
@@ -458,7 +466,12 @@ function renderPatternCompleteExercise({
                     </span>
                   </div>
 
-                  <VisualModelView model={slot.item} solved={isAnswerKey} />
+                  <div
+                    className="flex flex-1 flex-col items-center justify-center py-1 [&>div]:flex-col [&>div]:justify-center [&>div]:gap-1 [&>div]:text-center"
+                    data-pattern-slot-body="centered"
+                  >
+                    <VisualModelView model={slot.item} solved={isAnswerKey} />
+                  </div>
                 </div>
               );
             })}

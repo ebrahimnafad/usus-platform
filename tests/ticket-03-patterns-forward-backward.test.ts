@@ -312,6 +312,7 @@ describe("Ticket 03 — Lesson K-11: Identify Patterns working Backward & Compre
     });
 
     expect(worksheetHtml).toContain('data-pattern-direction="backward"');
+    expect(worksheetHtml).toContain('data-pattern-slot-body="centered"');
     expect(worksheetHtml).toContain("البداية المفقودة");
     expect(worksheetHtml).not.toContain("data-solved-missing-slot=");
     expect(answerKeyHtml).toContain("data-solved-missing-slot=");
