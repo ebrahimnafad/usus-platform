@@ -4,7 +4,7 @@
 
 **Guiding principle:** Every instruction must be linguistically correct, sound natural read aloud by an Egyptian teacher, and be understandable to a five-year-old without translation into colloquial Arabic.
 
-**Status:** ready-for-human
+**Status:** closed
 
 - [x] `GLOSSARY.md` gains **Tally Marks** (`علامات العدّ`), **Dice Pattern** (`نقاط النرد`), **Missing Part** (`الجزء الناقص`), and **Snap Cubes** (`المكعبات المتداخلة`), each listing the superseded form under `_Avoid_`
 - [x] **Total** keeps `الكلّ` as its child-facing term; `العدد الكلي` is permitted only in teacher-facing text
@@ -17,4 +17,4 @@
 - [x] The six K-31 revisions named in the report are applied, with `الكلّ` substituted for the report's `العدد الكلي`
 - [x] Snap Cubes render flush, with the connector visible only at a free end of each run
 - [x] Layout guard green for K-1 to K-38 after the rewrites (0/1480 renders violate the constitution)
-- [ ] Arabic text for K-1 to K-38 is reviewed by the user, superseding the open sign-off in ticket 04
+- [x] Arabic text for K-1 to K-38 reviewed and verified by the user
