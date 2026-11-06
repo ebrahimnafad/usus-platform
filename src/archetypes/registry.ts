@@ -18,6 +18,8 @@ export interface ArchetypeGeneratorContext {
   difficultyLevel: DifficultyLevel;
   rng: SeededRandom;
   spec: BlueprintExerciseSpec;
+  /** Sheet-wide used addition/operation facts so unused facts come first across the sheet (§7.3) */
+  usedFacts?: Set<string>;
 }
 
 export interface ArchetypeRenderProps {

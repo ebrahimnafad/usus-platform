@@ -44,7 +44,7 @@ export function registerBuiltInVisualModels(): void {
     if (total <= 1) {
       return (
         <div
-          className="inline-flex flex-col items-center gap-1"
+          className="inline-flex items-center gap-1"
           data-visual-model="everyday-object"
           data-object-id={model.id}
           data-count={formatEasternNumber(1)}
@@ -53,7 +53,7 @@ export function registerBuiltInVisualModels(): void {
             objectId={model.id}
             size={model.size ?? "medium"}
           />
-          <span className="text-xs font-bold text-slate-700">
+          <span className="text-[13px] font-bold leading-tight text-slate-700">
             {toEasternArabicNumerals(model.labelAr)}
           </span>
         </div>
@@ -62,13 +62,13 @@ export function registerBuiltInVisualModels(): void {
 
     return (
       <div
-        className="inline-flex flex-col items-center gap-1"
+        className="inline-flex items-center gap-1"
         data-visual-model="everyday-object"
         data-object-id={model.id}
         data-count={formatEasternNumber(total)}
       >
         <div
-          className="flex flex-wrap items-center justify-center gap-1.5"
+          className="flex shrink-0 items-center justify-center gap-0.5"
           data-visual-model="everyday-object-group"
           {...(secondary > 0
             ? {
@@ -79,9 +79,9 @@ export function registerBuiltInVisualModels(): void {
             : {})}
         >
           <div
-            className={`flex items-center gap-1 ${
+            className={`flex shrink-0 items-center gap-0.5 ${
               secondary > 0
-                ? "rounded-xl border border-dashed border-indigo-300 bg-indigo-50/40 px-1.5 py-0.5"
+                ? "rounded-xl border border-dashed border-indigo-300 bg-indigo-50/40 px-1 py-0.5"
                 : ""
             }`}
           >
@@ -94,7 +94,7 @@ export function registerBuiltInVisualModels(): void {
             ))}
           </div>
           {secondary > 0 && (
-            <div className="flex items-center gap-1 rounded-xl border border-dashed border-amber-300 bg-amber-50/40 px-1.5 py-0.5">
+            <div className="flex shrink-0 items-center gap-0.5 rounded-xl border border-dashed border-amber-300 bg-amber-50/40 px-1 py-0.5">
               {Array.from({ length: secondary }, (_, idx) => (
                 <EverydayObjectSvg
                   key={`s-${idx}`}
@@ -105,7 +105,7 @@ export function registerBuiltInVisualModels(): void {
             </div>
           )}
         </div>
-        <span className="text-xs font-bold text-slate-700">
+        <span className="hidden text-[13px] font-bold leading-tight text-slate-700">
           {toEasternArabicNumerals(model.labelAr)}
         </span>
       </div>
@@ -117,7 +117,7 @@ export function registerBuiltInVisualModels(): void {
     const digit = model.digit ?? model.count ?? 1;
     return (
       <div
-        className="inline-flex h-14 w-14 items-center justify-center rounded-2xl border-2 border-indigo-600 bg-indigo-50 text-2xl font-extrabold text-indigo-900 shadow-xs"
+        className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border-2 border-indigo-600 bg-indigo-50 text-[28px] font-extrabold leading-none text-indigo-900 shadow-xs"
         data-visual-model="digit-card"
       >
         {formatEasternNumber(digit)}
@@ -137,7 +137,7 @@ export function VisualModelView({
 
   return (
     <div
-      className="inline-flex items-center justify-center rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-900"
+      className="inline-flex items-center justify-center rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-[13px] font-bold text-amber-900"
       data-visual-model={model.kind}
     >
       {toEasternArabicNumerals(model.labelAr)}

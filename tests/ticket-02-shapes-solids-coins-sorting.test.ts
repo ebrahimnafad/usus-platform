@@ -176,7 +176,7 @@ describe("Ticket 02 — Lessons K-5, K-6, K-7, K-8: ClassifyAndCount (صنّف �
       const coreExercises = bundle.worksheet.sections
         .slice(1)
         .flatMap((s) => s.exercises);
-      expect(coreExercises.length).toBeGreaterThanOrEqual(4);
+      expect(coreExercises.length).toBeGreaterThanOrEqual(3);
 
       for (const ex of coreExercises) {
         expect(ex.archetype).toBe("ClassifyAndCount");

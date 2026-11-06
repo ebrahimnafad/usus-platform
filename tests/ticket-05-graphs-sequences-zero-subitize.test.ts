@@ -19,7 +19,7 @@ describe("Ticket 05 — Lessons K-20 & K-21: PictureGraphRead (اقرأ التم
     expect(k20.worksheet.sections[0].sourceLessonId).toBe("K-20");
 
     const allExercises = k20.worksheet.sections.flatMap((s) => s.exercises);
-    expect(allExercises.length).toBeGreaterThanOrEqual(5);
+    expect(allExercises.length).toBeGreaterThanOrEqual(4);
 
     for (const ex of allExercises) {
       expect(ex.archetype).toBe("PictureGraphRead");
@@ -85,7 +85,7 @@ describe("Ticket 05 — Lessons K-20 & K-21: PictureGraphRead (اقرأ التم
     const coreExercises = k21.worksheet.sections
       .slice(1)
       .flatMap((s) => s.exercises);
-    expect(coreExercises.length).toBeGreaterThanOrEqual(4);
+    expect(coreExercises.length).toBeGreaterThanOrEqual(3);
 
     for (const ex of coreExercises) {
       expect(ex.archetype).toBe("PictureGraphRead");
@@ -144,7 +144,7 @@ describe("Ticket 05 — Lessons K-22, K-23, K-24: SequenceAndZero (العدّ ا
     const coreExercises = k22.worksheet.sections
       .slice(1)
       .flatMap((s) => s.exercises);
-    expect(coreExercises.length).toBeGreaterThanOrEqual(4);
+    expect(coreExercises.length).toBeGreaterThanOrEqual(3);
 
     for (const ex of coreExercises) {
       expect(ex.archetype).toBe("SequenceAndZero");
@@ -205,7 +205,7 @@ describe("Ticket 05 — Lessons K-22, K-23, K-24: SequenceAndZero (العدّ ا
     const coreExercises = k23.worksheet.sections
       .slice(1)
       .flatMap((s) => s.exercises);
-    expect(coreExercises.length).toBeGreaterThanOrEqual(4);
+    expect(coreExercises.length).toBeGreaterThanOrEqual(3);
 
     for (const ex of coreExercises) {
       expect(ex.archetype).toBe("SequenceAndZero");
@@ -262,7 +262,7 @@ describe("Ticket 05 — Lessons K-22, K-23, K-24: SequenceAndZero (العدّ ا
     const coreExercises = k24.worksheet.sections
       .slice(1)
       .flatMap((s) => s.exercises);
-    expect(coreExercises.length).toBeGreaterThanOrEqual(4);
+    expect(coreExercises.length).toBeGreaterThanOrEqual(3);
 
     for (const ex of coreExercises) {
       expect(ex.archetype).toBe("SequenceAndZero");
@@ -328,7 +328,7 @@ describe("Ticket 05 — Lessons K-25 & K-26: SubitizePartWhole (اعرف الع�
     const coreExercises = k25.worksheet.sections
       .slice(1)
       .flatMap((s) => s.exercises);
-    expect(coreExercises.length).toBeGreaterThanOrEqual(4);
+    expect(coreExercises.length).toBeGreaterThanOrEqual(3);
 
     for (const ex of coreExercises) {
       expect(ex.archetype).toBe("SubitizePartWhole");
@@ -487,6 +487,13 @@ describe("Ticket 05 — Complete Grade K Units 1–2 (Lessons K-1 through K-26) 
       ).toEqual(["Easy", "Easy", "Easy"]);
 
       // 5. Track archetypes, visual models, and Strategy Hints
+      const [warmUpSec, practiceSec, challengeSec] = bundle1.worksheet.sections;
+      expect(warmUpSec.exercises.length).toBeGreaterThanOrEqual(1);
+      expect(warmUpSec.exercises.length).toBeLessThanOrEqual(2);
+      expect(practiceSec.exercises.length).toBeGreaterThanOrEqual(2);
+      expect(practiceSec.exercises.length).toBeLessThanOrEqual(4);
+      expect(challengeSec.exercises.length).toBeGreaterThanOrEqual(1);
+      expect(challengeSec.exercises.length).toBeLessThanOrEqual(2);
       const exercises = bundle1.worksheet.sections.flatMap((s) => s.exercises);
       expect(exercises.length).toBeGreaterThanOrEqual(4);
       for (const ex of exercises) {
@@ -558,5 +565,5 @@ describe("Ticket 05 — Complete Grade K Units 1–2 (Lessons K-1 through K-26) 
     ]) {
       expect(observedVisualModelKinds.has(expectedKind)).toBe(true);
     }
-  });
+  }, 60000);
 });

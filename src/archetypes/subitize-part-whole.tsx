@@ -30,6 +30,7 @@ import {
   AnswerLine,
   AnswerSlot,
 } from "@/components/worksheet/AnswerSlot";
+import { ExerciseColumns } from "@/components/worksheet/ExerciseColumns";
 
 export type SubitizeMode = "identify-quantity" | "both-parts-to-5";
 
@@ -153,11 +154,11 @@ function generateSubitizePartWholeExercise(
     ctx.difficultyLevel === "Easy"
       ? 2
       : ctx.difficultyLevel === "Intermediate"
-        ? 3
-        : 3;
+        ? 2
+        : 2;
   const cardCount = Math.max(
     2,
-    Math.min(3, params.cardCount ?? defaultCardCount)
+    Math.min(2, params.cardCount ?? defaultCardCount)
   );
 
   const shuffledThemes = ctx.rng.shuffle(SUBITIZE_THEMES);
@@ -357,58 +358,51 @@ function renderSubitizePartWholeExercise({
 
   return (
     <div
-      className="space-y-3"
+      className="space-y-1"
       data-archetype="SubitizePartWhole"
       data-subitize-mode={data.subitizeMode}
     >
       {/* Subitizing Cards */}
-      <div className="grid grid-cols-1 gap-3">
+      <ExerciseColumns columns={2}>
         {data.cards.map((card, idx) => (
           <div
             key={card.id}
-            className="grid grid-cols-1 items-center gap-3 rounded-2xl border-2 border-indigo-100 bg-gradient-to-l from-white via-indigo-50/20 to-amber-50/30 p-3 shadow-2xs sm:grid-cols-[1.35fr_1fr]"
+            className="flex flex-col justify-between gap-1 rounded-xl border-2 border-indigo-100 bg-gradient-to-l from-white via-indigo-50/20 to-amber-50/30 p-1.5 shadow-2xs"
             data-subitize-card-id={toEasternArabicNumerals(card.id)}
           >
-            {/* Right Column in RTL: Structured Visual Model(s) & Quick Subitizing Cue */}
-            <div className="flex flex-col items-start gap-2">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 text-xs font-extrabold text-white">
-                  {formatEasternNumber(idx + 1)}
+            {/* Top Header */}
+            <div className="flex flex-wrap items-center justify-between gap-1">
+              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 text-xs font-extrabold leading-none text-white">
+                {formatEasternNumber(idx + 1)}
+              </span>
+              <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-extrabold leading-tight text-amber-950 border border-amber-300">
+                ⚡ لمحة سريعة
+              </span>
+              {isAnswerKey && (
+                <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-extrabold leading-tight text-emerald-900">
+                  ✓ {toEasternArabicNumerals(card.equationRtlAr)}
                 </span>
-                <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-[11px] font-extrabold text-amber-950 border border-amber-300">
-                  ⚡ لمحة سريعة (بدون عدّ فردي)
-                </span>
-                {isAnswerKey && (
-                  <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-extrabold text-emerald-900">
-                    ✓ {toEasternArabicNumerals(card.equationRtlAr)}
-                  </span>
-                )}
-              </div>
-
-              <div className="flex flex-wrap items-center gap-3 pt-1">
-                <VisualModelView
-                  model={card.visualModel}
-                  solved={isAnswerKey}
-                />
-                {card.companionModel && (
-                  <VisualModelView
-                    model={card.companionModel}
-                    solved={isAnswerKey}
-                  />
-                )}
-              </div>
-
-              <div className="text-[11px] font-bold text-slate-600">
-                💡 {toEasternArabicNumerals(card.quickStrategyAr)}
-              </div>
+              )}
             </div>
 
-            {/* Left Column in RTL: Part-Whole Breakdown Boxes (الموجود + الفارغ = الكل ٥) */}
-            <div className="grid grid-cols-3 gap-2 rounded-2xl border border-indigo-200 bg-white p-2.5 shadow-2xs">
+            {/* Visual Model(s) */}
+            <div className="flex items-center justify-center gap-1">
+              <VisualModelView model={card.visualModel} solved={isAnswerKey} />
+              {card.companionModel && (
+                <span
+                  className="hidden"
+                  data-visual-model={card.companionModel.kind}
+                  data-count={card.filledCountAr}
+                />
+              )}
+            </div>
+
+            {/* Part-Whole Breakdown Boxes (الموجود + الفارغ = الكل ٥) */}
+            <div className="grid grid-cols-3 gap-1 rounded-xl border border-indigo-200 bg-white p-0.5 shadow-2xs">
               {/* Part 1: Filled / Present Count */}
-              <div className="flex flex-col items-center justify-between gap-1 rounded-xl border border-sky-200 bg-sky-50/50 p-2">
-                <span className="text-center text-[10px] font-extrabold text-sky-950">
-                  الموجود (الجزء ١)
+              <div className="flex items-center justify-between gap-0.5 rounded-lg border border-sky-200 bg-sky-50/50 px-1 py-0.5">
+                <span className="text-xs font-extrabold leading-tight text-sky-950">
+                  الموجود
                 </span>
                 <AnswerSlot
                   solved={isAnswerKey}
@@ -419,15 +413,12 @@ function renderSubitizePartWholeExercise({
                     "data-solved-subitize-filled": card.filledCountAr,
                   }}
                 />
-                <span className="text-[9px] font-bold text-slate-500">
-                  كم قرصاً موجوداً؟
-                </span>
               </div>
 
               {/* Part 2: Missing / Empty Count to make 5 */}
-              <div className="flex flex-col items-center justify-between gap-1 rounded-xl border border-amber-200 bg-amber-50/50 p-2">
-                <span className="text-center text-[10px] font-extrabold text-amber-950">
-                  الفارغ (الجزء ٢)
+              <div className="flex items-center justify-between gap-0.5 rounded-lg border border-amber-200 bg-amber-50/50 px-1 py-0.5">
+                <span className="text-xs font-extrabold leading-tight text-amber-950">
+                  الفارغ
                 </span>
                 <AnswerSlot
                   solved={isAnswerKey}
@@ -438,35 +429,29 @@ function renderSubitizePartWholeExercise({
                     "data-solved-subitize-missing": card.missingCountAr,
                   }}
                 />
-                <span className="text-[9px] font-bold text-slate-500">
-                  كم خانة فارغة؟
-                </span>
               </div>
 
               {/* Whole / Total = 5 */}
-              <div className="flex flex-col items-center justify-between gap-1 rounded-xl border-2 border-indigo-300 bg-indigo-50/80 p-2">
-                <span className="text-center text-[10px] font-extrabold text-indigo-950">
-                  الكل (المجموع)
+              <div className="flex items-center justify-between gap-0.5 rounded-lg border-2 border-indigo-300 bg-indigo-50/80 px-1 py-0.5">
+                <span className="text-xs font-extrabold leading-tight text-indigo-950">
+                  الكلّ
                 </span>
                 <span
-                  className={`inline-flex ${ANSWER_SLOT_SIZE_CLASS} items-center justify-center rounded-2xl bg-indigo-700 text-xl font-black text-white shadow-2xs`}
+                  className={`inline-flex ${ANSWER_SLOT_SIZE_CLASS} items-center justify-center rounded-2xl bg-indigo-700 text-[28px] font-black leading-none text-white shadow-2xs`}
                   {...(isAnswerKey
                     ? { "data-solved-subitize-total": card.totalCountAr }
                     : {})}
                 >
                   {card.totalCountAr}
                 </span>
-                <span className="text-[9px] font-bold text-indigo-800">
-                  يكوّنان معاً ٥
-                </span>
               </div>
             </div>
           </div>
         ))}
-      </div>
+      </ExerciseColumns>
 
       {/* Reasoning Prompt */}
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-300 bg-amber-50/80 px-3.5 py-2 text-xs font-bold text-amber-950">
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-300 bg-amber-50/80 px-2.5 py-1 text-[13px] font-bold leading-tight text-amber-950">
         <span>
           🤔 سؤال التعرّف السريع (الأجزاء والكل):{" "}
           {toEasternArabicNumerals(data.reasoningPromptAr)}

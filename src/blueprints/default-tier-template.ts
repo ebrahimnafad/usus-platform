@@ -50,19 +50,6 @@ export const DEFAULT_TIER_TEMPLATE: LessonBlueprint["tiers"] = {
           leftColumnTitleAr: "اللعبة المطابقة",
         },
       },
-      {
-        archetype: "ConnectMatch",
-        promptAr:
-          "صل بخط بين كل عنصر من عناصر الطبيعة في العمود الأيمن وما يطابقه في العمود الأيسر (٣ عناصر):",
-        strategyHintAr:
-          "قارن بين الزهرة والنجمة والشجرة والشمس من حيث الشكل واللون قبل التوصيل.",
-        params: {
-          pairCount: 3,
-          categories: ["nature"],
-          rightColumnTitleAr: "عناصر الطبيعة",
-          leftColumnTitleAr: "العنصر المطابق",
-        },
-      },
     ],
     challenge: [
       {
@@ -127,19 +114,6 @@ export const DEFAULT_TIER_TEMPLATE: LessonBlueprint["tiers"] = {
           leftColumnTitleAr: "الغرض المطابق",
         },
       },
-      {
-        archetype: "ConnectMatch",
-        promptAr:
-          "صل بخط بين كل فاكهة أو حلوى في العمود الأيمن وما يطابقها تماماً في العمود الأيسر (٤ عناصر):",
-        strategyHintAr:
-          "تأكّد من مطابقة كل فاكهة أو كعكة مع نظيرتها التي تحمل نفس الشكل واللون.",
-        params: {
-          pairCount: 4,
-          categories: ["fruits", "treats"],
-          rightColumnTitleAr: "الفواكه والحلوى",
-          leftColumnTitleAr: "الصورة المطابقة",
-        },
-      },
     ],
     challenge: [
       {
@@ -201,19 +175,6 @@ export const DEFAULT_TIER_TEMPLATE: LessonBlueprint["tiers"] = {
           categories: ["nature", "animals", "treats"],
           rightColumnTitleAr: "المجموعة الأولى",
           leftColumnTitleAr: "المجموعة الثانية",
-        },
-      },
-      {
-        archetype: "ConnectMatch",
-        promptAr:
-          "طابق بين كل عنصر في العمود الأيمن وتوأمه المطابق في العمود الأيسر (٥ عناصر):",
-        strategyHintAr:
-          "راقب الفروق الدقيقة بين الأشكال المتقاربة وتأكّد من توصيل كل زوج متطابق بدقة.",
-        params: {
-          pairCount: 5,
-          categories: ["fruits", "toys", "school"],
-          rightColumnTitleAr: "مجموعة المقارنة",
-          leftColumnTitleAr: "المجموعة المطابقة",
         },
       },
     ],

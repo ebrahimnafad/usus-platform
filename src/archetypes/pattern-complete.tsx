@@ -32,6 +32,7 @@ import {
   ANSWER_SLOT_SIZE_CLASS,
   AnswerLine,
 } from "@/components/worksheet/AnswerSlot";
+import { ExerciseColumns } from "@/components/worksheet/ExerciseColumns";
 
 export type PatternUnitRule = "AB" | "ABC";
 export type PatternDirection = "forward" | "backward";
@@ -371,163 +372,140 @@ function renderPatternCompleteExercise({
 
   return (
     <div
-      className="space-y-3"
+      className="space-y-1.5"
       data-archetype="PatternComplete"
       data-pattern-rule={data.unitRule}
       data-pattern-direction={data.direction}
     >
-      {/* RTL Pattern Strip Container */}
-      <div className="rounded-2xl border-2 border-indigo-100 bg-gradient-to-b from-white to-indigo-50/40 p-3">
-        <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2 text-xs font-extrabold text-slate-700">
-          <div className="flex items-center gap-2">
-            <span className="rounded-full bg-indigo-100 px-2.5 py-0.5 text-indigo-950">
-              🔁 {ruleBadgeAr}
-            </span>
-            {data.direction === "backward" ? (
-              <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-amber-950 border border-amber-300">
-                🔄 البداية مفقودة: ابدأ من النهاية وارجع للخلف (يسار ← يمين)
-              </span>
-            ) : (
-              <span className="rounded-full bg-sky-100 px-2.5 py-0.5 text-sky-950">
-                ⬅️ اتجاه التقدّم للأمام: من اليمين إلى اليسار
-              </span>
-            )}
-          </div>
-          <span className="text-[11px] font-bold text-slate-500">
-            عدد خانات النمط: {formatEasternNumber(data.sequenceLength)}
-          </span>
-        </div>
+      {/* RTL Pattern Strip Container + Choice Bank */}
+      <ExerciseColumns columns={1}>
+        <div className="rounded-xl border-2 border-indigo-100 bg-gradient-to-b from-white to-indigo-50/40 p-1.5">
+          {/* RTL Strip of Slots (Slot 1 on right -> Slot N on left) */}
+          <div
+            className="grid grid-cols-6 gap-1"
+            data-pattern-strip="rtl"
+            dir="rtl"
+          >
+            {data.slots.map((slot) => {
+              const posAr = formatEasternNumber(slot.positionNumber);
 
-        {/* RTL Strip of Slots (Slot 1 on right -> Slot N on left) */}
-        <div
-          className="grid grid-cols-6 gap-2"
-          data-pattern-strip="rtl"
-          dir="rtl"
-        >
-          {data.slots.map((slot) => {
-            const posAr = formatEasternNumber(slot.positionNumber);
+              if (slot.isMissing) {
+                return (
+                  <div
+                    key={slot.slotIndex}
+                    className={`relative flex flex-col items-center justify-between gap-0.5 rounded-xl border-2 p-1 transition ${
+                      isAnswerKey
+                        ? "border-emerald-500 bg-emerald-50/90 shadow-xs"
+                        : "border-dashed border-amber-500 bg-amber-50/70"
+                    }`}
+                    data-pattern-slot={posAr}
+                    data-slot-missing="true"
+                    {...(isAnswerKey
+                      ? {
+                          "data-solved-missing-slot": toEasternArabicNumerals(
+                            slot.item.id
+                          ),
+                        }
+                      : {})}
+                  >
+                    <div className="flex w-full items-center justify-between text-xs font-extrabold">
+                      <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-white">
+                        {posAr}
+                      </span>
+                      <span className="rounded-md bg-amber-200/80 px-1 py-0.5 text-amber-950">
+                        {slot.roleLabelAr}
+                      </span>
+                    </div>
 
-            if (slot.isMissing) {
+                    {isAnswerKey ? (
+                      <VisualModelView model={slot.item} solved={true} />
+                    ) : (
+                      <div className="flex flex-1 flex-col items-center justify-center gap-0.5">
+                        <span
+                          data-answer-slot="unknown"
+                          role="img"
+                          aria-label="الخانة المفقودة في النمط"
+                          className={`inline-flex ${ANSWER_SLOT_SIZE_CLASS} items-center justify-center rounded-2xl border-2 border-dashed border-amber-500 bg-white text-[28px] font-black leading-none shadow-2xs`}
+                        >
+                          <span aria-hidden="true" className="text-slate-400">
+                            ؟
+                          </span>
+                        </span>
+                        <span className="text-center text-xs font-extrabold leading-tight text-amber-900">
+                          {data.direction === "backward"
+                            ? "البداية المفقودة"
+                            : "النهاية المفقودة"}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+
               return (
                 <div
                   key={slot.slotIndex}
-                  className={`relative flex min-h-[104px] flex-col items-center justify-between rounded-2xl border-2 p-2 transition ${
-                    isAnswerKey
-                      ? "border-emerald-500 bg-emerald-50/90 shadow-xs"
-                      : "border-dashed border-amber-500 bg-amber-50/70"
-                  }`}
+                  className="relative flex flex-col items-center justify-between gap-0.5 rounded-xl border-2 border-slate-200 bg-white p-1 shadow-2xs"
                   data-pattern-slot={posAr}
-                  data-slot-missing="true"
-                  {...(isAnswerKey
-                    ? {
-                        "data-solved-missing-slot": toEasternArabicNumerals(
-                          slot.item.id
-                        ),
-                      }
-                    : {})}
+                  data-slot-missing="false"
                 >
-                  <div className="flex w-full items-center justify-between text-[10px] font-extrabold">
-                    <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-amber-500 text-white">
+                  <div className="flex w-full items-center justify-between text-xs font-extrabold">
+                    <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-slate-200 text-slate-700">
                       {posAr}
                     </span>
-                    <span className="rounded-md bg-amber-200/80 px-1.5 py-0.5 text-amber-950">
+                    <span className="rounded-md bg-indigo-50 px-1 py-0.5 text-indigo-900">
                       {slot.roleLabelAr}
                     </span>
                   </div>
 
-                  {isAnswerKey ? (
-                    <>
-                      <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-extrabold text-white">
-                        ✓ العنصر المفقود
-                      </span>
-                      <VisualModelView model={slot.item} solved={true} />
-                    </>
-                  ) : (
-                    <div className="flex flex-1 flex-col items-center justify-center gap-1 py-2">
-                      <span
-                        data-answer-slot="unknown"
-                        role="img"
-                        aria-label="الخانة المفقودة في النمط"
-                        className={`inline-flex ${ANSWER_SLOT_SIZE_CLASS} items-center justify-center rounded-2xl border-2 border-dashed border-amber-500 bg-white text-xl font-black shadow-2xs`}
-                      >
-                        <span aria-hidden="true" className="text-slate-400">
-                          ؟
-                        </span>
-                      </span>
-                      <span className="text-[10px] font-extrabold text-amber-900">
-                        {data.direction === "backward"
-                          ? "البداية المفقودة"
-                          : "النهاية المفقودة"}
-                      </span>
-                    </div>
-                  )}
+                  <VisualModelView model={slot.item} solved={isAnswerKey} />
                 </div>
               );
-            }
+            })}
+          </div>
 
-            return (
-              <div
-                key={slot.slotIndex}
-                className="relative flex min-h-[104px] flex-col items-center justify-between rounded-2xl border-2 border-slate-200 bg-white p-2 shadow-2xs"
-                data-pattern-slot={posAr}
-                data-slot-missing="false"
-              >
-                <div className="flex w-full items-center justify-between text-[10px] font-extrabold">
-                  <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-200 text-slate-700">
-                    {posAr}
-                  </span>
-                  <span className="rounded-md bg-indigo-50 px-1.5 py-0.5 text-indigo-900">
-                    {slot.roleLabelAr}
-                  </span>
-                </div>
+          {/* Choice Bank inline */}
+          <div className="mt-1 flex flex-wrap items-center justify-between gap-1 border-t border-indigo-100 pt-1">
+            <span className="text-xs font-extrabold leading-tight text-sky-950">
+              🎯 {ruleBadgeAr} • اختر العنصر المفقود (
+              {formatEasternNumber(data.choices.length)}):
+            </span>
 
-                <VisualModelView model={slot.item} solved={isAnswerKey} />
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Choice Bank */}
-      <div className="rounded-2xl border-2 border-sky-100 bg-sky-50/40 p-2.5">
-        <div className="mb-2 flex items-center justify-between text-xs font-extrabold text-sky-950">
-          <span>🎯 اختر وحوّط العنصر الصحيح الذي يكمل النمط:</span>
-          <span className="text-[11px] font-bold text-slate-600">
-            بدائل الاختيار ({formatEasternNumber(data.choices.length)})
-          </span>
-        </div>
-
-        <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-4">
-          {data.choices.map((choice, idx) => {
-            const isSolvedCorrect = isAnswerKey && choice.isCorrect;
-            return (
-              <div
-                key={choice.id}
-                className={`flex flex-col items-center justify-center gap-1 rounded-2xl border-2 p-2 transition ${
-                  isSolvedCorrect
-                    ? "border-emerald-600 bg-emerald-50/90 shadow-xs"
-                    : "border-dashed border-slate-300 bg-white"
-                }`}
-                data-pattern-choice-id={toEasternArabicNumerals(choice.id)}
-                {...(isSolvedCorrect ? { "data-solved-choice": "true" } : {})}
-              >
-                <div className="flex w-full items-center justify-between text-[10px] font-bold text-slate-500">
-                  <span>خيار {formatEasternNumber(idx + 1)}</span>
-                  {isSolvedCorrect && (
-                    <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-extrabold text-white">
-                      ✓ الصحيح
+            <div className="flex flex-wrap items-center gap-1">
+              {data.choices.map((choice, idx) => {
+                const isSolvedCorrect = isAnswerKey && choice.isCorrect;
+                return (
+                  <div
+                    key={choice.id}
+                    className={`flex items-center gap-1 rounded-xl border-2 px-1 py-0.5 transition ${
+                      isSolvedCorrect
+                        ? "border-emerald-600 bg-emerald-50/90 shadow-xs"
+                        : "border-dashed border-slate-300 bg-white"
+                    }`}
+                    data-pattern-choice-id={toEasternArabicNumerals(choice.id)}
+                    {...(isSolvedCorrect
+                      ? { "data-solved-choice": "true" }
+                      : {})}
+                  >
+                    <span className="text-xs font-bold text-slate-500">
+                      {formatEasternNumber(idx + 1)}
                     </span>
-                  )}
-                </div>
-                <VisualModelView model={choice.item} solved={isAnswerKey} />
-              </div>
-            );
-          })}
+                    <VisualModelView model={choice.item} solved={isAnswerKey} />
+                    {isSolvedCorrect && (
+                      <span className="rounded-full bg-emerald-600 px-1 py-0.5 text-xs font-extrabold leading-none text-white">
+                        ✓
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
-      </div>
+      </ExerciseColumns>
 
       {/* Attribute & Reasoning Prompt */}
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-300 bg-amber-50/80 px-3.5 py-2 text-xs font-bold text-amber-950">
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-300 bg-amber-50/80 px-2.5 py-1 text-[13px] font-bold leading-tight text-amber-950">
         <span>
           🤔 سؤال التفكير والخصائص:{" "}
           {toEasternArabicNumerals(data.attributePromptAr)}

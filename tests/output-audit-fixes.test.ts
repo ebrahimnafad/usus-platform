@@ -9,7 +9,7 @@ import * as fs from "fs";
 import * as path from "path";
 
 describe("Output Audit Fixes — Download PDF & Print Parity Seam Tests", () => {
-  it("Seam 1 & 2: everyday-object visual models with total count >= 4 use tiny SVG size and ConnectMatch rows have min-h-[76px]", () => {
+  it("Seam 1 & 2: everyday-object visual models with total count >= 4 use tiny SVG size and ConnectMatch rows have min-h instead of fixed height", () => {
     // 1. Check EverydayObjectSvg supports tiny size (px = 30)
     const tinySvgHtml = renderToStaticMarkup(
       React.createElement(EverydayObjectSvg, {
@@ -36,7 +36,7 @@ describe("Output Audit Fixes — Download PDF & Print Parity Seam Tests", () => 
     expect(group4Html).toContain('width="30"');
     expect(group4Html).not.toContain('width="44"');
 
-    // 3. ConnectMatch rows use min-h-[76px] instead of rigid standalone h-[76px]
+    // 3. ConnectMatch rows use min-h-[...] instead of rigid standalone h-[76px]
     const k17Html = renderWorksheetSurface({
       grade: "K",
       lessonNumber: 17,
@@ -44,7 +44,7 @@ describe("Output Audit Fixes — Download PDF & Print Parity Seam Tests", () => 
       viewMode: "worksheet",
       difficultyLevel: "scaffolded",
     });
-    expect(k17Html).toContain("min-h-[76px]");
+    expect(k17Html).toMatch(/min-h-\[\d+px\]/);
     // Make sure standalone " h-[76px]" (without min-) is gone from the rendered HTML
     expect(k17Html).not.toMatch(/(?<!min-)h-\[76px\]/);
   });
@@ -88,21 +88,20 @@ describe("Output Audit Fixes — Download PDF & Print Parity Seam Tests", () => 
       "../src/visual-models/unit-2-models.tsx"
     );
     const src = fs.readFileSync(srcPath, "utf8");
-    // The span holding the label below NumeralTraceSvg must have pb-1
-    expect(src).toMatch(/text-\[11px\] font-bold text-slate-700 pb-1/);
+    // The span holding the label below NumeralTraceSvg must have pb-1 and 13px type scale
+    expect(src).toMatch(/text-\[13px\] font-bold text-slate-700 pb-1/);
   });
 
-  it("Seam 6: ConnectMatch SVG rowHeight constant is at least 96px", () => {
+  it("Seam 6: ConnectMatch SVG rowHeight constant accommodates row min-height", () => {
     const srcPath = path.resolve(
       __dirname,
       "../src/archetypes/connect-match.tsx"
     );
     const src = fs.readFileSync(srcPath, "utf8");
-    // ROW_HEIGHT_PX must be >= 96 to accommodate min-h-[76px] + content
     const match = src.match(/ROW_HEIGHT_PX\s*=\s*(\d+)/);
     expect(match).not.toBeNull();
     const value = parseInt(match![1], 10);
-    expect(value).toBeGreaterThanOrEqual(96);
+    expect(value).toBeGreaterThanOrEqual(48);
   });
 
   it("Seam 7: PDF exporter always prints at full scale (ADR-0013)", () => {
@@ -168,6 +167,5 @@ describe("Output Audit Fixes — Download PDF & Print Parity Seam Tests", () => 
     expect(html).toMatch(
       /\[data-section-id\]\s*>\s*div:first-child\s*\{[^}]*break-after:\s*avoid/s
     );
-    expect(html).toContain("box-decoration-break: clone");
   });
 });

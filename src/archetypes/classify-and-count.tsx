@@ -24,6 +24,7 @@ import {
 } from "@/archetypes/registry";
 import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
 import { AnswerLine, AnswerSlot } from "@/components/worksheet/AnswerSlot";
+import { ExerciseColumns } from "@/components/worksheet/ExerciseColumns";
 
 export type ClassifyDomainMode =
   "shapes-2d" | "solids-3d" | "mixed-shapes-solids";
@@ -147,8 +148,8 @@ function generateClassifyAndCountExercise(
     (ctx.difficultyLevel === "Easy"
       ? [2, 3]
       : ctx.difficultyLevel === "Intermediate"
-        ? [2, 4]
-        : [2, 4]);
+        ? [2, 3]
+        : [2, 3]);
 
   // Build candidate category descriptors
   interface CategoryDescriptor {
@@ -214,12 +215,15 @@ function generateClassifyAndCountExercise(
     selectedDescriptors.length
   );
 
+  const safePartMax =
+    groupCount >= 3 ? Math.min(maxPart, 2) : Math.min(maxPart, 3);
+  const safePartMin = Math.min(minPart, safePartMax);
   // Generate distinct part counts when possible so "which part has more/fewer?" has a clear winner
   const partCounts: number[] = [];
   for (let idx = 0; idx < selectedDescriptors.length; idx++) {
-    const raw = ctx.rng.int(minPart, maxPart);
+    const raw = ctx.rng.int(safePartMin, safePartMax);
     if (idx === 1 && raw === partCounts[0]) {
-      partCounts.push(raw < maxPart ? raw + 1 : Math.max(minPart, raw - 1));
+      partCounts.push(raw < safePartMax ? raw + 1 : Math.max(1, raw - 1));
     } else {
       partCounts.push(raw);
     }
@@ -402,92 +406,95 @@ function renderClassifyAndCountExercise({
   const isAnswerKey = mode === "answer-key";
 
   return (
-    <div className="space-y-3" data-archetype="ClassifyAndCount">
-      {/* Mixed Sorting Tray */}
-      <div className="rounded-2xl border-2 border-sky-100 bg-gradient-to-b from-white to-sky-50/40 p-3">
-        <div className="mb-2 flex items-center justify-between text-xs font-extrabold text-slate-700">
-          <span>
-            🎯 المطلوب تحويطه وتصنيفه:{" "}
-            <strong className="text-indigo-900">
-              {toEasternArabicNumerals(data.targetGroupLabelAr)}
-            </strong>
-          </span>
-          <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] text-slate-600">
-            إجمالي العناصر في الصندوق: {formatEasternNumber(data.totalCount)}
-          </span>
+    <div className="space-y-0.5" data-archetype="ClassifyAndCount">
+      <ExerciseColumns columns={1}>
+        {/* Mixed Sorting Tray */}
+        <div className="rounded-xl border border-sky-100 bg-gradient-to-b from-white to-sky-50/40 p-1">
+          <div className="mb-0.5 flex items-center justify-between text-[13px] font-extrabold leading-none text-slate-700">
+            <span>
+              🎯 المطلوب تحويطه وتصنيفه:{" "}
+              <strong className="text-indigo-900">
+                {toEasternArabicNumerals(data.targetGroupLabelAr)}
+              </strong>
+            </span>
+            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
+              إجمالي العناصر: {formatEasternNumber(data.totalCount)}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-6 gap-1">
+            {data.items.map((item, idx) => {
+              const group =
+                data.groups.find((g) => g.groupId === item.groupId) ??
+                data.groups[0];
+              const ringStyle =
+                GROUP_RING_STYLES[group.colorTheme] ?? GROUP_RING_STYLES.sky;
+              const groupIndex =
+                data.groups.findIndex((g) => g.groupId === item.groupId) + 1;
+
+              return (
+                <div
+                  key={item.id}
+                  className={`relative flex flex-col items-center justify-center rounded-xl border p-0.5 transition ${
+                    isAnswerKey
+                      ? `${ringStyle.border} ${ringStyle.bg} shadow-xs`
+                      : "border-dashed border-slate-300 bg-white"
+                  }`}
+                  data-sort-item-id={toEasternArabicNumerals(item.id)}
+                  {...(isAnswerKey
+                    ? {
+                        "data-solved-sorted-group": toEasternArabicNumerals(
+                          item.groupId
+                        ),
+                        "data-solved-circled": item.isTargetGroup
+                          ? "true"
+                          : "false",
+                      }
+                    : {})}
+                >
+                  <div className="flex w-full items-center justify-between text-xs font-bold leading-none">
+                    <span className="text-slate-400">
+                      {formatEasternNumber(idx + 1)}
+                    </span>
+                    {isAnswerKey && (
+                      <span
+                        className={`rounded-full px-1 py-0.5 font-extrabold ${ringStyle.badge}`}
+                      >
+                        {item.isTargetGroup
+                          ? `✓ ج${formatEasternNumber(groupIndex)}`
+                          : `ج${formatEasternNumber(groupIndex)}`}
+                      </span>
+                    )}
+                  </div>
+
+                  <VisualModelView model={item.model} solved={isAnswerKey} />
+                </div>
+              );
+            })}
+          </div>
         </div>
-
-        <div className="grid grid-cols-4 gap-2.5 sm:grid-cols-6">
-          {data.items.map((item, idx) => {
-            const group =
-              data.groups.find((g) => g.groupId === item.groupId) ??
-              data.groups[0];
-            const ringStyle =
-              GROUP_RING_STYLES[group.colorTheme] ?? GROUP_RING_STYLES.sky;
-            const groupIndex =
-              data.groups.findIndex((g) => g.groupId === item.groupId) + 1;
-
-            return (
-              <div
-                key={item.id}
-                className={`relative flex flex-col items-center justify-center rounded-2xl border-2 p-2 transition ${
-                  isAnswerKey
-                    ? `${ringStyle.border} ${ringStyle.bg} shadow-xs`
-                    : "border-dashed border-slate-300 bg-white"
-                }`}
-                data-sort-item-id={toEasternArabicNumerals(item.id)}
-                {...(isAnswerKey
-                  ? {
-                      "data-solved-sorted-group": toEasternArabicNumerals(
-                        item.groupId
-                      ),
-                      "data-solved-circled": item.isTargetGroup
-                        ? "true"
-                        : "false",
-                    }
-                  : {})}
-              >
-                <span className="absolute top-1 right-1.5 text-[10px] font-bold text-slate-400">
-                  {formatEasternNumber(idx + 1)}
-                </span>
-
-                {isAnswerKey && (
-                  <span
-                    className={`mb-1 rounded-full px-2 py-0.5 text-[10px] font-extrabold ${ringStyle.badge}`}
-                  >
-                    {item.isTargetGroup
-                      ? `✓ حُوِّط (جزء ${formatEasternNumber(groupIndex)})`
-                      : `جزء ${formatEasternNumber(groupIndex)}`}
-                  </span>
-                )}
-
-                <VisualModelView model={item.model} solved={isAnswerKey} />
-              </div>
-            );
-          })}
-        </div>
-      </div>
+      </ExerciseColumns>
 
       {/* Part-Whole (الأجزاء والكل) Count Bar */}
-      <div className="grid grid-cols-1 gap-2 rounded-2xl border-2 border-indigo-100 bg-indigo-50/40 p-3 sm:grid-cols-4">
+      <ExerciseColumns columns={3}>
         {data.groups.map((group, idx) => {
           const ringStyle =
             GROUP_RING_STYLES[group.colorTheme] ?? GROUP_RING_STYLES.sky;
           return (
             <div
               key={group.groupId}
-              className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-3 py-2 shadow-2xs"
+              className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-2 py-0.5 shadow-2xs"
             >
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
                 <VisualModelView
                   model={group.sampleModel}
                   solved={isAnswerKey}
                 />
                 <div>
-                  <div className="text-[11px] font-extrabold text-slate-500">
+                  <div className="text-xs font-extrabold leading-none text-slate-500">
                     الجزء {formatEasternNumber(idx + 1)}
                   </div>
-                  <div className="text-xs font-extrabold text-slate-900">
+                  <div className="text-[13px] font-extrabold leading-tight text-slate-900">
                     {toEasternArabicNumerals(group.labelAr)}
                   </div>
                 </div>
@@ -508,13 +515,13 @@ function renderClassifyAndCountExercise({
         })}
 
         {/* Total / Whole Box */}
-        <div className="flex items-center justify-between rounded-xl border-2 border-indigo-300 bg-indigo-100/70 px-3 py-2">
+        <div className="flex items-center justify-between rounded-xl border border-indigo-300 bg-indigo-100/70 px-2 py-0.5">
           <div>
-            <div className="text-[11px] font-extrabold text-indigo-800">
-              الكل (مجموع الأجزاء)
+            <div className="text-xs font-extrabold leading-none text-indigo-800">
+              الكلّ
             </div>
-            <div className="text-xs font-black text-indigo-950">
-              جميع العناصر معاً
+            <div className="text-[13px] font-black leading-tight text-indigo-950">
+              جميع العناصر
             </div>
           </div>
 
@@ -528,10 +535,10 @@ function renderClassifyAndCountExercise({
             }}
           />
         </div>
-      </div>
+      </ExerciseColumns>
 
       {/* Part-Whole & Attribute Reasoning Prompt */}
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-300 bg-amber-50/80 px-3.5 py-2 text-xs font-bold text-amber-950">
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-300 bg-amber-50/80 px-2 py-0.5 text-[13px] font-bold leading-tight text-amber-950">
         <span>
           🤔 سؤال التفكير (الأجزاء والكل):{" "}
           {toEasternArabicNumerals(data.comparisonPromptAr)}

@@ -98,10 +98,10 @@ export function FiveFrameSvg({
   const secondaryPalette =
     COLOR_PALETTES[secondaryColorTheme] ?? COLOR_PALETTES.sky;
 
-  const cellWidth = 42;
-  const cellHeight = 44;
-  const frameX = 12;
-  const frameY = 14;
+  const cellWidth = 48;
+  const cellHeight = 48;
+  const frameX = 0;
+  const frameY = 6;
   const totalWidth = cellWidth * 5;
 
   // RTL cell ordering: cell index 0 is rightmost (x = frameX + 4 * cellWidth)
@@ -110,9 +110,9 @@ export function FiveFrameSvg({
 
   return (
     <svg
-      width="234"
-      height="76"
-      viewBox="0 0 234 76"
+      width="240"
+      height="60"
+      viewBox="0 0 240 60"
       fill="none"
       aria-label={`لوحة الخمسة: ${formatEasternNumber(totalFilled)}`}
       data-direction="rtl"
@@ -122,34 +122,24 @@ export function FiveFrameSvg({
     >
       {/* Outer Frame Shadow & Background */}
       <rect
-        x={frameX - 3}
-        y={frameY - 3}
-        width={totalWidth + 6}
-        height={cellHeight + 6}
-        rx="10"
-        fill="#E0E7FF"
-        stroke="#3730A3"
-        strokeWidth="2.5"
-      />
-      <rect
-        x={frameX}
+        x={frameX + 1}
         y={frameY}
-        width={totalWidth}
+        width={totalWidth - 2}
         height={cellHeight}
-        rx="7"
+        rx="8"
         fill="#FFFFFF"
         stroke="#312E81"
         strokeWidth="2"
       />
 
       {/* Dotted Part-Grouping Outlines when requested or when secondaryCount > 0 */}
-      {(showPartOutline || secondary > 0) && primary > 0 && (
+      {(showPartOutline || secondary > 0 || ghostCount > 0) && primary > 0 && (
         <rect
           x={getRtlCellX(primary - 1) + 2}
-          y={frameY - 7}
+          y={frameY - 4}
           width={primary * cellWidth - 4}
-          height={cellHeight + 14}
-          rx="9"
+          height={cellHeight + 8}
+          rx="8"
           fill="none"
           stroke={primaryPalette.stroke}
           strokeWidth="2"
@@ -160,10 +150,24 @@ export function FiveFrameSvg({
       {(showPartOutline || secondary > 0) && secondary > 0 && (
         <rect
           x={getRtlCellX(primary + secondary - 1) + 2}
-          y={frameY - 7}
+          y={frameY - 4}
           width={secondary * cellWidth - 4}
-          height={cellHeight + 14}
-          rx="9"
+          height={cellHeight + 8}
+          rx="8"
+          fill="none"
+          stroke={secondaryPalette.stroke}
+          strokeWidth="2"
+          strokeDasharray="4 3"
+          data-part-outline="secondary"
+        />
+      )}
+      {ghostCount > 0 && primary > 0 && (
+        <rect
+          x={getRtlCellX(primary + ghostCount - 1) + 2}
+          y={frameY - 4}
+          width={ghostCount * cellWidth - 4}
+          height={cellHeight + 8}
+          rx="8"
           fill="none"
           stroke={secondaryPalette.stroke}
           strokeWidth="2"
@@ -192,12 +196,15 @@ export function FiveFrameSvg({
           rtlIdx >= totalFilled - crossedOut &&
           rtlIdx < totalFilled;
 
-        const activePalette = isSecondary ? secondaryPalette : primaryPalette;
+        const isSecondPartGhost = isGhost && primary > 0;
+        const activePalette =
+          isSecondary || isSecondPartGhost ? secondaryPalette : primaryPalette;
 
         return (
           <g
             key={rtlIdx}
             data-rtl-cell={formatEasternNumber(rtlIdx + 1)}
+            data-cell-box="48x48"
             data-cell-state={
               isCrossedOut
                 ? "crossed-out"
@@ -208,6 +215,16 @@ export function FiveFrameSvg({
                     : "empty"
             }
           >
+            {/* Exact 48×48 cell hit box for layout standard */}
+            <rect
+              x={cellX}
+              y={frameY}
+              width={cellWidth}
+              height={cellHeight}
+              fill="transparent"
+              stroke="none"
+            />
+
             {/* Vertical Cell Divider */}
             {rtlIdx < 4 && (
               <line
@@ -222,10 +239,10 @@ export function FiveFrameSvg({
 
             {/* Small RTL cell index label in top-right corner */}
             <text
-              x={cellX + cellWidth - 5}
-              y={frameY + 10}
-              textAnchor="end"
-              fontSize="8.5"
+              x={cellX + cellWidth - 10}
+              y={frameY + 18}
+              textAnchor="middle"
+              fontSize="13"
               fontWeight="800"
               fill="#94A3B8"
             >
@@ -252,8 +269,8 @@ export function FiveFrameSvg({
                 cx={cx}
                 cy={cy}
                 r="14"
-                fill={primaryPalette.accent}
-                stroke={primaryPalette.fill}
+                fill={activePalette.accent}
+                stroke={activePalette.fill}
                 strokeWidth="2.2"
                 strokeDasharray="4 3"
                 data-ghost-counter="true"
@@ -263,7 +280,9 @@ export function FiveFrameSvg({
             {/* Filled 3D two-tone counter */}
             {isFilled && (
               <g
-                data-counter-tone={isSecondary ? "secondary" : "primary"}
+                data-counter-tone={
+                  isSecondary || isSecondPartGhost ? "secondary" : "primary"
+                }
                 {...(isGhost && solved
                   ? { "data-solved-counter": "true" }
                   : {})}
@@ -284,7 +303,9 @@ export function FiveFrameSvg({
                   fill="none"
                   stroke={activePalette.fillLight}
                   strokeWidth="1.8"
-                  strokeDasharray={isSecondary ? "3 2" : "none"}
+                  strokeDasharray={
+                    isSecondary || isSecondPartGhost ? "3 2" : "none"
+                  }
                 />
                 {/* Specular highlight */}
                 <circle
@@ -457,8 +478,8 @@ export function NumeralTraceSvg({
 
   return (
     <svg
-      width="88"
-      height="72"
+      width="66"
+      height="54"
       viewBox="0 0 88 72"
       fill="none"
       aria-label={`تتبّع الرقم ${digitAr}`}
@@ -547,7 +568,7 @@ export function NumeralTraceSvg({
         x="18"
         y="27"
         textAnchor="middle"
-        fontSize="12"
+        fontSize="13"
         fontWeight="900"
         fill={solved ? "#047857" : "#64748B"}
       >
@@ -568,7 +589,7 @@ export function registerFiveFrameVisualModel(): void {
 
     return (
       <div
-        className="inline-flex flex-col items-center gap-1"
+        className="inline-flex items-center gap-1"
         data-visual-model="five-frame"
         data-direction="rtl"
         data-count={formatEasternNumber(total)}
@@ -586,7 +607,7 @@ export function registerFiveFrameVisualModel(): void {
           ghostTargetCount={(meta.ghostTargetCount as number) ?? 0}
           solved={solved}
         />
-        <span className="text-xs font-bold text-slate-700">
+        <span className="hidden text-[13px] font-bold leading-tight text-slate-700">
           {toEasternArabicNumerals(model.labelAr)}
         </span>
       </div>
@@ -600,7 +621,7 @@ export function registerNumeralTraceVisualModel(): void {
     const digit = model.digit ?? model.count ?? 1;
     return (
       <div
-        className="inline-flex flex-col items-center gap-1"
+        className="inline-flex shrink-0 items-center gap-1"
         data-visual-model="numeral-trace"
         data-digit={formatEasternNumber(digit)}
       >
@@ -609,7 +630,7 @@ export function registerNumeralTraceVisualModel(): void {
           solved={solved}
           colorTheme={model.colorTheme ?? "indigo"}
         />
-        <span className="text-[11px] font-bold text-slate-700 pb-1">
+        <span className="hidden text-[13px] font-bold text-slate-700 pb-1">
           {toEasternArabicNumerals(model.labelAr)}
         </span>
       </div>
@@ -622,6 +643,7 @@ export interface SnapCubesOptions {
   secondaryCount?: number;
   separated?: boolean;
   orientation?: "horizontal" | "vertical";
+  compact?: boolean;
   colorTheme?: ColorThemeId;
   secondaryColorTheme?: ColorThemeId;
   labelAr?: string;
@@ -660,6 +682,7 @@ export function createSnapCubesSpec(
     meta: {
       separated,
       orientation,
+      compact: Boolean(options.compact),
       secondaryColorTheme: options.secondaryColorTheme ?? "amber",
     },
   };
@@ -670,6 +693,7 @@ export function SnapCubesSvg({
   secondaryCount = 0,
   separated = false,
   orientation = "horizontal",
+  compact = false,
   colorTheme = "emerald",
   secondaryColorTheme = "amber",
 }: {
@@ -677,6 +701,7 @@ export function SnapCubesSvg({
   secondaryCount?: number;
   separated?: boolean;
   orientation?: "horizontal" | "vertical";
+  compact?: boolean;
   colorTheme?: ColorThemeId;
   secondaryColorTheme?: ColorThemeId;
 }): React.ReactElement {
@@ -689,17 +714,17 @@ export function SnapCubesSvg({
     COLOR_PALETTES[secondaryColorTheme] ?? COLOR_PALETTES.amber;
 
   if (orientation === "vertical") {
-    const cubeSize = 26;
-    const gap = separated && secondary > 0 ? 14 : 0;
-    const svgHeight = Math.max(76, total * cubeSize + gap + 24);
-    const baseX = 28;
-    const bottomY = svgHeight - 12;
+    const cubeSize = 13;
+    const gap = separated && secondary > 0 ? 6 : 0;
+    const svgHeight = Math.max(42, total * cubeSize + gap + 10);
+    const baseX = 22;
+    const bottomY = svgHeight - 4;
 
     return (
       <svg
-        width="88"
+        width="64"
         height={svgHeight}
-        viewBox={`0 0 88 ${svgHeight}`}
+        viewBox={`0 0 64 ${svgHeight}`}
         fill="none"
         aria-label={`برج مكعبات: ${formatEasternNumber(total)}`}
         data-separated={separated ? "true" : "false"}
@@ -715,24 +740,24 @@ export function SnapCubesSvg({
             <g key={idx} data-cube-index={formatEasternNumber(idx + 1)}>
               {/* Top 3D skew face */}
               <polygon
-                points={`${baseX},${y} ${baseX + 8},${y - 7} ${
-                  baseX + cubeSize + 8
-                },${y - 7} ${baseX + cubeSize},${y}`}
+                points={`${baseX},${y} ${baseX + 6},${y - 5} ${
+                  baseX + cubeSize + 6
+                },${y - 5} ${baseX + cubeSize},${y}`}
                 fill={pal.fillLight}
                 stroke={pal.stroke}
-                strokeWidth="1.8"
+                strokeWidth="1.5"
                 strokeLinejoin="round"
               />
               {/* Right 3D skew face */}
               <polygon
                 points={`${baseX + cubeSize},${y} ${
-                  baseX + cubeSize + 8
-                },${y - 7} ${baseX + cubeSize + 8},${y + cubeSize - 7} ${
+                  baseX + cubeSize + 6
+                },${y - 5} ${baseX + cubeSize + 6},${y + cubeSize - 5} ${
                   baseX + cubeSize
                 },${y + cubeSize}`}
                 fill={pal.fillDark}
                 stroke={pal.stroke}
-                strokeWidth="1.8"
+                strokeWidth="1.5"
                 strokeLinejoin="round"
               />
               {/* Front square face */}
@@ -743,27 +768,27 @@ export function SnapCubesSvg({
                 height={cubeSize}
                 fill={pal.fill}
                 stroke={pal.stroke}
-                strokeWidth="2"
+                strokeWidth="1.6"
               />
               {/* Interlocking stud on top */}
               <rect
-                x={baseX + 9}
-                y={y - 5}
-                width="8"
-                height="4"
-                rx="1.5"
+                x={baseX + 6}
+                y={y - 3.5}
+                width="6"
+                height="3"
+                rx="1"
                 fill={pal.fill}
                 stroke={pal.stroke}
-                strokeWidth="1.4"
+                strokeWidth="1.2"
               />
               {/* Center circular dimple */}
               <circle
                 cx={baseX + cubeSize / 2}
                 cy={y + cubeSize / 2}
-                r="4.5"
+                r="3.2"
                 fill={pal.fillLight}
                 stroke={pal.stroke}
-                strokeWidth="1.2"
+                strokeWidth="1"
               />
             </g>
           );
@@ -773,19 +798,20 @@ export function SnapCubesSvg({
   }
 
   // Horizontal RTL cube train: cube 1 starts on the right and extends left
-  const cubeW = 32;
-  const cubeH = 32;
-  const splitGap = separated && secondary > 0 ? 22 : 0;
+  const cubeW = compact ? 22 : 28;
+  const cubeH = compact ? 22 : 28;
+  const splitGap = separated && secondary > 0 ? (compact ? 12 : 16) : 0;
   const totalTrainWidth = total * cubeW + splitGap;
-  const svgWidth = Math.max(150, totalTrainWidth + 34);
-  const startRightX = svgWidth - 18;
-  const baseY = 22;
+  const svgWidth = Math.max(compact ? 96 : 120, totalTrainWidth + 20);
+  const svgHeight = compact ? 40 : 52;
+  const startRightX = svgWidth - 10;
+  const baseY = compact ? 11 : 16;
 
   return (
     <svg
       width={svgWidth}
-      height="68"
-      viewBox={`0 0 ${svgWidth} 68`}
+      height={svgHeight}
+      viewBox={`0 0 ${svgWidth} ${svgHeight}`}
       fill="none"
       aria-label={`قطار مكعبات متداخلة: ${formatEasternNumber(total)}`}
       data-separated={separated ? "true" : "false"}
@@ -803,24 +829,24 @@ export function SnapCubesSvg({
           <g key={idx} data-cube-index={formatEasternNumber(idx + 1)}>
             {/* Top 3D skew face */}
             <polygon
-              points={`${x},${baseY} ${x + 8},${baseY - 8} ${
-                x + cubeW + 8
-              },${baseY - 8} ${x + cubeW},${baseY}`}
+              points={`${x},${baseY} ${x + 6},${baseY - 6} ${
+                x + cubeW + 6
+              },${baseY - 6} ${x + cubeW},${baseY}`}
               fill={pal.fillLight}
               stroke={pal.stroke}
-              strokeWidth="1.8"
+              strokeWidth="1.6"
               strokeLinejoin="round"
             />
             {/* Right 3D skew face */}
             <polygon
-              points={`${x + cubeW},${baseY} ${x + cubeW + 8},${
-                baseY - 8
-              } ${x + cubeW + 8},${baseY + cubeH - 8} ${x + cubeW},${
+              points={`${x + cubeW},${baseY} ${x + cubeW + 6},${
+                baseY - 6
+              } ${x + cubeW + 6},${baseY + cubeH - 6} ${x + cubeW},${
                 baseY + cubeH
               }`}
               fill={pal.fillDark}
               stroke={pal.stroke}
-              strokeWidth="1.8"
+              strokeWidth="1.6"
               strokeLinejoin="round"
             />
             {/* Front face */}
@@ -832,33 +858,33 @@ export function SnapCubesSvg({
               rx="2"
               fill={pal.fill}
               stroke={pal.stroke}
-              strokeWidth="2"
+              strokeWidth="1.8"
             />
             {/* Left interlocking peg (stud) */}
             <rect
-              x={x - 5}
-              y={baseY + 10}
-              width="5"
-              height="12"
-              rx="1.5"
+              x={x - 4}
+              y={baseY + 8}
+              width="4"
+              height="10"
+              rx="1"
               fill={pal.fillDark}
               stroke={pal.stroke}
-              strokeWidth="1.5"
+              strokeWidth="1.3"
             />
             {/* Center stud recess & RTL cube count number */}
             <circle
               cx={x + cubeW / 2}
               cy={baseY + cubeH / 2}
-              r="9"
+              r="8.5"
               fill={pal.accent}
               stroke={pal.stroke}
-              strokeWidth="1.3"
+              strokeWidth="1.2"
             />
             <text
               x={x + cubeW / 2}
-              y={baseY + cubeH / 2 + 4}
+              y={baseY + cubeH / 2 + 4.5}
               textAnchor="middle"
-              fontSize="10.5"
+              fontSize="12"
               fontWeight="900"
               fill={pal.stroke}
             >
@@ -873,9 +899,9 @@ export function SnapCubesSvg({
         <g data-unsnapped-indicator="true">
           <line
             x1={startRightX - primary * cubeW - splitGap / 2}
-            y1={baseY - 10}
+            y1={baseY - 8}
             x2={startRightX - primary * cubeW - splitGap / 2}
-            y2={baseY + cubeH + 6}
+            y2={baseY + cubeH + 4}
             stroke="#6366F1"
             strokeWidth="2"
             strokeDasharray="3 3"
@@ -899,7 +925,7 @@ export function registerSnapCubesVisualModel(): void {
 
     return (
       <div
-        className="inline-flex flex-col items-center gap-1"
+        className="inline-flex flex-col items-center gap-0.5"
         data-visual-model="snap-cubes"
         data-count={formatEasternNumber(total)}
         data-separated={separated ? "true" : "false"}
@@ -910,12 +936,13 @@ export function registerSnapCubesVisualModel(): void {
           secondaryCount={secondary}
           separated={separated}
           orientation={orientation}
+          compact={Boolean(meta.compact)}
           colorTheme={model.colorTheme ?? "emerald"}
           secondaryColorTheme={
             (meta.secondaryColorTheme as ColorThemeId) ?? "amber"
           }
         />
-        <span className="text-xs font-bold text-slate-700">
+        <span className="hidden text-[13px] font-bold leading-tight text-slate-700">
           {toEasternArabicNumerals(model.labelAr)}
         </span>
       </div>
@@ -927,8 +954,10 @@ export type TallyMarksVariant = "tally" | "sticks" | "tally-and-sticks";
 
 export interface TallyMarksOptions {
   count: number;
+  secondaryCount?: number;
   variant?: TallyMarksVariant;
   colorTheme?: ColorThemeId;
+  secondaryColorTheme?: ColorThemeId;
   labelAr?: string;
 }
 
@@ -936,24 +965,32 @@ export function createTallyMarksSpec(
   options: TallyMarksOptions
 ): VisualModelSpec {
   const count = Math.max(1, Math.min(5, options.count));
+  const secondary = Math.max(0, Math.min(5, options.secondaryCount ?? 0));
   const variant = options.variant ?? "tally";
   const countAr = formatEasternNumber(count);
 
   const defaultLabelAr =
-    variant === "sticks"
-      ? `أعواد عدّ ملوّنة: ${countAr}`
-      : count === 5
-        ? `إشارات العدّ: حزمة خماسية (${countAr})`
-        : `إشارات العدّ: ${countAr}`;
+    secondary > 0
+      ? `تعبير إشارات العدّ: ${countAr} + ${formatEasternNumber(secondary)}`
+      : variant === "sticks"
+        ? `أعواد عدّ ملوّنة: ${countAr}`
+        : count === 5
+          ? `إشارات العدّ: حزمة خماسية (${countAr})`
+          : `إشارات العدّ: ${countAr}`;
 
   return {
     kind: "tally-marks",
-    id: `tally-marks-${count}-${variant}`,
+    id:
+      secondary > 0
+        ? `tally-marks-${count}-plus-${secondary}-${variant}`
+        : `tally-marks-${count}-${variant}`,
     labelAr: options.labelAr ?? defaultLabelAr,
     colorTheme: options.colorTheme ?? "amber",
     count,
+    secondaryCount: secondary > 0 ? secondary : undefined,
     meta: {
       variant,
+      secondaryColorTheme: options.secondaryColorTheme ?? "sky",
     },
   };
 }
@@ -962,10 +999,12 @@ export function TallyMarksSvg({
   count = 1,
   variant = "tally",
   colorTheme = "amber",
+  compact = false,
 }: {
   count?: number;
   variant?: TallyMarksVariant;
   colorTheme?: ColorThemeId;
+  compact?: boolean;
 }): React.ReactElement {
   const safeCount = Math.max(1, Math.min(5, count));
   const verticalCount = Math.min(4, safeCount);
@@ -974,16 +1013,18 @@ export function TallyMarksSvg({
 
   const showSticks = variant === "sticks" || variant === "tally-and-sticks";
   const showTally = variant === "tally" || variant === "tally-and-sticks";
-  const svgWidth = variant === "tally-and-sticks" ? 210 : 124;
+  const svgWidth = variant === "tally-and-sticks" ? 210 : compact ? 84 : 124;
 
   // RTL vertical positions for the 4 vertical strokes (right to left)
-  const tallyBaseRightX = variant === "tally-and-sticks" ? 190 : 98;
-  const spacing = 18;
+  const tallyBaseRightX =
+    variant === "tally-and-sticks" ? 190 : compact ? 68 : 98;
+  const spacing = compact ? 13 : 18;
+  const svgHeight = compact ? 40 : 68;
 
   return (
     <svg
       width={svgWidth}
-      height="68"
+      height={svgHeight}
       viewBox={`0 0 ${svgWidth} 68`}
       fill="none"
       aria-label={`إشارات العدّ: ${formatEasternNumber(safeCount)}`}
@@ -1138,11 +1179,44 @@ export function registerTallyMarksVisualModel(): void {
   registerVisualModel("tally-marks", ({ model }) => {
     const meta = (model.meta ?? {}) as Record<string, unknown>;
     const count = model.count ?? 1;
+    const secondary = model.secondaryCount ?? 0;
     const variant = (meta.variant as TallyMarksVariant) ?? "tally";
+    const secondaryTheme = (meta.secondaryColorTheme as ColorThemeId) ?? "sky";
+
+    if (secondary > 0) {
+      return (
+        <div
+          dir="rtl"
+          className="inline-flex items-center gap-1"
+          data-visual-model="tally-marks"
+          data-tally-expression="true"
+          data-direction="rtl"
+          data-part1={formatEasternNumber(count)}
+          data-part2={formatEasternNumber(secondary)}
+          data-count={formatEasternNumber(count + secondary)}
+        >
+          <TallyMarksSvg
+            count={count}
+            variant="tally"
+            colorTheme={model.colorTheme ?? "amber"}
+            compact
+          />
+          <span className="text-[28px] font-black leading-none text-indigo-700">
+            +
+          </span>
+          <TallyMarksSvg
+            count={secondary}
+            variant="tally"
+            colorTheme={secondaryTheme}
+            compact
+          />
+        </div>
+      );
+    }
 
     return (
       <div
-        className="inline-flex flex-col items-center gap-1"
+        className="inline-flex flex-col items-center gap-0.5"
         data-visual-model="tally-marks"
         data-count={formatEasternNumber(count)}
         data-has-fifth-slash={count >= 5 ? "true" : "false"}
@@ -1152,7 +1226,7 @@ export function registerTallyMarksVisualModel(): void {
           variant={variant}
           colorTheme={model.colorTheme ?? "amber"}
         />
-        <span className="text-xs font-bold text-slate-700">
+        <span className="text-[13px] font-bold leading-tight text-slate-700">
           {toEasternArabicNumerals(model.labelAr)}
         </span>
       </div>
@@ -1168,6 +1242,8 @@ export interface DicePatternOptions {
   diceVariant?: DicePatternVariant;
   colorTheme?: ColorThemeId;
   secondaryColorTheme?: ColorThemeId;
+  hideLabel?: boolean;
+  compact?: boolean;
   labelAr?: string;
 }
 
@@ -1203,6 +1279,8 @@ export function createDicePatternSpec(
     meta: {
       diceVariant,
       secondaryColorTheme: options.secondaryColorTheme ?? "sky",
+      hideLabel: Boolean(options.hideLabel),
+      compact: Boolean(options.compact),
     },
   };
 }
@@ -1240,12 +1318,14 @@ export function DicePatternSvg({
   diceVariant = "die",
   colorTheme = "coral",
   secondaryColorTheme = "sky",
+  compact = false,
 }: {
   count?: number;
   secondaryCount?: number;
   diceVariant?: DicePatternVariant;
   colorTheme?: ColorThemeId;
   secondaryColorTheme?: ColorThemeId;
+  compact?: boolean;
 }): React.ReactElement {
   const primary = Math.max(0, Math.min(5, count));
   const secondary = Math.max(0, Math.min(5 - primary, secondaryCount));
@@ -1261,8 +1341,8 @@ export function DicePatternSvg({
 
     return (
       <svg
-        width="140"
-        height="68"
+        width={compact ? "88" : "140"}
+        height={compact ? "40" : "68"}
         viewBox="0 0 140 68"
         fill="none"
         aria-label={`دومينو: ${formatEasternNumber(total)}`}
@@ -1325,8 +1405,8 @@ export function DicePatternSvg({
 
   return (
     <svg
-      width="68"
-      height="68"
+      width={compact ? "40" : "68"}
+      height={compact ? "40" : "68"}
       viewBox="0 0 68 68"
       fill="none"
       aria-label={`وجه النرد: ${formatEasternNumber(total)}`}
@@ -1393,10 +1473,12 @@ export function registerDicePatternVisualModel(): void {
     const secondary = model.secondaryCount ?? 0;
     const total = Math.max(1, primary + secondary);
     const diceVariant = (meta.diceVariant as DicePatternVariant) ?? "die";
+    const hideLabel = Boolean(meta.hideLabel);
+    const compact = Boolean(meta.compact);
 
     return (
       <div
-        className="inline-flex flex-col items-center gap-1"
+        className="inline-flex flex-col items-center gap-0.5"
         data-visual-model="dice-pattern"
         data-count={formatEasternNumber(total)}
         data-variant={diceVariant}
@@ -1409,8 +1491,11 @@ export function registerDicePatternVisualModel(): void {
           secondaryColorTheme={
             (meta.secondaryColorTheme as ColorThemeId) ?? "sky"
           }
+          compact={compact}
         />
-        <span className="text-xs font-bold text-slate-700">
+        <span
+          className={`${hideLabel ? "hidden " : ""}text-[13px] font-bold leading-tight text-slate-700`}
+        >
           {toEasternArabicNumerals(model.labelAr)}
         </span>
       </div>
@@ -1547,7 +1632,7 @@ export function CircularArrangementSvg({
             <circle
               cx={x}
               cy={y}
-              r="10.5"
+              r="11.5"
               fill={pal.fill}
               stroke={pal.stroke}
               strokeWidth={idx === 0 ? "2.6" : "1.8"}
@@ -1555,22 +1640,22 @@ export function CircularArrangementSvg({
             {/* Inner Motif Ring / Diamond */}
             {itemMotif === "gem" || isSecondary ? (
               <polygon
-                points={`${x},${y - 6.5} ${x + 6.5},${y} ${x},${y + 6.5} ${
-                  x - 6.5
+                points={`${x},${y - 7.5} ${x + 7.5},${y} ${x},${y + 7.5} ${
+                  x - 7.5
                 },${y}`}
                 fill={pal.accent}
                 stroke={pal.stroke}
                 strokeWidth="1"
               />
             ) : (
-              <circle cx={x} cy={y} r="6.5" fill={pal.accent} />
+              <circle cx={x} cy={y} r="7.5" fill={pal.accent} />
             )}
             {/* Eastern Arabic Number Label Inside Each Circular Node */}
             <text
               x={x}
-              y={y + 3.5}
+              y={y + 4.5}
               textAnchor="middle"
-              fontSize="9.5"
+              fontSize="12"
               fontWeight="900"
               fill={pal.stroke}
             >
@@ -1593,7 +1678,7 @@ export function registerCircularArrangementVisualModel(): void {
 
     return (
       <div
-        className="inline-flex flex-col items-center gap-1"
+        className="inline-flex flex-col items-center gap-0.5"
         data-visual-model="circular-arrangement"
         data-count={formatEasternNumber(total)}
       >
@@ -1608,7 +1693,7 @@ export function registerCircularArrangementVisualModel(): void {
             (meta.itemMotif as "star" | "flower" | "apple" | "gem") ?? "star"
           }
         />
-        <span className="text-xs font-bold text-slate-700">
+        <span className="text-[13px] font-bold leading-tight text-slate-700">
           {toEasternArabicNumerals(model.labelAr)}
         </span>
       </div>

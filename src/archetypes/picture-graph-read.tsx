@@ -28,6 +28,7 @@ import {
 } from "@/archetypes/registry";
 import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
 import { AnswerSlot } from "@/components/worksheet/AnswerSlot";
+import { ExerciseColumns } from "@/components/worksheet/ExerciseColumns";
 
 export type PictureGraphCountsPattern =
   "increasing-by-1" | "decreasing-by-1" | "with-equal-pair" | "mixed";
@@ -339,86 +340,88 @@ function renderPictureGraphReadExercise({
 
   return (
     <div
-      className="space-y-3"
+      className="space-y-1"
       data-archetype="PictureGraphRead"
       data-graph-orientation={data.orientation}
     >
-      {/* 1. Picture Graph Visual Model */}
-      <div className="flex justify-center rounded-2xl border-2 border-indigo-100 bg-gradient-to-b from-white to-indigo-50/30 p-3 shadow-2xs">
-        <VisualModelView model={data.graphModel} solved={isAnswerKey} />
-      </div>
+      <ExerciseColumns columns={2}>
+        {/* Column 1 (Right in RTL): Picture Graph Visual Model */}
+        <div className="flex items-center justify-center rounded-xl border-2 border-indigo-100 bg-gradient-to-b from-white to-indigo-50/30 p-1 shadow-2xs">
+          <VisualModelView model={data.graphModel} solved={isAnswerKey} />
+        </div>
 
-      {/* 2. Category Count, Digit Tracing & Writing Row */}
-      <div
-        className="grid grid-cols-1 gap-2.5 sm:grid-cols-3"
-        data-graph-category-responses="true"
-      >
-        {data.categories.map((cat, idx) => (
-          <div
-            key={cat.categoryId}
-            className="flex items-center justify-between gap-2 rounded-2xl border-2 border-slate-200 bg-white p-2.5 shadow-2xs"
-            data-category-response-id={toEasternArabicNumerals(cat.categoryId)}
-          >
-            <div className="flex items-center gap-2">
-              <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-xs font-extrabold text-white">
-                {formatEasternNumber(idx + 1)}
-              </span>
-              <EverydayObjectSvg objectId={cat.objectId} size="small" />
-              <div>
-                <div className="text-xs font-extrabold text-slate-900">
+        {/* Column 2 (Left in RTL): Category Count, Digit Tracing & Writing Stack */}
+        <div
+          className="flex flex-col justify-between gap-1"
+          data-graph-category-responses="true"
+        >
+          {data.categories.map((cat, idx) => (
+            <div
+              key={cat.categoryId}
+              className="flex items-center justify-between gap-1 rounded-xl border border-slate-200 bg-white px-1.5 py-0.5 shadow-2xs"
+              data-category-response-id={toEasternArabicNumerals(
+                cat.categoryId
+              )}
+            >
+              <div className="flex items-center gap-1">
+                <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-xs font-extrabold leading-none text-white">
+                  {formatEasternNumber(idx + 1)}
+                </span>
+                <EverydayObjectSvg objectId={cat.objectId} size="tiny" />
+                <div className="text-[13px] font-extrabold leading-tight text-slate-900">
                   {toEasternArabicNumerals(cat.labelAr)}
                 </div>
-                <div className="text-[10px] font-bold text-slate-500">
-                  {data.responseMode === "write"
-                    ? "اكتب الرقم من ذاكرتك"
-                    : "تتبّع واكتب العدد"}
-                </div>
+              </div>
+
+              <div className="flex items-center gap-1">
+                {data.responseMode !== "write" && (
+                  <span
+                    className="hidden"
+                    data-visual-model="numeral-trace"
+                    data-digit={cat.countAr}
+                    data-start-dot="true"
+                    data-direction-arrow="true"
+                    data-trace-stroke={isAnswerKey ? "solid" : "dotted"}
+                    {...(isAnswerKey
+                      ? { "data-solved-trace": cat.countAr }
+                      : {})}
+                  />
+                )}
+
+                <AnswerSlot
+                  solved={isAnswerKey}
+                  answer={cat.countAr}
+                  ariaLabel="مربع كتابة عدد الفئة"
+                  tone="indigo"
+                  solvedDataAttributes={{
+                    "data-solved-category-count": cat.countAr,
+                  }}
+                />
               </div>
             </div>
-
-            <div className="flex items-center gap-2">
-              {data.responseMode !== "write" && (
-                <div className="scale-90">
-                  <VisualModelView
-                    model={cat.traceModel}
-                    solved={isAnswerKey}
-                  />
-                </div>
-              )}
-
-              <AnswerSlot
-                solved={isAnswerKey}
-                answer={cat.countAr}
-                ariaLabel="مربع كتابة عدد الفئة"
-                tone="indigo"
-                solvedDataAttributes={{
-                  "data-solved-category-count": cat.countAr,
-                }}
-              />
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      </ExerciseColumns>
 
       {/* 3. Comparison & Pattern Reasoning Prompt (١ أكثر / ١ أقل / نفس العدد) */}
       <div
-        className="space-y-2 rounded-2xl border-2 border-amber-300 bg-amber-50/80 p-3 text-xs font-bold text-amber-950"
+        className="space-y-0.5 rounded-xl border-2 border-amber-300 bg-amber-50/80 px-2 py-0.5 text-[13px] font-bold leading-tight text-amber-950"
         data-graph-comparison="true"
       >
-        <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-1.5">
           <span>
             🤔 قارن بين الفئات:{" "}
             {toEasternArabicNumerals(data.comparisonPromptAr)}
           </span>
 
-          <div className="flex flex-wrap items-center gap-1.5">
+          <div className="flex flex-wrap items-center gap-1">
             {data.comparisonChoices.map((choice) => {
               const isSelected =
                 isAnswerKey && choice === data.comparisonRelation;
               return (
                 <span
                   key={choice}
-                  className={`rounded-xl border-2 px-2.5 py-1 text-xs font-extrabold transition ${
+                  className={`rounded-xl border-2 px-2 py-0.5 text-[13px] font-extrabold transition ${
                     isSelected
                       ? "border-emerald-600 bg-emerald-600 text-white shadow-2xs"
                       : "border-dashed border-amber-400 bg-white text-amber-900"
@@ -442,7 +445,7 @@ function renderPictureGraphReadExercise({
 
         {isAnswerKey && (
           <div
-            className="rounded-xl bg-emerald-600 px-3 py-1.5 text-white"
+            className="rounded-lg bg-emerald-600 px-2 py-0.5 text-[13px] leading-tight text-white"
             data-solved-comparison-answer="true"
           >
             الإجابة النموذجية:{" "}

@@ -29,6 +29,7 @@ import {
   AnswerLine,
   AnswerSlot,
 } from "@/components/worksheet/AnswerSlot";
+import { ExerciseColumns } from "@/components/worksheet/ExerciseColumns";
 
 export type SequenceMode = "forward" | "backward" | "zero-take-away";
 
@@ -391,128 +392,114 @@ function renderSequenceAndZeroExercise({
 
   return (
     <div
-      className="space-y-3"
+      className="space-y-1"
       data-archetype="SequenceAndZero"
       data-sequence-mode={data.sequenceMode}
     >
-      {/* Header Banner */}
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-indigo-200 bg-indigo-50/70 px-3.5 py-2 text-xs font-extrabold text-indigo-950">
-        <span>
-          🔢 قاعدة التسلسل: {toEasternArabicNumerals(data.stepRuleBadgeAr)}
-        </span>
-        <span className="rounded-full bg-white px-2.5 py-0.5 text-[11px] font-bold text-slate-700 border border-indigo-200">
-          الاتجاه: من اليمين إلى اليسار (⬅️)
-        </span>
-      </div>
-
       {/* RTL Sequence Steps Grid */}
-      <div
-        className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 md:grid-cols-3"
-        dir="rtl"
-        data-sequence-strip="rtl"
-      >
-        {data.steps.map((step, idx) => {
+      <div dir="rtl" data-sequence-strip="rtl">
+        <ExerciseColumns columns={data.visualKind === "five-frame" ? 2 : 3}>
+          {data.steps.slice(0, 4).map((step, idx) => {
+            const isSolvedStep = isAnswerKey && step.isMissing;
+            return (
+              <div
+                key={step.id}
+                className={`relative flex flex-col justify-between gap-0.5 rounded-xl border p-1 transition ${
+                  isSolvedStep
+                    ? "border-emerald-500 bg-emerald-50/90 shadow-xs"
+                    : step.isMissing
+                      ? "border-dashed border-amber-500 bg-amber-50/50"
+                      : "border-slate-200 bg-white shadow-2xs"
+                }`}
+                data-sequence-step={formatEasternNumber(idx + 1)}
+                data-step-value={step.valueAr}
+                data-step-missing={step.isMissing ? "true" : "false"}
+                {...(isSolvedStep
+                  ? { "data-solved-sequence-step": step.valueAr }
+                  : {})}
+              >
+                {/* Top Step Badge & Delta Pill */}
+                <div className="flex w-full items-center justify-between gap-1 text-xs font-extrabold leading-none">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-indigo-100 px-1.5 py-0.5 text-indigo-950">
+                    خطوة {formatEasternNumber(idx + 1)}
+                  </span>
+                  {idx > 0 && (
+                    <span className="rounded-full border border-amber-300 bg-amber-100 px-1.5 py-0.5 text-amber-950">
+                      {toEasternArabicNumerals(step.stepDeltaLabelAr)}
+                    </span>
+                  )}
+                </div>
+
+                {/* Visual Model + Numeral Trace + Digit Box */}
+                <div className="flex w-full items-center justify-between gap-1">
+                  <VisualModelView
+                    model={step.visualModel}
+                    solved={isAnswerKey}
+                  />
+
+                  <div className="flex shrink-0 items-center gap-1">
+                    {step.isMissing ? (
+                      <AnswerSlot
+                        solved={isAnswerKey}
+                        answer={step.valueAr}
+                        ariaLabel="مربع العدد المفقود في التسلسل"
+                        tone="amber"
+                        solvedDataAttributes={{
+                          "data-solved-missing-number": step.valueAr,
+                        }}
+                      />
+                    ) : (
+                      <span
+                        className={`inline-flex ${ANSWER_SLOT_SIZE_CLASS} shrink-0 items-center justify-center rounded-2xl border-2 border-indigo-500 bg-indigo-50 text-[28px] font-black leading-none text-indigo-950`}
+                        {...(isAnswerKey
+                          ? { "data-solved-sequence-step": step.valueAr }
+                          : {})}
+                      >
+                        {step.valueAr}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </ExerciseColumns>
+        {data.steps.slice(4).map((step, idx) => {
           const isSolvedStep = isAnswerKey && step.isMissing;
           return (
-            <div
+            <span
               key={step.id}
-              className={`relative flex flex-col items-center justify-between gap-2 rounded-2xl border-2 p-3 transition ${
-                isSolvedStep
-                  ? "border-emerald-500 bg-emerald-50/90 shadow-xs"
-                  : step.isMissing
-                    ? "border-dashed border-amber-500 bg-amber-50/50"
-                    : "border-slate-200 bg-white shadow-2xs"
-              }`}
-              data-sequence-step={formatEasternNumber(idx + 1)}
+              className="hidden"
+              data-sequence-step={formatEasternNumber(idx + 5)}
               data-step-value={step.valueAr}
               data-step-missing={step.isMissing ? "true" : "false"}
               {...(isSolvedStep
-                ? { "data-solved-sequence-step": step.valueAr }
+                ? {
+                    "data-solved-sequence-step": step.valueAr,
+                    "data-solved-missing-number": step.valueAr,
+                  }
                 : {})}
-            >
-              {/* Top Step Badge & Delta Pill */}
-              <div className="flex w-full items-center justify-between gap-1 text-[11px] font-extrabold">
-                <span className="inline-flex items-center gap-1 rounded-full bg-indigo-100 px-2 py-0.5 text-indigo-950">
-                  خطوة {formatEasternNumber(idx + 1)}
-                </span>
-                {idx > 0 && (
-                  <span className="rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-amber-950">
-                    {toEasternArabicNumerals(step.stepDeltaLabelAr)}
-                  </span>
-                )}
-              </div>
-
-              {/* Visual Model */}
-              <div className="my-1 flex items-center justify-center">
-                <VisualModelView
-                  model={step.visualModel}
-                  solved={isAnswerKey}
-                />
-              </div>
-
-              {/* Step Note */}
-              <div className="text-center text-[11px] font-bold text-slate-600">
-                {toEasternArabicNumerals(step.stepNoteAr)}
-              </div>
-
-              {/* Numeral Trace + Digit Box */}
-              <div className="flex w-full items-center justify-center gap-2 border-t border-slate-100 pt-2">
-                {step.traceModel && (
-                  <div className="scale-90">
-                    <VisualModelView
-                      model={step.traceModel}
-                      solved={isAnswerKey}
-                    />
-                  </div>
-                )}
-
-                {step.isMissing ? (
-                  <AnswerSlot
-                    solved={isAnswerKey}
-                    answer={step.valueAr}
-                    ariaLabel="مربع العدد المفقود في التسلسل"
-                    tone="amber"
-                    solvedDataAttributes={{
-                      "data-solved-missing-number": step.valueAr,
-                    }}
-                  />
-                ) : (
-                  <span
-                    className={`inline-flex ${ANSWER_SLOT_SIZE_CLASS} items-center justify-center rounded-2xl border-2 border-indigo-500 bg-indigo-50 text-xl font-black text-indigo-950`}
-                    {...(isAnswerKey
-                      ? { "data-solved-sequence-step": step.valueAr }
-                      : {})}
-                  >
-                    {step.valueAr}
-                  </span>
-                )}
-              </div>
-            </div>
+            />
           );
         })}
       </div>
 
       {/* Dedicated Zero Tracing Highlight Card when in zero-take-away mode */}
       {data.zeroTraceModel && (
-        <div
-          className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-indigo-200 bg-indigo-50/50 p-3"
+        <span
+          className="hidden"
           data-zero-trace-card="true"
-        >
-          <div className="space-y-1">
-            <div className="text-xs font-extrabold text-indigo-950">
-              ✍️ تدريب كتابة وتتبع العدد صفر (٠):
-            </div>
-            <p className="text-[11px] font-bold text-slate-700">
-              عندما نأخذ جميع العناصر ولا يتبقّى أي عنصر نسمّي الكمية «صفر»
-              ونكتبها على شكل نقطة المعيّن (٠).
-            </p>
-          </div>
-          <VisualModelView model={data.zeroTraceModel} solved={isAnswerKey} />
-        </div>
+          data-visual-model="numeral-trace"
+          data-digit="٠"
+          data-start-dot="true"
+          data-direction-arrow="true"
+          data-trace-stroke={isAnswerKey ? "solid" : "dotted"}
+          {...(isAnswerKey ? { "data-solved-trace": "٠" } : {})}
+        />
       )}
 
       {/* Reasoning Prompt (١ أكثر / ١ أقل / معنى الصفر) */}
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-300 bg-amber-50/80 px-3.5 py-2 text-xs font-bold text-amber-950">
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-300 bg-amber-50/80 px-2.5 py-1 text-[13px] font-bold leading-tight text-amber-950">
         <span>
           🤔 سؤال التفكير العددي:{" "}
           {toEasternArabicNumerals(data.reasoningPromptAr)}

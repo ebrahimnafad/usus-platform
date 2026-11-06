@@ -103,15 +103,12 @@ export type VisualModelKind =
   | "circular-arrangement"
   | "picture-graph"
   | "numeral-trace"
-  | "digit-card";
+  | "digit-card"
+  | "number-bond"
+  | "equation-strip";
 
 export type EverydayObjectCategory =
-  | "animals"
-  | "fruits"
-  | "toys"
-  | "school"
-  | "nature"
-  | "treats";
+  "animals" | "fruits" | "toys" | "school" | "nature" | "treats";
 
 export type EverydayObjectId =
   | "apple"
@@ -139,20 +136,10 @@ export type EverydayObjectId =
   | "cupcake";
 
 export type Shape2DId =
-  | "circle"
-  | "triangle"
-  | "square"
-  | "rectangle"
-  | "pentagon"
-  | "hexagon";
+  "circle" | "triangle" | "square" | "rectangle" | "pentagon" | "hexagon";
 
 export type Solid3DId =
-  | "sphere"
-  | "cone"
-  | "cylinder"
-  | "cube"
-  | "rectangular-prism"
-  | "pyramid";
+  "sphere" | "cone" | "cylinder" | "cube" | "rectangular-prism" | "pyramid";
 
 export type RealWorldSolidId =
   | "soup-can"
@@ -169,14 +156,7 @@ export type CoinDenomination = 1 | 5 | 10 | 25 | 50;
 export type VisualSize = "small" | "medium" | "large";
 
 export type ColorThemeId =
-  | "coral"
-  | "amber"
-  | "emerald"
-  | "sky"
-  | "violet"
-  | "rose"
-  | "teal"
-  | "indigo";
+  "coral" | "amber" | "emerald" | "sky" | "violet" | "rose" | "teal" | "indigo";
 
 export interface VisualModelSpec {
   kind: VisualModelKind;
@@ -205,7 +185,8 @@ export type ExerciseArchetypeId =
   | "ModelCountAndTrace"
   | "PictureGraphRead"
   | "SequenceAndZero"
-  | "SubitizePartWhole";
+  | "SubitizePartWhole"
+  | "JoinParts";
 
 export interface ConnectMatchPair {
   pairId: string;

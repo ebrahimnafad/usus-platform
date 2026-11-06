@@ -113,7 +113,14 @@ interface BuildWorksheetSectionInput {
     tier: LessonBlueprint["tiers"][DifficultyLevel]
   ) => BlueprintExerciseSpec[];
   startingExerciseNumber: number;
+  usedFacts: Set<string>;
 }
+
+const SECTION_MAX_EXERCISES: Record<SectionId, number> = {
+  "warm-up": 2,
+  practice: 4,
+  challenge: 2,
+};
 
 function buildWorksheetSection(input: BuildWorksheetSectionInput): {
   section: Section;
@@ -129,11 +136,12 @@ function buildWorksheetSection(input: BuildWorksheetSectionInput): {
     difficultyMode,
     pickSpecs,
     startingExerciseNumber,
+    usedFacts,
   } = input;
 
   const targetDifficulty = resolveSectionDifficulty(sectionId, difficultyMode);
   const tierSpec = blueprint.tiers[targetDifficulty];
-  const specs = pickSpecs(tierSpec);
+  const specs = pickSpecs(tierSpec).slice(0, SECTION_MAX_EXERCISES[sectionId]);
   const sectionRng = rootRng.fork(`section:${sectionId}:${sourceLessonId}`);
 
   const exercises: Exercise[] = specs.map((spec, idx) => {
@@ -150,6 +158,7 @@ function buildWorksheetSection(input: BuildWorksheetSectionInput): {
       difficultyLevel: targetDifficulty,
       rng: exRng,
       spec,
+      usedFacts,
     });
   });
 
@@ -204,6 +213,7 @@ export function generateWorksheet(
   );
 
   const rootRng = createSeededRandom(`${lesson.id}::${seed}`);
+  const usedFacts = new Set<string>();
 
   const warmUpBuilt = buildWorksheetSection({
     sectionId: "warm-up",
@@ -215,6 +225,7 @@ export function generateWorksheet(
     difficultyMode,
     pickSpecs: (tier) => tier.warmUp,
     startingExerciseNumber: 1,
+    usedFacts,
   });
 
   const practiceBuilt = buildWorksheetSection({
@@ -227,6 +238,7 @@ export function generateWorksheet(
     difficultyMode,
     pickSpecs: (tier) => tier.practice,
     startingExerciseNumber: warmUpBuilt.nextExerciseNumber,
+    usedFacts,
   });
 
   const challengeBuilt = buildWorksheetSection({
@@ -239,6 +251,7 @@ export function generateWorksheet(
     difficultyMode,
     pickSpecs: (tier) => tier.challenge,
     startingExerciseNumber: practiceBuilt.nextExerciseNumber,
+    usedFacts,
   });
 
   const authoredSections: [Section, Section, Section] = [

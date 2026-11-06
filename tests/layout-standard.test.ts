@@ -15,6 +15,7 @@ import {
 import { ExerciseColumns } from "@/components/worksheet/ExerciseColumns";
 import { renderWorksheetSurface } from "@/lib/render-worksheet-surface";
 import { exportWorksheetPdf, PRINT_SCALE } from "@/pdf/pdf-exporter";
+import { VisualModelView } from "@/visual-models/registry";
 
 let mockPdfPageCount = 3;
 
@@ -168,5 +169,186 @@ describe("Exercise layout primitives", () => {
     expect(prompts.length).toBe(cards.length);
     expect(html).toContain("width:660px");
     expect(html).toContain(`font-size: ${TYPE_SCALE_PX.metadata}px`);
+  });
+
+  it("§3.4 FiveFrameSvg renders a 240px wide frame with five 48×48px RTL cells and 13px cell labels", () => {
+    const html = renderWorksheetSurface({
+      grade: "K",
+      lessonNumber: 12,
+      seed: "LS-K12-FRAME",
+      viewMode: "worksheet",
+      difficultyLevel: "scaffolded",
+    });
+    expect(html).toContain('width="240"');
+    expect(html).toContain('viewBox="0 0 240 60"');
+    expect(html).toContain('data-cell-box="48x48"');
+    expect(html).not.toContain('font-size="8.5"');
+  });
+
+  it("§3.4 & §4 AnswerSlot and AnswerLine render exact canonical dimensions and type scale in worksheet and answer-key modes", () => {
+    const htmlW = renderWorksheetSurface({
+      grade: "K",
+      lessonNumber: 12,
+      seed: "LS-SLOT-SCALE",
+      viewMode: "worksheet",
+      difficultyLevel: "scaffolded",
+    });
+    const htmlA = renderWorksheetSurface({
+      grade: "K",
+      lessonNumber: 12,
+      seed: "LS-SLOT-SCALE",
+      viewMode: "answer-key",
+      difficultyLevel: "scaffolded",
+    });
+
+    // Solved AnswerLine must carry ANSWER_LINE_SIZE_CLASS (h-8 w-40 = 32×160px)
+    expect(htmlA).toMatch(
+      /data-answer-slot="solved-line"[^>]*class="[^"]*h-8 w-40/
+    );
+    // Digit AnswerSlot uses 28px (text-[28px])
+    expect(htmlW).toMatch(
+      /data-answer-slot="write"[^>]*class="[^"]*text-\[28px\]/
+    );
+    expect(htmlA).toMatch(
+      /data-answer-slot="solved-digit"[^>]*class="[^"]*text-\[28px\]/
+    );
+    // No sub-12px classes on WorksheetSurface chrome
+    expect(htmlW).not.toMatch(/text-\[(8|8\.5|9|9\.5|10|10\.5|11|11\.5)px\]/);
+    expect(htmlA).not.toMatch(/text-\[(8|8\.5|9|9\.5|10|10\.5|11|11\.5)px\]/);
+  });
+
+  it("§3.2 & §4 all seven archetypes use ExerciseColumns (1 / 2 / 3) and only constitution §4 type sizes (no text below 12px)", () => {
+    const archetypeLessons = [
+      { lessonNumber: 1, archetype: "ConnectMatch" },
+      { lessonNumber: 5, archetype: "ClassifyAndCount" },
+      { lessonNumber: 9, archetype: "PatternComplete" },
+      { lessonNumber: 12, archetype: "ModelCountAndTrace" },
+      { lessonNumber: 20, archetype: "PictureGraphRead" },
+      { lessonNumber: 22, archetype: "SequenceAndZero" },
+      { lessonNumber: 26, archetype: "SubitizePartWhole" },
+      { lessonNumber: 29, archetype: "JoinParts" },
+    ];
+
+    for (const { lessonNumber, archetype } of archetypeLessons) {
+      for (const viewMode of ["worksheet", "answer-key"] as const) {
+        const html = renderWorksheetSurface({
+          grade: "K",
+          lessonNumber,
+          seed: `ARCH-STD-K${lessonNumber}`,
+          viewMode,
+          difficultyLevel: "scaffolded",
+        });
+
+        expect(html, `${archetype} in K-${lessonNumber}`).toContain(
+          `data-archetype="${archetype}"`
+        );
+        expect(html, `${archetype} uses ExerciseColumns`).toMatch(
+          /data-exercise-columns="(one|two|three)"/
+        );
+        // No sub-12px or off-scale Tailwind classes
+        expect(
+          html,
+          `${archetype} (${viewMode}) has no sub-12px or off-scale text classes`
+        ).not.toMatch(
+          /text-\[(8|8\.5|9|9\.5|10|10\.5|11|11\.5)px\]|\btext-(sm|base|lg|xl|2xl|3xl|4xl)\b/
+        );
+      }
+    }
+  });
+
+  it("§3.4 NumberBond and EquationStrip Visual Models render exact canonical attributes, RTL ordering, and unknown/solved Answer Slots", () => {
+    const bondUnknownSpec = {
+      kind: "number-bond" as const,
+      id: "nb-3-2-unknown-total",
+      labelAr: "رابطة الأعداد: ٣ و٢",
+      count: 3,
+      secondaryCount: 2,
+      meta: {
+        part1: 3,
+        part2: 2,
+        total: 5,
+        missingPosition: "total",
+      },
+    };
+
+    const htmlBondW = renderToStaticMarkup(
+      React.createElement(VisualModelView, {
+        model: bondUnknownSpec,
+        solved: false,
+      })
+    );
+    const htmlBondA = renderToStaticMarkup(
+      React.createElement(VisualModelView, {
+        model: bondUnknownSpec,
+        solved: true,
+      })
+    );
+
+    expect(htmlBondW).toContain('data-visual-model="number-bond"');
+    expect(htmlBondW).toContain("width:212px");
+    expect(htmlBondW).toContain("height:160px");
+    expect(htmlBondW.match(/data-number-bond-circle=/g)).toHaveLength(3);
+    expect(htmlBondW).toContain('data-number-bond-circle="total"');
+    expect(htmlBondW).toContain('data-number-bond-circle="part-right"');
+    expect(htmlBondW).toContain('data-number-bond-circle="part-left"');
+    expect(htmlBondW).toContain('data-answer-slot="unknown"');
+    expect(htmlBondA).toContain('data-answer-slot="solved-digit"');
+    expect(htmlBondA).toContain("٥");
+
+    const eqStandardSpec = {
+      kind: "equation-strip" as const,
+      id: "eq-3-2-5",
+      labelAr: "معادلة الجمع: ٣ + ٢ = ٥",
+      count: 3,
+      secondaryCount: 2,
+      meta: {
+        part1: 3,
+        part2: 2,
+        total: 5,
+        missingPosition: "total",
+        layout: "standard",
+      },
+    };
+    const eqTotalFirstSpec = {
+      kind: "equation-strip" as const,
+      id: "eq-total-first-5-3-2",
+      labelAr: "معادلة الجمع: ٥ = ٣ + ٢",
+      count: 3,
+      secondaryCount: 2,
+      meta: {
+        part1: 3,
+        part2: 2,
+        total: 5,
+        missingPosition: "part1",
+        layout: "total-first",
+      },
+    };
+
+    const htmlEqW = renderToStaticMarkup(
+      React.createElement(VisualModelView, {
+        model: eqStandardSpec,
+        solved: false,
+      })
+    );
+    const htmlEqA = renderToStaticMarkup(
+      React.createElement(VisualModelView, {
+        model: eqStandardSpec,
+        solved: true,
+      })
+    );
+    const htmlEqTotalFirst = renderToStaticMarkup(
+      React.createElement(VisualModelView, {
+        model: eqTotalFirstSpec,
+        solved: false,
+      })
+    );
+
+    expect(htmlEqW).toContain('data-visual-model="equation-strip"');
+    expect(htmlEqW).toContain("height:48px");
+    expect(htmlEqW).toContain('data-equation-layout="standard"');
+    expect(htmlEqW).toContain('data-answer-slot="unknown"');
+    expect(htmlEqA).toContain('data-answer-slot="solved-digit"');
+    expect(htmlEqTotalFirst).toContain('data-equation-layout="total-first"');
+    expect(htmlEqTotalFirst).toContain('data-missing-position="part1"');
   });
 });

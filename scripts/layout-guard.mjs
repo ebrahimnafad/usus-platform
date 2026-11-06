@@ -7,11 +7,14 @@
 
 import { execFile, execFileSync, spawn } from "child_process";
 import fs from "fs";
+import http from "http";
 import path from "path";
+import { createRequire } from "module";
 import { fileURLToPath } from "url";
 import { promisify } from "util";
 import { chromium } from "playwright";
 
+const require = createRequire(import.meta.url);
 const execFileAsync = promisify(execFile);
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -44,7 +47,7 @@ function parseArgs(argv) {
     baseUrl: args["base-url"],
     lessons: args.lessons,
     seedCount: Math.min(SEEDS.length, Math.max(1, Number(args.seeds ?? 5))),
-    png: args.png ?? "all",
+    png: args.png ?? "first",
     concurrency: Math.max(1, Number(args.concurrency ?? 4)),
   };
 }
@@ -100,6 +103,35 @@ async function runPool(items, concurrency, worker) {
 }
 
 async function discoverAuthoredLessons(baseUrl) {
+  const blueprintsDir = path.join(ROOT, "src", "blueprints");
+  if (fs.existsSync(blueprintsDir)) {
+    const found = new Map();
+    const walk = (dir) => {
+      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        const full = path.join(dir, entry.name);
+        if (entry.isDirectory()) walk(full);
+        else if (entry.isFile() && /\.(ts|tsx)$/.test(entry.name)) {
+          const text = fs.readFileSync(full, "utf8");
+          for (const m of text.matchAll(
+            /lessonId:\s*["']([K1-5])-(\d+)["']/g
+          )) {
+            const grade = m[1];
+            const lesson = Number(m[2]);
+            found.set(`${grade}-${lesson}`, { grade, lesson });
+          }
+        }
+      }
+    };
+    walk(blueprintsDir);
+    if (found.size > 0) {
+      const gradeOrder = (grade) => GRADES.indexOf(grade);
+      return [...found.values()].sort(
+        (a, b) =>
+          gradeOrder(a.grade) - gradeOrder(b.grade) || a.lesson - b.lesson
+      );
+    }
+  }
+
   const candidates = GRADES.flatMap((grade) =>
     Array.from({ length: LESSONS_PER_GRADE }, (_, i) => ({
       grade,
@@ -118,7 +150,8 @@ async function discoverAuthoredLessons(baseUrl) {
         })
       )
     ).text();
-    if (!html.includes('data-fallback-preview="true"')) authored.push(candidate);
+    if (!html.includes('data-fallback-preview="true"'))
+      authored.push(candidate);
   });
   const gradeOrder = (grade) => GRADES.indexOf(grade);
   return authored.sort(
@@ -133,14 +166,26 @@ function measureSheet(std) {
   const sheet = document.querySelector(
     '.a4-sheet[data-worksheet-surface="true"]'
   );
-  if (!sheet) return [{ rule: "missing-sheet", page: 1, section: null, exercise: null, element: "<body>", detail: "No worksheet surface" }];
+  if (!sheet)
+    return [
+      {
+        rule: "missing-sheet",
+        page: 1,
+        section: null,
+        exercise: null,
+        element: "<body>",
+        detail: "No worksheet surface",
+      },
+    ];
 
   const sheetRect = sheet.getBoundingClientRect();
   const pageHeightPx = (std.printableAreaMm.height / 25.4) * 96;
   const pageOf = (el) =>
     Math.max(
       1,
-      Math.floor((el.getBoundingClientRect().top - sheetRect.top) / pageHeightPx) + 1
+      Math.floor(
+        (el.getBoundingClientRect().top - sheetRect.top) / pageHeightPx
+      ) + 1
     );
   const cards = [...sheet.querySelectorAll("[data-exercise-id]")];
   const where = (el) => {
@@ -156,7 +201,10 @@ function measureSheet(std) {
       .filter((attr) => attr.name.startsWith("data-"))
       .map((attr) => `${attr.name}="${attr.value}"`)
       .join(" ");
-    const text = (el.textContent ?? "").trim().replace(/\s+/g, " ").slice(0, 40);
+    const text = (el.textContent ?? "")
+      .trim()
+      .replace(/\s+/g, " ")
+      .slice(0, 40);
     return `<${el.tagName.toLowerCase()}${data ? " " + data : ""}>${text ? ` "${text}"` : ""}`;
   };
   const push = (rule, el, detail) =>
@@ -176,7 +224,8 @@ function measureSheet(std) {
       elementRect.bottom - containerRect.bottom
     );
   const isSvgInternal = (el) => el instanceof SVGElement && el.ownerSVGElement;
-  const NON_RENDERED_SVG = "defs, clipPath, mask, pattern, marker, symbol, linearGradient, radialGradient, filter, title, desc";
+  const NON_RENDERED_SVG =
+    "defs, clipPath, mask, pattern, marker, symbol, linearGradient, radialGradient, filter, title, desc";
 
   // 3.1 containment: page header and Sections inside the sheet, Section
   // chrome inside its Section, everything in a card inside that card.
@@ -187,31 +236,37 @@ function measureSheet(std) {
       const elementRect = el.getBoundingClientRect();
       if (!hasArea(elementRect)) continue;
       const over = Math.round(excess(elementRect, containerRect));
-      if (over > TOL) push("overflow", el, `extends ${over.toFixed(1)}px past its ${kind}`);
+      if (over > TOL)
+        push("overflow", el, `extends ${over.toFixed(1)}px past its ${kind}`);
     }
   };
   const header = sheet.querySelector("header");
   const sections = [...sheet.querySelectorAll("[data-section-id]")];
   containWithin(sheet, [header, ...sections].filter(Boolean), "sheet");
-  if (header) containWithin(header, header.querySelectorAll("*"), "page header");
+  if (header)
+    containWithin(header, header.querySelectorAll("*"), "page header");
   for (const section of sections) {
     const chrome = [...section.querySelectorAll("*")].filter(
-      (el) => !el.closest("[data-exercise-id]") || el.matches("[data-exercise-id]")
+      (el) =>
+        !el.closest("[data-exercise-id]") || el.matches("[data-exercise-id]")
     );
     containWithin(section, chrome, "section");
   }
-  for (const card of cards) containWithin(card, card.querySelectorAll("*"), "exercise card");
+  for (const card of cards)
+    containWithin(card, card.querySelectorAll("*"), "exercise card");
 
   // SVG content outside its viewport is silently clipped.
   for (const svg of sheet.querySelectorAll("svg")) {
     if (svg.ownerSVGElement || !isShown(svg)) continue;
     const containerRect = svg.getBoundingClientRect();
     for (const el of svg.querySelectorAll("*")) {
-      if (!(el instanceof SVGGraphicsElement) || el.closest(NON_RENDERED_SVG)) continue;
+      if (!(el instanceof SVGGraphicsElement) || el.closest(NON_RENDERED_SVG))
+        continue;
       const elementRect = el.getBoundingClientRect();
       if (!hasArea(elementRect)) continue;
       const over = Math.round(excess(elementRect, containerRect));
-      if (over > TOL) push("svg-clipped", el, `drawn ${over.toFixed(1)}px outside its SVG`);
+      if (over > TOL)
+        push("svg-clipped", el, `drawn ${over.toFixed(1)}px outside its SVG`);
     }
   }
 
@@ -222,7 +277,8 @@ function measureSheet(std) {
     if (cs.overflowX === "visible" && cs.overflowY === "visible") continue;
     const dx = el.scrollWidth - el.clientWidth;
     const dy = el.scrollHeight - el.clientHeight;
-    if (dx > 0 || dy > 0) push("clipped", el, `content clipped by ${Math.max(dx, dy)}px`);
+    if (dx > 0 || dy > 0)
+      push("clipped", el, `content clipped by ${Math.max(dx, dy)}px`);
   }
 
   // 3.1 overlapping siblings
@@ -240,13 +296,19 @@ function measureSheet(std) {
       for (let j = i + 1; j < kids.length; j++) {
         const secondRect = kids[j].getBoundingClientRect();
         const ix = Math.round(
-          Math.min(firstRect.right, secondRect.right) - Math.max(firstRect.left, secondRect.left)
+          Math.min(firstRect.right, secondRect.right) -
+            Math.max(firstRect.left, secondRect.left)
         );
         const iy = Math.round(
-          Math.min(firstRect.bottom, secondRect.bottom) - Math.max(firstRect.top, secondRect.top)
+          Math.min(firstRect.bottom, secondRect.bottom) -
+            Math.max(firstRect.top, secondRect.top)
         );
         if (ix > TOL && iy > TOL) {
-          push("overlap", kids[i], `overlaps ${label(kids[j])} by ${ix.toFixed(1)}×${iy.toFixed(1)}px`);
+          push(
+            "overlap",
+            kids[i],
+            `overlaps ${label(kids[j])} by ${ix.toFixed(1)}×${iy.toFixed(1)}px`
+          );
         }
       }
     }
@@ -256,7 +318,9 @@ function measureSheet(std) {
   for (const body of sheet.querySelectorAll('[data-exercise-body="true"]')) {
     if (!isShown(body)) continue;
     const elementRect = body.getBoundingClientRect();
-    if (Math.abs(Math.round(elementRect.width) - std.exerciseBodyWidthPx) > TOL) {
+    if (
+      Math.abs(Math.round(elementRect.width) - std.exerciseBodyWidthPx) > TOL
+    ) {
       push(
         "column-layout",
         body,
@@ -299,13 +363,29 @@ function measureSheet(std) {
   // 3.4 canonical sizes
   const sizes = std.canonicalSizesPx;
   const canonical = [
-    ['[data-answer-slot="unknown"], [data-answer-slot="write"], [data-answer-slot="solved-digit"]', sizes.answerSlotDigit, "Answer Slot"],
-    ['[data-answer-slot="line"], [data-answer-slot="solved-line"]', sizes.answerSlotLine, "Answer Slot line"],
+    [
+      '[data-answer-slot="unknown"], [data-answer-slot="write"], [data-answer-slot="solved-digit"]',
+      sizes.answerSlotDigit,
+      "Answer Slot",
+    ],
+    [
+      '[data-answer-slot="line"], [data-answer-slot="solved-line"]',
+      sizes.answerSlotLine,
+      "Answer Slot line",
+    ],
     ["[data-rtl-cell]", sizes.fiveFrameCell, "five-frame cell"],
-    ['[data-visual-model="five-frame"]', { width: sizes.fiveFrameWidth }, "five-frame"],
+    [
+      '[data-visual-model="five-frame"]',
+      { width: sizes.fiveFrameWidth },
+      "five-frame",
+    ],
     ['[data-visual-model="number-bond"]', sizes.numberBondBox, "Number Bond"],
     ["[data-number-bond-circle]", sizes.numberBondCircle, "Number Bond circle"],
-    ['[data-visual-model="equation-strip"]', { height: sizes.equationStripHeight }, "Equation Strip"],
+    [
+      '[data-visual-model="equation-strip"]',
+      { height: sizes.equationStripHeight },
+      "Equation Strip",
+    ],
   ];
   for (const [selector, size, name] of canonical) {
     for (const el of sheet.querySelectorAll(selector)) {
@@ -330,13 +410,15 @@ function measureSheet(std) {
 
   // 4.1 type scale
   const allowed = Object.values(std.typeScalePx);
-  const pictographOnly = /^[\p{Extended_Pictographic}\p{Emoji_Component}\uFE0F\u200D\s]+$/u;
+  const pictographOnly =
+    /^[\p{Extended_Pictographic}\p{Emoji_Component}\uFE0F\u200D\s]+$/u;
   const reportedSizes = new Set();
   const walker = document.createTreeWalker(sheet, NodeFilter.SHOW_TEXT);
   for (let node = walker.nextNode(); node; node = walker.nextNode()) {
     const text = node.textContent.trim();
     const parent = node.parentElement;
-    if (!text || pictographOnly.test(text) || !parent || !isShown(parent)) continue;
+    if (!text || pictographOnly.test(text) || !parent || !isShown(parent))
+      continue;
     if (parent.closest("style, script")) continue;
     let size = parseFloat(getComputedStyle(parent).fontSize);
     if (parent instanceof SVGElement) {
@@ -344,19 +426,29 @@ function measureSheet(std) {
       if (ctm) size *= Math.hypot(ctm.a, ctm.b);
     }
     const roundedSize = Math.round(size);
-    const onScale = allowed.some((allowedSize) => Math.abs(allowedSize - roundedSize) <= TOL);
+    const onScale = allowed.some(
+      (allowedSize) => Math.abs(allowedSize - roundedSize) <= TOL
+    );
     if (roundedSize < std.minTextPx || !onScale) {
       const key = `${size.toFixed(1)}|${where(parent).exercise}|${parent.tagName}`;
       if (reportedSizes.has(key)) continue;
       reportedSizes.add(key);
-      const rule = roundedSize < std.minTextPx ? "text-too-small" : "off-type-scale";
-      push(rule, parent, `${size.toFixed(1)}px (allowed: ${allowed.join(", ")}px)`);
+      const rule =
+        roundedSize < std.minTextPx ? "text-too-small" : "off-type-scale";
+      push(
+        rule,
+        parent,
+        `${size.toFixed(1)}px (allowed: ${allowed.join(", ")}px)`
+      );
     }
 
     // 3.1 text spilling out of its box
     if (parent instanceof SVGElement) continue;
     let box = parent;
-    while (box && ["inline", "contents"].includes(getComputedStyle(box).display)) {
+    while (
+      box &&
+      ["inline", "contents"].includes(getComputedStyle(box).display)
+    ) {
       box = box.parentElement;
     }
     if (!box) continue;
@@ -383,14 +475,20 @@ function measureSheet(std) {
         ) - glyphAllowance;
       const over = Math.round(Math.max(overX, overY));
       if (over > TOL) {
-        push("text-overflow", box, `text spills ${over.toFixed(1)}px out of its box`);
+        push(
+          "text-overflow",
+          box,
+          `text spills ${over.toFixed(1)}px out of its box`
+        );
         break;
       }
     }
   }
 
   // 4.2 prompt length
-  for (const prompt of sheet.querySelectorAll('[data-exercise-prompt="true"]')) {
+  for (const prompt of sheet.querySelectorAll(
+    '[data-exercise-prompt="true"]'
+  )) {
     const range = document.createRange();
     range.selectNodeContents(prompt);
     const tops = [];
@@ -403,7 +501,11 @@ function measureSheet(std) {
       }
     }
     if (tops.length > std.promptMaxLines) {
-      push("prompt-too-long", prompt, `${tops.length} lines (max ${std.promptMaxLines})`);
+      push(
+        "prompt-too-long",
+        prompt,
+        `${tops.length} lines (max ${std.promptMaxLines})`
+      );
     }
   }
 
@@ -422,7 +524,12 @@ function measureSheet(std) {
   }
   for (const section of sections) {
     const cs = getComputedStyle(section);
-    const chrome = ["borderTopWidth", "paddingTop", "paddingBottom", "borderBottomWidth"]
+    const chrome = [
+      "borderTopWidth",
+      "paddingTop",
+      "paddingBottom",
+      "borderBottomWidth",
+    ]
       .map((prop) => parseFloat(cs[prop]))
       .reduce((sum, val) => sum + val, 0);
     const sectionHeader = section.querySelector(":scope > :first-child");
@@ -442,10 +549,16 @@ function measureSheet(std) {
       : 0;
     section.querySelectorAll("[data-exercise-id]").forEach((card, i) => {
       const need = Math.round(
-        card.getBoundingClientRect().height + chrome + (i === 0 ? headerBlock : 0)
+        card.getBoundingClientRect().height +
+          chrome +
+          (i === 0 ? headerBlock : 0)
       );
       if (need > Math.round(pageHeightPx) + TOL) {
-        push("exercise-split", card, `needs ${need.toFixed(0)}px but a page holds ${pageHeightPx.toFixed(0)}px`);
+        push(
+          "exercise-split",
+          card,
+          `needs ${need.toFixed(0)}px but a page holds ${pageHeightPx.toFixed(0)}px`
+        );
       }
     });
   }
@@ -470,9 +583,25 @@ function findPdftoppm() {
 async function main() {
   const options = parseArgs(process.argv);
   let server = null;
+  let httpServer = null;
+  let viteServer = null;
+  let renderPrintMain = null;
+  let compiledCss = "";
   let baseUrl = options.baseUrl?.replace(/\/$/, "");
 
   const cleanup = () => {
+    if (httpServer) {
+      try {
+        httpServer.close();
+      } catch {
+        // ignore
+      }
+      httpServer = null;
+    }
+    if (viteServer) {
+      viteServer.close().catch(() => undefined);
+      viteServer = null;
+    }
     if (!server) return;
     try {
       if (process.platform === "win32") {
@@ -491,64 +620,185 @@ async function main() {
   process.on("SIGINT", () => process.exit(130));
 
   if (!baseUrl) {
-    baseUrl = `http://localhost:${PORT}`;
-    process.stdout.write(`Starting Next.js dev server on port ${PORT}...\n`);
-    server = spawn(`npx next dev -p ${PORT}`, {
-      cwd: ROOT,
-      shell: true,
-      stdio: "ignore",
+    process.stdout.write(
+      "Compiling print stylesheet and loading worksheet engine...\n"
+    );
+    const postcss = require("postcss");
+    const tailwind = require("@tailwindcss/postcss");
+    const globalsCssPath = path.join(ROOT, "src", "app", "globals.css");
+    const cssResult = await postcss([tailwind()]).process(
+      fs.readFileSync(globalsCssPath, "utf8"),
+      { from: globalsCssPath }
+    );
+    compiledCss = cssResult.css;
+
+    const { createServer } = await import("vite");
+    viteServer = await createServer({
+      server: { middlewareMode: true },
+      appType: "custom",
+      esbuild: { jsx: "automatic" },
+      resolve: { alias: { "@": path.join(ROOT, "src") } },
     });
+    const { renderWorksheetSurface } = await viteServer.ssrLoadModule(
+      "/src/lib/render-worksheet-surface.ts"
+    );
+    const { resolveStudioStateFromSearchParams } =
+      await viteServer.ssrLoadModule("/src/lib/studio-state.ts");
+
+    renderPrintMain = (job) => {
+      const state = resolveStudioStateFromSearchParams({
+        grade: job.grade,
+        lesson: String(job.lesson),
+        seed: job.seed,
+        difficulty: job.mode,
+        view: job.view,
+      });
+      const viewMode =
+        state.viewMode === "answer-key" ? "answer-key" : "worksheet";
+      const surfaceHtml = renderWorksheetSurface({
+        grade: state.grade,
+        lessonNumber: state.lessonNumber,
+        seed: state.seed,
+        difficultyLevel: state.difficultyLevel,
+        viewMode,
+      });
+      return `<main class="min-h-screen bg-white p-0">${surfaceHtml}</main>`;
+    };
+
+    httpServer = http.createServer((req, res) => {
+      try {
+        const u = new URL(req.url ?? "/print", "http://localhost");
+        const mainHtml = renderPrintMain({
+          grade: u.searchParams.get("grade") ?? "K",
+          lesson: u.searchParams.get("lesson") ?? "1",
+          seed: u.searchParams.get("seed") ?? "LG-WARM",
+          mode: u.searchParams.get("difficulty") ?? "scaffolded",
+          view: u.searchParams.get("view") ?? "worksheet",
+        });
+        res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+        res.end(
+          `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"/><style>${compiledCss}</style></head><body class="min-h-screen bg-slate-100 text-slate-900 antialiased">${mainHtml}</body></html>`
+        );
+      } catch (err) {
+        res.writeHead(500, { "Content-Type": "text/plain; charset=utf-8" });
+        res.end(String(err));
+      }
+    });
+    await new Promise((resolve) => httpServer.listen(0, "127.0.0.1", resolve));
+    const addr = httpServer.address();
+    baseUrl = `http://127.0.0.1:${addr.port}`;
+  } else {
+    await waitForUrl(`${baseUrl}/print?grade=K&lesson=1&seed=LG-WARM`, 180000);
   }
-  await waitForUrl(`${baseUrl}/print?grade=K&lesson=1&seed=LG-WARM`, 180000);
 
   const lessons =
-    parseLessonFilter(options.lessons) ?? (await discoverAuthoredLessons(baseUrl));
+    parseLessonFilter(options.lessons) ??
+    (await discoverAuthoredLessons(baseUrl));
   const seeds = SEEDS.slice(0, options.seedCount);
   const jobs = lessons.flatMap(({ grade, lesson }) =>
     seeds.flatMap((seed) =>
-      MODES.flatMap((mode) => VIEWS.map((view) => ({ grade, lesson, seed, mode, view })))
+      MODES.flatMap((mode) =>
+        VIEWS.map((view) => ({ grade, lesson, seed, mode, view }))
+      )
     )
   );
   process.stdout.write(
     `Checking ${lessons.length} lessons × ${seeds.length} seeds × ${MODES.length} modes × ${VIEWS.length} views = ${jobs.length} renders\n`
   );
 
-  fs.rmSync(OUTPUT_DIR, { recursive: true, force: true });
-  fs.mkdirSync(OUTPUT_DIR, { recursive: true });
-  const pdftoppm = options.png === "none" ? null : findPdftoppm();
-  if (options.png !== "none" && !pdftoppm) {
-    process.stdout.write(
-      "pdftoppm not found on PATH: falling back to Playwright fullPage screenshots for PNG output\n"
-    );
+  try {
+    fs.rmSync(OUTPUT_DIR, {
+      recursive: true,
+      force: true,
+      maxRetries: 3,
+      retryDelay: 200,
+    });
+  } catch {
+    // Directory may be open in Explorer on Windows; overwrite files in place
   }
+  fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 
   const browser = await chromium.launch({ channel: "msedge", headless: true });
-  const context = await browser.newContext({ viewport: { width: 900, height: 1200 } });
+  const context = await browser.newContext({
+    viewport: { width: 794, height: 1123 },
+  });
+  await context.route("https://**", (route) => route.abort());
   const pages = await Promise.all(
     Array.from({ length: options.concurrency }, async () => {
-      const page = await context.newPage();
-      await page.emulateMedia({ media: "print" });
-      return page;
+      const p = await context.newPage();
+      await p.goto(`${baseUrl}/print?grade=K&lesson=1&seed=LG-WARM`, {
+        waitUntil: "domcontentloaded",
+        timeout: 60000,
+      });
+      await p.emulateMedia({ media: "print" });
+      await p.addStyleTag({ content: PRINT_WIDTH_CSS });
+      await p.evaluate(() => document.fonts.ready);
+      return p;
     })
   );
 
   const results = [];
+  const pdfCache = new Map();
   let done = 0;
   await runPool(jobs, options.concurrency, async (job, slot) => {
     const page = pages[slot];
     const id = `${job.grade}-${job.lesson}`;
+    const cacheKey = `${id}|${job.mode}|${job.view}`;
     const violations = [];
     let pageCount = 0;
     try {
-      await page.goto(printUrl(baseUrl, job), { waitUntil: "load", timeout: 60000 });
-      await page.addStyleTag({ content: PRINT_WIDTH_CSS });
-      await page.evaluate(() => document.fonts.ready);
+      if (renderPrintMain) {
+        const mainHtml = renderPrintMain(job);
+        await page.evaluate((nextMainHtml) => {
+          const curMain = document.querySelector("main");
+          if (curMain) curMain.outerHTML = nextMainHtml;
+        }, mainHtml);
+      } else {
+        const res = await fetch(printUrl(baseUrl, job));
+        if (!res.ok)
+          throw new Error(`HTTP ${res.status} for ${printUrl(baseUrl, job)}`);
+        const html = await res.text();
+        await page.evaluate((rawHtml) => {
+          const doc = new DOMParser().parseFromString(rawHtml, "text/html");
+          const nextMain = doc.querySelector("main");
+          const curMain = document.querySelector("main");
+          if (nextMain && curMain) {
+            curMain.replaceWith(nextMain);
+          }
+        }, html);
+      }
       violations.push(...(await page.evaluate(measureSheet, STANDARD)));
 
-      const pdf = Buffer.from(
-        await page.pdf({ format: "A4", printBackground: true, preferCSSPageSize: true, scale: 1 })
-      );
-      pageCount = countPdfPages(pdf);
+      const sheetHeight = await page.evaluate(() => {
+        const s = document.querySelector(
+          '.a4-sheet[data-worksheet-surface="true"]'
+        );
+        return s ? Math.round(s.getBoundingClientRect().height) : 0;
+      });
+      const cached = pdfCache.get(cacheKey);
+      const wantPng =
+        options.png !== "none" &&
+        (options.png === "all" || job.seed === seeds[0]);
+
+      if (!cached || sheetHeight > cached.sheetHeight || wantPng) {
+        const pdf = Buffer.from(
+          await page.pdf({
+            format: "A4",
+            landscape: false,
+            printBackground: true,
+            preferCSSPageSize: true,
+            scale: 1,
+            margin: { top: "0mm", right: "0mm", bottom: "0mm", left: "0mm" },
+          })
+        );
+        pageCount = countPdfPages(pdf);
+        if (!cached || sheetHeight > cached.sheetHeight) {
+          pdfCache.set(cacheKey, { pageCount, sheetHeight });
+        }
+      } else {
+        pageCount = cached.pageCount;
+      }
+
       if (pageCount > STANDARD.pageBudget) {
         violations.push({
           rule: "page-budget",
@@ -560,23 +810,12 @@ async function main() {
         });
       }
 
-      const wantPng =
-        options.png !== "none" &&
-        (options.png === "all" || job.seed === seeds[0]);
       if (wantPng) {
         const dir = path.join(OUTPUT_DIR, "png", id, job.mode, job.view);
         fs.mkdirSync(dir, { recursive: true });
-        if (pdftoppm) {
-          const pdfPath = path.join(dir, `${job.seed}.pdf`);
-          fs.writeFileSync(pdfPath, pdf);
-          await execFileAsync(pdftoppm, ["-png", "-r", "96", pdfPath, path.join(dir, job.seed)]);
-          fs.rmSync(pdfPath);
-        } else {
-          await page.screenshot({
-            path: path.join(dir, `${job.seed}.png`),
-            fullPage: true,
-          });
-        }
+        await page.screenshot({
+          path: path.join(dir, `${job.seed}.png`),
+        });
       }
     } catch (error) {
       violations.push({
@@ -600,11 +839,18 @@ async function main() {
 
   const byLesson = new Map();
   for (const result of results) {
-    const entry = byLesson.get(result.id) ?? { lesson: result.id, renders: 0, failing: 0, maxPages: 0, rules: {} };
+    const entry = byLesson.get(result.id) ?? {
+      lesson: result.id,
+      renders: 0,
+      failing: 0,
+      maxPages: 0,
+      rules: {},
+    };
     entry.renders++;
     entry.maxPages = Math.max(entry.maxPages, result.pageCount);
     if (result.violations.length > 0) entry.failing++;
-    for (const v of result.violations) entry.rules[v.rule] = (entry.rules[v.rule] ?? 0) + 1;
+    for (const v of result.violations)
+      entry.rules[v.rule] = (entry.rules[v.rule] ?? 0) + 1;
     byLesson.set(result.id, entry);
   }
   const table = [...byLesson.values()].map((entry) => ({
@@ -612,7 +858,9 @@ async function main() {
     status: entry.failing === 0 ? "PASS" : "FAIL",
     "failing renders": `${entry.failing}/${entry.renders}`,
     "max pages": entry.maxPages,
-    violations: Object.entries(entry.rules).map(([rule, n]) => `${rule}×${n}`).join(" "),
+    violations: Object.entries(entry.rules)
+      .map(([rule, n]) => `${rule}×${n}`)
+      .join(" "),
   }));
   console.table(table);
 
@@ -637,7 +885,16 @@ async function main() {
   }
   fs.writeFileSync(
     path.join(OUTPUT_DIR, "report.json"),
-    JSON.stringify({ checkedAt: new Date().toISOString(), standard: STANDARD, failing, summary: table }, null, 2)
+    JSON.stringify(
+      {
+        checkedAt: new Date().toISOString(),
+        standard: STANDARD,
+        failing,
+        summary: table,
+      },
+      null,
+      2
+    )
   );
   process.stdout.write(
     `\n${failing.length === 0 ? "PASS" : "FAIL"}: ${failing.length}/${results.length} renders violate the constitution. Details: layout-guard-output/report.json\n`

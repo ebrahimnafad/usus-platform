@@ -115,7 +115,7 @@ describe("Primary Seam — Seeded Worksheet Generation & Determinism (Lesson K-1
 
     // Lesson K-1 exercises use ConnectMatch and Everyday Object SVG Bank visual models
     const allExercises = runA1.worksheet.sections.flatMap((s) => s.exercises);
-    expect(allExercises.length).toBeGreaterThanOrEqual(5);
+    expect(allExercises.length).toBeGreaterThanOrEqual(4);
     for (const ex of allExercises) {
       expect(ex.archetype).toBe("ConnectMatch");
       expect(ex.data.kind).toBe("ConnectMatch");

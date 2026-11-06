@@ -53,7 +53,7 @@ export function AnswerSlot({
     return (
       <span
         data-answer-slot="solved-digit"
-        className={`inline-flex ${ANSWER_SLOT_SIZE_CLASS} shrink-0 items-center justify-center rounded-2xl text-xl font-black shadow-xs ${
+        className={`inline-flex ${ANSWER_SLOT_SIZE_CLASS} shrink-0 items-center justify-center rounded-2xl text-[28px] font-black leading-none shadow-xs ${
           solvedClassName ?? "bg-emerald-600 text-white"
         } ${className}`}
         {...(solvedDataAttributes ?? {})}
@@ -68,7 +68,7 @@ export function AnswerSlot({
       data-answer-slot={kind}
       role="img"
       aria-label={ariaLabel}
-      className={`inline-flex ${ANSWER_SLOT_SIZE_CLASS} shrink-0 items-center justify-center rounded-2xl border-2 border-dashed text-xl font-black leading-none ${SLOT_TONES[tone]} ${className}`}
+      className={`inline-flex ${ANSWER_SLOT_SIZE_CLASS} shrink-0 items-center justify-center rounded-2xl border-2 border-dashed text-[28px] font-black leading-none ${SLOT_TONES[tone]} ${className}`}
     >
       {kind === "unknown" ? (
         <span aria-hidden="true" className="text-slate-400">
@@ -98,12 +98,19 @@ export function AnswerLine({
 }: AnswerLineProps): ReactElement {
   if (solved) {
     return (
-      <span
-        data-answer-slot="solved-line"
-        className="rounded-lg bg-emerald-600 px-2.5 py-1 text-white"
-        {...(solvedDataAttributes ?? {})}
-      >
-        الإجابة: {answer}
+      <span className="inline-flex flex-wrap items-center gap-2">
+        <span
+          data-answer-slot="solved-line"
+          className={`inline-flex ${ANSWER_LINE_SIZE_CLASS} shrink-0 items-center justify-center rounded-lg bg-emerald-600 px-2 text-[13px] font-extrabold leading-none text-white`}
+          {...(solvedDataAttributes ?? {})}
+        >
+          ✓ الإجابة النموذجية
+        </span>
+        {answer ? (
+          <span className="text-[13px] font-extrabold text-emerald-900">
+            {answer}
+          </span>
+        ) : null}
       </span>
     );
   }
@@ -113,7 +120,7 @@ export function AnswerLine({
       data-answer-slot="line"
       role="img"
       aria-label={ariaLabel}
-      className={`inline-block ${ANSWER_LINE_SIZE_CLASS} rounded-lg border-2 border-dashed border-amber-400 bg-white`}
+      className={`inline-block ${ANSWER_LINE_SIZE_CLASS} shrink-0 rounded-lg border-2 border-dashed border-amber-400 bg-white`}
     />
   );
 }

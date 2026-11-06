@@ -1,7 +1,10 @@
 import type { LessonBlueprint } from "@/domain/types";
 import { AUTHORED_LESSON_LOCALIZATION } from "@/curriculum/arabic-localization";
 import { registerLessonBlueprint } from "@/blueprints/registry";
-import { createEverydayObjectSpec, getEverydayObjectById } from "@/visual-models/everyday-objects";
+import {
+  createEverydayObjectSpec,
+  getEverydayObjectById,
+} from "@/visual-models/everyday-objects";
 import {
   createCoinSpec,
   createShape2DSpec,
@@ -97,37 +100,6 @@ export const lessonK12Blueprint: LessonBlueprint = {
             itemCount: 2,
           },
         },
-        {
-          archetype: "ModelCountAndTrace",
-          promptAr:
-            "أكمل رسم الأقراص المنقّطة على لوحة الخمسة لتمثيل العدد ثم تتبّع الرقم:",
-          strategyHintAr:
-            "لوّن الأقراص المنقّطة بالترتيب من اليمين إلى اليسار حتى يكتمل العدد المطلوب ثم تتبّع الرقم.",
-          params: {
-            modelKind: "five-frame",
-            itemCount: 2,
-            items: [
-              {
-                targetNumber: 3,
-                quantityModel: createFiveFrameSpec({
-                  count: 2,
-                  ghostTargetCount: 1,
-                  colorTheme: "coral",
-                }),
-                partWholeNoteAr: "قرصان مرسومان + قرص واحد نرسمه = ٣",
-              },
-              {
-                targetNumber: 4,
-                quantityModel: createFiveFrameSpec({
-                  count: 3,
-                  ghostTargetCount: 1,
-                  colorTheme: "violet",
-                }),
-                partWholeNoteAr: "٣ أقراص مرسومة + قرص واحد نرسمه = ٤",
-              },
-            ],
-          },
-        },
       ],
       challenge: [
         {
@@ -217,19 +189,6 @@ export const lessonK12Blueprint: LessonBlueprint = {
             ],
           },
         },
-        {
-          archetype: "ModelCountAndTrace",
-          promptAr:
-            "عدّ الأقراص على لوحات الخمسة من ١ إلى ٥ وتتبّع كل رقم بدقة على السطر:",
-          strategyHintAr:
-            "عندما تمتلئ جميع الخمس خانات في اللوحة فإن العدد الكلي هو ٥.",
-          params: {
-            modelKind: "five-frame",
-            targetNumbers: [1, 3, 4, 5],
-            itemCount: 3,
-            showPartWholeBreakdown: true,
-          },
-        },
       ],
       challenge: [
         {
@@ -245,8 +204,7 @@ export const lessonK12Blueprint: LessonBlueprint = {
             showPartWholeBreakdown: true,
             comparisonPromptAr:
               "إذا كان على لوحة الخمسة ٤ أقراص، فكم خانة فارغة تتبقّى لإكمال ٥؟",
-            comparisonAnswerAr:
-              "تتبقّى خانة فارغة واحدة (١)، لأن ٤ و١ يساوي ٥",
+            comparisonAnswerAr: "تتبقّى خانة فارغة واحدة (١)، لأن ٤ و١ يساوي ٥",
           },
         },
       ],
@@ -354,19 +312,6 @@ export const lessonK12Blueprint: LessonBlueprint = {
             ],
           },
         },
-        {
-          archetype: "ModelCountAndTrace",
-          promptAr:
-            "قارن بين لوحات الخمسة للأعداد (٣، ٤، ٥) وتتبّع كل رقم واكتبه:",
-          strategyHintAr:
-            "لاحظ أن كل عدد تالٍ يملأ خانة إضافية واحدة نحو اليسار على لوحة الخمسة.",
-          params: {
-            modelKind: "five-frame",
-            targetNumbers: [3, 4, 5],
-            itemCount: 3,
-            showPartWholeBreakdown: true,
-          },
-        },
       ],
       challenge: [
         {
@@ -413,8 +358,7 @@ export const lessonK12Blueprint: LessonBlueprint = {
             ],
             comparisonPromptAr:
               "لوحة خمسة فيها ٣ أقراص حمراء؛ كم قرصاً أزرق نحتاج لتمتلئ اللوحة بالكامل وتصبح ٥؟",
-            comparisonAnswerAr:
-              "نحتاج قرصين أزرقين (٢)، لأن ٣ و٢ يساوي ٥",
+            comparisonAnswerAr: "نحتاج قرصين أزرقين (٢)، لأن ٣ و٢ يساوي ٥",
           },
         },
       ],
@@ -517,8 +461,7 @@ export const lessonK13Blueprint: LessonBlueprint = {
           archetype: "ModelCountAndTrace",
           promptAr:
             "لاحظ المكعبات المفكوكة إلى جزأين، ثم اجمع الجزأين لتجد الكل وتتبّع الرقم:",
-          strategyHintAr:
-            "عندما نركّب الجزأين معاً نحصل على العدد الكلي نفسه.",
+          strategyHintAr: "عندما نركّب الجزأين معاً نحصل على العدد الكلي نفسه.",
           params: {
             modelKind: "snap-cubes",
             itemCount: 2,
@@ -548,45 +491,13 @@ export const lessonK13Blueprint: LessonBlueprint = {
             ],
           },
         },
-        {
-          archetype: "ModelCountAndTrace",
-          promptAr:
-            "عدّ أبراج المكعبات العمودية وتتبّع الرقم واكتبه في المربع:",
-          strategyHintAr:
-            "عدّ المكعبات من الأسفل إلى الأعلى لتعرف ارتفاع البرج.",
-          params: {
-            modelKind: "snap-cubes",
-            itemCount: 2,
-            items: [
-              {
-                targetNumber: 3,
-                quantityModel: createSnapCubesSpec({
-                  count: 3,
-                  orientation: "vertical",
-                  colorTheme: "sky",
-                }),
-                partWholeNoteAr: "برج عمودي من ٣ مكعبات",
-              },
-              {
-                targetNumber: 4,
-                quantityModel: createSnapCubesSpec({
-                  count: 4,
-                  orientation: "vertical",
-                  colorTheme: "emerald",
-                }),
-                partWholeNoteAr: "برج عمودي من ٤ مكعبات",
-              },
-            ],
-          },
-        },
       ],
       challenge: [
         {
           archetype: "ModelCountAndTrace",
           promptAr:
             "تحدّي فكّ وتركيب المكعبات: عدّ المكعبات وتتبّع الرقم ثم أجب:",
-          strategyHintAr:
-            "فكّ القطار إلى جزأين لا يغيّر العدد الكلي للمكعبات.",
+          strategyHintAr: "فكّ القطار إلى جزأين لا يغيّر العدد الكلي للمكعبات.",
           params: {
             modelKind: "snap-cubes",
             itemCount: 2,
@@ -614,8 +525,7 @@ export const lessonK13Blueprint: LessonBlueprint = {
             ],
             comparisonPromptAr:
               "قطار فيه ٤ مكعبات مترابطة؛ إذا فككناه إلى مكعبين ومكعبين (٢ و٢)، فكم يظلّ العدد الكلي للمكعبات؟",
-            comparisonAnswerAr:
-              "يظلّ العدد الكلي ٤ مكعبات، لأن ٢ و٢ يساوي ٤",
+            comparisonAnswerAr: "يظلّ العدد الكلي ٤ مكعبات، لأن ٢ و٢ يساوي ٤",
           },
         },
       ],
@@ -624,8 +534,7 @@ export const lessonK13Blueprint: LessonBlueprint = {
       warmUp: [
         {
           archetype: "ModelCountAndTrace",
-          promptAr:
-            "عدّ قطارات المكعبات المتداخلة وتتبّع الأرقام (٢، ٣):",
+          promptAr: "عدّ قطارات المكعبات المتداخلة وتتبّع الأرقام (٢، ٣):",
           strategyHintAr:
             "لاحظ الأرقام المكتوبة على كل مكعب من اليمين إلى اليسار.",
           params: {
@@ -728,38 +637,6 @@ export const lessonK13Blueprint: LessonBlueprint = {
             ],
           },
         },
-        {
-          archetype: "ModelCountAndTrace",
-          promptAr:
-            "قارن بين قطار المكعبات الأفقي وبرج المكعبات العمودي وتتبّع الأرقام:",
-          strategyHintAr:
-            "سواء ركّبنا المكعبات أفقياً أو عمودياً فإن العدد يظل كما هو.",
-          params: {
-            modelKind: "snap-cubes",
-            itemCount: 2,
-            items: [
-              {
-                targetNumber: 4,
-                quantityModel: createSnapCubesSpec({
-                  count: 4,
-                  orientation: "vertical",
-                  colorTheme: "teal",
-                }),
-                partWholeNoteAr: "برج عمودي من ٤ مكعبات",
-              },
-              {
-                targetNumber: 5,
-                quantityModel: createSnapCubesSpec({
-                  count: 5,
-                  orientation: "horizontal",
-                  separated: false,
-                  colorTheme: "coral",
-                }),
-                partWholeNoteAr: "قطار أفقي من ٥ مكعبات",
-              },
-            ],
-          },
-        },
       ],
       challenge: [
         {
@@ -797,8 +674,7 @@ export const lessonK13Blueprint: LessonBlueprint = {
             ],
             comparisonPromptAr:
               "إذا ركّبنا ٣ مكعبات خضراء مع مكعبين أحمرين (٢)، فكم مكعباً يصبح في القطار الكلي؟",
-            comparisonAnswerAr:
-              "يصبح في القطار الكلي ٥ مكعبات (٣ و٢ يساوي ٥)",
+            comparisonAnswerAr: "يصبح في القطار الكلي ٥ مكعبات (٣ و٢ يساوي ٥)",
           },
         },
       ],
@@ -936,19 +812,6 @@ export const lessonK13Blueprint: LessonBlueprint = {
             ],
           },
         },
-        {
-          archetype: "ModelCountAndTrace",
-          promptAr:
-            "حلّل مكوّنات الأعداد (٣، ٤، ٥) باستخدام المكعبات المتداخلة وتتبّع كل رقم:",
-          strategyHintAr:
-            "اكتب الرقم الكلي بعد التأكّد من مجموع الجزأين.",
-          params: {
-            modelKind: "snap-cubes",
-            targetNumbers: [3, 4, 5],
-            itemCount: 3,
-            showPartWholeBreakdown: true,
-          },
-        },
       ],
       challenge: [
         {
@@ -986,8 +849,7 @@ export const lessonK13Blueprint: LessonBlueprint = {
             ],
             comparisonPromptAr:
               "لدينا قطار من ٥ مكعبات؛ اذكر طريقتين لفكّه إلى جزأين أصغر.",
-            comparisonAnswerAr:
-              "يمكن فكّ ٥ إلى (٤ و١) أو إلى (٣ و٢)",
+            comparisonAnswerAr: "يمكن فكّ ٥ إلى (٤ و١) أو إلى (٣ و٢)",
           },
         },
       ],
@@ -1098,37 +960,6 @@ export const lessonK14Blueprint: LessonBlueprint = {
             ],
           },
         },
-        {
-          archetype: "ModelCountAndTrace",
-          promptAr:
-            "تعرّف على حزمة الخمسة (٤ خطوط عمودية وخط خامس مائل) وتتبّع الرقم ٥:",
-          strategyHintAr:
-            "الخط المائل الخامس يغلق الحزمة ليكوّن مجموعة واحدة من ٥.",
-          params: {
-            modelKind: "tally-marks",
-            itemCount: 2,
-            items: [
-              {
-                targetNumber: 4,
-                quantityModel: createTallyMarksSpec({
-                  count: 4,
-                  variant: "tally",
-                  colorTheme: "amber",
-                }),
-                partWholeNoteAr: "٤ إشارات عمودية",
-              },
-              {
-                targetNumber: 5,
-                quantityModel: createTallyMarksSpec({
-                  count: 5,
-                  variant: "tally",
-                  colorTheme: "coral",
-                }),
-                partWholeNoteAr: "٤ عمودية + ١ مائل يساوي حزمة من ٥",
-              },
-            ],
-          },
-        },
       ],
       challenge: [
         {
@@ -1174,8 +1005,7 @@ export const lessonK14Blueprint: LessonBlueprint = {
           archetype: "ModelCountAndTrace",
           promptAr:
             "عدّ إشارات العدّ والأعواد الملوّنة وتتبّع الأرقام (٢، ٣، ٤):",
-          strategyHintAr:
-            "عدّ الإشارات العمودية بالترتيب وتتبّع الرقم.",
+          strategyHintAr: "عدّ الإشارات العمودية بالترتيب وتتبّع الرقم.",
           params: {
             modelKind: "tally-marks",
             targetNumbers: [2, 3, 4],
@@ -1260,46 +1090,6 @@ export const lessonK14Blueprint: LessonBlueprint = {
                   colorTheme: "coral",
                 }),
                 partWholeNoteAr: "٥ أعواد وحزمة خماسية = ٥",
-              },
-            ],
-          },
-        },
-        {
-          archetype: "ModelCountAndTrace",
-          promptAr:
-            "عدّ حزم الأعواد وإشارات العدّ وتتبّع الأرقام (١، ٣، ٥):",
-          strategyHintAr:
-            "قارن بين إشارة واحدة، وثلاث إشارات، وحزمة خماسية كاملة.",
-          params: {
-            modelKind: "tally-marks",
-            itemCount: 3,
-            items: [
-              {
-                targetNumber: 1,
-                quantityModel: createTallyMarksSpec({
-                  count: 1,
-                  variant: "sticks",
-                  colorTheme: "sky",
-                }),
-                partWholeNoteAr: "عود واحد (١)",
-              },
-              {
-                targetNumber: 3,
-                quantityModel: createTallyMarksSpec({
-                  count: 3,
-                  variant: "sticks",
-                  colorTheme: "emerald",
-                }),
-                partWholeNoteAr: "٣ أعواد ملوّنة",
-              },
-              {
-                targetNumber: 5,
-                quantityModel: createTallyMarksSpec({
-                  count: 5,
-                  variant: "sticks",
-                  colorTheme: "coral",
-                }),
-                partWholeNoteAr: "٤ أعواد عمودية وعود خامس مائل = ٥",
               },
             ],
           },
@@ -1458,46 +1248,6 @@ export const lessonK14Blueprint: LessonBlueprint = {
             ],
           },
         },
-        {
-          archetype: "ModelCountAndTrace",
-          promptAr:
-            "مثّل الأعداد بالأعواد وإشارات العدّ وتتبّع كل رقم (١، ٣، ٥):",
-          strategyHintAr:
-            "الخط الخامس المائل يجمع الأربعة السابقة ليكوّن مجموعة واحدة من ٥.",
-          params: {
-            modelKind: "tally-marks",
-            itemCount: 3,
-            items: [
-              {
-                targetNumber: 1,
-                quantityModel: createTallyMarksSpec({
-                  count: 1,
-                  variant: "tally",
-                  colorTheme: "indigo",
-                }),
-                partWholeNoteAr: "إشارة واحدة (١)",
-              },
-              {
-                targetNumber: 3,
-                quantityModel: createTallyMarksSpec({
-                  count: 3,
-                  variant: "tally",
-                  colorTheme: "emerald",
-                }),
-                partWholeNoteAr: "٣ إشارات عمودية",
-              },
-              {
-                targetNumber: 5,
-                quantityModel: createTallyMarksSpec({
-                  count: 5,
-                  variant: "tally",
-                  colorTheme: "rose",
-                }),
-                partWholeNoteAr: "حزمة خماسية كاملة (٥)",
-              },
-            ],
-          },
-        },
       ],
       challenge: [
         {
@@ -1636,8 +1386,7 @@ export const lessonK15Blueprint: LessonBlueprint = {
           archetype: "ModelCountAndTrace",
           promptAr:
             "لاحظ الأجزاء الملوّنة على أوجه النرد للأعداد (٣، ٤) وتتبّع كل رقم:",
-          strategyHintAr:
-            "العدد ٤ على النرد يتكوّن من مجموعتين من ٢ (٢ و٢).",
+          strategyHintAr: "العدد ٤ على النرد يتكوّن من مجموعتين من ٢ (٢ و٢).",
           params: {
             modelKind: "dice-pattern",
             itemCount: 2,
@@ -1661,39 +1410,6 @@ export const lessonK15Blueprint: LessonBlueprint = {
                   secondaryColorTheme: "amber",
                 }),
                 partWholeNoteAr: "٤ هي مجموعتان من ٢ (٢ و٢)",
-              },
-            ],
-          },
-        },
-        {
-          archetype: "ModelCountAndTrace",
-          promptAr:
-            "تعرّف على نمط العدد ٥ على النرد وتتبّع الرقم واكتبه:",
-          strategyHintAr:
-            "العدد ٥ على النرد هو ٤ نقاط في الزوايا ونقطة ١ في الوسط.",
-          params: {
-            modelKind: "dice-pattern",
-            itemCount: 2,
-            items: [
-              {
-                targetNumber: 4,
-                quantityModel: createDicePatternSpec({
-                  count: 2,
-                  secondaryCount: 2,
-                  colorTheme: "emerald",
-                  secondaryColorTheme: "coral",
-                }),
-                partWholeNoteAr: "٤ نقاط في الزوايا (٢ و٢)",
-              },
-              {
-                targetNumber: 5,
-                quantityModel: createDicePatternSpec({
-                  count: 4,
-                  secondaryCount: 1,
-                  colorTheme: "coral",
-                  secondaryColorTheme: "sky",
-                }),
-                partWholeNoteAr: "٥ هي ٤ في الزوايا و١ في الوسط",
               },
             ],
           },
@@ -1743,8 +1459,7 @@ export const lessonK15Blueprint: LessonBlueprint = {
       warmUp: [
         {
           archetype: "ModelCountAndTrace",
-          promptAr:
-            "تعرّف على أنماط النقاط على النرد وتتبّع الأرقام (٢، ٣):",
+          promptAr: "تعرّف على أنماط النقاط على النرد وتتبّع الأرقام (٢، ٣):",
           strategyHintAr:
             "انظر إلى مجموعات النقاط الملوّنة لتعرف العدد دون عدّ فردي.",
           params: {
@@ -1760,8 +1475,7 @@ export const lessonK15Blueprint: LessonBlueprint = {
           archetype: "ModelCountAndTrace",
           promptAr:
             "استخدم التفكير في الأجزاء والكل على أوجه النرد لتحديد العدد (٣، ٤، ٥) وتتبّع الرقم:",
-          strategyHintAr:
-            "٣ هي (٢ و١)، و٤ هي (٢ و٢)، و٥ هي (٤ و١ في الوسط).",
+          strategyHintAr: "٣ هي (٢ و١)، و٤ هي (٢ و٢)، و٥ هي (٤ و١ في الوسط).",
           params: {
             modelKind: "dice-pattern",
             itemCount: 3,
@@ -1845,19 +1559,6 @@ export const lessonK15Blueprint: LessonBlueprint = {
             ],
           },
         },
-        {
-          archetype: "ModelCountAndTrace",
-          promptAr:
-            "تعرّف بسرعة على أنماط النرد والدومينو وتتبّع الأرقام (١، ٤، ٥):",
-          strategyHintAr:
-            "لاحظ تماثل النقاط في الزوايا لتعرف العدد بلمحة واحدة.",
-          params: {
-            modelKind: "dice-pattern",
-            targetNumbers: [1, 4, 5],
-            itemCount: 3,
-            showPartWholeBreakdown: true,
-          },
-        },
       ],
       challenge: [
         {
@@ -1905,8 +1606,7 @@ export const lessonK15Blueprint: LessonBlueprint = {
           archetype: "ModelCountAndTrace",
           promptAr:
             "تهيئة متقدّمة: تعرّف على أنماط النرد والدومينو وتتبّع الأرقام (٣، ٤، ٥):",
-          strategyHintAr:
-            "استخدم الأجزاء الملوّنة لتحديد الكل فوراً.",
+          strategyHintAr: "استخدم الأجزاء الملوّنة لتحديد الكل فوراً.",
           params: {
             modelKind: "dice-pattern",
             targetNumbers: [3, 4, 5],
@@ -1987,8 +1687,7 @@ export const lessonK15Blueprint: LessonBlueprint = {
           archetype: "ModelCountAndTrace",
           promptAr:
             "اجمع أجزاء النقاط على بطاقات الدومينو وتتبّع الرقم الكلي واكتبه:",
-          strategyHintAr:
-            "لاحظ كيف تكوّن الأجزاء المختلفة نفس العدد الكلي.",
+          strategyHintAr: "لاحظ كيف تكوّن الأجزاء المختلفة نفس العدد الكلي.",
           params: {
             modelKind: "dice-pattern",
             itemCount: 3,
@@ -2027,19 +1726,6 @@ export const lessonK15Blueprint: LessonBlueprint = {
                 partWholeNoteAr: "٤ و١ يساوي ٥",
               },
             ],
-          },
-        },
-        {
-          archetype: "ModelCountAndTrace",
-          promptAr:
-            "حدّد العدد الكلي من أنماط النرد الملوّنة وتتبّع كل رقم (٣، ٤، ٥):",
-          strategyHintAr:
-            "اعتمد على المجموعات الفرعية الملوّنة لمعرفة العدد في لمحة واحدة.",
-          params: {
-            modelKind: "dice-pattern",
-            targetNumbers: [3, 4, 5],
-            itemCount: 3,
-            showPartWholeBreakdown: true,
           },
         },
       ],
@@ -2190,18 +1876,6 @@ export const lessonK16Blueprint: LessonBlueprint = {
             ],
           },
         },
-        {
-          archetype: "ModelCountAndTrace",
-          promptAr:
-            "عدّ العناصر في الترتيب الدائري للأعداد (٤، ٥) وتتبّع الرقم واكتبه:",
-          strategyHintAr:
-            "توقّف عند آخر عنصر قبل نقطة البداية حتى لا تعدّ العنصر الأول مرّتين.",
-          params: {
-            modelKind: "circular-arrangement",
-            targetNumbers: [4, 5],
-            itemCount: 2,
-          },
-        },
       ],
       challenge: [
         {
@@ -2226,10 +1900,8 @@ export const lessonK16Blueprint: LessonBlueprint = {
       warmUp: [
         {
           archetype: "ModelCountAndTrace",
-          promptAr:
-            "عدّ العناصر في الترتيب الدائري وتتبّع الأرقام (٢، ٣، ٤):",
-          strategyHintAr:
-            "ابدأ من العلامة الخضراء أعلى الدائرة وعدّ بالترتيب.",
+          promptAr: "عدّ العناصر في الترتيب الدائري وتتبّع الأرقام (٢، ٣، ٤):",
+          strategyHintAr: "ابدأ من العلامة الخضراء أعلى الدائرة وعدّ بالترتيب.",
           params: {
             modelKind: "circular-arrangement",
             targetNumbers: [2, 3, 4],
@@ -2294,19 +1966,6 @@ export const lessonK16Blueprint: LessonBlueprint = {
             showPartWholeBreakdown: true,
           },
         },
-        {
-          archetype: "ModelCountAndTrace",
-          promptAr:
-            "قارن بين الحلقات الدائرية للأعداد (٢، ٣، ٥) وتتبّع كل رقم:",
-          strategyHintAr:
-            "استخدم الأجزاء الصغيرة المعروفة حول الدائرة لتحديد العدد الكلي بسرعة.",
-          params: {
-            modelKind: "circular-arrangement",
-            targetNumbers: [2, 3, 5],
-            itemCount: 3,
-            showPartWholeBreakdown: true,
-          },
-        },
       ],
       challenge: [
         {
@@ -2342,8 +2001,7 @@ export const lessonK16Blueprint: LessonBlueprint = {
             ],
             comparisonPromptAr:
               "على الحلقة الدائرية ٣ عناصر خضراء وعنصران أحمران (٢)؛ كم عنصراً في الدائرة كلها؟",
-            comparisonAnswerAr:
-              "في الدائرة كلها ٥ عناصر، لأن ٣ و٢ يساوي ٥",
+            comparisonAnswerAr: "في الدائرة كلها ٥ عناصر، لأن ٣ و٢ يساوي ٥",
           },
         },
       ],
@@ -2354,8 +2012,7 @@ export const lessonK16Blueprint: LessonBlueprint = {
           archetype: "ModelCountAndTrace",
           promptAr:
             "تهيئة متقدّمة: حدّد العدد الكلي في كل ترتيب دائري بالاعتماد على الأجزاء وتتبّع الرقم:",
-          strategyHintAr:
-            "اجمع المجموعتين الفرعيتين حول الدائرة وتتبّع الرقم.",
+          strategyHintAr: "اجمع المجموعتين الفرعيتين حول الدائرة وتتبّع الرقم.",
           params: {
             modelKind: "circular-arrangement",
             targetNumbers: [3, 4, 5],
@@ -2435,19 +2092,6 @@ export const lessonK16Blueprint: LessonBlueprint = {
           params: {
             modelKind: "circular-arrangement",
             targetNumbers: [3, 4, 5],
-            itemCount: 3,
-            showPartWholeBreakdown: true,
-          },
-        },
-        {
-          archetype: "ModelCountAndTrace",
-          promptAr:
-            "مثّل الأعداد (٢، ٤، ٥) في ترتيب دائري وتتبّع كل رقم:",
-          strategyHintAr:
-            "تحقّق من عدد العناصر حول المحيط الدائري ثم اكتب الرقم على السطر.",
-          params: {
-            modelKind: "circular-arrangement",
-            targetNumbers: [2, 4, 5],
             itemCount: 3,
             showPartWholeBreakdown: true,
           },
@@ -2659,26 +2303,12 @@ export const lessonK17Blueprint: LessonBlueprint = {
           archetype: "ConnectMatch",
           promptAr:
             "اعرف عدد الأشياء بالعدّ أو التعرّف السريع ثم صل كل مجموعة برقمها (٣ مجموعات):",
-          strategyHintAr:
-            "مجموعتان من ٢ تعطيان ٤، و٣ مع ٢ تعطي ٥.",
+          strategyHintAr: "مجموعتان من ٢ تعطيان ٤، و٣ مع ٢ تعطي ٥.",
           params: {
             pairCount: 3,
             rightColumnTitleAr: "الأشياء (مجموعات فرعية)",
             leftColumnTitleAr: "الرقم المطابق",
             customCandidatePairs: K17_OBJECT_QUANTITY_PAIRS.slice(1, 5),
-          },
-        },
-        {
-          archetype: "ConnectMatch",
-          promptAr:
-            "صل كل مجموعة أشياء ببطاقة تتبّع الرقم المطابق لها (٣ مجموعات):",
-          strategyHintAr:
-            "حدّد العدد الكلي للمجموعة أولاً ثم تتبّع الرقم المتصل بها.",
-          params: {
-            pairCount: 3,
-            rightColumnTitleAr: "مجموعة الأشياء",
-            leftColumnTitleAr: "تتبّع الرقم",
-            customCandidatePairs: K17_OBJECT_TRACE_PAIRS.slice(0, 4),
           },
         },
       ],
@@ -2696,8 +2326,7 @@ export const lessonK17Blueprint: LessonBlueprint = {
             customCandidatePairs: K17_OBJECT_QUANTITY_PAIRS.slice(1, 4),
             comparisonPromptAr:
               "إذا رأيت في المجموعة نجمتين (٢) وبجانبهما نجمتين (٢)، فما الرقم الذي تصل به المجموعة؟",
-            comparisonAnswerAr:
-              "نصلها بالرقم ٤، لأن ٢ و٢ يساوي ٤",
+            comparisonAnswerAr: "نصلها بالرقم ٤، لأن ٢ و٢ يساوي ٤",
           },
         },
       ],
@@ -2743,19 +2372,6 @@ export const lessonK17Blueprint: LessonBlueprint = {
             rightColumnTitleAr: "الأشياء المصوّرة",
             leftColumnTitleAr: "تتبّع الرقم",
             customCandidatePairs: K17_OBJECT_TRACE_PAIRS,
-          },
-        },
-        {
-          archetype: "ConnectMatch",
-          promptAr:
-            "تعرّف على عدد العناصر في كل مجموعة دون عدّ فردي إن أمكن وصلها برقمها (٤ مجموعات):",
-          strategyHintAr:
-            "رؤية المجموعات داخل المجموعات هي الخطوة الأولى لبناء تفكير الأجزاء والكل.",
-          params: {
-            pairCount: 4,
-            rightColumnTitleAr: "المجموعة",
-            leftColumnTitleAr: "الرقم",
-            customCandidatePairs: K17_OBJECT_QUANTITY_PAIRS.slice(1, 5),
           },
         },
       ],
@@ -2820,19 +2436,6 @@ export const lessonK17Blueprint: LessonBlueprint = {
             rightColumnTitleAr: "مجموعات الأشياء",
             leftColumnTitleAr: "تتبّع الأرقام ١–٥",
             customCandidatePairs: K17_OBJECT_TRACE_PAIRS,
-          },
-        },
-        {
-          archetype: "ConnectMatch",
-          promptAr:
-            "طابق واحداً لواحد بين مجموعات الأشياء الخمس والأرقام العربية الشرقية (٥ مجموعات):",
-          strategyHintAr:
-            "تأكّد من أن كل كمية من ١ إلى ٥ تتصل برقم واحد مطابق لها.",
-          params: {
-            pairCount: 5,
-            rightColumnTitleAr: "العمود الأيمن",
-            leftColumnTitleAr: "العمود الأيسر",
-            customCandidatePairs: K17_OBJECT_QUANTITY_PAIRS,
           },
         },
       ],
@@ -3002,7 +2605,10 @@ export const lessonK18Blueprint: LessonBlueprint = {
             pairCount: 3,
             rightColumnTitleAr: "مجموعة الأشكال والمجسّمات",
             leftColumnTitleAr: "الرقم المطابق",
-            customCandidatePairs: K18_SHAPE_AND_SOLID_QUANTITY_PAIRS.slice(0, 3),
+            customCandidatePairs: K18_SHAPE_AND_SOLID_QUANTITY_PAIRS.slice(
+              0,
+              3
+            ),
           },
         },
       ],
@@ -3017,7 +2623,10 @@ export const lessonK18Blueprint: LessonBlueprint = {
             pairCount: 3,
             rightColumnTitleAr: "مجموعة الأشكال",
             leftColumnTitleAr: "الرقم",
-            customCandidatePairs: K18_SHAPE_AND_SOLID_QUANTITY_PAIRS.slice(0, 4),
+            customCandidatePairs: K18_SHAPE_AND_SOLID_QUANTITY_PAIRS.slice(
+              0,
+              4
+            ),
           },
         },
         {
@@ -3030,20 +2639,10 @@ export const lessonK18Blueprint: LessonBlueprint = {
             pairCount: 3,
             rightColumnTitleAr: "الأشكال والمجسّمات",
             leftColumnTitleAr: "الرقم الصحيح",
-            customCandidatePairs: K18_SHAPE_AND_SOLID_QUANTITY_PAIRS.slice(1, 5),
-          },
-        },
-        {
-          archetype: "ConnectMatch",
-          promptAr:
-            "صل كل مجموعة هندسية ببطاقة تتبّع الرقم المطابق لعددها (٣ مجموعات):",
-          strategyHintAr:
-            "عدّ المجسّمات والأشكال بدقة ثم تتبّع الرقم المتصل بها.",
-          params: {
-            pairCount: 3,
-            rightColumnTitleAr: "المجموعة الهندسية",
-            leftColumnTitleAr: "تتبّع الرقم",
-            customCandidatePairs: K18_MIXED_GEOMETRY_TRACE_PAIRS.slice(0, 4),
+            customCandidatePairs: K18_SHAPE_AND_SOLID_QUANTITY_PAIRS.slice(
+              1,
+              5
+            ),
           },
         },
       ],
@@ -3058,7 +2657,10 @@ export const lessonK18Blueprint: LessonBlueprint = {
             pairCount: 3,
             rightColumnTitleAr: "الأشكال الهندسية",
             leftColumnTitleAr: "الرقم",
-            customCandidatePairs: K18_SHAPE_AND_SOLID_QUANTITY_PAIRS.slice(1, 4),
+            customCandidatePairs: K18_SHAPE_AND_SOLID_QUANTITY_PAIRS.slice(
+              1,
+              4
+            ),
             comparisonPromptAr:
               "إذا كان لدينا ٤ أسطوانات مرتّبة في مجموعتين (٢ و٢)، فبأي رقم نصلها؟",
             comparisonAnswerAr:
@@ -3079,7 +2681,10 @@ export const lessonK18Blueprint: LessonBlueprint = {
             pairCount: 4,
             rightColumnTitleAr: "الأشكال والمجسّمات",
             leftColumnTitleAr: "الأرقام",
-            customCandidatePairs: K18_SHAPE_AND_SOLID_QUANTITY_PAIRS.slice(0, 4),
+            customCandidatePairs: K18_SHAPE_AND_SOLID_QUANTITY_PAIRS.slice(
+              0,
+              4
+            ),
           },
         },
       ],
@@ -3108,19 +2713,6 @@ export const lessonK18Blueprint: LessonBlueprint = {
             rightColumnTitleAr: "المجموعة الهندسية",
             leftColumnTitleAr: "تتبّع الرقم",
             customCandidatePairs: K18_MIXED_GEOMETRY_TRACE_PAIRS,
-          },
-        },
-        {
-          archetype: "ConnectMatch",
-          promptAr:
-            "قارن أعداد الأشكال المستوية والمجسّمات في كل صفّ وصلها بالرقم المناسب (٤ مجموعات):",
-          strategyHintAr:
-            "كل مجموعة لها عدد فريد من ١ إلى ٥؛ تأكّد من توصيل كل مجموعة برقمها.",
-          params: {
-            pairCount: 4,
-            rightColumnTitleAr: "الأشكال والمجسّمات",
-            leftColumnTitleAr: "الرقم",
-            customCandidatePairs: K18_SHAPE_AND_SOLID_QUANTITY_PAIRS.slice(1, 5),
           },
         },
       ],
@@ -3185,19 +2777,6 @@ export const lessonK18Blueprint: LessonBlueprint = {
             rightColumnTitleAr: "المجموعات الهندسية",
             leftColumnTitleAr: "تتبّع الأرقام ١–٥",
             customCandidatePairs: K18_MIXED_GEOMETRY_TRACE_PAIRS,
-          },
-        },
-        {
-          archetype: "ConnectMatch",
-          promptAr:
-            "طابق واحداً لواحد بين المجموعات الهندسية الخمس والأرقام العربية الشرقية (٥ مجموعات):",
-          strategyHintAr:
-            "افحص كل مجموعة بدقة وتأكّد من اتصالها بالرقم الصحيح.",
-          params: {
-            pairCount: 5,
-            rightColumnTitleAr: "العمود الأيمن",
-            leftColumnTitleAr: "العمود الأيسر",
-            customCandidatePairs: K18_SHAPE_AND_SOLID_QUANTITY_PAIRS,
           },
         },
       ],
@@ -3389,19 +2968,6 @@ export const lessonK19Blueprint: LessonBlueprint = {
             customCandidatePairs: K19_COIN_COUNTER_PAIRS.slice(1, 5),
           },
         },
-        {
-          archetype: "ConnectMatch",
-          promptAr:
-            "صل كل مجموعة عملات ببطاقة تتبّع الرقم المطابق لعددها (٣ مجموعات):",
-          strategyHintAr:
-            "عدّ العملات كقطع عدّ ثم تتبّع الرقم المتصل بها.",
-          params: {
-            pairCount: 3,
-            rightColumnTitleAr: "مجموعة العملات",
-            leftColumnTitleAr: "تتبّع الرقم",
-            customCandidatePairs: K19_COIN_TRACE_PAIRS.slice(0, 4),
-          },
-        },
       ],
       challenge: [
         {
@@ -3466,19 +3032,6 @@ export const lessonK19Blueprint: LessonBlueprint = {
             customCandidatePairs: K19_COIN_TRACE_PAIRS,
           },
         },
-        {
-          archetype: "ConnectMatch",
-          promptAr:
-            "اعرف عدد العملات بالتعرّف السريع وصل كل مجموعة برقمها (٤ مجموعات):",
-          strategyHintAr:
-            "تذكّر أننا نعدّ عدد قطع العملات في كل صندوق (من ١ إلى ٥).",
-          params: {
-            pairCount: 4,
-            rightColumnTitleAr: "مجموعة العملات",
-            leftColumnTitleAr: "عدد القطع",
-            customCandidatePairs: K19_COIN_COUNTER_PAIRS.slice(1, 5),
-          },
-        },
       ],
       challenge: [
         {
@@ -3506,8 +3059,7 @@ export const lessonK19Blueprint: LessonBlueprint = {
           archetype: "ConnectMatch",
           promptAr:
             "تهيئة متقدّمة: صل مجموعات العملات الخمس (من ١ إلى ٥ عملات) بأرقامها (٥ مجموعات):",
-          strategyHintAr:
-            "عدّ قطع العملات في كل مجموعة وصلها بالرقم المطابق.",
+          strategyHintAr: "عدّ قطع العملات في كل مجموعة وصلها بالرقم المطابق.",
           params: {
             pairCount: 5,
             rightColumnTitleAr: "مجموعات العملات ١–٥",
@@ -3543,19 +3095,6 @@ export const lessonK19Blueprint: LessonBlueprint = {
             customCandidatePairs: K19_COIN_TRACE_PAIRS,
           },
         },
-        {
-          archetype: "ConnectMatch",
-          promptAr:
-            "طابق واحداً لواحد بين مجموعات العملات الخمس والأرقام العربية الشرقية (٥ مجموعات):",
-          strategyHintAr:
-            "تحقّق من عدد العملات في كل صفّ قبل التوصيل.",
-          params: {
-            pairCount: 5,
-            rightColumnTitleAr: "العمود الأيمن",
-            leftColumnTitleAr: "العمود الأيسر",
-            customCandidatePairs: K19_COIN_COUNTER_PAIRS,
-          },
-        },
       ],
       challenge: [
         {
@@ -3571,8 +3110,7 @@ export const lessonK19Blueprint: LessonBlueprint = {
             customCandidatePairs: K19_COIN_TRACE_PAIRS,
             comparisonPromptAr:
               "لدينا ٣ عملات نحاسية وعملتان فضيتان (٢)؛ كم عملة لدينا في المجموع عند عدّ كل عملة بـ ١؟",
-            comparisonAnswerAr:
-              "لدينا ٥ عملات في المجموع، لأن ٣ و٢ يساوي ٥",
+            comparisonAnswerAr: "لدينا ٥ عملات في المجموع، لأن ٣ و٢ يساوي ٥",
           },
         },
       ],

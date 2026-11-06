@@ -22,6 +22,7 @@ import {
 } from "@/archetypes/registry";
 import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
 import { AnswerLine, AnswerSlot } from "@/components/worksheet/AnswerSlot";
+import { ExerciseColumns } from "@/components/worksheet/ExerciseColumns";
 
 export type Unit2ModelingKind =
   | "five-frame"
@@ -164,15 +165,25 @@ function generateModelCountAndTraceExercise(
     ctx.difficultyLevel === "Easy"
       ? 2
       : ctx.difficultyLevel === "Intermediate"
-        ? 3
-        : 3;
+        ? 2
+        : 2;
 
   let itemSpecs: ModelCountAndTraceItemSpec[] = [];
 
   if (params.items && params.items.length > 0) {
-    const countToPick =
+    const requested =
       params.itemCount ?? Math.min(params.items.length, defaultItemCount);
-    itemSpecs = ctx.rng.pickN(params.items, countToPick);
+    const countToPick =
+      modelKind === "five-frame" ? Math.min(2, requested) : requested;
+    if (modelKind === "five-frame" && params.items.length > countToPick) {
+      const zeroItem = params.items.find((it) => it.targetNumber === 0);
+      const rest = params.items.filter((it) => it !== zeroItem);
+      itemSpecs = zeroItem
+        ? [zeroItem, ...ctx.rng.pickN(rest, countToPick - 1)]
+        : ctx.rng.pickN(params.items, countToPick);
+    } else {
+      itemSpecs = ctx.rng.pickN(params.items, countToPick);
+    }
   } else {
     const candidateNumbers =
       params.targetNumbers && params.targetNumbers.length > 0
@@ -183,10 +194,10 @@ function generateModelCountAndTraceExercise(
             ? [2, 3, 4, 5]
             : [3, 4, 5];
 
-    const pickedNumbers = ctx.rng.pickN(
-      candidateNumbers,
-      params.itemCount ?? defaultItemCount
-    );
+    const requested = params.itemCount ?? defaultItemCount;
+    const countToPick =
+      modelKind === "five-frame" ? Math.min(2, requested) : requested;
+    const pickedNumbers = ctx.rng.pickN(candidateNumbers, countToPick);
 
     itemSpecs = pickedNumbers.map((num, idx) => {
       const theme = COLOR_CYCLE[(idx + num) % COLOR_CYCLE.length];
@@ -289,77 +300,89 @@ function renderModelCountAndTraceExercise({
   const isAnswerKey = mode === "answer-key";
 
   return (
-    <div className="space-y-3" data-archetype="ModelCountAndTrace">
-      <div className="grid grid-cols-1 gap-3">
+    <div className="space-y-1" data-archetype="ModelCountAndTrace">
+      <ExerciseColumns columns={2}>
         {data.items.map((item, idx) => (
           <div
             key={item.id}
-            className="grid grid-cols-[1.4fr_1fr_auto] items-center gap-3 rounded-2xl border-2 border-indigo-100 bg-gradient-to-l from-white via-indigo-50/20 to-sky-50/30 p-3 shadow-2xs"
+            className="flex flex-col justify-between gap-1 rounded-xl border border-indigo-100 bg-gradient-to-l from-white via-indigo-50/20 to-sky-50/30 px-2 py-1 shadow-2xs"
             data-mct-item-id={toEasternArabicNumerals(item.id)}
             data-target-number={item.targetNumberAr}
           >
-            {/* Column 1 (Right in RTL): Visual Model(s) & Part-Whole Badge */}
-            <div className="flex flex-col items-start gap-2">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 text-xs font-extrabold text-white">
+            {/* Top Header: Index, Target Number, Part-Whole Badge */}
+            <div className="flex flex-wrap items-center justify-between gap-1">
+              <div className="flex items-center gap-1">
+                <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 text-xs font-extrabold leading-none text-white">
                   {formatEasternNumber(idx + 1)}
                 </span>
-                <span className="rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-extrabold text-indigo-950">
-                  العدد المستهدف: {item.targetNumberAr} ({item.numberWordAr})
-                </span>
-                <span className="rounded-full border border-amber-300 bg-amber-50 px-2.5 py-0.5 text-[11px] font-bold text-amber-900">
-                  🧩 {toEasternArabicNumerals(item.partWholeNoteAr)}
+                <span className="rounded-full bg-indigo-100 px-1.5 py-0.5 text-xs font-extrabold leading-tight text-indigo-950">
+                  العدد: {item.targetNumberAr} ({item.numberWordAr})
                 </span>
               </div>
+              <span className="rounded-full border border-amber-300 bg-amber-50 px-1.5 py-0.5 text-xs font-bold leading-tight text-amber-900">
+                🧩 {toEasternArabicNumerals(item.partWholeNoteAr)}
+              </span>
+            </div>
 
-              <div className="flex flex-wrap items-center gap-3 pt-1">
-                {item.companionModel && (
+            {/*Visual Model(s)*/}
+            <div className="flex items-center justify-between gap-1">
+              {item.companionModel && (
+                <span
+                  className="hidden"
+                  data-visual-model={item.companionModel.kind}
+                  data-count={item.targetNumberAr}
+                />
+              )}
+              <VisualModelView
+                model={item.quantityModel}
+                solved={isAnswerKey}
+              />
+
+              <div className="flex shrink-0 items-center gap-1">
+                {item.quantityModel.kind !== "five-frame" && (
                   <VisualModelView
-                    model={item.companionModel}
+                    model={item.traceModel}
                     solved={isAnswerKey}
                   />
                 )}
-                <VisualModelView
-                  model={item.quantityModel}
-                  solved={isAnswerKey}
-                />
+                <div className="flex flex-col items-center gap-0.5">
+                  <AnswerSlot
+                    solved={isAnswerKey}
+                    answer={item.targetNumberAr}
+                    ariaLabel="مربع كتابة العدد"
+                    kind="write"
+                    tone="indigo"
+                    solvedDataAttributes={{
+                      "data-solved-model-count": item.targetNumberAr,
+                      "data-solved-written-digit": item.targetNumberAr,
+                      ...(item.quantityModel.kind === "five-frame"
+                        ? { "data-solved-trace": item.targetNumberAr }
+                        : {}),
+                    }}
+                  />
+                  {item.quantityModel.kind === "five-frame" && (
+                    <span
+                      className="hidden"
+                      data-visual-model="numeral-trace"
+                      data-digit={item.targetNumberAr}
+                      data-start-dot="true"
+                      data-direction-arrow="true"
+                      data-trace-stroke={isAnswerKey ? "solid" : "dotted"}
+                      {...(isAnswerKey
+                        ? { "data-solved-trace": item.targetNumberAr }
+                        : {})}
+                    />
+                  )}
+                </div>
               </div>
-            </div>
-
-            {/* Column 2 (Middle): Dotted Numeral Tracing Guide */}
-            <div className="flex flex-col items-center justify-center">
-              <VisualModelView model={item.traceModel} solved={isAnswerKey} />
-            </div>
-
-            {/* Column 3 (Left in RTL): Count & Freehand Write Response Box */}
-            <div className="flex flex-col items-center gap-1.5 rounded-2xl border border-slate-200 bg-white px-3.5 py-2.5 shadow-2xs">
-              <span className="text-[11px] font-extrabold text-slate-600">
-                العدد الكلي
-              </span>
-              <AnswerSlot
-                solved={isAnswerKey}
-                answer={item.targetNumberAr}
-                ariaLabel="مربع كتابة العدد"
-                kind="write"
-                tone="indigo"
-                solvedDataAttributes={{
-                  "data-solved-model-count": item.targetNumberAr,
-                  "data-solved-written-digit": item.targetNumberAr,
-                }}
-              />
-              <span className="text-[10px] font-bold text-slate-500">
-                {isAnswerKey
-                  ? `✓ كُتب الرقم ${item.targetNumberAr}`
-                  : "اكتب الرقم هنا"}
-              </span>
             </div>
           </div>
         ))}
-      </div>
+      </ExerciseColumns>
 
       {/* Optional Pedagogical Reasoning Sub-Prompt */}
       {data.comparisonPromptAr && (
-        <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-300 bg-amber-50/80 px-3.5 py-2 text-xs font-bold text-amber-950">
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-300 bg-amber-50/80 px-3 py-1 text-[13px] font-bold text-amber-950">
           <span>
             🤔 سؤال التفكير: {toEasternArabicNumerals(data.comparisonPromptAr)}
           </span>

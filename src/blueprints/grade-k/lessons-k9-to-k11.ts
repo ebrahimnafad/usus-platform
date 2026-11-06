@@ -68,29 +68,8 @@ export const lessonK9Blueprint: LessonBlueprint = {
             domainMode: "shapes-2d",
             candidateShapeIds: ["circle", "triangle", "square"],
             choiceCount: 3,
-            attributePromptAr:
-              "كم ضلعاً للمثلث؟ وكم زاوية له؟",
-            attributeAnswerAr:
-              "للمثلث ٣ أضلاع مستقيمة و٣ زوايا",
-          },
-        },
-        {
-          archetype: "PatternComplete",
-          promptAr:
-            "أكمل النمط الثنائي للأشكال المستوية من اليمين إلى اليسار باختيار الشكل الأخير المفقود:",
-          strategyHintAr:
-            "افحص عدد الأضلاع والزوايا في الشكلين المتكررين (أ، ب) واختر الشكل المطابق للخانة السادسة.",
-          params: {
-            unitRule: "AB",
-            direction: "forward",
-            sequenceLength: 6,
-            domainMode: "shapes-2d",
-            candidateShapeIds: ["triangle", "square"],
-            choiceCount: 3,
-            attributePromptAr:
-              "كم ضلعاً وكم زاوية للمربع؟ وكيف يختلف عن المثلث؟",
-            attributeAnswerAr:
-              "للمربع ٤ أضلاع متساوية و٤ زوايا، بينما للمثلث ٣ أضلاع و٣ زوايا",
+            attributePromptAr: "كم ضلعاً للمثلث؟ وكم زاوية له؟",
+            attributeAnswerAr: "للمثلث ٣ أضلاع مستقيمة و٣ زوايا",
           },
         },
       ],
@@ -146,7 +125,13 @@ export const lessonK9Blueprint: LessonBlueprint = {
             direction: "forward",
             sequenceLength: 6,
             domainMode: "everyday-objects",
-            candidateObjectIds: ["pencil", "book", "backpack", "crayon", "star"],
+            candidateObjectIds: [
+              "pencil",
+              "book",
+              "backpack",
+              "crayon",
+              "star",
+            ],
             choiceCount: 3,
           },
         },
@@ -169,25 +154,6 @@ export const lessonK9Blueprint: LessonBlueprint = {
               "للمثلث ٣ أضلاع و٣ زوايا، وللمربع ٤ أضلاع متساوية و٤ زوايا",
           },
         },
-        {
-          archetype: "PatternComplete",
-          promptAr:
-            "أكمل النمط الثنائي للأشكال المستوية (خماسي، سداسي، مربع، مثلث) باختيار الشكل الأخير المفقود:",
-          strategyHintAr:
-            "عدّ أضلاع الشكلين في وحدة النمط (أ، ب) لتتأكّد من اختيار المضلّع الصحيح للخانة السادسة.",
-          params: {
-            unitRule: "AB",
-            direction: "forward",
-            sequenceLength: 6,
-            domainMode: "shapes-2d",
-            candidateShapeIds: ["triangle", "square", "pentagon", "hexagon"],
-            choiceCount: 3,
-            attributePromptAr:
-              "كم ضلعاً وكم زاوية للخماسي؟ وكم ضلعاً وكم زاوية للسداسي؟",
-            attributeAnswerAr:
-              "للخماسي ٥ أضلاع و٥ زوايا، وللسداسي ٦ أضلاع و٦ زوايا",
-          },
-        },
       ],
       challenge: [
         {
@@ -201,7 +167,13 @@ export const lessonK9Blueprint: LessonBlueprint = {
             direction: "forward",
             sequenceLength: 6,
             domainMode: "shapes-2d",
-            candidateShapeIds: ["circle", "triangle", "square", "pentagon", "hexagon"],
+            candidateShapeIds: [
+              "circle",
+              "triangle",
+              "square",
+              "pentagon",
+              "hexagon",
+            ],
             choiceCount: 4,
             attributePromptAr:
               "كم ضلعاً وزاوية للمثلث؟ وكم ضلعاً وزاوية للمربع؟ وأيّهما له أضلاع أكثر؟",
@@ -241,7 +213,14 @@ export const lessonK9Blueprint: LessonBlueprint = {
             direction: "forward",
             sequenceLength: 6,
             domainMode: "everyday-objects",
-            candidateObjectIds: ["butterfly", "bee", "flower", "tree", "sun", "leaf"],
+            candidateObjectIds: [
+              "butterfly",
+              "bee",
+              "flower",
+              "tree",
+              "sun",
+              "leaf",
+            ],
             choiceCount: 4,
           },
         },
@@ -262,25 +241,6 @@ export const lessonK9Blueprint: LessonBlueprint = {
               "كم ضلعاً وكم زاوية للمثلث والمربع؟ وكم يزيد السداسي على المربع في عدد الأضلاع؟",
             attributeAnswerAr:
               "للمثلث ٣ أضلاع و٣ زوايا، وللمربع ٤ أضلاع و٤ زوايا، والسداسي (٦) يزيد بضلعين (٢) على المربع",
-          },
-        },
-        {
-          archetype: "PatternComplete",
-          promptAr:
-            "افحص النمط الثنائي للأشكال المستوية (دائرة، مثلث، مربع، خماسي، سداسي) وحوّط الشكل السادس المفقود:",
-          strategyHintAr:
-            "لاحظ أن الخانة السادسة هي نهاية التكرار الثالث لوحدة النمط (أ، ب).",
-          params: {
-            unitRule: "AB",
-            direction: "forward",
-            sequenceLength: 6,
-            domainMode: "shapes-2d",
-            candidateShapeIds: ["circle", "triangle", "square", "pentagon", "hexagon"],
-            choiceCount: 4,
-            attributePromptAr:
-              "أي شكل مستوٍ في الهندسة ليس له أضلاع مستقيمة ولا زوايا؟ وكم ضلعاً للمربع؟",
-            attributeAnswerAr:
-              "الدائرة لها ٠ أضلاع و٠ زوايا، والمربع له ٤ أضلاع متساوية و٤ زوايا",
           },
         },
       ],
@@ -377,25 +337,6 @@ export const lessonK10Blueprint: LessonBlueprint = {
               "للكرة ٠ أوجه مسطّحة و٠ رؤوس، وللمخروط وجه مسطّح دائري ١ ورأس مدبّب ١",
           },
         },
-        {
-          archetype: "PatternComplete",
-          promptAr:
-            "أكمل النمط الثلاثي للمجسّمات الهندسية (مكعب، هرم، أسطوانة...) باختيار المجسّم الأخير المفقود:",
-          strategyHintAr:
-            "قارن بين الخانة الثالثة (ج) والخانة السادسة (ج) في النمط الثلاثي (أ، ب، ج، أ، ب، ج).",
-          params: {
-            unitRule: "ABC",
-            direction: "forward",
-            sequenceLength: 6,
-            domainMode: "solids-3d",
-            candidateSolidIds: ["cube", "pyramid", "cylinder", "sphere"],
-            choiceCount: 3,
-            attributePromptAr:
-              "كم وجهاً مسطّحاً للمكعب؟ وكم رأساً له؟",
-            attributeAnswerAr:
-              "للمكعب ٦ أوجه مسطّحة مربعة و٨ رؤوس",
-          },
-        },
       ],
       challenge: [
         {
@@ -472,25 +413,6 @@ export const lessonK10Blueprint: LessonBlueprint = {
               "للمكعب ٦ أوجه مسطّحة و٨ رؤوس، وللكرة ٠ أوجه مسطّحة و٠ رؤوس، وللمخروط وجه مسطّح ١ ورأس ١",
           },
         },
-        {
-          archetype: "PatternComplete",
-          promptAr:
-            "أكمل النمط الثلاثي للمجسّمات الهندسية (مخروط، أسطوانة، مكعب، هرم) باختيار المجسّم السادس المفقود:",
-          strategyHintAr:
-            "ميّز بين الهرم (أوجه جانبية مثلثة تلتقي في قمة) والمخروط (قاعدة دائرية ورأس مدبّب) والمكعب (٦ أوجه مربعة).",
-          params: {
-            unitRule: "ABC",
-            direction: "forward",
-            sequenceLength: 6,
-            domainMode: "solids-3d",
-            candidateSolidIds: ["cone", "cylinder", "cube", "pyramid"],
-            choiceCount: 3,
-            attributePromptAr:
-              "كم وجهاً مسطّحاً للأسطوانة؟ وهل للأسطوانة أي رؤوس؟",
-            attributeAnswerAr:
-              "للأسطوانة وجهان مسطّحان دائريان (٢) و٠ رؤوس",
-          },
-        },
       ],
       challenge: [
         {
@@ -504,7 +426,13 @@ export const lessonK10Blueprint: LessonBlueprint = {
             direction: "forward",
             sequenceLength: 6,
             domainMode: "solids-3d",
-            candidateSolidIds: ["sphere", "cone", "cylinder", "cube", "pyramid"],
+            candidateSolidIds: [
+              "sphere",
+              "cone",
+              "cylinder",
+              "cube",
+              "pyramid",
+            ],
             choiceCount: 4,
             attributePromptAr:
               "كم وجهاً مسطّحاً وكم رأساً للمكعب؟ وأي مجسّم ليس له أي أوجه مسطّحة ولا رؤوس؟",
@@ -527,7 +455,13 @@ export const lessonK10Blueprint: LessonBlueprint = {
             direction: "forward",
             sequenceLength: 6,
             domainMode: "solids-3d",
-            candidateSolidIds: ["sphere", "cone", "cylinder", "cube", "pyramid"],
+            candidateSolidIds: [
+              "sphere",
+              "cone",
+              "cylinder",
+              "cube",
+              "pyramid",
+            ],
             choiceCount: 4,
           },
         },
@@ -544,7 +478,13 @@ export const lessonK10Blueprint: LessonBlueprint = {
             direction: "forward",
             sequenceLength: 6,
             domainMode: "everyday-objects",
-            candidateObjectIds: ["pencil", "book", "backpack", "crayon", "cupcake"],
+            candidateObjectIds: [
+              "pencil",
+              "book",
+              "backpack",
+              "crayon",
+              "cupcake",
+            ],
             choiceCount: 4,
           },
         },
@@ -559,31 +499,18 @@ export const lessonK10Blueprint: LessonBlueprint = {
             direction: "forward",
             sequenceLength: 6,
             domainMode: "solids-3d",
-            candidateSolidIds: ["sphere", "cone", "cylinder", "cube", "pyramid"],
+            candidateSolidIds: [
+              "sphere",
+              "cone",
+              "cylinder",
+              "cube",
+              "pyramid",
+            ],
             choiceCount: 4,
             attributePromptAr:
               "كم وجهاً مسطّحاً وكم رأساً للمكعب؟ وكم وجهاً مسطّحاً ورأساً لكلٍّ من الكرة والمخروط؟",
             attributeAnswerAr:
               "المكعب: ٦ أوجه مسطّحة و٨ رؤوس؛ الكرة: ٠ أوجه مسطّحة و٠ رؤوس؛ المخروط: وجه مسطّح ١ ورأس ١",
-          },
-        },
-        {
-          archetype: "PatternComplete",
-          promptAr:
-            "افحص النمط الثلاثي للمجسّمات الهندسية وحوّط المجسّم الأخير الذي يكمل الدورة الثانية:",
-          strategyHintAr:
-            "استبعد المجسّمات التي تمثّل الموضع الأول (أ) أو الثاني (ب) واختر المجسّم الثالث (ج).",
-          params: {
-            unitRule: "ABC",
-            direction: "forward",
-            sequenceLength: 6,
-            domainMode: "solids-3d",
-            candidateSolidIds: ["cone", "cylinder", "cube", "rectangular-prism", "pyramid"],
-            choiceCount: 4,
-            attributePromptAr:
-              "بماذا يتشابه المكعب ومتوازي المستطيلات في عدد الأوجه المسطّحة والرؤوس؟",
-            attributeAnswerAr:
-              "لكلٍّ منهما ٦ أوجه مسطّحة و٨ رؤوس",
           },
         },
       ],
@@ -599,7 +526,13 @@ export const lessonK10Blueprint: LessonBlueprint = {
             direction: "forward",
             sequenceLength: 6,
             domainMode: "solids-3d",
-            candidateSolidIds: ["sphere", "cone", "cylinder", "cube", "pyramid"],
+            candidateSolidIds: [
+              "sphere",
+              "cone",
+              "cylinder",
+              "cube",
+              "pyramid",
+            ],
             choiceCount: 4,
             attributePromptAr:
               "قارن بين المكعب والمخروط والكرة من حيث عدد الأوجه المسطّحة وعدد الرؤوس:",
@@ -680,21 +613,6 @@ export const lessonK11Blueprint: LessonBlueprint = {
               "نبدأ من نهاية النمط المكتملة ونرجع للخلف خطوة بخطوة نحو البداية",
           },
         },
-        {
-          archetype: "PatternComplete",
-          promptAr:
-            "تتبّع نمط المجسّمات بالرجوع للخلف من النهاية إلى البداية، ثم حوّط المجسّم الأول المفقود:",
-          strategyHintAr:
-            "ابدأ من النهاية وارجع للخلف: المجسّم في الخانة الأولى يطابق المجسّم في الخانة الثالثة والخامسة.",
-          params: {
-            unitRule: "AB",
-            direction: "backward",
-            sequenceLength: 6,
-            domainMode: "solids-3d",
-            candidateSolidIds: ["sphere", "cone", "cube"],
-            choiceCount: 3,
-          },
-        },
       ],
       challenge: [
         {
@@ -771,21 +689,6 @@ export const lessonK11Blueprint: LessonBlueprint = {
               "الخانة الرابعة (٤) في بداية الثلاثية الثانية تطابق الخانة الأولى (١) تماماً",
           },
         },
-        {
-          archetype: "PatternComplete",
-          promptAr:
-            "اعمل بالرجوع للخلف من نهاية نمط المجسّمات الثلاثي (؟، ب، ج، أ، ب، ج) وحوّط المجسّم الأول المفقود:",
-          strategyHintAr:
-            "ابدأ من النهاية في يسار الشريط وارجع للخلف خطوة بخطوة لتكتشف المجسّم الأول في بداية النمط.",
-          params: {
-            unitRule: "ABC",
-            direction: "backward",
-            sequenceLength: 6,
-            domainMode: "solids-3d",
-            candidateSolidIds: ["sphere", "cone", "cylinder", "cube", "pyramid"],
-            choiceCount: 3,
-          },
-        },
       ],
       challenge: [
         {
@@ -799,7 +702,13 @@ export const lessonK11Blueprint: LessonBlueprint = {
             direction: "backward",
             sequenceLength: 6,
             domainMode: "solids-3d",
-            candidateSolidIds: ["sphere", "cone", "cylinder", "cube", "pyramid"],
+            candidateSolidIds: [
+              "sphere",
+              "cone",
+              "cylinder",
+              "cube",
+              "pyramid",
+            ],
             choiceCount: 4,
             attributePromptAr:
               "كيف ساعدتنا قراءة النمط بالرجوع للخلف من النهاية إلى البداية في معرفة المجسّم الأول؟",
@@ -839,7 +748,14 @@ export const lessonK11Blueprint: LessonBlueprint = {
             direction: "backward",
             sequenceLength: 6,
             domainMode: "everyday-objects",
-            candidateObjectIds: ["butterfly", "cat", "bird", "fish", "bee", "cupcake"],
+            candidateObjectIds: [
+              "butterfly",
+              "cat",
+              "bird",
+              "fish",
+              "bee",
+              "cupcake",
+            ],
             choiceCount: 4,
           },
         },
@@ -854,22 +770,13 @@ export const lessonK11Blueprint: LessonBlueprint = {
             direction: "backward",
             sequenceLength: 6,
             domainMode: "shapes-2d",
-            candidateShapeIds: ["circle", "triangle", "square", "pentagon", "hexagon"],
-            choiceCount: 4,
-          },
-        },
-        {
-          archetype: "PatternComplete",
-          promptAr:
-            "افحص نمط المجسّمات الثلاثي بالرجوع للخلف من النهاية نحو البداية وحوّط المجسّم الأول المفقود:",
-          strategyHintAr:
-            "ابدأ من النهاية وارجع للخلف خطوة بخطوة: المجسّم الأول يطابق المجسّم الرابع في بداية الثلاثية الثانية.",
-          params: {
-            unitRule: "ABC",
-            direction: "backward",
-            sequenceLength: 6,
-            domainMode: "solids-3d",
-            candidateSolidIds: ["sphere", "cone", "cylinder", "cube", "rectangular-prism", "pyramid"],
+            candidateShapeIds: [
+              "circle",
+              "triangle",
+              "square",
+              "pentagon",
+              "hexagon",
+            ],
             choiceCount: 4,
           },
         },

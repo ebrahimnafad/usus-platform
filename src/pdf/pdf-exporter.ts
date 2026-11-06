@@ -112,7 +112,7 @@ export async function exportWorksheetPdf(
     if (loadedFromUrl) {
       await page.evaluate(() => document.fonts?.ready);
     } else {
-      await page.setContent(doc.html, { waitUntil: "networkidle" });
+      await page.setContent(doc.html, { waitUntil: "domcontentloaded" });
       await page.evaluate(() => document.fonts?.ready);
     }
 

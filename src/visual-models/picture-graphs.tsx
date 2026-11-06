@@ -111,7 +111,7 @@ function GraphCellIconSvg({
   colorTheme: ColorThemeId;
 }): React.ReactElement {
   const palette = COLOR_PALETTES[colorTheme] ?? COLOR_PALETTES.coral;
-  const half = 17;
+  const half = 12;
 
   return (
     <g
@@ -121,12 +121,12 @@ function GraphCellIconSvg({
       <circle
         cx={half}
         cy={half}
-        r={15.5}
+        r={11}
         fill={palette.accent}
         stroke={palette.stroke}
-        strokeWidth="1.4"
+        strokeWidth="1.2"
       />
-      <g transform="translate(3, 3) scale(0.44)">
+      <g transform="translate(2, 2) scale(0.32)">
         <EverydayObjectSvg objectId={objectId} size="small" />
       </g>
     </g>
@@ -175,13 +175,13 @@ export function PictureGraphSvg({
         ];
 
   if (orientation === "vertical") {
-    const colWidth = 84;
-    const cellHeight = 40;
-    const topHeaderH = 34;
-    const bottomLabelH = 54;
-    const axisWidth = 42;
-    const leftPad = 14;
-    const rightPad = 14;
+    const colWidth = 56;
+    const cellHeight = 20;
+    const topHeaderH = 22;
+    const bottomLabelH = 36;
+    const axisWidth = 28;
+    const leftPad = 6;
+    const rightPad = 6;
 
     const gridWidth = safeCategories.length * colWidth;
     const gridHeight = safeMax * cellHeight;
@@ -218,18 +218,18 @@ export function PictureGraphSvg({
         />
 
         <rect
-          x="10"
-          y="7"
-          width={svgWidth - 20}
-          height="22"
-          rx="8"
+          x="8"
+          y="5"
+          width={svgWidth - 16}
+          height="18"
+          rx="6"
           fill="#EEF2FF"
         />
         <text
           x={svgWidth / 2}
-          y="22"
+          y="18"
           textAnchor="middle"
-          fontSize="11.5"
+          fontSize="13"
           fontWeight="900"
           fill="#312E81"
         >
@@ -361,29 +361,29 @@ export function PictureGraphSvg({
 
               <rect
                 x={colX + 4}
-                y={gridBottomY + 6}
+                y={gridBottomY + 2}
                 width={colWidth - 8}
-                height="40"
-                rx="10"
+                height="30"
+                rx="8"
                 fill={pal.accent}
                 stroke={pal.stroke}
                 strokeWidth="1.6"
               />
               <text
                 x={colCenterX}
-                y={gridBottomY + 23}
+                y={gridBottomY + 15}
                 textAnchor="middle"
-                fontSize="10.5"
+                fontSize="12"
                 fontWeight="900"
                 fill={pal.stroke}
               >
-                {toEasternArabicNumerals(cat.labelAr)}
+                {toEasternArabicNumerals(cat.labelAr.split(" ")[0])}
               </text>
               <text
                 x={colCenterX}
-                y={gridBottomY + 38}
+                y={gridBottomY + 28}
                 textAnchor="middle"
-                fontSize="10"
+                fontSize="12"
                 fontWeight="900"
                 fill={solved ? "#047857" : "#475569"}
               >
@@ -398,17 +398,17 @@ export function PictureGraphSvg({
     );
   }
 
-  const cellWidth = 46;
-  const rowHeight = 46;
-  const topHeaderH = 34;
-  const bottomAxisH = 36;
-  const rightCategoryColW = 116;
+  const cellWidth = 28;
+  const rowHeight = 24;
+  const topHeaderH = 22;
+  const bottomAxisH = 26;
+  const rightCategoryColW = 92;
   // The count summary is answer-key-only. In worksheet mode the child derives
   // the count and writes it in the dedicated response row, so a second "؟"
   // column here would create two competing answer slots for one quantity.
   const showSummaryColumn = solved;
-  const leftSummaryColW = showSummaryColumn ? 54 : 0;
-  const padX = 12;
+  const leftSummaryColW = showSummaryColumn ? 36 : 0;
+  const padX = 8;
 
   const cellsGridW = safeMax * cellWidth;
   const svgWidth = padX * 2 + leftSummaryColW + cellsGridW + rightCategoryColW;
@@ -447,22 +447,22 @@ export function PictureGraphSvg({
       />
 
       <rect
-        x="10"
-        y="7"
-        width={svgWidth - 20}
-        height="22"
-        rx="8"
+        x="8"
+        y="5"
+        width={svgWidth - 16}
+        height="18"
+        rx="6"
         fill="#EEF2FF"
       />
       <text
         x={svgWidth / 2}
-        y="22"
+        y="18"
         textAnchor="middle"
-        fontSize="11.5"
+        fontSize="13"
         fontWeight="900"
         fill="#312E81"
       >
-        📊 {toEasternArabicNumerals(titleAr)} (من اليمين إلى اليسار)
+        📊 {toEasternArabicNumerals(titleAr)}
       </text>
 
       <rect
@@ -530,7 +530,7 @@ export function PictureGraphSvg({
               x={gridRightX + rightCategoryColW / 2}
               y={rowCenterY + 4}
               textAnchor="middle"
-              fontSize="11"
+              fontSize="12"
               fontWeight="900"
               fill={pal.stroke}
             >
@@ -609,7 +609,7 @@ export function PictureGraphSvg({
                   x={padX + leftSummaryColW / 2}
                   y={rowCenterY + 5}
                   textAnchor="middle"
-                  fontSize="14"
+                  fontSize="16"
                   fontWeight="900"
                   fill="#047857"
                 >
@@ -624,9 +624,9 @@ export function PictureGraphSvg({
       <g data-graph-axis="horizontal">
         <text
           x={gridRightX + rightCategoryColW / 2}
-          y={gridBottomY + 22}
+          y={gridBottomY + 19}
           textAnchor="middle"
-          fontSize="10.5"
+          fontSize="12"
           fontWeight="900"
           fill="#312E81"
         >
@@ -639,20 +639,20 @@ export function PictureGraphSvg({
           return (
             <g key={cellIdx} data-axis-tick={numAr}>
               <rect
-                x={cx - 12}
-                y={gridBottomY + 6}
-                width="24"
-                height="22"
-                rx="7"
+                x={cx - 11}
+                y={gridBottomY + 4}
+                width="22"
+                height="19"
+                rx="6"
                 fill="#E0E7FF"
                 stroke="#4338CA"
-                strokeWidth="1.4"
+                strokeWidth="1.2"
               />
               <text
                 x={cx}
-                y={gridBottomY + 21}
+                y={gridBottomY + 18}
                 textAnchor="middle"
-                fontSize="11.5"
+                fontSize="12"
                 fontWeight="900"
                 fill="#1E1B4B"
               >
@@ -664,9 +664,9 @@ export function PictureGraphSvg({
         {showSummaryColumn && (
           <text
             x={padX + leftSummaryColW / 2}
-            y={gridBottomY + 22}
+            y={gridBottomY + 19}
             textAnchor="middle"
-            fontSize="10.5"
+            fontSize="12"
             fontWeight="900"
             fill="#312E81"
           >
@@ -689,7 +689,7 @@ export function registerPictureGraphVisualModels(): void {
 
     return (
       <div
-        className="inline-flex flex-col items-center gap-1.5"
+        className="inline-flex flex-col items-center gap-1"
         data-visual-model="picture-graph"
         data-orientation={orientation}
         data-direction="rtl"
@@ -702,7 +702,7 @@ export function registerPictureGraphVisualModels(): void {
           maxCount={maxCount}
           solved={solved}
         />
-        <span className="text-xs font-bold text-slate-700">
+        <span className="text-[13px] font-bold text-slate-700">
           {toEasternArabicNumerals(model.labelAr)}
         </span>
       </div>

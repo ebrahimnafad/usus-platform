@@ -11,17 +11,41 @@ import {
   EVERYDAY_OBJECT_CATALOG,
   createEverydayObjectSpec,
 } from "@/visual-models/everyday-objects";
+import {
+  createDicePatternSpec,
+  createDigitCardSpec,
+  createFiveFrameSpec,
+  createTallyMarksSpec,
+} from "@/visual-models/unit-2-models";
+import {
+  PartsTableView,
+  createEquationStripSpec,
+  createNumberBondSpec,
+} from "@/visual-models/unit-3-models";
+import { selectAdditionFacts } from "@/archetypes/join-parts";
 import { VisualModelView } from "@/visual-models/registry";
 import {
   type ArchetypeGeneratorContext,
   type ArchetypeRenderProps,
 } from "@/archetypes/registry";
 import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
-import { AnswerLine } from "@/components/worksheet/AnswerSlot";
+import { AnswerLine, AnswerSlot } from "@/components/worksheet/AnswerSlot";
+import { ExerciseColumns } from "@/components/worksheet/ExerciseColumns";
+
+export type ConnectMatchMode =
+  | "five-frame-to-parts-table"
+  | "five-frame-to-number-bond"
+  | "dice-to-number-bond"
+  | "five-frame-to-equation"
+  | "tally-expression-to-total";
 
 export interface ConnectMatchBlueprintParams {
   pairCount?: number;
   categories?: EverydayObjectCategory[];
+  matchingMode?: ConnectMatchMode;
+  totalRange?: [number, number];
+  minPart?: number;
+  showMissingTotalSlot?: boolean;
   rightColumnTitleAr?: string;
   leftColumnTitleAr?: string;
   comparisonPromptAr?: string;
@@ -44,12 +68,9 @@ const CONNECTION_STROKE_COLORS = [
 ];
 
 /**
- * Row height in px. Must exceed the tallest possible ConnectMatch row
- * (min-h-[76px] + content). Subitize groups of up to 5 items at "tiny"
- * (30px) + padding stay comfortably under 100px, so SVG port y-coordinates
- * computed from this constant remain aligned with their DOM anchor points.
+ * Row height in px for ConnectMatch rows and SVG connection canvas.
  */
-const ROW_HEIGHT_PX = 100;
+const ROW_HEIGHT_PX = 52;
 
 function generateConnectMatchExercise(
   ctx: ArchetypeGeneratorContext
@@ -62,11 +83,117 @@ function generateConnectMatchExercise(
       : ctx.difficultyLevel === "Intermediate"
         ? 4
         : 5;
-  const pairCount = params.pairCount ?? defaultPairCount;
+  const rawPairCount = params.pairCount ?? defaultPairCount;
+  const pairCount =
+    ctx.lesson.lessonNumber >= 17 ? Math.min(3, rawPairCount) : rawPairCount;
 
   let pairs: ConnectMatchPair[] = [];
 
-  if (params.customCandidatePairs && params.customCandidatePairs.length > 0) {
+  if (params.matchingMode) {
+    const mode = params.matchingMode;
+    const minPart =
+      params.minPart !== undefined
+        ? params.minPart
+        : mode === "tally-expression-to-total"
+          ? 1
+          : ctx.difficultyLevel === "Advanced"
+            ? 0
+            : 1;
+    const facts = selectAdditionFacts(
+      ctx.rng,
+      ctx.difficultyLevel,
+      {
+        totalRange: params.totalRange,
+        minPart,
+        count: pairCount,
+      },
+      ctx.usedFacts
+    );
+
+    const tracePositions: Array<"part1" | "part2"> =
+      ctx.difficultyLevel === "Easy" ? ["part1", "part2"] : [];
+
+    pairs = facts.map((fact, idx) => {
+      const p1Ar = formatEasternNumber(fact.part1);
+      const p2Ar = formatEasternNumber(fact.part2);
+      const totalAr = formatEasternNumber(fact.total);
+
+      const rightModel: VisualModelSpec =
+        mode === "dice-to-number-bond"
+          ? createDicePatternSpec({
+              count: fact.part1,
+              secondaryCount: fact.part2,
+              diceVariant:
+                fact.part1 === 0 || fact.part2 === 0 ? "domino" : "die",
+              colorTheme: "coral",
+              secondaryColorTheme: "sky",
+              hideLabel: true,
+            })
+          : mode === "tally-expression-to-total"
+            ? createTallyMarksSpec({
+                count: Math.max(1, fact.part1),
+                secondaryCount: Math.max(1, fact.part2),
+              })
+            : createFiveFrameSpec({
+                count: fact.part1,
+                secondaryCount: fact.part2,
+                showPartOutline: true,
+                colorTheme: "coral",
+                secondaryColorTheme: "sky",
+              });
+
+      const leftModel: VisualModelSpec =
+        mode === "five-frame-to-parts-table"
+          ? createDigitCardSpec(fact.total, {
+              id: `parts-table-${fact.part1}-${fact.part2}-${fact.total}`,
+              labelAr: `جدول الأجزاء والكلّ: ${p1Ar} و${p2Ar} والكلّ ${totalAr}`,
+              count: fact.part1,
+              secondaryCount: fact.part2,
+              meta: {
+                isPartsTableEndpoint: true,
+                part1: fact.part1,
+                part2: fact.part2,
+                total: fact.total,
+                missingPosition: "total",
+                tracePositions,
+              },
+            })
+          : mode === "five-frame-to-number-bond" ||
+              mode === "dice-to-number-bond"
+            ? createNumberBondSpec({
+                part1: fact.part1,
+                part2: fact.part2,
+                total: fact.total,
+                missingPosition: "total",
+                tracePositions,
+              })
+            : mode === "five-frame-to-equation"
+              ? createEquationStripSpec({
+                  part1: fact.part1,
+                  part2: fact.part2,
+                  total: fact.total,
+                  missingPosition: "total",
+                  tracePositions,
+                })
+              : createDigitCardSpec(fact.total, {
+                  meta: {
+                    missingTotal: params.showMissingTotalSlot
+                      ? fact.total
+                      : undefined,
+                  },
+                });
+
+      return {
+        pairId: `pair-${idx + 1}-${fact.key}`,
+        rightItem: rightModel,
+        leftItem: leftModel,
+        connectionReasonAr: `الجزءان ${p1Ar} و${p2Ar} يكوّنان الكلّ ${totalAr}`,
+      };
+    });
+  } else if (
+    params.customCandidatePairs &&
+    params.customCandidatePairs.length > 0
+  ) {
     const picked = ctx.rng.pickN(params.customCandidatePairs, pairCount);
     pairs = picked.map((item, idx) => ({
       pairId: `pair-${idx + 1}-${item.id}`,
@@ -171,125 +298,208 @@ function renderConnectMatchExercise({
 }: ArchetypeRenderProps): React.ReactElement {
   const data = exercise.data as ConnectMatchData;
   const rowCount = data.rightItems.length;
-  const svgHeight = Math.max(rowCount * ROW_HEIGHT_PX, ROW_HEIGHT_PX);
+  const allModels = [
+    ...data.rightItems.map((i) => i.model),
+    ...data.leftItems.map((i) => i.model),
+  ];
+  const hasNumberBond = allModels.some((m) => m.kind === "number-bond");
+  const hasMediumUnit3Model = allModels.some(
+    (m) =>
+      Boolean(
+        (m.meta as Record<string, unknown> | undefined)?.isPartsTableEndpoint
+      ) ||
+      m.kind === "five-frame" ||
+      m.kind === "equation-strip" ||
+      (m.kind === "tally-marks" && (m.secondaryCount ?? 0) > 0)
+  );
+  const isWideUnit3Match = hasNumberBond || hasMediumUnit3Model;
+
+  const rowHeightPx = hasNumberBond
+    ? 162
+    : hasMediumUnit3Model
+      ? 80
+      : ROW_HEIGHT_PX;
+  const rowMinHeightClass = hasNumberBond
+    ? "min-h-[160px]"
+    : hasMediumUnit3Model
+      ? "min-h-[76px]"
+      : "min-h-[46px]";
+  const centerWidthPx = isWideUnit3Match ? 52 : 110;
+  const gridColsClass = isWideUnit3Match
+    ? "grid-cols-[1fr_52px_1fr] gap-0.5 p-0.5"
+    : "grid-cols-[1fr_110px_1fr] gap-1.5 p-1.5";
+  const rowPadClass = isWideUnit3Match ? "px-1 py-0 gap-0.5" : "px-2 py-0.5";
+  const rightPortX = isWideUnit3Match ? 44 : 98;
+  const leftPortX = isWideUnit3Match ? 8 : 12;
+  const svgHeight = Math.max(rowCount * rowHeightPx, rowHeightPx);
 
   return (
-    <div className="space-y-3" data-archetype="ConnectMatch">
-      <div className="grid grid-cols-[1fr_180px_1fr] items-stretch gap-2 rounded-2xl border-2 border-indigo-100 bg-gradient-to-b from-white to-indigo-50/30 p-3">
-        {/* Right Column (First in RTL) */}
-        <div className="flex flex-col justify-between gap-2">
-          <div className="rounded-lg bg-indigo-100/80 px-2.5 py-1 text-center text-xs font-extrabold text-indigo-950">
-            {toEasternArabicNumerals(data.rightColumnTitleAr)}
-          </div>
-          {data.rightItems.map((item, idx) => (
-            <div
-              key={item.id}
-              className="flex min-h-[76px] items-center justify-between rounded-xl border-2 border-slate-200 bg-white px-3 py-1.5 shadow-2xs"
-              data-match-right-id={item.id}
-            >
-              <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold text-white">
-                {formatEasternNumber(idx + 1)}
-              </span>
-              <VisualModelView
-                model={item.model}
-                solved={mode === "answer-key"}
-              />
-              <span
-                className="h-4 w-4 rounded-full border-2 border-indigo-600 bg-indigo-100"
-                aria-hidden="true"
-              />
-            </div>
-          ))}
-        </div>
-
-        {/* Center Matching Canvas (SVG ports + solved curves in Answer Key) */}
-        <div className="flex flex-col justify-between pt-7">
-          <svg
-            width="100%"
-            height={svgHeight}
-            viewBox={`0 0 180 ${svgHeight}`}
-            className="overflow-visible"
-            aria-label={
-              mode === "answer-key"
-                ? "خطوط المطابقة المحلولة"
-                : "منطقة توصيل الخطوط"
-            }
+    <div className="space-y-1" data-archetype="ConnectMatch">
+      <ExerciseColumns columns={1}>
+        <div
+          className={`grid ${gridColsClass} items-stretch rounded-2xl border-2 border-indigo-100 bg-gradient-to-b from-white to-indigo-50/30`}
+        >
+          {/* Right Column (First in RTL) */}
+          <div
+            className={`flex flex-col justify-between ${isWideUnit3Match ? "gap-0.5" : "gap-1"}`}
           >
-            {data.rightItems.map((rightItem, rIdx) => {
-              const yRight = rIdx * ROW_HEIGHT_PX + ROW_HEIGHT_PX / 2;
-              const matchedLeftId = data.solutionMap[rightItem.id];
-              const lIdx = data.leftItems.findIndex(
-                (li) => li.id === matchedLeftId
+            <div className="rounded-lg bg-indigo-100/80 px-2 py-0.5 text-center text-[13px] font-extrabold leading-tight text-indigo-950">
+              {toEasternArabicNumerals(data.rightColumnTitleAr)}
+            </div>
+            {data.rightItems.map((item, idx) => (
+              <div
+                key={item.id}
+                className={`flex ${rowMinHeightClass} items-center justify-between rounded-xl border border-slate-200 bg-white ${rowPadClass} shadow-2xs`}
+                data-match-right-id={item.id}
+              >
+                <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold leading-none text-white">
+                  {formatEasternNumber(idx + 1)}
+                </span>
+                <VisualModelView
+                  model={item.model}
+                  solved={mode === "answer-key"}
+                />
+                <span
+                  className="h-3 w-3 shrink-0 rounded-full border-2 border-indigo-600 bg-indigo-100"
+                  aria-hidden="true"
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* Center Matching Canvas (SVG ports + solved curves in Answer Key) */}
+          <div className="flex flex-col justify-between pt-5">
+            <svg
+              width="100%"
+              height={svgHeight}
+              viewBox={`0 0 ${centerWidthPx} ${svgHeight}`}
+              className="overflow-visible"
+              aria-label={
+                mode === "answer-key"
+                  ? "خطوط المطابقة المحلولة"
+                  : "منطقة توصيل الخطوط"
+              }
+            >
+              {data.rightItems.map((rightItem, rIdx) => {
+                const yRight = rIdx * rowHeightPx + rowHeightPx / 2;
+                const matchedLeftId = data.solutionMap[rightItem.id];
+                const lIdx = data.leftItems.findIndex(
+                  (li) => li.id === matchedLeftId
+                );
+                const yLeft =
+                  (lIdx >= 0 ? lIdx : rIdx) * rowHeightPx + rowHeightPx / 2;
+                const strokeColor =
+                  CONNECTION_STROKE_COLORS[
+                    rIdx % CONNECTION_STROKE_COLORS.length
+                  ];
+                const ctrlRightX = isWideUnit3Match ? 32 : 68;
+                const ctrlLeftX = isWideUnit3Match ? 20 : 42;
+
+                return (
+                  <g key={rightItem.id}>
+                    {/* Right & Left port circles in SVG */}
+                    <circle
+                      cx={rightPortX}
+                      cy={yRight}
+                      r="4.5"
+                      fill="#4F46E5"
+                    />
+                    <circle cx={leftPortX} cy={yLeft} r="4.5" fill="#0D9488" />
+
+                    {mode === "worksheet" ? (
+                      <line
+                        x1={rightPortX - 6}
+                        y1={yRight}
+                        x2={rightPortX - 18}
+                        y2={yRight}
+                        stroke="#CBD5E1"
+                        strokeWidth="2"
+                        strokeDasharray="4 4"
+                      />
+                    ) : (
+                      <path
+                        d={`M ${rightPortX} ${yRight} C ${ctrlRightX} ${yRight}, ${ctrlLeftX} ${yLeft}, ${leftPortX} ${yLeft}`}
+                        fill="none"
+                        stroke={strokeColor}
+                        strokeWidth="3.5"
+                        strokeLinecap="round"
+                        data-solved-connection={`${rightItem.id}->${matchedLeftId}`}
+                      />
+                    )}
+                  </g>
+                );
+              })}
+            </svg>
+          </div>
+
+          {/* Left Column (Second in RTL) */}
+          <div
+            className={`flex flex-col justify-between ${isWideUnit3Match ? "gap-0.5" : "gap-1"}`}
+          >
+            <div className="rounded-lg bg-teal-100/80 px-2 py-0.5 text-center text-[13px] font-extrabold leading-tight text-teal-950">
+              {toEasternArabicNumerals(data.leftColumnTitleAr)}
+            </div>
+            {data.leftItems.map((item, idx) => {
+              const itemMeta = (item.model.meta ?? {}) as Record<
+                string,
+                unknown
+              >;
+              const isPartsTableEndpoint = Boolean(
+                itemMeta.isPartsTableEndpoint
               );
-              const yLeft =
-                (lIdx >= 0 ? lIdx : rIdx) * ROW_HEIGHT_PX + ROW_HEIGHT_PX / 2;
-              const strokeColor =
-                CONNECTION_STROKE_COLORS[
-                  rIdx % CONNECTION_STROKE_COLORS.length
-                ];
+              const missingTotal = itemMeta.missingTotal as number | undefined;
 
               return (
-                <g key={rightItem.id}>
-                  {/* Right & Left port circles in SVG */}
-                  <circle cx="168" cy={yRight} r="5" fill="#4F46E5" />
-                  <circle cx="12" cy={yLeft} r="5" fill="#0D9488" />
-
-                  {mode === "worksheet" ? (
-                    <line
-                      x1="160"
-                      y1={yRight}
-                      x2="145"
-                      y2={yRight}
-                      stroke="#CBD5E1"
-                      strokeWidth="2"
-                      strokeDasharray="4 4"
-                    />
-                  ) : (
-                    <path
-                      d={`M 168 ${yRight} C 110 ${yRight}, 70 ${yLeft}, 12 ${yLeft}`}
-                      fill="none"
-                      stroke={strokeColor}
-                      strokeWidth="3.5"
-                      strokeLinecap="round"
-                      data-solved-connection={`${rightItem.id}->${matchedLeftId}`}
-                    />
-                  )}
-                </g>
+                <div
+                  key={item.id}
+                  className={`flex ${rowMinHeightClass} items-center justify-between rounded-xl border border-slate-200 bg-white ${rowPadClass} shadow-2xs`}
+                  data-match-left-id={item.id}
+                >
+                  <span
+                    className="h-3 w-3 shrink-0 rounded-full border-2 border-teal-600 bg-teal-100"
+                    aria-hidden="true"
+                  />
+                  <div className="flex items-center gap-1">
+                    {isPartsTableEndpoint ? (
+                      <PartsTableView
+                        part1={(itemMeta.part1 as number) ?? 1}
+                        part2={(itemMeta.part2 as number) ?? 1}
+                        total={(itemMeta.total as number) ?? 2}
+                        missingPosition="total"
+                        tracePositions={
+                          (itemMeta.tracePositions as Array<
+                            "part1" | "part2"
+                          >) ?? []
+                        }
+                        solved={mode === "answer-key"}
+                      />
+                    ) : missingTotal !== undefined ? (
+                      <AnswerSlot
+                        solved={mode === "answer-key"}
+                        answer={formatEasternNumber(missingTotal)}
+                        ariaLabel="مربع كتابة الكلّ المفقود"
+                        tone="indigo"
+                      />
+                    ) : (
+                      <VisualModelView
+                        model={item.model}
+                        solved={mode === "answer-key"}
+                      />
+                    )}
+                  </div>
+                  <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-teal-700 text-xs font-bold leading-none text-white">
+                    {formatEasternNumber(idx + 1)}
+                  </span>
+                </div>
               );
             })}
-          </svg>
-        </div>
-
-        {/* Left Column (Second in RTL) */}
-        <div className="flex flex-col justify-between gap-2">
-          <div className="rounded-lg bg-teal-100/80 px-2.5 py-1 text-center text-xs font-extrabold text-teal-950">
-            {toEasternArabicNumerals(data.leftColumnTitleAr)}
           </div>
-          {data.leftItems.map((item, idx) => (
-            <div
-              key={item.id}
-              className="flex min-h-[76px] items-center justify-between rounded-xl border-2 border-slate-200 bg-white px-3 py-1.5 shadow-2xs"
-              data-match-left-id={item.id}
-            >
-              <span
-                className="h-4 w-4 rounded-full border-2 border-teal-600 bg-teal-100"
-                aria-hidden="true"
-              />
-              <VisualModelView
-                model={item.model}
-                solved={mode === "answer-key"}
-              />
-              <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-teal-700 text-xs font-bold text-white">
-                {formatEasternNumber(idx + 1)}
-              </span>
-            </div>
-          ))}
         </div>
-      </div>
+      </ExerciseColumns>
 
       {/* Optional Comparison Reasoning Sub-prompt */}
       {data.comparisonPromptAr && (
-        <div className="flex items-center justify-between rounded-xl border border-amber-300 bg-amber-50/80 px-3.5 py-2 text-xs font-bold text-amber-950">
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-300 bg-amber-50/80 px-2.5 py-1 text-[13px] font-bold leading-tight text-amber-950">
           <span>
             🤔 سؤال التفكير: {toEasternArabicNumerals(data.comparisonPromptAr)}
           </span>

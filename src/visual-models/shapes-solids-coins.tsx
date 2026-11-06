@@ -397,9 +397,9 @@ export function createCoinSpec(
 }
 
 function resolvePixelSize(size: VisualSize = "medium"): number {
-  if (size === "small") return 38;
-  if (size === "large") return 66;
-  return 52;
+  if (size === "small") return 22;
+  if (size === "large") return 30;
+  return 26;
 }
 
 export function Shape2DSvg({
@@ -418,7 +418,7 @@ export function Shape2DSvg({
   const def = getShape2DById(shapeId);
   const transformAttr =
     rotationDeg && rotationDeg !== 0
-      ? `rotate(${rotationDeg} 32 32)`
+      ? `translate(32 32) rotate(${rotationDeg}) scale(0.84) translate(-32 -32)`
       : undefined;
 
   return (
@@ -618,7 +618,7 @@ export function Solid3DSvg({
   const def = getSolid3DById(solidId);
   const transformAttr =
     rotationDeg && rotationDeg !== 0
-      ? `rotate(${rotationDeg} 32 32)`
+      ? `translate(32 32) rotate(${rotationDeg}) scale(0.84) translate(-32 -32)`
       : undefined;
 
   return (
@@ -1229,18 +1229,19 @@ export function LocalizedCoinSvg({
   size?: VisualSize;
 }): React.ReactElement {
   const def = getCoinByDenomination(denomination);
-  const scaleFactor = size === "small" ? 0.82 : size === "large" ? 1.15 : 1;
 
   // Distinct radius per denomination so size comparisons in K-4 are visually unmistakable
   const baseRadiusMap: Record<CoinDenomination, number> = {
-    1: 16,
-    5: 18,
-    10: 20,
-    25: 23,
+    1: 18,
+    5: 20,
+    10: 21,
+    25: 24,
     50: 26,
   };
   const r = baseRadiusMap[denomination] ?? 20;
-  const px = Math.round(58 * scaleFactor);
+  const px = size === "small" ? 32 : size === "large" ? 48 : 40;
+  // Exact 12px on-screen text size inside the 64x64 viewBox (since 32 = 64/2, 40 = 64*5/8, 48 = 64*3/4)
+  const svgFontSize = size === "small" ? 24 : size === "large" ? 16 : 19.2;
   const denomAr = formatEasternNumber(denomination);
 
   // Metal palette per coin
@@ -1342,10 +1343,11 @@ export function LocalizedCoinSvg({
       {/* Stamped Eastern Arabic Numeral */}
       <text
         x="32"
-        y="37"
+        y="32"
         textAnchor="middle"
+        dominantBaseline="central"
         fill={style.text}
-        fontSize={denomination >= 10 ? "15" : "17"}
+        fontSize={svgFontSize}
         fontWeight="900"
       >
         {denomAr}
@@ -1357,26 +1359,54 @@ export function LocalizedCoinSvg({
 export function registerShapesSolidsCoinsVisualModels(): void {
   // Register "shape-2d"
   registerVisualModel("shape-2d", ({ model }) => {
-    const count = model.count ?? 1;
-    if (count > 1) {
+    const primary = model.count ?? 1;
+    const secondary = model.secondaryCount ?? 0;
+    const total = primary + secondary;
+    const meta = (model.meta ?? {}) as Record<string, unknown>;
+    const secondaryTheme =
+      (meta.secondaryColorTheme as ColorThemeId) ?? "amber";
+
+    if (total > 1) {
       return (
         <div
-          className="inline-flex flex-col items-center gap-1"
+          className="inline-flex items-center gap-1"
           data-visual-model="shape-2d"
           data-shape-id={model.id}
+          data-count={formatEasternNumber(total)}
         >
-          <div className="flex flex-wrap items-center justify-center gap-1.5">
-            {Array.from({ length: count }, (_, idx) => (
-              <Shape2DSvg
-                key={idx}
-                shapeId={model.id}
-                colorTheme={model.colorTheme}
-                size={model.size ?? "small"}
-                rotationDeg={model.rotationDeg}
-              />
-            ))}
+          <div className="flex items-center justify-center gap-0.5">
+            <div
+              className={`flex items-center gap-0.5 ${
+                secondary > 0
+                  ? "rounded-xl border border-dashed border-indigo-300 bg-indigo-50/40 px-1 py-0.5"
+                  : ""
+              }`}
+            >
+              {Array.from({ length: primary }, (_, idx) => (
+                <Shape2DSvg
+                  key={`p-${idx}`}
+                  shapeId={model.id}
+                  colorTheme={model.colorTheme}
+                  size={model.size ?? "small"}
+                  rotationDeg={model.rotationDeg}
+                />
+              ))}
+            </div>
+            {secondary > 0 && (
+              <div className="flex items-center gap-0.5 rounded-xl border border-dashed border-amber-300 bg-amber-50/40 px-1 py-0.5">
+                {Array.from({ length: secondary }, (_, idx) => (
+                  <Shape2DSvg
+                    key={`s-${idx}`}
+                    shapeId={model.id}
+                    colorTheme={secondaryTheme}
+                    size={model.size ?? "small"}
+                    rotationDeg={model.rotationDeg}
+                  />
+                ))}
+              </div>
+            )}
           </div>
-          <span className="text-xs font-bold text-slate-700">
+          <span className="hidden text-[13px] font-bold leading-tight text-slate-700">
             {toEasternArabicNumerals(model.labelAr)}
           </span>
         </div>
@@ -1385,7 +1415,7 @@ export function registerShapesSolidsCoinsVisualModels(): void {
 
     return (
       <div
-        className="inline-flex flex-col items-center gap-1"
+        className="inline-flex items-center gap-1"
         data-visual-model="shape-2d"
         data-shape-id={model.id}
       >
@@ -1395,7 +1425,7 @@ export function registerShapesSolidsCoinsVisualModels(): void {
           size={model.size ?? "medium"}
           rotationDeg={model.rotationDeg}
         />
-        <span className="text-xs font-bold text-slate-700">
+        <span className="text-[13px] font-bold leading-tight text-slate-700">
           {toEasternArabicNumerals(model.labelAr)}
         </span>
       </div>
@@ -1404,26 +1434,54 @@ export function registerShapesSolidsCoinsVisualModels(): void {
 
   // Register "solid-3d"
   registerVisualModel("solid-3d", ({ model }) => {
-    const count = model.count ?? 1;
-    if (count > 1) {
+    const primary = model.count ?? 1;
+    const secondary = model.secondaryCount ?? 0;
+    const total = primary + secondary;
+    const meta = (model.meta ?? {}) as Record<string, unknown>;
+    const secondaryTheme =
+      (meta.secondaryColorTheme as ColorThemeId) ?? "amber";
+
+    if (total > 1) {
       return (
         <div
-          className="inline-flex flex-col items-center gap-1"
+          className="inline-flex items-center gap-1"
           data-visual-model="solid-3d"
           data-solid-id={model.id}
+          data-count={formatEasternNumber(total)}
         >
-          <div className="flex flex-wrap items-center justify-center gap-1.5">
-            {Array.from({ length: count }, (_, idx) => (
-              <Solid3DSvg
-                key={idx}
-                solidId={model.id}
-                colorTheme={model.colorTheme}
-                size={model.size ?? "small"}
-                rotationDeg={model.rotationDeg}
-              />
-            ))}
+          <div className="flex items-center justify-center gap-0.5">
+            <div
+              className={`flex items-center gap-0.5 ${
+                secondary > 0
+                  ? "rounded-xl border border-dashed border-indigo-300 bg-indigo-50/40 px-1 py-0.5"
+                  : ""
+              }`}
+            >
+              {Array.from({ length: primary }, (_, idx) => (
+                <Solid3DSvg
+                  key={`p-${idx}`}
+                  solidId={model.id}
+                  colorTheme={model.colorTheme}
+                  size={model.size ?? "small"}
+                  rotationDeg={model.rotationDeg}
+                />
+              ))}
+            </div>
+            {secondary > 0 && (
+              <div className="flex items-center gap-0.5 rounded-xl border border-dashed border-amber-300 bg-amber-50/40 px-1 py-0.5">
+                {Array.from({ length: secondary }, (_, idx) => (
+                  <Solid3DSvg
+                    key={`s-${idx}`}
+                    solidId={model.id}
+                    colorTheme={secondaryTheme}
+                    size={model.size ?? "small"}
+                    rotationDeg={model.rotationDeg}
+                  />
+                ))}
+              </div>
+            )}
           </div>
-          <span className="text-xs font-bold text-slate-700">
+          <span className="hidden text-[13px] font-bold leading-tight text-slate-700">
             {toEasternArabicNumerals(model.labelAr)}
           </span>
         </div>
@@ -1432,7 +1490,7 @@ export function registerShapesSolidsCoinsVisualModels(): void {
 
     return (
       <div
-        className="inline-flex flex-col items-center gap-1"
+        className="inline-flex items-center gap-1"
         data-visual-model="solid-3d"
         data-solid-id={model.id}
       >
@@ -1442,7 +1500,7 @@ export function registerShapesSolidsCoinsVisualModels(): void {
           size={model.size ?? "medium"}
           rotationDeg={model.rotationDeg}
         />
-        <span className="text-xs font-bold text-slate-700">
+        <span className="text-[13px] font-bold leading-tight text-slate-700">
           {toEasternArabicNumerals(model.labelAr)}
         </span>
       </div>
@@ -1453,12 +1511,12 @@ export function registerShapesSolidsCoinsVisualModels(): void {
   registerVisualModel("real-world-solid", ({ model }) => {
     return (
       <div
-        className="inline-flex flex-col items-center gap-1"
+        className="inline-flex items-center gap-1"
         data-visual-model="real-world-solid"
         data-object-id={model.id}
       >
         <RealWorldSolidSvg objectId={model.id} size={model.size ?? "medium"} />
-        <span className="text-xs font-bold text-slate-700">
+        <span className="text-[13px] font-bold leading-tight text-slate-700">
           {toEasternArabicNumerals(model.labelAr)}
         </span>
       </div>
@@ -1472,11 +1530,11 @@ export function registerShapesSolidsCoinsVisualModels(): void {
     if (count > 1) {
       return (
         <div
-          className="inline-flex flex-col items-center gap-1"
+          className="inline-flex items-center gap-1"
           data-visual-model="coin"
           data-denomination={formatEasternNumber(denomination)}
         >
-          <div className="flex flex-wrap items-center justify-center gap-1.5">
+          <div className="flex items-center justify-center gap-0.5">
             {Array.from({ length: count }, (_, idx) => (
               <LocalizedCoinSvg
                 key={idx}
@@ -1485,7 +1543,7 @@ export function registerShapesSolidsCoinsVisualModels(): void {
               />
             ))}
           </div>
-          <span className="text-xs font-bold text-slate-700">
+          <span className="hidden text-[13px] font-bold leading-tight text-slate-700">
             {toEasternArabicNumerals(model.labelAr)}
           </span>
         </div>
@@ -1494,7 +1552,7 @@ export function registerShapesSolidsCoinsVisualModels(): void {
 
     return (
       <div
-        className="inline-flex flex-col items-center gap-1"
+        className="inline-flex items-center gap-1"
         data-visual-model="coin"
         data-denomination={formatEasternNumber(denomination)}
       >
@@ -1502,7 +1560,7 @@ export function registerShapesSolidsCoinsVisualModels(): void {
           denomination={denomination}
           size={model.size ?? "medium"}
         />
-        <span className="text-xs font-bold text-slate-700">
+        <span className="text-[13px] font-bold leading-tight text-slate-700">
           {toEasternArabicNumerals(model.labelAr)}
         </span>
       </div>

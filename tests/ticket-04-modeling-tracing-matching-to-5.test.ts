@@ -19,7 +19,7 @@ describe("Ticket 04 — Lessons K-12 to K-16: ModelCountAndTrace (عدّ ومث�
     expect(k12.worksheet.sections[0].sourceLessonId).toBe("K-12");
 
     const allExercises = k12.worksheet.sections.flatMap((s) => s.exercises);
-    expect(allExercises.length).toBeGreaterThanOrEqual(5);
+    expect(allExercises.length).toBeGreaterThanOrEqual(4);
 
     for (const ex of allExercises) {
       expect(ex.archetype).toBe("ModelCountAndTrace");
@@ -88,7 +88,7 @@ describe("Ticket 04 — Lessons K-12 to K-16: ModelCountAndTrace (عدّ ومث�
     const coreExercises = k13.worksheet.sections
       .slice(1)
       .flatMap((s) => s.exercises);
-    expect(coreExercises.length).toBeGreaterThanOrEqual(4);
+    expect(coreExercises.length).toBeGreaterThanOrEqual(3);
 
     const coreModels = coreExercises.flatMap((e) => e.visualModels);
     expect(coreModels.some((m) => m.kind === "snap-cubes")).toBe(true);
@@ -140,7 +140,7 @@ describe("Ticket 04 — Lessons K-12 to K-16: ModelCountAndTrace (عدّ ومث�
     const coreExercises = k14.worksheet.sections
       .slice(1)
       .flatMap((s) => s.exercises);
-    expect(coreExercises.length).toBeGreaterThanOrEqual(4);
+    expect(coreExercises.length).toBeGreaterThanOrEqual(3);
 
     const coreModels = coreExercises.flatMap((e) => e.visualModels);
     expect(coreModels.some((m) => m.kind === "tally-marks")).toBe(true);
@@ -193,7 +193,7 @@ describe("Ticket 04 — Lessons K-12 to K-16: ModelCountAndTrace (عدّ ومث�
     const coreExercises = k15.worksheet.sections
       .slice(1)
       .flatMap((s) => s.exercises);
-    expect(coreExercises.length).toBeGreaterThanOrEqual(4);
+    expect(coreExercises.length).toBeGreaterThanOrEqual(3);
 
     const coreModels = coreExercises.flatMap((e) => e.visualModels);
     expect(coreModels.some((m) => m.kind === "dice-pattern")).toBe(true);
@@ -245,7 +245,7 @@ describe("Ticket 04 — Lessons K-12 to K-16: ModelCountAndTrace (عدّ ومث�
     const coreExercises = k16.worksheet.sections
       .slice(1)
       .flatMap((s) => s.exercises);
-    expect(coreExercises.length).toBeGreaterThanOrEqual(4);
+    expect(coreExercises.length).toBeGreaterThanOrEqual(3);
 
     const coreModels = coreExercises.flatMap((e) => e.visualModels);
     expect(coreModels.some((m) => m.kind === "circular-arrangement")).toBe(

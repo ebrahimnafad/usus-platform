@@ -22,7 +22,7 @@ describe("Ticket 03 — Lesson K-9: Identify Patterns working Forward with 2 Obj
     const coreExercises = k9.worksheet.sections
       .slice(1)
       .flatMap((s) => s.exercises);
-    expect(coreExercises.length).toBeGreaterThanOrEqual(4);
+    expect(coreExercises.length).toBeGreaterThanOrEqual(3);
 
     for (const ex of coreExercises) {
       expect(ex.archetype).toBe("PatternComplete");
@@ -139,7 +139,7 @@ describe("Ticket 03 — Lesson K-10: Identify Patterns working Forward with 3 Ob
     const coreExercises = k10.worksheet.sections
       .slice(1)
       .flatMap((s) => s.exercises);
-    expect(coreExercises.length).toBeGreaterThanOrEqual(4);
+    expect(coreExercises.length).toBeGreaterThanOrEqual(3);
 
     for (const ex of coreExercises) {
       expect(ex.archetype).toBe("PatternComplete");
@@ -252,7 +252,7 @@ describe("Ticket 03 — Lesson K-11: Identify Patterns working Backward & Compre
     const coreExercises = k11.worksheet.sections
       .slice(1)
       .flatMap((s) => s.exercises);
-    expect(coreExercises.length).toBeGreaterThanOrEqual(4);
+    expect(coreExercises.length).toBeGreaterThanOrEqual(3);
 
     for (const ex of coreExercises) {
       expect(ex.archetype).toBe("PatternComplete");

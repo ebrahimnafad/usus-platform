@@ -309,15 +309,29 @@ export function WorksheetSurface({
     display: none !important;
   }
 
+  .a4-sheet[data-worksheet-surface="true"] [data-section-id],
+  .a4-sheet[data-worksheet-surface="true"] [data-section-id] > div {
+    display: block !important;
+  }
+
   .a4-sheet[data-worksheet-surface="true"] [data-section-id] {
-    box-decoration-break: clone;
-    -webkit-box-decoration-break: clone;
+    border: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
   }
 
   .a4-sheet[data-worksheet-surface="true"]
     [data-section-id] > div:first-child {
+    display: flex !important;
     break-after: avoid !important;
     page-break-after: avoid !important;
+  }
+
+  .a4-sheet[data-worksheet-surface="true"] [data-exercise-id] {
+    display: block !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
   }
 }
 `;
@@ -336,7 +350,7 @@ export function WorksheetSurface({
       data-worksheet-surface="true"
     >
       <style>{worksheetPrintCss}</style>
-      <div className="space-y-4">
+      <div className="space-y-1">
         {!isAuthoredBlueprint && (
           <div
             className="rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-950"
@@ -346,53 +360,53 @@ export function WorksheetSurface({
           </div>
         )}
         {/* Illustrated Workbook Header */}
-        <header className="rounded-3xl border-2 border-indigo-200 bg-gradient-to-l from-indigo-50 via-sky-50 to-amber-50 p-4 shadow-2xs">
-          <div className="flex items-start justify-between gap-3">
-            <div className="space-y-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1 rounded-full bg-indigo-600 px-3 py-0.5 text-xs font-extrabold text-white">
+        <header className="rounded-2xl border-2 border-indigo-200 bg-gradient-to-l from-indigo-50 via-sky-50 to-amber-50 px-3 py-1 shadow-2xs">
+          <div className="flex items-start justify-between gap-2">
+            <div className="space-y-0.5">
+              <div className="flex flex-wrap items-center gap-1">
+                <span className="inline-flex items-center gap-1 rounded-full bg-indigo-600 px-2 py-0.5 text-xs font-extrabold leading-tight text-white">
                   {header.gradeLabelAr}
                 </span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-sky-600 px-3 py-0.5 text-xs font-extrabold text-white">
+                <span className="inline-flex items-center gap-1 rounded-full bg-sky-600 px-2 py-0.5 text-xs font-extrabold leading-tight text-white">
                   الوحدة {header.unitNumberAr}:{" "}
                   {toEasternArabicNumerals(header.unitTitleAr)}
                 </span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-900 border border-amber-300">
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-bold leading-tight text-amber-900 border border-amber-300">
                   المستوى: {toEasternArabicNumerals(header.difficultyLabelAr)}
                 </span>
                 {isAnswerKey && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-600 px-3 py-0.5 text-xs font-extrabold text-white shadow-2xs">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-600 px-2 py-0.5 text-xs font-extrabold leading-tight text-white shadow-2xs">
                     ✓ مفتاح الإجابة النموذجي
                   </span>
                 )}
               </div>
 
-              <h1 className="pt-1 text-xl font-extrabold text-slate-900">
+              <h1 className="text-[20px] font-extrabold leading-tight text-slate-900">
                 الدرس {header.lessonNumberAr}:{" "}
                 {toEasternArabicNumerals(header.lessonTitleAr)}
               </h1>
             </div>
 
             {/* Standard Pills */}
-            <div className="flex flex-col items-end gap-1.5">
+            <div className="flex flex-col items-end gap-0.5">
               <div className="flex flex-wrap justify-end gap-1">
                 {header.standards.map((std) => (
                   <span
                     key={std}
                     data-standard-code="true"
-                    className="rounded-lg border border-indigo-300 bg-white px-2.5 py-0.5 font-mono text-xs font-extrabold text-indigo-900 shadow-2xs"
+                    className="rounded-lg border border-indigo-300 bg-white px-2 py-0.5 font-mono text-xs font-extrabold leading-tight text-indigo-900 shadow-2xs"
                   >
                     {std}
                   </span>
                 ))}
               </div>
               {lesson.isCoPresented && (
-                <span className="rounded-full bg-teal-100 px-2.5 py-0.5 text-[11px] font-bold text-teal-900">
+                <span className="rounded-full bg-teal-100 px-2 py-0.5 text-xs font-bold leading-tight text-teal-900">
                   تقديم مشترك
                 </span>
               )}
               {lesson.isEnrichment && (
-                <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-[11px] font-bold text-amber-900">
+                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-bold leading-tight text-amber-900">
                   إثرائي *
                 </span>
               )}
@@ -400,34 +414,34 @@ export function WorksheetSurface({
           </div>
 
           {/* Student Name, Date, and Self-Check Star Bar */}
-          <div className="mt-3 grid grid-cols-[1.3fr_0.9fr_1fr] items-center gap-3 rounded-2xl border border-indigo-200/80 bg-white/95 px-3.5 py-2 text-xs font-bold text-slate-800">
-            <div className="flex items-center gap-2">
+          <div className="mt-1 grid grid-cols-[1.3fr_0.9fr_1fr] items-center gap-2 rounded-xl border border-indigo-200/80 bg-white/95 px-2.5 py-0.5 text-xs font-bold leading-tight text-slate-800">
+            <div className="flex items-center gap-1.5">
               <span className="text-indigo-950">
                 {header.studentNameLabelAr}
               </span>
-              <span className="flex-1 border-b-2 border-dotted border-slate-400 py-1 text-emerald-700">
+              <span className="flex-1 border-b-2 border-dotted border-slate-400 text-emerald-700">
                 {isAnswerKey ? "نموذج المعلم المحلول" : ""}
               </span>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               <span className="text-indigo-950">{header.dateLabelAr}</span>
-              <span className="flex-1 border-b-2 border-dotted border-slate-400 py-1">
+              <span className="flex-1 border-b-2 border-dotted border-slate-400">
                 {isAnswerKey ? "١٤٤٨/٠١/٠١" : ""}
               </span>
             </div>
 
-            <div className="flex items-center justify-end gap-1.5">
+            <div className="flex items-center justify-end gap-1">
               <span className="text-amber-900">{header.selfCheckLabelAr}</span>
               <div
-                className="inline-flex items-center gap-1"
+                className="inline-flex items-center gap-0.5"
                 aria-label="نجوم التقييم الذاتي"
               >
                 {[1, 2, 3].map((starIdx) => (
                   <svg
                     key={starIdx}
-                    width="18"
-                    height="18"
+                    width="15"
+                    height="15"
                     viewBox="0 0 24 24"
                     fill={isAnswerKey ? "#FACC15" : "none"}
                     stroke="#D97706"
@@ -442,30 +456,33 @@ export function WorksheetSurface({
         </header>
 
         {/* Three Canonical Sections: تهيئة | تدرّب | تحدٍّ وتقييم */}
-        <div className="space-y-4">
+        <div className="space-y-1">
           {worksheet.sections.map((section) => {
             const style = SECTION_STYLES[section.id];
             return (
               <section
                 key={section.id}
-                className={`rounded-3xl border-2 ${style.border} bg-white p-3.5 shadow-2xs`}
+                className={`rounded-2xl border-2 ${style.border} bg-white px-3.5 py-1 shadow-2xs`}
                 data-section-id={section.id}
               >
                 <div
-                  className={`mb-3 flex items-center justify-between rounded-2xl ${style.headerBg} px-3.5 py-1.5`}
+                  className={`mb-1 flex items-center justify-between rounded-xl ${style.headerBg} px-2.5 py-0.5`}
                 >
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg" aria-hidden="true">
+                  <div className="flex items-center gap-1.5">
+                    <span
+                      className="text-[20px] leading-none"
+                      aria-hidden="true"
+                    >
                       {section.badgeEmoji}
                     </span>
                     <h2
-                      className={`text-base font-extrabold ${style.textColor}`}
+                      className={`text-[20px] font-extrabold leading-tight ${style.textColor}`}
                     >
                       {section.titleAr}
                     </h2>
                     {section.id === "warm-up" &&
                       section.sourceLessonId !== worksheet.lessonId && (
-                        <span className="rounded-full bg-white/90 px-2.5 py-0.5 text-[11px] font-bold text-amber-900 border border-amber-300">
+                        <span className="rounded-full bg-white/90 px-2 py-0.5 text-xs font-bold leading-tight text-amber-900 border border-amber-300">
                           من المتطلب السابق (
                           {formatLessonCodeAr(section.sourceLessonId)})
                         </span>
@@ -473,13 +490,13 @@ export function WorksheetSurface({
                   </div>
 
                   <span
-                    className={`rounded-full px-2.5 py-0.5 text-xs font-extrabold ${style.badgeBg}`}
+                    className={`rounded-full px-2 py-0.5 text-xs font-extrabold leading-tight ${style.badgeBg}`}
                   >
                     {TIER_LABELS_AR[section.difficultyLevel]}
                   </span>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-1">
                   {section.exercises.map((exercise) => {
                     const archetypeDef = getExerciseArchetype(
                       exercise.archetype
@@ -487,22 +504,22 @@ export function WorksheetSurface({
                     return (
                       <div
                         key={exercise.id}
-                        className="break-inside-avoid rounded-2xl border border-slate-200 bg-slate-50/40 p-3"
+                        className="break-inside-avoid rounded-xl border border-slate-200 bg-slate-50/40 px-3 py-1"
                         data-exercise-id={toEasternArabicNumerals(exercise.id)}
                       >
-                        <div className="mb-2 flex items-start justify-between gap-2">
-                          <div className="flex items-center gap-2">
-                            <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-sm font-extrabold text-white shadow-2xs">
+                        <div className="mb-1 flex items-start justify-between gap-2">
+                          <div className="flex items-center gap-1.5">
+                            <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-[16px] font-extrabold leading-none text-white shadow-2xs">
                               {formatEasternNumber(exercise.exerciseNumber)}
                             </span>
                             <p
                               data-exercise-prompt="true"
-                              className="text-sm font-extrabold text-slate-900"
+                              className="text-[16px] font-extrabold leading-tight text-slate-900"
                             >
                               {toEasternArabicNumerals(exercise.promptAr)}
                             </p>
                           </div>
-                          <span className="shrink-0 rounded-lg bg-slate-200/80 px-2 py-0.5 text-[11px] font-bold text-slate-700">
+                          <span className="shrink-0 rounded-lg bg-slate-200/80 px-2 py-0.5 text-xs font-bold leading-tight text-slate-700">
                             {toEasternArabicNumerals(exercise.titleAr)}
                           </span>
                         </div>
@@ -519,7 +536,7 @@ export function WorksheetSurface({
 
                         {isAnswerKey && (
                           <div
-                            className="mt-2.5 flex items-start gap-2 rounded-xl border border-emerald-300 bg-emerald-50/90 px-3 py-2 text-xs font-bold text-emerald-950"
+                            className="mt-1 flex items-start gap-1.5 rounded-lg border border-emerald-300 bg-emerald-50/90 px-2 py-0.5 text-[13px] font-bold leading-tight text-emerald-950"
                             data-strategy-hint="true"
                           >
                             <span className="shrink-0 text-emerald-700">
@@ -543,7 +560,7 @@ export function WorksheetSurface({
       {/* A4 Footer — screen preview only; print uses @page margin boxes */}
       <footer
         data-worksheet-footer="true"
-        className="mt-4 flex items-center justify-between border-t-2 border-slate-200 pt-2.5 text-xs font-bold text-slate-600"
+        className="mt-2.5 flex items-center justify-between border-t-2 border-slate-200 pt-2 text-xs font-bold text-slate-600"
       >
         <span>{toEasternArabicNumerals(worksheet.footerTextAr)}</span>
         <span className="rounded-lg bg-slate-100 px-2.5 py-1 font-extrabold text-slate-800">

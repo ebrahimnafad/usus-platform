@@ -152,19 +152,6 @@ export const lessonK2Blueprint: LessonBlueprint = {
             customCandidatePairs: K2_SHAPE_TO_SHAPE_PAIRS.slice(1, 5),
           },
         },
-        {
-          archetype: "ConnectMatch",
-          promptAr:
-            "طابق كل شكل هندسي في العمود الأيمن بالشكل الذي يملك نفس عدد الأضلاع والزوايا في العمود الأيسر (٣ أشكال):",
-          strategyHintAr:
-            "حتى لو اختلف اللون، فإن الشكل الذي له ٣ أضلاع يظل مثلثاً والشكل الذي له ٤ أضلاع متساوية يظل مربعاً.",
-          params: {
-            pairCount: 3,
-            rightColumnTitleAr: "الشكل الأول",
-            leftColumnTitleAr: "نفس عدد الأضلاع",
-            customCandidatePairs: K2_VARIED_COLOR_SHAPE_PAIRS.slice(0, 4),
-          },
-        },
       ],
       challenge: [
         {
@@ -229,19 +216,6 @@ export const lessonK2Blueprint: LessonBlueprint = {
             customCandidatePairs: K2_VARIED_COLOR_SHAPE_PAIRS,
           },
         },
-        {
-          archetype: "ConnectMatch",
-          promptAr:
-            "ميّز بين الخماسي والسداسي وبقية الأشكال وصل كل شكل بمطابقه (٤ أشكال):",
-          strategyHintAr:
-            "الخماسي له ٥ أضلاع و٥ رؤوس، أما السداسي فله ٦ أضلاع و٦ رؤوس.",
-          params: {
-            pairCount: 4,
-            rightColumnTitleAr: "مجموعة المضلّعات",
-            leftColumnTitleAr: "المضلّع المطابق",
-            customCandidatePairs: K2_SHAPE_TO_SHAPE_PAIRS.slice(1, 6),
-          },
-        },
       ],
       challenge: [
         {
@@ -304,19 +278,6 @@ export const lessonK2Blueprint: LessonBlueprint = {
             rightColumnTitleAr: "العمود الأيمن",
             leftColumnTitleAr: "العمود الأيسر",
             customCandidatePairs: K2_SHAPE_TO_SHAPE_PAIRS,
-          },
-        },
-        {
-          archetype: "ConnectMatch",
-          promptAr:
-            "طابق واحداً لواحد بين الأشكال المستوية الخمسة في العمودين (٥ أشكال):",
-          strategyHintAr:
-            "ابحث عن الشكل الذي يتفق في عدد الأضلاع ونوع الزوايا مع كل شكل في العمود الأيمن.",
-          params: {
-            pairCount: 5,
-            rightColumnTitleAr: "أشكال هندسية",
-            leftColumnTitleAr: "المطابق الهندسي",
-            customCandidatePairs: K2_VARIED_COLOR_SHAPE_PAIRS,
           },
         },
       ],
@@ -400,19 +361,6 @@ export const lessonK3Blueprint: LessonBlueprint = {
             customCandidatePairs: K3_SOLID_TO_REAL_WORLD_PAIRS.slice(0, 4),
           },
         },
-        {
-          archetype: "ConnectMatch",
-          promptAr:
-            "طابق كل مجسّم ثلاثي الأبعاد بالشيء المألوف الذي يماثله في الشكل (٣ عناصر):",
-          strategyHintAr:
-            "اسأل نفسك: هل هذا الشيء كروي مثل الكرة أم له أوجه مستطيلة مثل صندوق الهدايا؟",
-          params: {
-            pairCount: 3,
-            rightColumnTitleAr: "المجسّمات",
-            leftColumnTitleAr: "أشياء من حياتنا",
-            customCandidatePairs: K3_SOLID_TO_REAL_WORLD_PAIRS.slice(1, 5),
-          },
-        },
       ],
       challenge: [
         {
@@ -477,19 +425,6 @@ export const lessonK3Blueprint: LessonBlueprint = {
             customCandidatePairs: K3_SOLID_TO_SOLID_PAIRS,
           },
         },
-        {
-          archetype: "ConnectMatch",
-          promptAr:
-            "طابق كل مجسّم هندسي بالشيء اليومي الذي يشاركه نفس الشكل الثلاثي الأبعاد (٤ عناصر):",
-          strategyHintAr:
-            "خيمة التخييم تشبه الهرم، وكرة السلة تشبه الكرة، وصندوق الهدايا يشبه متوازي المستطيلات.",
-          params: {
-            pairCount: 4,
-            rightColumnTitleAr: "المجسّم الهندسي",
-            leftColumnTitleAr: "المثيل في الحياة اليومية",
-            customCandidatePairs: K3_SOLID_TO_REAL_WORLD_PAIRS.slice(1, 6),
-          },
-        },
       ],
       challenge: [
         {
@@ -552,19 +487,6 @@ export const lessonK3Blueprint: LessonBlueprint = {
             rightColumnTitleAr: "العمود الأيمن",
             leftColumnTitleAr: "العمود الأيسر",
             customCandidatePairs: K3_SOLID_TO_SOLID_PAIRS,
-          },
-        },
-        {
-          archetype: "ConnectMatch",
-          promptAr:
-            "صل كل مجسّم هندسي بنظيره في الحياة اليومية (٥ عناصر):",
-          strategyHintAr:
-            "تحقّق من اتصال كل مجسّم بالشيء الواحد الذي يطابق خصائصه الثلاثية الأبعاد.",
-          params: {
-            pairCount: 5,
-            rightColumnTitleAr: "المجسّم",
-            leftColumnTitleAr: "نظيره في الواقع",
-            customCandidatePairs: K3_SOLID_TO_REAL_WORLD_PAIRS,
           },
         },
       ],
@@ -648,23 +570,6 @@ export const lessonK4Blueprint: LessonBlueprint = {
             customCandidatePairs: K4_COIN_PAIRS.slice(1, 5),
           },
         },
-        {
-          archetype: "ConnectMatch",
-          promptAr:
-            "اقرأ الرقم العربي الشرقي على كل عملة وصلها بتوأمها في العمود الأيسر (٣ عملات):",
-          strategyHintAr:
-            "طابق عملة ١ مع ١، وعملة ١٠ مع ١٠، وعملة ٥٠ مع ٥٠.",
-          params: {
-            pairCount: 3,
-            rightColumnTitleAr: "العمود الأيمن",
-            leftColumnTitleAr: "العمود الأيسر",
-            customCandidatePairs: [
-              K4_COIN_PAIRS[0],
-              K4_COIN_PAIRS[2],
-              K4_COIN_PAIRS[4],
-            ],
-          },
-        },
       ],
       challenge: [
         {
@@ -680,8 +585,7 @@ export const lessonK4Blueprint: LessonBlueprint = {
             customCandidatePairs: K4_COIN_PAIRS.slice(0, 3),
             comparisonPromptAr:
               "بين العملات (١، ٥، ١٠): أي عملة ليست فضية اللون؟ وأيّها الأصغر حجماً؟",
-            comparisonAnswerAr:
-              "عملة ١ نحاسية وليست فضية، وهي الأصغر حجماً",
+            comparisonAnswerAr: "عملة ١ نحاسية وليست فضية، وهي الأصغر حجماً",
           },
         },
       ],
@@ -727,19 +631,6 @@ export const lessonK4Blueprint: LessonBlueprint = {
             rightColumnTitleAr: "المجموعة الأولى",
             leftColumnTitleAr: "المجموعة المطابقة",
             customCandidatePairs: K4_COIN_PAIRS.slice(1, 5),
-          },
-        },
-        {
-          archetype: "ConnectMatch",
-          promptAr:
-            "صل بخط بين كل عملة في العمود الأيمن والعملة المماثلة لها في العمود الأيسر (٤ عملات):",
-          strategyHintAr:
-            "تحقّق من النقش الدائري والرقم المكتوب وسط العملة للتأكّد من التطابق.",
-          params: {
-            pairCount: 4,
-            rightColumnTitleAr: "حصّالة العملات",
-            leftColumnTitleAr: "العملة المماثلة",
-            customCandidatePairs: K4_COIN_PAIRS,
           },
         },
       ],
@@ -803,19 +694,6 @@ export const lessonK4Blueprint: LessonBlueprint = {
             pairCount: 5,
             rightColumnTitleAr: "العملات المعدنية",
             leftColumnTitleAr: "العملة المطابقة",
-            customCandidatePairs: K4_COIN_PAIRS,
-          },
-        },
-        {
-          archetype: "ConnectMatch",
-          promptAr:
-            "طابق واحداً لواحد بين العملات الخمس في العمودين (٥ عملات):",
-          strategyHintAr:
-            "تأكّد من أن كل عملة في اليمين تتصل بعملة واحدة فقط تحمل نفس الرقم واللون والحجم في اليسار.",
-          params: {
-            pairCount: 5,
-            rightColumnTitleAr: "مجموعة العملات (١)",
-            leftColumnTitleAr: "مجموعة العملات (٢)",
             customCandidatePairs: K4_COIN_PAIRS,
           },
         },
@@ -891,16 +769,6 @@ export const lessonK5Blueprint: LessonBlueprint = {
             candidateShapeIds: ["triangle", "rectangle"],
           },
         },
-        {
-          archetype: "ClassifyAndCount",
-          params: {
-            domainMode: "shapes-2d",
-            variationMode: "color-group",
-            groupCount: 2,
-            partCountRange: [2, 3],
-            candidateShapeIds: ["circle", "triangle", "pentagon"],
-          },
-        },
       ],
       challenge: [
         {
@@ -949,16 +817,6 @@ export const lessonK5Blueprint: LessonBlueprint = {
             candidateShapeIds: ["square", "rectangle", "pentagon"],
           },
         },
-        {
-          archetype: "ClassifyAndCount",
-          params: {
-            domainMode: "shapes-2d",
-            variationMode: "color-group",
-            groupCount: 2,
-            partCountRange: [2, 4],
-            candidateShapeIds: ["triangle", "pentagon", "hexagon"],
-          },
-        },
       ],
       challenge: [
         {
@@ -1003,15 +861,6 @@ export const lessonK5Blueprint: LessonBlueprint = {
             groupCount: 3,
             partCountRange: [2, 3],
             candidateShapeIds: ["triangle", "rectangle", "pentagon", "hexagon"],
-          },
-        },
-        {
-          archetype: "ClassifyAndCount",
-          params: {
-            domainMode: "shapes-2d",
-            variationMode: "color-group",
-            groupCount: 3,
-            partCountRange: [2, 3],
           },
         },
       ],
@@ -1078,16 +927,6 @@ export const lessonK6Blueprint: LessonBlueprint = {
             candidateSolidIds: ["cylinder", "cube"],
           },
         },
-        {
-          archetype: "ClassifyAndCount",
-          params: {
-            domainMode: "solids-3d",
-            variationMode: "color-group",
-            groupCount: 2,
-            partCountRange: [2, 3],
-            candidateSolidIds: ["cone", "rectangular-prism", "pyramid"],
-          },
-        },
       ],
       challenge: [
         {
@@ -1135,15 +974,6 @@ export const lessonK6Blueprint: LessonBlueprint = {
             candidateSolidIds: ["cube", "rectangular-prism", "pyramid"],
           },
         },
-        {
-          archetype: "ClassifyAndCount",
-          params: {
-            domainMode: "solids-3d",
-            variationMode: "color-group",
-            groupCount: 2,
-            partCountRange: [2, 4],
-          },
-        },
       ],
       challenge: [
         {
@@ -1188,15 +1018,6 @@ export const lessonK6Blueprint: LessonBlueprint = {
             groupCount: 3,
             partCountRange: [2, 3],
             candidateSolidIds: ["cone", "cube", "rectangular-prism", "pyramid"],
-          },
-        },
-        {
-          archetype: "ClassifyAndCount",
-          params: {
-            domainMode: "solids-3d",
-            variationMode: "color-group",
-            groupCount: 3,
-            partCountRange: [2, 3],
           },
         },
       ],
@@ -1263,15 +1084,6 @@ export const lessonK7Blueprint: LessonBlueprint = {
             candidateSolidIds: ["cube", "cylinder"],
           },
         },
-        {
-          archetype: "ClassifyAndCount",
-          params: {
-            domainMode: "mixed-shapes-solids",
-            variationMode: "vary-size",
-            groupCount: 2,
-            partCountRange: [2, 3],
-          },
-        },
       ],
       challenge: [
         {
@@ -1319,15 +1131,6 @@ export const lessonK7Blueprint: LessonBlueprint = {
             candidateSolidIds: ["sphere", "cone", "cube"],
           },
         },
-        {
-          archetype: "ClassifyAndCount",
-          params: {
-            domainMode: "mixed-shapes-solids",
-            variationMode: "vary-size",
-            groupCount: 2,
-            partCountRange: [2, 4],
-          },
-        },
       ],
       challenge: [
         {
@@ -1367,15 +1170,6 @@ export const lessonK7Blueprint: LessonBlueprint = {
           archetype: "ClassifyAndCount",
           params: {
             domainMode: "solids-3d",
-            variationMode: "vary-size",
-            groupCount: 3,
-            partCountRange: [2, 3],
-          },
-        },
-        {
-          archetype: "ClassifyAndCount",
-          params: {
-            domainMode: "mixed-shapes-solids",
             variationMode: "vary-size",
             groupCount: 3,
             partCountRange: [2, 3],
@@ -1445,15 +1239,6 @@ export const lessonK8Blueprint: LessonBlueprint = {
             candidateSolidIds: ["cone", "cylinder"],
           },
         },
-        {
-          archetype: "ClassifyAndCount",
-          params: {
-            domainMode: "mixed-shapes-solids",
-            variationMode: "vary-orientation",
-            groupCount: 2,
-            partCountRange: [2, 3],
-          },
-        },
       ],
       challenge: [
         {
@@ -1498,16 +1283,12 @@ export const lessonK8Blueprint: LessonBlueprint = {
             variationMode: "vary-orientation",
             groupCount: 2,
             partCountRange: [2, 4],
-            candidateSolidIds: ["cone", "cylinder", "pyramid", "rectangular-prism"],
-          },
-        },
-        {
-          archetype: "ClassifyAndCount",
-          params: {
-            domainMode: "mixed-shapes-solids",
-            variationMode: "vary-orientation",
-            groupCount: 2,
-            partCountRange: [2, 4],
+            candidateSolidIds: [
+              "cone",
+              "cylinder",
+              "pyramid",
+              "rectangular-prism",
+            ],
           },
         },
       ],
@@ -1554,15 +1335,6 @@ export const lessonK8Blueprint: LessonBlueprint = {
             partCountRange: [2, 3],
           },
         },
-        {
-          archetype: "ClassifyAndCount",
-          params: {
-            domainMode: "mixed-shapes-solids",
-            variationMode: "vary-orientation",
-            groupCount: 3,
-            partCountRange: [2, 3],
-          },
-        },
       ],
       challenge: [
         {
@@ -1586,4 +1358,3 @@ registerLessonBlueprint(lessonK5Blueprint);
 registerLessonBlueprint(lessonK6Blueprint);
 registerLessonBlueprint(lessonK7Blueprint);
 registerLessonBlueprint(lessonK8Blueprint);
-

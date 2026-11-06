@@ -14,6 +14,7 @@
 import "@/visual-models/registry";
 import "@/visual-models/shapes-solids-coins";
 import "@/visual-models/unit-2-models";
+import "@/visual-models/unit-3-models";
 import "@/visual-models/picture-graphs";
 
 // --- Exercise Archetypes ---
@@ -25,6 +26,7 @@ import "@/archetypes/model-count-and-trace";
 import "@/archetypes/picture-graph-read";
 import "@/archetypes/sequence-and-zero";
 import "@/archetypes/subitize-part-whole";
+import "@/archetypes/join-parts";
 
 // --- Lesson Blueprints ---
 import "@/blueprints/grade-k/lesson-k1";
@@ -32,3 +34,4 @@ import "@/blueprints/grade-k/lessons-k2-to-k8";
 import "@/blueprints/grade-k/lessons-k9-to-k11";
 import "@/blueprints/grade-k/lessons-k12-to-k19";
 import "@/blueprints/grade-k/lessons-k20-to-k26";
+import "@/blueprints/grade-k/lessons-k27-to-k31";

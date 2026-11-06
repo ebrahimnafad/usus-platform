@@ -222,7 +222,7 @@ export function EverydayObjectSvg({
   size?: "tiny" | "small" | "medium" | "large";
 }): React.ReactElement {
   const px =
-    size === "tiny" ? 30 : size === "small" ? 44 : size === "large" ? 68 : 56;
+    size === "tiny" ? 30 : size === "small" ? 32 : size === "large" ? 42 : 34;
 
   switch (objectId as EverydayObjectId) {
     case "apple":

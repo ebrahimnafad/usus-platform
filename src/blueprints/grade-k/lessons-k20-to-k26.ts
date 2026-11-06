@@ -79,21 +79,6 @@ export const lessonK20Blueprint: LessonBlueprint = {
               "نفس العدد: صفّ الكرة (٣) وصفّ السيارة (٣) ينتهيان عند الخانة ٣ نفسها",
           },
         },
-        {
-          archetype: "PictureGraphRead",
-          promptAr:
-            "اقرأ التمثيل البياني الأفقي للأدوات المدرسية، وتتبّع الأرقام حتى ٥ ثم قارن:",
-          strategyHintAr:
-            "اقرأ أرقام المحور الأفقي في أسفل الجدول من اليمين إلى اليسار (١، ٢، ٣، ٤، ٥) لتعرف عدد كل صفّ بسرعة.",
-          params: {
-            orientation: "horizontal",
-            titleAr: "حقيبة الأدوات المدرسية",
-            categoryCount: 3,
-            countsPattern: "increasing-by-1",
-            responseMode: "trace-and-write",
-            comparisonRelation: "١ أكثر",
-          },
-        },
       ],
       challenge: [
         {
@@ -124,8 +109,7 @@ export const lessonK20Blueprint: LessonBlueprint = {
       warmUp: [
         {
           archetype: "PictureGraphRead",
-          promptAr:
-            "عدّ الصور في كل صفّ أفقي وتتبّع الرقم المقابل (١–٥):",
+          promptAr: "عدّ الصور في كل صفّ أفقي وتتبّع الرقم المقابل (١–٥):",
           strategyHintAr:
             "استخدم المحور الأفقي المرقّم من ١ إلى ٥ للتحقّق من عدد الصور في كل صفّ.",
           params: {
@@ -167,28 +151,6 @@ export const lessonK20Blueprint: LessonBlueprint = {
             countsPattern: "with-equal-pair",
             responseMode: "trace-and-write",
             comparisonRelation: "نفس العدد",
-          },
-        },
-        {
-          archetype: "PictureGraphRead",
-          promptAr:
-            "عدّ الصور في الصفوف الأفقية واكتب الأرقام من ذاكرتك ثم قارن (١ أقل):",
-          strategyHintAr:
-            "الصفّ الأقصر بخانة واحدة من الصفّ المجاور له يمثّل (١ أقل).",
-          params: {
-            orientation: "horizontal",
-            titleAr: "أدوات الرسم والقراءة",
-            categories: [
-              { objectId: "pencil", count: 5, colorTheme: "amber" },
-              { objectId: "crayon", count: 4, colorTheme: "rose" },
-              { objectId: "book", count: 3, colorTheme: "indigo" },
-            ],
-            responseMode: "write",
-            comparisonRelation: "١ أقل",
-            comparisonPromptAr:
-              "قارن بين صفّ قلم التلوين (٤) وصفّ قلم الرصاص (٥): هل عدد أقلام التلوين هو (١ أكثر) أم (١ أقل) أم (نفس العدد)؟",
-            comparisonAnswerAr:
-              "١ أقل: عدد أقلام التلوين (٤) هو ١ أقل من عدد أقلام الرصاص (٥)",
           },
         },
       ],
@@ -265,21 +227,6 @@ export const lessonK20Blueprint: LessonBlueprint = {
             countsPattern: "with-equal-pair",
             responseMode: "write",
             comparisonRelation: "نفس العدد",
-          },
-        },
-        {
-          archetype: "PictureGraphRead",
-          promptAr:
-            "قارن بين الصفوف الأفقية واكتب الأعداد من ذاكرتك ثم حدّد الفئة التي تمثّل (١ أقل):",
-          strategyHintAr:
-            "قارن كل صفّ بالصفّ الذي يسبقه لتكتشف النقصان بمقدار ١.",
-          params: {
-            orientation: "horizontal",
-            titleAr: "ألعاب الحديقة",
-            categoryCount: 4,
-            countsPattern: "decreasing-by-1",
-            responseMode: "write",
-            comparisonRelation: "١ أقل",
           },
         },
       ],
@@ -391,21 +338,6 @@ export const lessonK21Blueprint: LessonBlueprint = {
               "نفس العدد: العمودان يصلان إلى نفس الارتفاع (٤) على المحور العمودي",
           },
         },
-        {
-          archetype: "PictureGraphRead",
-          promptAr:
-            "اقرأ الأعمدة من اليمين إلى اليسار، وتتبّع الأرقام ثم قارن بين الفئات (١ أكثر):",
-          strategyHintAr:
-            "انظر إلى قمة كل عمود وقارنها بالمحور العمودي المرقّم (١–٥).",
-          params: {
-            orientation: "vertical",
-            titleAr: "أشجار وزهور الروضة",
-            categoryCount: 3,
-            countsPattern: "increasing-by-1",
-            responseMode: "trace-and-write",
-            comparisonRelation: "١ أكثر",
-          },
-        },
       ],
       challenge: [
         {
@@ -436,8 +368,7 @@ export const lessonK21Blueprint: LessonBlueprint = {
       warmUp: [
         {
           archetype: "PictureGraphRead",
-          promptAr:
-            "عدّ الصور في كل عمود وتتبّع الأرقام وقارن الارتفاعات:",
+          promptAr: "عدّ الصور في كل عمود وتتبّع الأرقام وقارن الارتفاعات:",
           strategyHintAr:
             "عدّ من الأسفل إلى الأعلى في كل عمود للتحقّق من العدد.",
           params: {
@@ -455,8 +386,7 @@ export const lessonK21Blueprint: LessonBlueprint = {
           archetype: "PictureGraphRead",
           promptAr:
             "اقرأ التمثيل البياني العمودي وتتبّع الأرقام واكتبها، ثم حدّد العلاقة (١ أقل):",
-          strategyHintAr:
-            "قارن ارتفاع كل عمود بالعمود الذي يسبقه على اليمين.",
+          strategyHintAr: "قارن ارتفاع كل عمود بالعمود الذي يسبقه على اليمين.",
           params: {
             orientation: "vertical",
             titleAr: "أدوات مكتبتي",
@@ -470,8 +400,7 @@ export const lessonK21Blueprint: LessonBlueprint = {
           archetype: "PictureGraphRead",
           promptAr:
             "عدّ عناصر الأعمدة وتتبّع الأرقام ثم قارن بين الفئات المتساوية (نفس العدد):",
-          strategyHintAr:
-            "ابحث عن العمودين اللذين يتساويان في الطول.",
+          strategyHintAr: "ابحث عن العمودين اللذين يتساويان في الطول.",
           params: {
             orientation: "vertical",
             titleAr: "حيوانات المزرعة والبحر",
@@ -479,21 +408,6 @@ export const lessonK21Blueprint: LessonBlueprint = {
             countsPattern: "with-equal-pair",
             responseMode: "trace-and-write",
             comparisonRelation: "نفس العدد",
-          },
-        },
-        {
-          archetype: "PictureGraphRead",
-          promptAr:
-            "اقرأ التمثيل البياني العمودي واكتب الأرقام من ذاكرتك دون تتبّع ثم قارن (١ أكثر):",
-          strategyHintAr:
-            "استخدم المحور العمودي على اليمين لقراءة ارتفاع كل عمود فوراً.",
-          params: {
-            orientation: "vertical",
-            titleAr: "سباق الألعاب",
-            categoryCount: 3,
-            countsPattern: "increasing-by-1",
-            responseMode: "write",
-            comparisonRelation: "١ أكثر",
           },
         },
       ],
@@ -561,8 +475,7 @@ export const lessonK21Blueprint: LessonBlueprint = {
           archetype: "PictureGraphRead",
           promptAr:
             "اقرأ التمثيل العمودي للأعمدة الأربعة واكتب الأعداد ثم حدّد (نفس العدد):",
-          strategyHintAr:
-            "العمودان اللذان لهما نفس الارتفاع يمثلان نفس العدد.",
+          strategyHintAr: "العمودان اللذان لهما نفس الارتفاع يمثلان نفس العدد.",
           params: {
             orientation: "vertical",
             titleAr: "أدواتي المفضلة",
@@ -570,21 +483,6 @@ export const lessonK21Blueprint: LessonBlueprint = {
             countsPattern: "with-equal-pair",
             responseMode: "write",
             comparisonRelation: "نفس العدد",
-          },
-        },
-        {
-          archetype: "PictureGraphRead",
-          promptAr:
-            "اقرأ التمثيل العمودي واكتب الأعداد من ذاكرتك ثم حدّد الفئة التي تمثّل (١ أكثر):",
-          strategyHintAr:
-            "قارن ارتفاع كل عمود بالعمود المجاور له.",
-          params: {
-            orientation: "vertical",
-            titleAr: "حديقة الحيوانات",
-            categoryCount: 4,
-            countsPattern: "increasing-by-1",
-            responseMode: "write",
-            comparisonRelation: "١ أكثر",
           },
         },
       ],
@@ -646,10 +544,8 @@ export const lessonK22Blueprint: LessonBlueprint = {
             visualKind: "snap-cubes",
             numbers: [1, 2, 3],
             missingCount: 1,
-            reasoningPromptAr:
-              "بكم يزيد البرج الثاني (٢) على البرج الأول (١)؟",
-            reasoningAnswerAr:
-              "يزيد بمقدار مكعب واحد (٢ هو ١ أكثر من ١)",
+            reasoningPromptAr: "بكم يزيد البرج الثاني (٢) على البرج الأول (١)؟",
+            reasoningAnswerAr: "يزيد بمقدار مكعب واحد (٢ هو ١ أكثر من ١)",
           },
         },
       ],
@@ -658,8 +554,7 @@ export const lessonK22Blueprint: LessonBlueprint = {
           archetype: "SequenceAndZero",
           promptAr:
             "رتّب وعدّ أبراج المكعبات تصاعدياً من ١ إلى ٤، وتتبّع واكتب العدد المفقود (١ أكثر):",
-          strategyHintAr:
-            "اتبع الزيادة بمقدار ١ في كل خطوة: ١، ٢، ٣، ٤.",
+          strategyHintAr: "اتبع الزيادة بمقدار ١ في كل خطوة: ١، ٢، ٣، ٤.",
           params: {
             sequenceMode: "forward",
             visualKind: "snap-cubes",
@@ -671,26 +566,12 @@ export const lessonK22Blueprint: LessonBlueprint = {
           archetype: "SequenceAndZero",
           promptAr:
             "عدّ المجموعات المصوّرة تصاعدياً (٢ ← ٣ ← ٤ ← ٥) واكتب العدد المفقود:",
-          strategyHintAr:
-            "كل مجموعة تالية تحتوي على عنصر واحد إضافي (١ أكثر).",
+          strategyHintAr: "كل مجموعة تالية تحتوي على عنصر واحد إضافي (١ أكثر).",
           params: {
             sequenceMode: "forward",
             visualKind: "everyday-object",
             numbers: [2, 3, 4, 5],
             missingCount: 1,
-          },
-        },
-        {
-          archetype: "SequenceAndZero",
-          promptAr:
-            "أكمل درج المكعبات المتداخلة من ١ إلى ٥ بتتبّع وكتابة العدد المفقود:",
-          strategyHintAr:
-            "٥ هو ١ أكثر من ٤ ويكمل درج المكعبات حتى القمة.",
-          params: {
-            sequenceMode: "forward",
-            visualKind: "snap-cubes",
-            numbers: [1, 2, 3, 4, 5],
-            missingValues: [5],
           },
         },
       ],
@@ -720,8 +601,7 @@ export const lessonK22Blueprint: LessonBlueprint = {
           archetype: "SequenceAndZero",
           promptAr:
             "عدّ أبراج المكعبات تصاعدياً من ١ إلى ٤ واكتب العدد المفقود:",
-          strategyHintAr:
-            "كل خطوة نحو اليسار تزيد بمكعب واحد (١ أكثر).",
+          strategyHintAr: "كل خطوة نحو اليسار تزيد بمكعب واحد (١ أكثر).",
           params: {
             sequenceMode: "forward",
             visualKind: "snap-cubes",
@@ -748,25 +628,11 @@ export const lessonK22Blueprint: LessonBlueprint = {
           archetype: "SequenceAndZero",
           promptAr:
             "عدّ مجموعات الأشياء تصاعدياً (١ ← ٢ ← ٣ ← ٤ ← ٥) وأكمل الأعداد المفقودة:",
-          strategyHintAr:
-            "استخدم قاعدة (١ أكثر) للتحقّق من كل عدد في السلسلة.",
+          strategyHintAr: "استخدم قاعدة (١ أكثر) للتحقّق من كل عدد في السلسلة.",
           params: {
             sequenceMode: "forward",
             visualKind: "everyday-object",
             numbers: [1, 2, 3, 4, 5],
-            missingCount: 2,
-          },
-        },
-        {
-          archetype: "SequenceAndZero",
-          promptAr:
-            "تتبّع الزيادة على لوحات الخمسة من ٢ إلى ٥ واكتب الأعداد المفقودة:",
-          strategyHintAr:
-            "كل لوحة خمسة تالية تمتلئ بقرص إضافي واحد (١ أكثر) نحو اليسار.",
-          params: {
-            sequenceMode: "forward",
-            visualKind: "five-frame",
-            numbers: [2, 3, 4, 5],
             missingCount: 2,
           },
         },
@@ -776,8 +642,7 @@ export const lessonK22Blueprint: LessonBlueprint = {
           archetype: "SequenceAndZero",
           promptAr:
             "تحدّي العدّ التصاعدي: أكمل الأعداد المفقودة في درج المكعبات من ١ إلى ٥ وفسّر العلاقة:",
-          strategyHintAr:
-            "قارن بين كل برج والبرج الذي يسبقه مباشرة.",
+          strategyHintAr: "قارن بين كل برج والبرج الذي يسبقه مباشرة.",
           params: {
             sequenceMode: "forward",
             visualKind: "snap-cubes",
@@ -795,10 +660,8 @@ export const lessonK22Blueprint: LessonBlueprint = {
       warmUp: [
         {
           archetype: "SequenceAndZero",
-          promptAr:
-            "تهيئة متقدّمة: أكمل تسلسل المكعبات التصاعدي من ١ إلى ٥:",
-          strategyHintAr:
-            "تحقّق من أن الفرق بين كل عددين متتاليين هو ١ أكثر.",
+          promptAr: "تهيئة متقدّمة: أكمل تسلسل المكعبات التصاعدي من ١ إلى ٥:",
+          strategyHintAr: "تحقّق من أن الفرق بين كل عددين متتاليين هو ١ أكثر.",
           params: {
             sequenceMode: "forward",
             visualKind: "snap-cubes",
@@ -810,10 +673,8 @@ export const lessonK22Blueprint: LessonBlueprint = {
       practice: [
         {
           archetype: "SequenceAndZero",
-          promptAr:
-            "أكمل ثلاثة أعداد مفقودة في درج المكعبات التصاعدي (١ ← ٥):",
-          strategyHintAr:
-            "ابدأ من ١ وأضف ١ في كل خطوة (١ أكثر).",
+          promptAr: "أكمل ثلاثة أعداد مفقودة في درج المكعبات التصاعدي (١ ← ٥):",
+          strategyHintAr: "ابدأ من ١ وأضف ١ في كل خطوة (١ أكثر).",
           params: {
             sequenceMode: "forward",
             visualKind: "snap-cubes",
@@ -834,27 +695,13 @@ export const lessonK22Blueprint: LessonBlueprint = {
             missingCount: 3,
           },
         },
-        {
-          archetype: "SequenceAndZero",
-          promptAr:
-            "رتّب مجموعات العناصر تصاعدياً حتى ٥ وأكمل الأرقام المفقودة:",
-          strategyHintAr:
-            "تأكّد أن كل مجموعة تزيد بعنصر واحد على المجموعة السابقة.",
-          params: {
-            sequenceMode: "forward",
-            visualKind: "everyday-object",
-            numbers: [1, 2, 3, 4, 5],
-            missingCount: 3,
-          },
-        },
       ],
       challenge: [
         {
           archetype: "SequenceAndZero",
           promptAr:
             "تحدٍّ وتقييم: أكمل تسلسل المكعبات التصاعدي من ١ إلى ٥ وأجب عن سؤال الاستنتاج:",
-          strategyHintAr:
-            "كل خطوة للأمام تضيف ١؛ خطوتان للأمام تضيفان ١ ثم ١.",
+          strategyHintAr: "كل خطوة للأمام تضيف ١؛ خطوتان للأمام تضيفان ١ ثم ١.",
           params: {
             sequenceMode: "forward",
             visualKind: "snap-cubes",
@@ -930,19 +777,6 @@ export const lessonK23Blueprint: LessonBlueprint = {
             missingCount: 1,
           },
         },
-        {
-          archetype: "SequenceAndZero",
-          promptAr:
-            "أكمل العدّ التنازلي لأبراج المكعبات من ٥ إلى ١ بتتبّع وكتابة العدد الأخير:",
-          strategyHintAr:
-            "العدد ١ هو ١ أقل من ٢ ويأتي في نهاية العدّ التنازلي من ٥ إلى ١.",
-          params: {
-            sequenceMode: "backward",
-            visualKind: "snap-cubes",
-            numbers: [5, 4, 3, 2, 1],
-            missingValues: [1],
-          },
-        },
       ],
       challenge: [
         {
@@ -970,8 +804,7 @@ export const lessonK23Blueprint: LessonBlueprint = {
           archetype: "SequenceAndZero",
           promptAr:
             "عدّ تنازلياً من ٥ إلى ٢ باستخدام أبراج المكعبات واكتب العدد المفقود:",
-          strategyHintAr:
-            "في كل خطوة نحو اليسار ننقص مكعباً واحداً (١ أقل).",
+          strategyHintAr: "في كل خطوة نحو اليسار ننقص مكعباً واحداً (١ أقل).",
           params: {
             sequenceMode: "backward",
             visualKind: "snap-cubes",
@@ -1007,27 +840,13 @@ export const lessonK23Blueprint: LessonBlueprint = {
             missingCount: 2,
           },
         },
-        {
-          archetype: "SequenceAndZero",
-          promptAr:
-            "تتبّع العدّ التنازلي على لوحات الخمسة من ٥ إلى ١ واكتب الأعداد المفقودة:",
-          strategyHintAr:
-            "لاحظ كيف تنقص الأقراص قرصاً واحداً (١ أقل) في كل لوحة خمسة تالية.",
-          params: {
-            sequenceMode: "backward",
-            visualKind: "five-frame",
-            numbers: [5, 4, 3, 2, 1],
-            missingCount: 2,
-          },
-        },
       ],
       challenge: [
         {
           archetype: "SequenceAndZero",
           promptAr:
             "تحدّي العدّ التنازلي من ٥: أكمل الأعداد المفقودة في درج المكعبات التنازلي وأجب:",
-          strategyHintAr:
-            "العدّ التنازلي يمهّد للطرح لأننا نأخذ ١ في كل خطوة.",
+          strategyHintAr: "العدّ التنازلي يمهّد للطرح لأننا نأخذ ١ في كل خطوة.",
           params: {
             sequenceMode: "backward",
             visualKind: "snap-cubes",
@@ -1045,10 +864,8 @@ export const lessonK23Blueprint: LessonBlueprint = {
       warmUp: [
         {
           archetype: "SequenceAndZero",
-          promptAr:
-            "تهيئة متقدّمة: أكمل تسلسل المكعبات التنازلي من ٥ إلى ١:",
-          strategyHintAr:
-            "تحقّق من نقصان مكعب واحد (١ أقل) في كل خطوة.",
+          promptAr: "تهيئة متقدّمة: أكمل تسلسل المكعبات التنازلي من ٥ إلى ١:",
+          strategyHintAr: "تحقّق من نقصان مكعب واحد (١ أقل) في كل خطوة.",
           params: {
             sequenceMode: "backward",
             visualKind: "snap-cubes",
@@ -1060,10 +877,8 @@ export const lessonK23Blueprint: LessonBlueprint = {
       practice: [
         {
           archetype: "SequenceAndZero",
-          promptAr:
-            "أكمل ثلاثة أعداد مفقودة في درج المكعبات التنازلي (٥ ← ١):",
-          strategyHintAr:
-            "ابدأ من ٥ وانزل خطوة واحدة (١ أقل) في كل مرة.",
+          promptAr: "أكمل ثلاثة أعداد مفقودة في درج المكعبات التنازلي (٥ ← ١):",
+          strategyHintAr: "ابدأ من ٥ وانزل خطوة واحدة (١ أقل) في كل مرة.",
           params: {
             sequenceMode: "backward",
             visualKind: "snap-cubes",
@@ -1075,24 +890,10 @@ export const lessonK23Blueprint: LessonBlueprint = {
           archetype: "SequenceAndZero",
           promptAr:
             "أكمل تسلسل لوحات الخمسة التنازلي من ٥ إلى ١ واكتب الأعداد المفقودة:",
-          strategyHintAr:
-            "كل لوحة تالية تحتوي على خانة فارغة إضافية (١ أقل).",
+          strategyHintAr: "كل لوحة تالية تحتوي على خانة فارغة إضافية (١ أقل).",
           params: {
             sequenceMode: "backward",
             visualKind: "five-frame",
-            numbers: [5, 4, 3, 2, 1],
-            missingCount: 3,
-          },
-        },
-        {
-          archetype: "SequenceAndZero",
-          promptAr:
-            "عدّ تنازلياً بالمجموعات المصوّرة من ٥ إلى ١ واكتب الأرقام المفقودة:",
-          strategyHintAr:
-            "تأكّد من الترتيب التنازلي: ٥، ٤، ٣، ٢، ١.",
-          params: {
-            sequenceMode: "backward",
-            visualKind: "everyday-object",
             numbers: [5, 4, 3, 2, 1],
             missingCount: 3,
           },
@@ -1201,20 +1002,6 @@ export const lessonK24Blueprint: LessonBlueprint = {
             includeZeroTrace: true,
           },
         },
-        {
-          archetype: "SequenceAndZero",
-          promptAr:
-            "شطبنا جميع الأقراص على لوحة الخمسة! تتبّع الرقم (٠) واكتب كم بقي في كل خطوة:",
-          strategyHintAr:
-            "تتبّع الرقم (٠) بدءاً من النقطة الخضراء في أعلى المعيّن باتجاه السهم.",
-          params: {
-            sequenceMode: "zero-take-away",
-            visualKind: "five-frame",
-            numbers: [2, 1, 0],
-            missingValues: [1, 0],
-            includeZeroTrace: true,
-          },
-        },
       ],
       challenge: [
         {
@@ -1231,8 +1018,7 @@ export const lessonK24Blueprint: LessonBlueprint = {
             includeZeroTrace: true,
             reasoningPromptAr:
               "كان على لوحة الخمسة ٣ أقراص، أخذنا ١ ثم ١ ثم ١؛ كم قرصاً بقي؟ وما اسم هذا العدد؟",
-            reasoningAnswerAr:
-              "لم يبقَ أي قرص (٠)، ويسمّى هذا العدد «صفر» (٠)",
+            reasoningAnswerAr: "لم يبقَ أي قرص (٠)، ويسمّى هذا العدد «صفر» (٠)",
           },
         },
       ],
@@ -1283,38 +1069,6 @@ export const lessonK24Blueprint: LessonBlueprint = {
             includeZeroTrace: true,
           },
         },
-        {
-          archetype: "SequenceAndZero",
-          promptAr:
-            "قارن بين لوحات الخمسة المشطوبة جزئياً والمشطوبة كلياً، وتتبّع الرقم ٠ واكتب الباقي:",
-          strategyHintAr:
-            "انتبه لعدد علامات الشطب الحمراء (✕) على الأقراص لمعرفة كم بقي دون شطب.",
-          params: {
-            sequenceMode: "zero-take-away",
-            visualKind: "five-frame",
-            steps: [
-              {
-                value: 3,
-                crossedOutFrom: 4,
-                isMissing: false,
-                stepNoteAr: "٤ شُطب منها ١ فبقي ٣",
-              },
-              {
-                value: 1,
-                crossedOutFrom: 4,
-                isMissing: true,
-                stepNoteAr: "٤ شُطب منها ٣ فبقي ١",
-              },
-              {
-                value: 0,
-                crossedOutFrom: 4,
-                isMissing: true,
-                stepNoteAr: "٤ شُطبت كلها فبقي ٠",
-              },
-            ],
-            includeZeroTrace: true,
-          },
-        },
       ],
       challenge: [
         {
@@ -1361,8 +1115,7 @@ export const lessonK24Blueprint: LessonBlueprint = {
           archetype: "SequenceAndZero",
           promptAr:
             "تهيئة متقدّمة: أكمل العدّ التنازلي مع الصفر (٣ ← ٢ ← ١ ← ٠):",
-          strategyHintAr:
-            "العدد صفر (٠) هو ١ أقل من ١.",
+          strategyHintAr: "العدد صفر (٠) هو ١ أقل من ١.",
           params: {
             sequenceMode: "zero-take-away",
             visualKind: "five-frame",
@@ -1416,20 +1169,6 @@ export const lessonK24Blueprint: LessonBlueprint = {
                 stepNoteAr: "٥ شُطبت بالكامل فبقي ٠",
               },
             ],
-            includeZeroTrace: true,
-          },
-        },
-        {
-          archetype: "SequenceAndZero",
-          promptAr:
-            "أكمل العدّ التنازلي من ٣ حتى ٠ وتتبّع الأرقام المنقّطة:",
-          strategyHintAr:
-            "٣، ٢، ١، ٠ — كل خطوة تقلّ بمقدار ١.",
-          params: {
-            sequenceMode: "zero-take-away",
-            visualKind: "five-frame",
-            numbers: [3, 2, 1, 0],
-            missingValues: [2, 1, 0],
             includeZeroTrace: true,
           },
         },
@@ -1535,19 +1274,6 @@ export const lessonK25Blueprint: LessonBlueprint = {
             cardCount: 2,
           },
         },
-        {
-          archetype: "SubitizePartWhole",
-          promptAr:
-            "كم قرصاً ترى في لمحة سريعة؟ وكم خانة فارغة تبقّت على لوحة الخمسة؟",
-          strategyHintAr:
-            "استخدم الخانات الفارغة في يسار لوحة الخمسة كدليل سريع لمعرفة العدد الموجود.",
-          params: {
-            subitizeMode: "identify-quantity",
-            visualKind: "five-frame",
-            candidateCounts: [2, 3, 4, 5],
-            cardCount: 2,
-          },
-        },
       ],
       challenge: [
         {
@@ -1612,27 +1338,13 @@ export const lessonK25Blueprint: LessonBlueprint = {
             cardCount: 3,
           },
         },
-        {
-          archetype: "SubitizePartWhole",
-          promptAr:
-            "استخدم الخانات الفارغة لمعرفة العدد الموجود فوراً في كل بطاقة:",
-          strategyHintAr:
-            "إذا رأيت خانتين فارغتين فالموجود ٣؛ وإذا رأيت ٣ خانات فارغة فالموجود ٢.",
-          params: {
-            subitizeMode: "identify-quantity",
-            visualKind: "five-frame",
-            candidateCounts: [1, 2, 3, 4],
-            cardCount: 3,
-          },
-        },
       ],
       challenge: [
         {
           archetype: "SubitizePartWhole",
           promptAr:
             "تحدّي اللمحة السريعة: حدّد الموجود والفارغ في كل لوحة خمسة وأجب عن السؤال:",
-          strategyHintAr:
-            "خانتان فارغتان من ٥ تتركان ٣ خانات مملوءة.",
+          strategyHintAr: "خانتان فارغتان من ٥ تتركان ٣ خانات مملوءة.",
           params: {
             subitizeMode: "identify-quantity",
             visualKind: "five-frame-and-dice",
@@ -1652,8 +1364,7 @@ export const lessonK25Blueprint: LessonBlueprint = {
           archetype: "SubitizePartWhole",
           promptAr:
             "تهيئة متقدّمة: تعرّف بسرعة على الكميات في لوحة الخمسة والنرد:",
-          strategyHintAr:
-            "لاحظ المجموعات الجزئية داخل العدد.",
+          strategyHintAr: "لاحظ المجموعات الجزئية داخل العدد.",
           params: {
             subitizeMode: "identify-quantity",
             visualKind: "five-frame-and-dice",
@@ -1680,25 +1391,11 @@ export const lessonK25Blueprint: LessonBlueprint = {
           archetype: "SubitizePartWhole",
           promptAr:
             "اربط بين لوحة الخمسة ومجموعات الأشكال الهندسية بالتعرّف السريع دون عدّ فردي:",
-          strategyHintAr:
-            "لاحظ عدد الأشكال ومثيله على لوحة الخمسة.",
+          strategyHintAr: "لاحظ عدد الأشكال ومثيله على لوحة الخمسة.",
           params: {
             subitizeMode: "identify-quantity",
             visualKind: "five-frame-and-shapes",
             candidateCounts: [2, 3, 4, 5],
-            cardCount: 3,
-          },
-        },
-        {
-          archetype: "SubitizePartWhole",
-          promptAr:
-            "قارن بين بطاقات لوحة الخمسة وحدّد الأجزاء المكوّنة للعدد ٥ بسرعة:",
-          strategyHintAr:
-            "الموجود + الفارغ يساوي دائماً ٥.",
-          params: {
-            subitizeMode: "identify-quantity",
-            visualKind: "five-frame",
-            candidateCounts: [1, 3, 4, 5],
             cardCount: 3,
           },
         },
@@ -1785,27 +1482,13 @@ export const lessonK26Blueprint: LessonBlueprint = {
             cardCount: 2,
           },
         },
-        {
-          archetype: "SubitizePartWhole",
-          promptAr:
-            "اعرف بسرعة مكوّنات العدد ٥ باستخدام لوحة الخمسة وبطاقة النرد:",
-          strategyHintAr:
-            "٢ و٣ يكوّنان ٥، و٤ و١ يكوّنان ٥.",
-          params: {
-            subitizeMode: "both-parts-to-5",
-            visualKind: "five-frame-and-dice",
-            candidateCounts: [2, 3, 4],
-            cardCount: 2,
-          },
-        },
       ],
       challenge: [
         {
           archetype: "SubitizePartWhole",
           promptAr:
             "تحدّي مكوّنات العدد ٥: حدّد الجزأين في كل بطاقة وأجب عن سؤال الأجزاء والكل:",
-          strategyHintAr:
-            "معاً، الجزء الموجود والجزء المفقود يصنعان الكل (٥).",
+          strategyHintAr: "معاً، الجزء الموجود والجزء المفقود يصنعان الكل (٥).",
           params: {
             subitizeMode: "both-parts-to-5",
             visualKind: "five-frame-and-shapes",
@@ -1825,8 +1508,7 @@ export const lessonK26Blueprint: LessonBlueprint = {
           archetype: "SubitizePartWhole",
           promptAr:
             "سمِّ الجزأين اللذين يكوّنان ٥ على لوحة الخمسة في لمحة واحدة:",
-          strategyHintAr:
-            "لاحظ الخانات المملوءة والخانات الفارغة معاً.",
+          strategyHintAr: "لاحظ الخانات المملوءة والخانات الفارغة معاً.",
           params: {
             subitizeMode: "both-parts-to-5",
             visualKind: "five-frame",
@@ -1862,27 +1544,13 @@ export const lessonK26Blueprint: LessonBlueprint = {
             cardCount: 3,
           },
         },
-        {
-          archetype: "SubitizePartWhole",
-          promptAr:
-            "حلّل مكوّنات العدد ٥ من خلال لوحة الخمسة وأنماط النرد دون عدّ فردي:",
-          strategyHintAr:
-            "في كل بطاقة: الجزء الأول + الجزء الثاني = ٥.",
-          params: {
-            subitizeMode: "both-parts-to-5",
-            visualKind: "five-frame-and-dice",
-            candidateCounts: [1, 2, 3, 4],
-            cardCount: 3,
-          },
-        },
       ],
       challenge: [
         {
           archetype: "SubitizePartWhole",
           promptAr:
             "تحدّي الأجزاء والكل للعدد ٥: أكمل البطاقات الثلاث ثم أجب عن السؤال:",
-          strategyHintAr:
-            "جميع أزواج الأجزاء على لوحة الخمسة تجتمع لتساوي ٥.",
+          strategyHintAr: "جميع أزواج الأجزاء على لوحة الخمسة تجتمع لتساوي ٥.",
           params: {
             subitizeMode: "both-parts-to-5",
             visualKind: "five-frame-and-shapes",
@@ -1902,8 +1570,7 @@ export const lessonK26Blueprint: LessonBlueprint = {
           archetype: "SubitizePartWhole",
           promptAr:
             "تهيئة متقدّمة: حدّد الجزأين المكوّنين للعدد ٥ مع الأشكال الهندسية:",
-          strategyHintAr:
-            "انظر إلى الموجود والفارغ في لمحة واحدة.",
+          strategyHintAr: "انظر إلى الموجود والفارغ في لمحة واحدة.",
           params: {
             subitizeMode: "both-parts-to-5",
             visualKind: "five-frame-and-shapes",
@@ -1930,25 +1597,11 @@ export const lessonK26Blueprint: LessonBlueprint = {
           archetype: "SubitizePartWhole",
           promptAr:
             "تعرّف بسرعة على الجزأين والكل (٥) باستخدام لوحة الخمسة وأنماط النرد:",
-          strategyHintAr:
-            "قارن بين البطاقات المتعاكسة مثل (٣ و٢) و(٢ و٣).",
+          strategyHintAr: "قارن بين البطاقات المتعاكسة مثل (٣ و٢) و(٢ و٣).",
           params: {
             subitizeMode: "both-parts-to-5",
             visualKind: "five-frame-and-dice",
             candidateCounts: [1, 2, 3, 4],
-            cardCount: 3,
-          },
-        },
-        {
-          archetype: "SubitizePartWhole",
-          promptAr:
-            "اكتب أزواج الأجزاء التي تكوّن ٥ في كل لوحة خمسة دون عدّ فردي:",
-          strategyHintAr:
-            "استخدم التعرّف البصري الفوري لإتقان جميع مكوّنات العدد ٥.",
-          params: {
-            subitizeMode: "both-parts-to-5",
-            visualKind: "five-frame",
-            candidateCounts: [1, 2, 3, 4, 5],
             cardCount: 3,
           },
         },
