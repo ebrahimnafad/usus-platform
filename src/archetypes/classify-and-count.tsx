@@ -319,7 +319,7 @@ function generateClassifyAndCountExercise(
         )}) أكبر من كل جزء؟`
       : variationMode === "vary-orientation"
         ? `هل يتغيّر نوع «${targetGroup.labelAr}» عندما نقوم بتدويره أو قلبه؟ وأي جزء عدده أكبر؟`
-        : `أي جزء يحتوي على عناصر أكثر؟ وأي جزء يحتوي على عناصر أقل؟ وهل المجموع الكلي (${formatEasternNumber(
+        : `أي جزء يحتوي على عناصر أكثر؟ وأي جزء يحتوي على عناصر أقل؟ وهل الكلّ (${formatEasternNumber(
             totalCount
           )}) أكبر من كل جزء؟`;
 
@@ -344,10 +344,10 @@ function generateClassifyAndCountExercise(
 
   const defaultPromptAr =
     variationMode === "vary-size"
-      ? `صنّف وحوّط جميع أشكال «${targetGroup.labelAr}» مهما اختلف حجمها (صغير، متوسط، كبير)، ثم عدّ كل جزء واكتب المجموع الكلي:`
+      ? `صنّف وحوّط جميع أشكال «${targetGroup.labelAr}» مهما اختلف حجمها (صغير، متوسط، كبير)، ثم عدّ كل جزء واكتب الكلّ:`
       : variationMode === "vary-orientation"
-        ? `صنّف وحوّط جميع أشكال «${targetGroup.labelAr}» حتى لو كانت مدوّرة أو مقلوبة، ثم عدّ كل جزء واكتب المجموع الكلي:`
-        : `صنّف الأشكال في مجموعات متماثلة، وحوّط مجموعة «${targetGroup.labelAr}»، ثم اكتب عدد كل جزء والمجموع الكلي (الكل):`;
+        ? `صنّف وحوّط جميع أشكال «${targetGroup.labelAr}» حتى لو كانت مدوّرة أو مقلوبة، ثم عدّ كل جزء واكتب الكلّ:`
+        : `صنّف الأشكال في مجموعات متماثلة، وحوّط مجموعة «${targetGroup.labelAr}»، ثم اكتب عدد كل جزء والكلّ:`;
 
   const defaultStrategyHintAr =
     variationMode === "vary-size"
@@ -528,7 +528,7 @@ function renderClassifyAndCountExercise({
           <AnswerSlot
             solved={isAnswerKey}
             answer={formatEasternNumber(data.totalCount)}
-            ariaLabel="مربع كتابة العدد الكلي"
+            ariaLabel="مربع كتابة الكلّ"
             tone="indigo"
             solvedDataAttributes={{
               "data-solved-total-count": formatEasternNumber(data.totalCount),

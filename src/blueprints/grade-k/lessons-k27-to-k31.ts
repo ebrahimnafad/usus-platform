@@ -13,8 +13,7 @@ export const lessonK27Blueprint: LessonBlueprint = {
       warmUp: [
         {
           archetype: "JoinParts",
-          promptAr:
-            "تهيئة الأجزاء والكلّ: لاحظ الجزأين على لوحة الخمسة وتتبّع الجزأين واكتب الكلّ:",
+          promptAr: "لاحظ الجزأين على لوحة الخمسة وتتبّع الجزأين واكتب الكلّ:",
           strategyHintAr:
             "انظر إلى الأقراص في كل جزء على لوحة الخمسة ثم اجمع الجزأين لمعرفة الكلّ.",
           params: {
@@ -31,8 +30,7 @@ export const lessonK27Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr: "عدّ الصّور في كل جزء، وتتبّع الجزأين ثم اكتب كم في الكلّ:",
-          strategyHintAr:
-            "عدّ عناصر الجزء الأول وعناصر الجزء الثاني ثم اكتب الكلّ الناتج من ضمّ الجزأين في خانة الكلّ.",
+          strategyHintAr: "عدّ عناصر الجزأين، ثم اكتب الكلّ في الخانة.",
           params: {
             representation: "pictures",
             responseForm: "parts-table",
@@ -62,7 +60,7 @@ export const lessonK27Blueprint: LessonBlueprint = {
         {
           archetype: "ConnectMatch",
           promptAr:
-            "بناء التفكير (مطابقة أ): صل كل لوحة خمسة بجدول الأجزاء والكلّ المطابق، ثم اكتب الكلّ المفقود:",
+            "صِلْ كل لوحة خمسة بجدول الأجزاء والكلّ المطابق، ثم اكتب الكلّ المفقود:",
           strategyHintAr:
             "طابق عدد الأقراص في الجزأين على لوحة الخمسة مع رقمي الجزأين في الجدول، ثم اكتب الكلّ.",
           params: {
@@ -75,9 +73,9 @@ export const lessonK27Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "مسألة اليوم: كم شكلاً مستوياً؟ عدّ كل جزء وتتبّع الجزأين واكتب كم في الكلّ:",
+            "كم شكلاً مستوياً؟ عدّ كل جزء وتتبّع الجزأين واكتب كم في الكلّ:",
           strategyHintAr:
-            "عدّ الأشكال المستوية في الجزأين واكتب العدد الكلي في خانة الكلّ.",
+            "عدّ الأشكال المستوية في الجزأين واكتب الكلّ في خانة الكلّ.",
           params: {
             representation: "pictures",
             pictureSubkind: "flat-shapes",
@@ -114,7 +112,7 @@ export const lessonK27Blueprint: LessonBlueprint = {
           promptAr:
             "عدّ الصّور في كل مجموعة (الجزء الأول والجزء الثاني) ثم اكتب كم في الكلّ:",
           strategyHintAr:
-            "ضمّ الجزء الأول والجزء الثاني معاً لمعرفة العدد الكلي للصور.",
+            "ضمّ الجزء الأول والجزء الثاني معاً لمعرفة الكلّ للصور.",
           params: {
             representation: "pictures",
             responseForm: "parts-table",
@@ -144,9 +142,9 @@ export const lessonK27Blueprint: LessonBlueprint = {
         {
           archetype: "ConnectMatch",
           promptAr:
-            "بناء التفكير (مطابقة أ): صل كل لوحة خمسة بجدول الأجزاء والكلّ المطابق، ثم اكتب الكلّ المفقود:",
+            "صِلْ كل لوحة خمسة بجدول الأجزاء والكلّ المطابق، ثم اكتب الكلّ المفقود:",
           strategyHintAr:
-            "قارن بين الجزأين على لوحة الخمسة والجزأين في الجدول، ثم اكتب الكلّ الناتج من ضمّ الجزأين في مربع الكلّ.",
+            "انظر إلى الجزأين على لوحة الخمسة وفي الجدول، ثم اكتب الكلّ في المربع.",
           params: {
             matchingMode: "five-frame-to-parts-table",
             totalRange: [3, 5],
@@ -156,8 +154,7 @@ export const lessonK27Blueprint: LessonBlueprint = {
         },
         {
           archetype: "JoinParts",
-          promptAr:
-            "مسألة اليوم: كم شكلاً مستوياً في الكلّ؟ عدّ الجزأين واكتب العدد الكلي:",
+          promptAr: "كم شكلاً مستوياً في الكلّ؟ عدّ الجزأين واكتب الكلّ:",
           strategyHintAr:
             "اجمع عدد الأشكال المستوية في الجزأين لتحصل على الكلّ.",
           params: {
@@ -176,8 +173,7 @@ export const lessonK27Blueprint: LessonBlueprint = {
       warmUp: [
         {
           archetype: "JoinParts",
-          promptAr:
-            "تهيئة متقدّمة: ارسم الأقراص لإكمال الجزأين على لوحة الخمسة واكتب الكلّ:",
+          promptAr: "ارسم الأقراص لإكمال الجزأين على لوحة الخمسة واكتب الكلّ:",
           strategyHintAr: "أكمل رسم الأقراص المنقّطة ثم اكتب الكلّ في الجدول.",
           params: {
             representation: "five-frame",
@@ -208,7 +204,7 @@ export const lessonK27Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "عدّ الصّور في الجزأين واكتب الجزء المفقود في جدول الأجزاء والكلّ:",
+            "عدّ الصّور في الجزأين واكتب الجزء الناقص في جدول الأجزاء والكلّ:",
           strategyHintAr:
             "اسأل نفسك: كم نحتاج مع الجزء الأول للوصول إلى الكلّ؟",
           params: {
@@ -226,7 +222,7 @@ export const lessonK27Blueprint: LessonBlueprint = {
         {
           archetype: "ConnectMatch",
           promptAr:
-            "بناء التفكير (مطابقة أ): صل كل لوحة خمسة بجدول الأجزاء والكلّ المطابق، ثم اكتب الكلّ المفقود:",
+            "صِلْ كل لوحة خمسة بجدول الأجزاء والكلّ المطابق، ثم اكتب الكلّ المفقود:",
           strategyHintAr:
             "انتبه إلى الأجزاء التي تحتوي على صفر (٠) عند المطابقة وكتابة الكلّ.",
           params: {
@@ -239,9 +235,9 @@ export const lessonK27Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "مسألة اليوم: كم شكلاً مستوياً؟ أكمل الجزء المفقود في جدول الأجزاء والكلّ:",
+            "كم شكلاً مستوياً؟ أكمل الجزء الناقص في جدول الأجزاء والكلّ:",
           strategyHintAr:
-            "عدّ الأشكال المستوية وقارنها بالكلّ لمعرفة الجزء المفقود.",
+            "عدّ الأشكال المستوية وقارنها بالكلّ لمعرفة الجزء الناقص.",
           params: {
             representation: "pictures",
             pictureSubkind: "flat-shapes",
@@ -272,7 +268,7 @@ export const lessonK28Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "تهيئة الجزأين والكلّ: لاحظ الجزأين المحاطين على لوحة الخمسة وتتبّع الجزأين واكتب الكلّ:",
+            "لاحظ الجزأين المحاطين على لوحة الخمسة وتتبّع الجزأين واكتب الكلّ:",
           strategyHintAr:
             "كل إطار متقطّع يحيط بجزء واحد؛ اجمع الجزأين معاً لتحصل على الكلّ.",
           params: {
@@ -320,7 +316,7 @@ export const lessonK28Blueprint: LessonBlueprint = {
         {
           archetype: "ConnectMatch",
           promptAr:
-            "بناء التفكير (مطابقة ب): صل كل لوحة خمسة بجدول الأجزاء والكلّ المطابق، ثم اكتب الكلّ المفقود:",
+            "صِلْ كل لوحة خمسة بجدول الأجزاء والكلّ المطابق، ثم اكتب الكلّ المفقود:",
           strategyHintAr:
             "لاحظ عدد الأقراص في كل جزء محاط على لوحة الخمسة وطابقه مع الجدول الصحيح.",
           params: {
@@ -333,7 +329,7 @@ export const lessonK28Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "مسألة اليوم: كم مجسّماً ثلاثي الأبعاد في الكلّ؟ أكمل نموذج الأجزاء والكلّ:",
+            "كم مجسّماً ثلاثي الأبعاد في الكلّ؟ أكمل نموذج الأجزاء والكلّ:",
           strategyHintAr:
             "عدّ المجسّمات في كل جزء ثم اكتب مجموعها في خانة الكلّ.",
           params: {
@@ -400,7 +396,7 @@ export const lessonK28Blueprint: LessonBlueprint = {
         {
           archetype: "ConnectMatch",
           promptAr:
-            "بناء التفكير (مطابقة ب): صل كل لوحة خمسة بجدول الأجزاء والكلّ المطابق، ثم اكتب الكلّ المفقود:",
+            "صِلْ كل لوحة خمسة بجدول الأجزاء والكلّ المطابق، ثم اكتب الكلّ المفقود:",
           strategyHintAr:
             "طابق الجزأين من اليمين إلى اليسار ثم اكتب الكلّ في الخانة المخصّصة.",
           params: {
@@ -413,7 +409,7 @@ export const lessonK28Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "مسألة اليوم: كم مجسّماً ثلاثي الأبعاد في الكلّ؟ أكمل نموذج الأجزاء والكلّ:",
+            "كم مجسّماً ثلاثي الأبعاد في الكلّ؟ أكمل نموذج الأجزاء والكلّ:",
           strategyHintAr:
             "اجمع عدد المجسّمات في الجزء الأول والجزء الثاني لإيجاد الكلّ.",
           params: {
@@ -432,8 +428,7 @@ export const lessonK28Blueprint: LessonBlueprint = {
       warmUp: [
         {
           archetype: "JoinParts",
-          promptAr:
-            "تهيئة متقدّمة: ارسم الأقراص لإكمال الجزأين على لوحة الخمسة واكتب الكلّ:",
+          promptAr: "ارسم الأقراص لإكمال الجزأين على لوحة الخمسة واكتب الكلّ:",
           strategyHintAr: "لوّن الأقراص المنقّطة للجزء الثاني ثم اكتب الكلّ.",
           params: {
             representation: "five-frame",
@@ -463,9 +458,9 @@ export const lessonK28Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "ارسم الأقراص على لوحة الخمسة وأكمل الجزء المفقود للوصول إلى الكلّ:",
+            "ارسم الأقراص على لوحة الخمسة وأكمل الجزء الناقص للوصول إلى الكلّ:",
           strategyHintAr:
-            "عدّ الأقراص المرسومة في الجزء الثاني لتعرف الجزء المفقود في الجدول.",
+            "عدّ الأقراص المرسومة في الجزء الثاني لتعرف الجزء الناقص في الجدول.",
           params: {
             representation: "five-frame",
             responseForm: "parts-table",
@@ -481,7 +476,7 @@ export const lessonK28Blueprint: LessonBlueprint = {
         {
           archetype: "ConnectMatch",
           promptAr:
-            "بناء التفكير (مطابقة ب): صل كل لوحة خمسة بجدول الأجزاء والكلّ المطابق، ثم اكتب الكلّ المفقود:",
+            "صِلْ كل لوحة خمسة بجدول الأجزاء والكلّ المطابق، ثم اكتب الكلّ المفقود:",
           strategyHintAr: "قارن الجزأين بعناية واكتب الكلّ في كل صفّ.",
           params: {
             matchingMode: "five-frame-to-parts-table",
@@ -493,7 +488,7 @@ export const lessonK28Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "مسألة اليوم: كم مجسّماً ثلاثي الأبعاد؟ أوجد الجزء المفقود في جدول الأجزاء والكلّ:",
+            "كم مجسّماً ثلاثي الأبعاد؟ أوجد الجزء الناقص في جدول الأجزاء والكلّ:",
           strategyHintAr:
             "قارن بين الكلّ والجزء الأول لمعرفة عدد المجسّمات في الجزء الثاني.",
           params: {
@@ -526,7 +521,7 @@ export const lessonK29Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "تهيئة رابطة الأعداد: انظر إلى لوحة الخمسة وتتبّع الجزأين واكتب الكلّ في رابطة الأعداد:",
+            "انظر إلى الجزأين على لوحة الخمسة، ثم اكتب الكلّ في رابطة الأعداد:",
           strategyHintAr:
             "الدائرتان في الأسفل تمثّلان الجزأين (نبدأ من اليمين)، والدائرة العلوية تمثّل الكلّ.",
           params: {
@@ -545,7 +540,7 @@ export const lessonK29Blueprint: LessonBlueprint = {
           promptAr:
             "استخدم لوحة الخمسة لإيجاد الكلّ، وتتبّع الجزأين ثم اكتب الكلّ في رابطة الأعداد:",
           strategyHintAr:
-            "عدّ أو تعرّف على الأقراص في الجزأين على لوحة الخمسة، ثم اكتب الكلّ الناتج من ضمّ الجزأين في دائرة الكلّ.",
+            "عدّ الأقراص في الجزأين على لوحة الخمسة، ثم اكتب الكلّ في الدائرة.",
           params: {
             representation: "five-frame",
             responseForm: "number-bond",
@@ -575,7 +570,7 @@ export const lessonK29Blueprint: LessonBlueprint = {
         {
           archetype: "ConnectMatch",
           promptAr:
-            "بناء التفكير (مطابقة ج): صل كل لوحة خمسة برابطة الأعداد المطابقة، واكتب الكلّ في الدائرة:",
+            "صِلْ كل لوحة خمسة برابطة الأعداد المناسبة، ثم اكتب الكلّ في الدائرة:",
           strategyHintAr:
             "طابق الجزأين على لوحة الخمسة مع دائرتي الجزأين في رابطة الأعداد، ثم اكتب الكلّ.",
           params: {
@@ -587,8 +582,7 @@ export const lessonK29Blueprint: LessonBlueprint = {
         },
         {
           archetype: "JoinParts",
-          promptAr:
-            "مسألة اليوم: كم في كل جزء؟ وكم في الكلّ؟ أكمل رابطة الأعداد:",
+          promptAr: "كم في كل جزء؟ وكم في الكلّ؟ أكمل رابطة الأعداد:",
           strategyHintAr:
             "عدّ كل جزء على لوحة الخمسة ثم اكتب الكلّ في الدائرة العلوية.",
           params: {
@@ -655,7 +649,7 @@ export const lessonK29Blueprint: LessonBlueprint = {
         {
           archetype: "ConnectMatch",
           promptAr:
-            "بناء التفكير (مطابقة ج): صل كل لوحة خمسة برابطة الأعداد المطابقة، واكتب الكلّ في الدائرة:",
+            "صِلْ كل لوحة خمسة برابطة الأعداد المناسبة، ثم اكتب الكلّ في الدائرة:",
           strategyHintAr:
             "ابحث عن رابطة الأعداد التي تحمل نفس الجزأين من اليمين إلى اليسار ثم اكتب الكلّ.",
           params: {
@@ -667,8 +661,7 @@ export const lessonK29Blueprint: LessonBlueprint = {
         },
         {
           archetype: "JoinParts",
-          promptAr:
-            "مسألة اليوم: كم في كل جزء؟ وكم في الكلّ؟ أكمل رابطة الأعداد:",
+          promptAr: "كم في كل جزء؟ وكم في الكلّ؟ أكمل رابطة الأعداد:",
           strategyHintAr: "اجمع الجزأين للوصول إلى الكلّ في رابطة الأعداد.",
           params: {
             representation: "five-frame",
@@ -685,8 +678,7 @@ export const lessonK29Blueprint: LessonBlueprint = {
       warmUp: [
         {
           archetype: "JoinParts",
-          promptAr:
-            "تهيئة متقدّمة: ارسم الأقراص على لوحة الخمسة وأكمل رابطة الأعداد:",
+          promptAr: "ارسم الأقراص على لوحة الخمسة وأكمل رابطة الأعداد:",
           strategyHintAr: "ارسم الجزء الثاني على لوحة الخمسة ثم اكتب الكلّ.",
           params: {
             representation: "five-frame",
@@ -716,7 +708,7 @@ export const lessonK29Blueprint: LessonBlueprint = {
         },
         {
           archetype: "JoinParts",
-          promptAr: "استخدم لوحة الخمسة لإيجاد الجزء المفقود في رابطة الأعداد:",
+          promptAr: "استخدم لوحة الخمسة لإيجاد الجزء الناقص في رابطة الأعداد:",
           strategyHintAr:
             "انظر إلى الكلّ وإلى الجزء الأول لتعرف كم نحتاج في الجزء الثاني.",
           params: {
@@ -734,7 +726,7 @@ export const lessonK29Blueprint: LessonBlueprint = {
         {
           archetype: "ConnectMatch",
           promptAr:
-            "بناء التفكير (مطابقة ج): صل كل لوحة خمسة برابطة الأعداد المطابقة، واكتب الكلّ في الدائرة:",
+            "صِلْ كل لوحة خمسة برابطة الأعداد المناسبة، ثم اكتب الكلّ في الدائرة:",
           strategyHintAr: "طابق الجزأين بدقّة واكتب الكلّ في الدائرة العلوية.",
           params: {
             matchingMode: "five-frame-to-number-bond",
@@ -746,9 +738,9 @@ export const lessonK29Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "مسألة اليوم: كم نحتاج أكثر للوصول إلى الكلّ؟ أكمل الجزء المفقود في رابطة الأعداد:",
+            "كم نحتاج أكثر للوصول إلى الكلّ؟ أكمل الجزء الناقص في رابطة الأعداد:",
           strategyHintAr:
-            "عدّ الأقراص المكمّلة للكلّ واكتب العدد في دائرة الجزء المفقود.",
+            "عدّ الأقراص المكمّلة للكلّ واكتب العدد في دائرة الجزء الناقص.",
           params: {
             representation: "five-frame",
             responseForm: "number-bond",
@@ -777,8 +769,7 @@ export const lessonK30Blueprint: LessonBlueprint = {
       warmUp: [
         {
           archetype: "JoinParts",
-          promptAr:
-            "تهيئة روابط الأعداد ولوحات الخمسة: تتبّع الجزأين واكتب الكلّ في رابطة الأعداد:",
+          promptAr: "انظر إلى الجزأين، ثم اكتب الكلّ في رابطة الأعداد:",
           strategyHintAr: "تخيّل الجزأين على لوحة الخمسة ثم تحقّق من الكلّ.",
           params: {
             representation: "five-frame",
@@ -810,9 +801,9 @@ export const lessonK30Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "تخيّل الجزأين على لوحة الخمسة، ثم تتبّع الجزأين واكتب الكلّ في رابطة الأعداد:",
+            "تخيّل الجزأين على لوحة الخمسة، ثم اكتب الكلّ في رابطة الأعداد:",
           strategyHintAr:
-            "انظر إلى الجزأين على لوحة الخمسة واكتب الكلّ الناتج من ضمّ الجزأين في دائرة الكلّ.",
+            "انظر إلى الجزأين على لوحة الخمسة، ثم اكتب الكلّ في الدائرة.",
           params: {
             representation: "five-frame",
             responseForm: "number-bond",
@@ -827,7 +818,7 @@ export const lessonK30Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "بناء التفكير (شفرة الألوان أ): ارسم ولوّن العدد الصحيح من الأقراص على لوحة الخمسة، ثم اكتب الكلّ في رابطة الأعداد:",
+            "ارسم ولوّن العدد الصحيح من الأقراص على لوحة الخمسة، ثم اكتب الكلّ في رابطة الأعداد:",
           strategyHintAr:
             "لوّن أقراص الجزء الثاني المنقّطة على لوحة الخمسة ثم اكتب الكلّ في أعلى رابطة الأعداد.",
           params: {
@@ -842,7 +833,7 @@ export const lessonK30Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "مسألة اليوم: ارسم الجزأين على لوحة الخمسة ثم أوجد الكلّ في رابطة الأعداد:",
+            "ارسم الجزأين على لوحة الخمسة ثم أوجد الكلّ في رابطة الأعداد:",
           strategyHintAr:
             "تحقّق من تفكيرك برسم الأقراص في لوحة الخمسة ثم عدّ الكلّ.",
           params: {
@@ -910,7 +901,7 @@ export const lessonK30Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "بناء التفكير (شفرة الألوان أ): ارسم ولوّن الأقراص على لوحة الخمسة، ثم اكتب الكلّ في أعلى رابطة الأعداد:",
+            "ارسم ولوّن الأقراص على لوحة الخمسة، ثم اكتب الكلّ في أعلى رابطة الأعداد:",
           strategyHintAr:
             "ارسم الأقراص المنقّطة للجزء الثاني، ثم اكتب مجموع الجزأين في دائرة الكلّ.",
           params: {
@@ -924,7 +915,7 @@ export const lessonK30Blueprint: LessonBlueprint = {
         },
         {
           archetype: "JoinParts",
-          promptAr: "مسألة اليوم: ارسم الجزأين على لوحة الخمسة وأوجد الكلّ:",
+          promptAr: "ارسم الجزأين على لوحة الخمسة وأوجد الكلّ:",
           strategyHintAr:
             "ضمّ الجزء الأول والجزء الثاني على لوحة الخمسة واكتب الكلّ في رابطة الأعداد.",
           params: {
@@ -943,7 +934,7 @@ export const lessonK30Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "تهيئة متقدّمة: ارسم الأقراص على لوحة الخمسة واكتب الكلّ في رابطة الأعداد:",
+            "ارسم الأقراص على لوحة الخمسة واكتب الكلّ في رابطة الأعداد:",
           strategyHintAr: "مثّل الجزأين على لوحة الخمسة ثم اكتب الكلّ.",
           params: {
             representation: "five-frame",
@@ -974,7 +965,7 @@ export const lessonK30Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "ارسم الأقراص لإكمال الكلّ على لوحة الخمسة واكتب الجزء المفقود في رابطة الأعداد:",
+            "ارسم الأقراص لإكمال الكلّ على لوحة الخمسة واكتب الجزء الناقص في رابطة الأعداد:",
           strategyHintAr:
             "قارن بين الكلّ والجزء الأول لمعرفة كم قرصاً نرسمه في الجزء الثاني.",
           params: {
@@ -992,7 +983,7 @@ export const lessonK30Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "بناء التفكير (شفرة الألوان أ): ارسم ولوّن الأقراص على لوحة الخمسة، ثم اكتب الكلّ في أعلى رابطة الأعداد:",
+            "ارسم ولوّن الأقراص على لوحة الخمسة، ثم اكتب الكلّ في أعلى رابطة الأعداد:",
           strategyHintAr:
             "مثّل كل جزء بلونه على لوحة الخمسة ثم اكتب الكلّ في الدائرة العلوية.",
           params: {
@@ -1006,10 +997,9 @@ export const lessonK30Blueprint: LessonBlueprint = {
         },
         {
           archetype: "JoinParts",
-          promptAr:
-            "مسألة اليوم: ارسم الجزأين وأوجد الجزء المفقود للوصول إلى الكلّ:",
+          promptAr: "ارسم الجزأين وأوجد الجزء الناقص للوصول إلى الكلّ:",
           strategyHintAr:
-            "عدّ الأقراص التي رسمتها لإكمال الكلّ واكتب عددها في دائرة الجزء المفقود.",
+            "عدّ الأقراص التي رسمتها لإكمال الكلّ واكتب عددها في دائرة الجزء الناقص.",
           params: {
             representation: "five-frame",
             responseForm: "number-bond",
@@ -1038,10 +1028,8 @@ export const lessonK31Blueprint: LessonBlueprint = {
       warmUp: [
         {
           archetype: "JoinParts",
-          promptAr:
-            "تهيئة النماذج المحسوسة: عدّ المكعبات في كل جزء وتتبّع الجزأين واكتب الكلّ في رابطة الأعداد:",
-          strategyHintAr:
-            "عدّ المكعبات في الجزء الأول والجزء الثاني ثم اكتب الكلّ الناتج من ضمّ الجزأين في دائرة الكلّ.",
+          promptAr: "عدّ المكعبات في كل جزء، ثم اكتب الكلّ في رابطة الأعداد:",
+          strategyHintAr: "عدّ المكعبات في الجزأين، ثم اكتب الكلّ في الدائرة.",
           params: {
             representation: "snap-cubes",
             responseForm: "number-bond",
@@ -1055,10 +1043,9 @@ export const lessonK31Blueprint: LessonBlueprint = {
       practice: [
         {
           archetype: "JoinParts",
-          promptAr:
-            "عدّ النموذج المحسوس (المكعبات المتداخلة وإشارات العدّ)، وتتبّع الجزأين واكتب الكلّ:",
+          promptAr: "عدّ المكعبات المتداخلة وعلامات العدّ، ثم اكتب الكلّ:",
           strategyHintAr:
-            "ضمّ الجزأين معاً سواء كانا مكعبات متداخلة أو إشارات عدّ واكتب الكلّ.",
+            "ضمّ الجزأين معاً سواء كانا مكعبات متداخلة أو علامات عدّ واكتب الكلّ.",
           params: {
             allowedRepresentations: ["snap-cubes", "tally-marks"],
             responseForm: "number-bond",
@@ -1071,7 +1058,7 @@ export const lessonK31Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "عدّ نقاط النرد والمكعبات في كل جزء، وتتبّع الجزأين ثم اكتب الكلّ كرقم:",
+            "عدّ نقاط النرد والمكعبات في كل جزء، وتتبّع الجزأين ثم اكتب الكلّ:",
           strategyHintAr:
             "تعرّف على عدد النقاط في كل جزء واجمعها لكتابة الكلّ في رابطة الأعداد.",
           params: {
@@ -1088,7 +1075,7 @@ export const lessonK31Blueprint: LessonBlueprint = {
         {
           archetype: "ConnectMatch",
           promptAr:
-            "بناء التفكير (مطابقة د): صل كل حجر نرد أو دومينو برابطة الأعداد المطابقة، واكتب الكلّ في الدائرة:",
+            "صِلْ كل حجر نرد أو دومينو برابطة الأعداد المناسبة، ثم اكتب الكلّ في الدائرة:",
           strategyHintAr:
             "طابق الجزأين الممثّلين بالنقاط مع دائرتي الجزأين في رابطة الأعداد، ثم اكتب الكلّ.",
           params: {
@@ -1100,8 +1087,7 @@ export const lessonK31Blueprint: LessonBlueprint = {
         },
         {
           archetype: "JoinParts",
-          promptAr:
-            "مسألة اليوم: كم نقطة على بطاقة الدومينو؟ تتبّع الجزأين وأوجد الكلّ:",
+          promptAr: "كم نقطة على بطاقة الدومينو؟ تتبّع الجزأين وأوجد الكلّ:",
           strategyHintAr:
             "عدّ النقاط في الشقّ الأيمن والشقّ الأيسر من بطاقة الدومينو واكتب الكلّ.",
           params: {
@@ -1137,9 +1123,9 @@ export const lessonK31Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "عدّ النموذج المحسوس (المكعبات المتداخلة وإشارات العدّ) واكتب الكلّ كرقم في رابطة الأعداد:",
+            "عدّ المكعبات المتداخلة وعلامات العدّ، ثم اكتب الكلّ في رابطة الأعداد:",
           strategyHintAr:
-            "لاحظ عدد كل جزء في المكعبات أو إشارات العدّ ثم اكتب الكلّ.",
+            "لاحظ عدد كل جزء في المكعبات أو علامات العدّ ثم اكتب الكلّ.",
           params: {
             allowedRepresentations: ["snap-cubes", "tally-marks"],
             responseForm: "number-bond",
@@ -1152,7 +1138,7 @@ export const lessonK31Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "استخدم أنماط النرد وإشارات العدّ لإيجاد الكلّ واكتبه في رابطة الأعداد:",
+            "عدّ نقاط النرد وعلامات العدّ، ثم اكتب الكلّ في رابطة الأعداد:",
           strategyHintAr: "تعرّف بسرعة على كل جزء ثم ضمّ الجزأين لإيجاد الكلّ.",
           params: {
             allowedRepresentations: ["dice", "tally-marks"],
@@ -1168,7 +1154,7 @@ export const lessonK31Blueprint: LessonBlueprint = {
         {
           archetype: "ConnectMatch",
           promptAr:
-            "بناء التفكير (مطابقة د): صل كل بطاقة نرد برابطة الأعداد المطابقة، واكتب الكلّ في الدائرة:",
+            "صِلْ كل بطاقة نرد برابطة الأعداد المناسبة، ثم اكتب الكلّ في الدائرة:",
           strategyHintAr:
             "قارن بين نقاط الجزأين والعددين في أسفل رابطة الأعداد، ثم اكتب الكلّ.",
           params: {
@@ -1180,8 +1166,7 @@ export const lessonK31Blueprint: LessonBlueprint = {
         },
         {
           archetype: "JoinParts",
-          promptAr:
-            "مسألة اليوم: كم نقطة على كل بطاقة دومينو؟ أوجد الكلّ في رابطة الأعداد:",
+          promptAr: "كم نقطة على كل بطاقة دومينو؟ أوجد الكلّ في رابطة الأعداد:",
           strategyHintAr:
             "اجمع نقاط الشقّين الأيمن والأيسر لبطاقة الدومينو واكتب الكلّ.",
           params: {
@@ -1199,8 +1184,7 @@ export const lessonK31Blueprint: LessonBlueprint = {
       warmUp: [
         {
           archetype: "JoinParts",
-          promptAr:
-            "تهيئة متقدّمة: أوجد الكلّ باستخدام بطاقات الدومينو ورابطة الأعداد:",
+          promptAr: "أوجد الكلّ باستخدام بطاقات الدومينو ورابطة الأعداد:",
           strategyHintAr: "لاحظ أن الشقّ الفارغ على الدومينو يمثّل الصفر (٠).",
           params: {
             representation: "domino",
@@ -1216,7 +1200,7 @@ export const lessonK31Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "عدّ النماذج المحسوسة (المكعبات المتداخلة وإشارات العدّ) واكتب الكلّ في رابطة الأعداد:",
+            "عدّ المكعبات المتداخلة وعلامات العدّ، ثم اكتب الكلّ في رابطة الأعداد:",
           strategyHintAr:
             "اجمع الجزأين في كل نموذج محسوس واكتب الكلّ في الدائرة العلوية.",
           params: {
@@ -1231,7 +1215,7 @@ export const lessonK31Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "استخدم بطاقات الدومينو لإيجاد الكلّ أو الجزء المفقود في رابطة الأعداد:",
+            "استخدم بطاقات الدومينو لإيجاد الكلّ أو الجزء الناقص في رابطة الأعداد:",
           strategyHintAr:
             "قارن بين نقاط شقّي الدومينو (حتى عندما يكون أحدهما صفراً ٠) وأكمل الدائرة المفقودة.",
           params: {
@@ -1249,7 +1233,7 @@ export const lessonK31Blueprint: LessonBlueprint = {
         {
           archetype: "ConnectMatch",
           promptAr:
-            "بناء التفكير (مطابقة د): صل كل بطاقة نرد أو دومينو برابطة الأعداد المطابقة، واكتب الكلّ في الدائرة:",
+            "صِلْ كل بطاقة نرد أو دومينو برابطة الأعداد المناسبة، ثم اكتب الكلّ في الدائرة:",
           strategyHintAr:
             "طابق الجزأين بدقّة ثم اكتب الكلّ في الدائرة العلوية.",
           params: {
@@ -1262,9 +1246,9 @@ export const lessonK31Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "مسألة اليوم: كم نقطة على كل بطاقة دومينو؟ أوجد الجزء المفقود للوصول إلى الكلّ:",
+            "كم نقطة على كل بطاقة دومينو؟ أوجد الجزء الناقص للوصول إلى الكلّ:",
           strategyHintAr:
-            "انظر إلى الشقّ الثاني من بطاقة الدومينو لتعرف الجزء المفقود في رابطة الأعداد.",
+            "انظر إلى الشقّ الثاني من بطاقة الدومينو لتعرف الجزء الناقص في رابطة الأعداد.",
           params: {
             representation: "domino",
             responseForm: "number-bond",

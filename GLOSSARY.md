@@ -94,7 +94,11 @@ _Avoid_: Addend, piece, group
 
 **Total**:
 The whole quantity (الكلّ) formed by joining Parts; in addition, the result is the Total.
-_Avoid_: Sum, whole, answer, result
+_Avoid_: Sum, whole, answer, result, المجموع, الناتج
+
+**Missing Part**:
+The Part of a Number Bond or Equation whose value is unknown and which the student must find (الجزء الناقص).
+_Avoid_: الجزء المفقود, Blank, hidden number, unknown addend
 
 **Number Bond**:
 A Visual Model showing the relationship between one Total and its two Parts: the Total circle on top, joined to two Part circles below, with the first Part on the right.
@@ -111,6 +115,18 @@ _Avoid_: Problem, fact, equation
 **Balance Scale**:
 A Visual Model of a two-pan scale whose tilt shows whether two sides of an Equation have the same value.
 _Avoid_: Teeter-totter, seesaw
+
+**Tally Marks**:
+A Visual Model recording a quantity as upright strokes grouped in fives, where the fifth stroke crosses the preceding four (علامات العدّ).
+_Avoid_: إشارات العدّ, Hash marks, counting strokes, sticks
+
+**Dice Pattern**:
+A Visual Model showing a quantity as the fixed arrangement of pips on a die face, meant to be recognized at a glance rather than counted (نقاط النرد).
+_Avoid_: أنماط النرد, ترتيبات نقاط النرد, Dot pattern, die face, pip layout
+
+**Snap Cubes**:
+A Visual Model showing a quantity as a train or tower of unit cubes joined flush face to face, where the connector is visible only at a free end of the run so nothing protrudes between cubes to be miscounted (المكعبات المتداخلة).
+_Avoid_: Unifix cubes, linking cubes, blocks
 
 **Subitize Grouping**:
 A visual decomposition of an object quantity into instantly recognizable sub-groups (e.g., 5 = 3 + 2) rendered with dashed-border containers, enabling students to perceive total quantity without counting one by one.

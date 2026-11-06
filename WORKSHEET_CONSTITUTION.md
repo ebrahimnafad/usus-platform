@@ -36,23 +36,23 @@ Each rule names its enforcement:
 
 3.2 The exercise card's usable width is 660 px. An exercise lays out its content on exactly one of these column layouts, chosen from its parameters: **[test]** **[guard]**
 
-| Layout | Column width | Gap |
-| --- | --- | --- |
-| 1 column | 660 px | – |
-| 2 columns | 324 px | 12 px |
-| 3 columns | 212 px | 12 px |
+| Layout    | Column width | Gap   |
+| --------- | ------------ | ----- |
+| 1 column  | 660 px       | –     |
+| 2 columns | 324 px       | 12 px |
+| 3 columns | 212 px       | 12 px |
 
 3.3 Heights come from parameters, never from content wrapping: a box is sized for the largest content its parameters allow. **[guard]**
 
 3.4 Canonical sizes. Every instance of these renders at exactly this size: **[test]** **[guard]**
 
-| Element | Size |
-| --- | --- |
-| Answer Slot (digit) | 48 × 48 px |
-| Answer Slot (line) | 32 × 160 px |
-| Five-frame cell | 48 px (frame 240 px wide) |
-| Number Bond | 56 px circles in a 212 × 160 px box |
-| Equation Strip | 48 px tall |
+| Element             | Size                                |
+| ------------------- | ----------------------------------- |
+| Answer Slot (digit) | 48 × 48 px                          |
+| Answer Slot (line)  | 32 × 160 px                         |
+| Five-frame cell     | 48 px (frame 240 px wide)           |
+| Number Bond         | 56 px circles in a 212 × 160 px box |
+| Equation Strip      | 48 px tall                          |
 
 3.5 Each new Visual Model adds its canonical size to the table in 3.4, sized to fit one column of 3.2.
 
@@ -60,13 +60,13 @@ Each rule names its enforcement:
 
 4.1 Student-facing text uses only these sizes, and nothing on a Worksheet or Answer Key is smaller than 12 px: **[test]** **[guard]**
 
-| Use | Size |
-| --- | --- |
-| Section title | 20 px |
-| Exercise prompt | 16 px |
+| Use                                  | Size  |
+| ------------------------------------ | ----- |
+| Section title                        | 20 px |
+| Exercise prompt                      | 16 px |
 | Labels inside models, Strategy Hints | 13 px |
-| Digits in Answer Slots and models | 28 px |
-| Header and footer metadata | 12 px |
+| Digits in Answer Slots and models    | 28 px |
+| Header and footer metadata           | 12 px |
 
 4.2 An exercise prompt is at most 2 lines. A longer prompt is rewritten, never wrapped further. **[guard]**
 
@@ -88,11 +88,11 @@ Each rule names its enforcement:
 
 6.2 Difficulty Levels follow concrete → pictorial → abstract: **[review]**
 
-| Level | Number range | Model | Response |
-| --- | --- | --- | --- |
-| Easy | Narrower than the lesson's range | Fully shown | Most support: trace or choose |
-| Intermediate | The lesson's full range | Shown | Write |
-| Advanced | The lesson's full range | Partly or fully withdrawn | Write or draw, with edge cases |
+| Level        | Number range                     | Model                     | Response                       |
+| ------------ | -------------------------------- | ------------------------- | ------------------------------ |
+| Easy         | Narrower than the lesson's range | Fully shown               | Most support: trace or choose  |
+| Intermediate | The lesson's full range          | Shown                     | Write                          |
+| Advanced     | The lesson's full range          | Partly or fully withdrawn | Write or draw, with edge cases |
 
 6.3 Edge cases (0 as a quantity, an unknown in a non-standard position such as a missing Part, reversed forms such as `٥ = ٣ + ٢`) appear only at Advanced or in Challenge & Assessment. **[review]**
 
@@ -116,11 +116,17 @@ Each rule names its enforcement:
 
 ## 9. Language, numerals, direction
 
-9.1 All student-facing text is simplified Modern Standard Arabic and uses the terms in `GLOSSARY.md`. **[review]**
+9.1 All student-facing text is simplified Modern Standard Arabic and uses the terms in `GLOSSARY.md`; a term's `_Avoid_` forms never appear. **[test]**
 
 9.2 Every visible number uses **Eastern Arabic Numerals**; Western digits appear only in Standard codes and SVG attributes (ADR-0001, `CODING_STANDARDS.md` §3). **[test]**
 
 9.3 Equations, sequences, patterns, and frame fills flow right to left; the first Part is rightmost. Multi-digit numbers keep positional order (`١٢`). **[review]**
+
+9.4 Child-facing and teacher-facing text are written in different voices. A child-facing prompt or Strategy Hint states what the child does, in at most two steps joined by `ثم`, opening with an approved imperative (`عدّ`، `انظر`، `صِلْ`، `لوّن`، `اختر`، `اكتب`), and naming only `GLOSSARY.md` terms. Teacher-facing text may state objectives and explain reasoning, and may use a descriptive phrase such as `العدد الكلي` where the child-facing term is `الكلّ`. **[review]**
+
+9.5 An Exercise prompt opens with the instruction, never with a topic label naming the Section, the exercise type, or the lesson subject (`تهيئة الأشكال:`, `تحدّي المجسّمات:`, `مسألة اليوم:`). Section names belong to the Section header alone, and **Problem of the Day** (§5.4) is a structural type, not printed text. **[test]**
+
+9.6 Diacritics appear only where they disambiguate a word or guide reading aloud (`الكلّ`, `صِلْ`, `تدرّب`); text is neither fully vocalized nor fully stripped. **[review]**
 
 ## 10. Visual Models
 
@@ -148,3 +154,4 @@ A batch closes when all of these hold:
 ## Amendment log
 
 - 2026-11-06: Constitution adopted.
+- 2026-11-06: §9.1 upgraded to `[test]`; §9.4 (child vs. teacher voice), §9.5 (Section names), and §9.6 (diacritics) added, acting on the Arabic language evaluation of K-31 (ADR-0014).

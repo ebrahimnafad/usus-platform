@@ -14,7 +14,7 @@ export const lessonK32Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "تهيئة معادلات الجمع: استخدم لوحة الخمسة لتتبّع الجزأين واكتب الكلّ في المعادلة:",
+            "استخدم لوحة الخمسة لتتبّع الجزأين واكتب الكلّ في المعادلة:",
           strategyHintAr:
             "اقرأ المعادلة من اليمين إلى اليسار: الجزء الأول (+) الجزء الثاني (=) الكلّ.",
           params: {
@@ -64,7 +64,7 @@ export const lessonK32Blueprint: LessonBlueprint = {
         {
           archetype: "ConnectMatch",
           promptAr:
-            "بناء التفكير (مطابقة هـ): صل كل لوحة خمسة بمعادلة الجمع المطابقة، ثم اكتب الكلّ في الفراغ:",
+            "صِلْ كل لوحة خمسة بمعادلة الجمع المطابقة، ثم اكتب الكلّ في الفراغ:",
           strategyHintAr:
             "طابق أقراص الجزأين على لوحة الخمسة مع عددي الجزأين في المعادلة واكتب الكلّ.",
           params: {
@@ -76,8 +76,7 @@ export const lessonK32Blueprint: LessonBlueprint = {
         },
         {
           archetype: "JoinParts",
-          promptAr:
-            "مسألة اليوم: مثّل الجزأين بالصور ثم أوجد الكلّ في معادلة الجمع:",
+          promptAr: "مثّل الجزأين بالصور ثم أوجد الكلّ في معادلة الجمع:",
           strategyHintAr:
             "عدّ عناصر الجزء الأول والثاني واكتب الكلّ بعد إشارة (=).",
           params: {
@@ -144,8 +143,7 @@ export const lessonK32Blueprint: LessonBlueprint = {
       challenge: [
         {
           archetype: "ConnectMatch",
-          promptAr:
-            "بناء التفكير (مطابقة هـ): صل كل لوحة خمسة بالمعادلة المطابقة واكتب الكلّ المفقود:",
+          promptAr: "صِلْ كل لوحة خمسة بالمعادلة المطابقة واكتب الكلّ المفقود:",
           strategyHintAr:
             "ابحث عن المعادلة التي تبدأ بنفس الجزأين ثم اكتب الكلّ في المربع الفارغ.",
           params: {
@@ -157,8 +155,7 @@ export const lessonK32Blueprint: LessonBlueprint = {
         },
         {
           archetype: "JoinParts",
-          promptAr:
-            "مسألة اليوم: وضّح الجزأين بالصور وأوجد الكلّ في معادلة الجمع:",
+          promptAr: "وضّح الجزأين بالصور وأوجد الكلّ في معادلة الجمع:",
           strategyHintAr: "اجمع الجزأين معاً لكتابة الكلّ في المعادلة.",
           params: {
             representation: "pictures",
@@ -175,8 +172,7 @@ export const lessonK32Blueprint: LessonBlueprint = {
       warmUp: [
         {
           archetype: "JoinParts",
-          promptAr:
-            "تهيئة متقدّمة: ارسم الأقراص على لوحة الخمسة وأكمل معادلة الجمع:",
+          promptAr: "ارسم الأقراص على لوحة الخمسة وأكمل معادلة الجمع:",
           strategyHintAr: "ارسم الجزء الثاني على لوحة الخمسة ثم اكتب الكلّ.",
           params: {
             representation: "five-frame",
@@ -208,7 +204,7 @@ export const lessonK32Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "ارسم الأقراص لإكمال لوحة الخمسة وأوجد الجزء المفقود في المعادلة:",
+            "ارسم الأقراص لإكمال لوحة الخمسة وأوجد الجزء الناقص في المعادلة:",
           strategyHintAr:
             "انظر إلى الكلّ والجزء الأول لتعرف ما يلزم في الجزء الثاني.",
           params: {
@@ -225,8 +221,7 @@ export const lessonK32Blueprint: LessonBlueprint = {
       challenge: [
         {
           archetype: "ConnectMatch",
-          promptAr:
-            "بناء التفكير (مطابقة هـ): صل لوحة الخمسة بالمعادلة المطابقة واكتب الكلّ في الفراغ:",
+          promptAr: "صل لوحة الخمسة بالمعادلة المطابقة واكتب الكلّ في الفراغ:",
           strategyHintAr:
             "انتبه إلى موضع الأقراص عند مطابقة لوحة الخمسة مع المعادلة.",
           params: {
@@ -239,7 +234,7 @@ export const lessonK32Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "مسألة اليوم: أوجد الكلّ بالصيغة العكسية للمعادلة (الكلّ = الجزء + الجزء):",
+            "أوجد الكلّ بالصيغة العكسية للمعادلة (الكلّ = الجزء + الجزء):",
           strategyHintAr:
             "في هذه المعادلة يبدأ الكلّ في اليمين متبوعاً بإشارة التساوي ثم الجزأين.",
           params: {
@@ -319,7 +314,7 @@ export const lessonK33Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "بناء التفكير (شفرة الألوان ب): ارسم ولوّن الأقراص على لوحة الخمسة، ثم املأ العدد المفقود في رابطة الأعداد:",
+            "ارسم ولوّن الأقراص على لوحة الخمسة، ثم املأ العدد المفقود في رابطة الأعداد:",
           strategyHintAr:
             "لوّن أقراص الجزء الثاني المنقّطة ثم اكتب الكلّ في أعلى رابطة الأعداد.",
           params: {
@@ -333,8 +328,7 @@ export const lessonK33Blueprint: LessonBlueprint = {
         },
         {
           archetype: "JoinParts",
-          promptAr:
-            "مسألة اليوم: وضّح الجزأين على لوحة الخمسة وأوجد الكلّ في المعادلة:",
+          promptAr: "وضّح الجزأين على لوحة الخمسة وأوجد الكلّ في المعادلة:",
           strategyHintAr: "اجمع الأقراص الملوّنة لتحصل على الكلّ.",
           params: {
             representation: "five-frame",
@@ -398,7 +392,7 @@ export const lessonK33Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "بناء التفكير (شفرة الألوان ب): ارسم ولوّن الأقراص على لوحة الخمسة، ثم املأ العدد المفقود في رابطة الأعداد:",
+            "ارسم ولوّن الأقراص على لوحة الخمسة، ثم املأ العدد المفقود في رابطة الأعداد:",
           strategyHintAr:
             "ارسم أقراص الجزء الثاني وأكمل كتابة الكلّ في رابطة الأعداد.",
           params: {
@@ -412,7 +406,7 @@ export const lessonK33Blueprint: LessonBlueprint = {
         },
         {
           archetype: "JoinParts",
-          promptAr: "مسألة اليوم: وضّح الجزأين وأوجد الكلّ في معادلة الجمع:",
+          promptAr: "وضّح الجزأين وأوجد الكلّ في معادلة الجمع:",
           strategyHintAr: "ضمّ الجزأين واكتب الكلّ في المعادلة.",
           params: {
             representation: "five-frame",
@@ -429,8 +423,7 @@ export const lessonK33Blueprint: LessonBlueprint = {
       warmUp: [
         {
           archetype: "JoinParts",
-          promptAr:
-            "تهيئة متقدّمة: ارسم الأقراص على لوحة الخمسة وأكمل المعادلة:",
+          promptAr: "ارسم الأقراص على لوحة الخمسة وأكمل المعادلة:",
           strategyHintAr: "أكمل رسم أقراص الجزء الثاني ثم اكتب الكلّ.",
           params: {
             representation: "five-frame",
@@ -460,8 +453,8 @@ export const lessonK33Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "ارسم الأقراص وأوجد الجزء المفقود في معادلة الجمع للوصول إلى الكلّ:",
-          strategyHintAr: "عدّ الأقراص المضافة لتعرف الجزء المفقود.",
+            "ارسم الأقراص وأوجد الجزء الناقص في معادلة الجمع للوصول إلى الكلّ:",
+          strategyHintAr: "عدّ الأقراص المضافة لتعرف الجزء الناقص.",
           params: {
             representation: "five-frame",
             responseForm: "equation",
@@ -477,8 +470,8 @@ export const lessonK33Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "بناء التفكير (شفرة الألوان ب): ارسم ولوّن الأقراص، ثم املأ الجزء المفقود في رابطة الأعداد:",
-          strategyHintAr: "استنتج الجزء المفقود من عدد الأقراص التي لوّنتها.",
+            "ارسم ولوّن الأقراص، ثم املأ الجزء الناقص في رابطة الأعداد:",
+          strategyHintAr: "استنتج الجزء الناقص من عدد الأقراص التي لوّنتها.",
           params: {
             representation: "five-frame",
             responseForm: "number-bond",
@@ -492,7 +485,7 @@ export const lessonK33Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "مسألة اليوم: أوجد الكلّ بالصيغة العكسية للمعادلة (الكلّ = الجزء + الجزء):",
+            "أوجد الكلّ بالصيغة العكسية للمعادلة (الكلّ = الجزء + الجزء):",
           strategyHintAr: "اكتب الكلّ في الطرف الأيمن قبل إشارة (=).",
           params: {
             representation: "five-frame",
@@ -522,8 +515,7 @@ export const lessonK34Blueprint: LessonBlueprint = {
       warmUp: [
         {
           archetype: "JoinParts",
-          promptAr:
-            "تهيئة النماذج والتعبيرات: عدّ المكعبات وتتبّع الجزأين واكتب الكلّ في المعادلة:",
+          promptAr: "عدّ المكعبات وتتبّع الجزأين واكتب الكلّ في المعادلة:",
           strategyHintAr: "ضمّ مكعبات الجزأين واكتب الكلّ بعد إشارة (=).",
           params: {
             representation: "snap-cubes",
@@ -539,7 +531,7 @@ export const lessonK34Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "أكمل نموذج الجمع (المكعبات المتداخلة وإشارات العدّ) واكتب الكلّ:",
+            "أكمل نموذج الجمع (المكعبات المتداخلة وعلامات العدّ) واكتب الكلّ:",
           strategyHintAr: "اجمع الجزأين معاً واكتب الكلّ في مربع الإجابة.",
           params: {
             allowedRepresentations: ["snap-cubes", "tally-marks"],
@@ -570,8 +562,8 @@ export const lessonK34Blueprint: LessonBlueprint = {
         {
           archetype: "ConnectMatch",
           promptAr:
-            "بناء التفكير (مطابقة و): صل تعبير إشارات العدّ بالكلّ المطابق واكتب الكلّ في المربع:",
-          strategyHintAr: "اجمع حزمتي إشارات العدّ وطابقهما مع الكلّ الصحيح.",
+            "صل تعبير علامات العدّ بالكلّ المطابق واكتب الكلّ في المربع:",
+          strategyHintAr: "اجمع حزمتي علامات العدّ وطابقهما مع الكلّ الصحيح.",
           params: {
             matchingMode: "tally-expression-to-total",
             showMissingTotalSlot: true,
@@ -582,8 +574,7 @@ export const lessonK34Blueprint: LessonBlueprint = {
         },
         {
           archetype: "JoinParts",
-          promptAr:
-            "مسألة اليوم: وضّح الجزأين بالدومينو ثم أوجد الكلّ في المعادلة:",
+          promptAr: "وضّح الجزأين بالدومينو ثم أوجد الكلّ في المعادلة:",
           strategyHintAr: "عدّ نقاط شقّي الدومينو واكتب الكلّ في المعادلة.",
           params: {
             representation: "domino",
@@ -616,7 +607,7 @@ export const lessonK34Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "أكمل كل نموذج جمع (المكعبات المتداخلة وإشارات العدّ) واكتب الكلّ في المعادلة:",
+            "أكمل كل نموذج جمع (المكعبات المتداخلة وعلامات العدّ) واكتب الكلّ في المعادلة:",
           strategyHintAr: "ضمّ الجزأين ذهنياً واكتب الكلّ في المعادلة.",
           params: {
             allowedRepresentations: ["snap-cubes", "tally-marks"],
@@ -629,7 +620,7 @@ export const lessonK34Blueprint: LessonBlueprint = {
         },
         {
           archetype: "JoinParts",
-          promptAr: "استخدم أنماط النرد وإشارات العدّ لإكمال معادلات الجمع:",
+          promptAr: "استخدم نقاط النرد وعلامات العدّ لإكمال معادلات الجمع:",
           strategyHintAr: "تعرّف بسرعة على النقاط في كل جزء واكتب الكلّ.",
           params: {
             allowedRepresentations: ["dice", "tally-marks"],
@@ -645,9 +636,9 @@ export const lessonK34Blueprint: LessonBlueprint = {
         {
           archetype: "ConnectMatch",
           promptAr:
-            "بناء التفكير (مطابقة و): صل تعبير إشارات العدّ بالكلّ المطابق واكتب الكلّ في المربع:",
+            "صل تعبير علامات العدّ بالكلّ المطابق واكتب الكلّ في المربع:",
           strategyHintAr:
-            "عدّ إشارات العدّ في الجزأين وطابقهما مع الرقم المناسب واكتب الكلّ.",
+            "عدّ علامات العدّ في الجزأين وطابقهما مع الرقم المناسب واكتب الكلّ.",
           params: {
             matchingMode: "tally-expression-to-total",
             showMissingTotalSlot: true,
@@ -658,8 +649,7 @@ export const lessonK34Blueprint: LessonBlueprint = {
         },
         {
           archetype: "JoinParts",
-          promptAr:
-            "مسألة اليوم: وضّح الجزأين بالدومينو وأوجد الكلّ في معادلة الجمع:",
+          promptAr: "وضّح الجزأين بالدومينو وأوجد الكلّ في معادلة الجمع:",
           strategyHintAr: "اجمع نقاط الدومينو واكتب الكلّ.",
           params: {
             representation: "domino",
@@ -676,8 +666,7 @@ export const lessonK34Blueprint: LessonBlueprint = {
       warmUp: [
         {
           archetype: "JoinParts",
-          promptAr:
-            "تهيئة متقدّمة: أوجد الكلّ باستخدام بطاقات الدومينو والمعادلات:",
+          promptAr: "أوجد الكلّ باستخدام بطاقات الدومينو والمعادلات:",
           strategyHintAr: "الشقّ الفارغ من الدومينو يمثّل الصفر (٠).",
           params: {
             representation: "domino",
@@ -693,7 +682,7 @@ export const lessonK34Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "أكمل نماذج الجمع (المكعبات وإشارات العدّ) واكتب الكلّ في المعادلة:",
+            "أكمل نماذج الجمع (المكعبات وعلامات العدّ) واكتب الكلّ في المعادلة:",
           strategyHintAr: "اجمع الجزأين بدقّة واكتب الكلّ.",
           params: {
             allowedRepresentations: ["snap-cubes", "tally-marks"],
@@ -707,8 +696,8 @@ export const lessonK34Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "استخدم بطاقات الدومينو لإيجاد الجزء المفقود في معادلة الجمع:",
-          strategyHintAr: "قارن نقاط الشقين لتحديد الجزء المفقود.",
+            "استخدم بطاقات الدومينو لإيجاد الجزء الناقص في معادلة الجمع:",
+          strategyHintAr: "قارن نقاط الشقين لتحديد الجزء الناقص.",
           params: {
             representation: "domino",
             responseForm: "equation",
@@ -724,9 +713,9 @@ export const lessonK34Blueprint: LessonBlueprint = {
         {
           archetype: "ConnectMatch",
           promptAr:
-            "بناء التفكير (مطابقة و): صل تعبير إشارات العدّ بالكلّ المطابق واكتب الكلّ في المربع:",
+            "صل تعبير علامات العدّ بالكلّ المطابق واكتب الكلّ في المربع:",
           strategyHintAr:
-            "طابق تعبير إشارات العدّ مع الكلّ واكتب الرقم في الفراغ.",
+            "طابق تعبير علامات العدّ مع الكلّ واكتب الرقم في الفراغ.",
           params: {
             matchingMode: "tally-expression-to-total",
             showMissingTotalSlot: true,
@@ -738,7 +727,7 @@ export const lessonK34Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "مسألة اليوم: أوجد الكلّ بالصيغة العكسية للمعادلة (الكلّ = الجزء + الجزء):",
+            "أوجد الكلّ بالصيغة العكسية للمعادلة (الكلّ = الجزء + الجزء):",
           strategyHintAr: "اكتب الكلّ في بداية المعادلة في اليمين.",
           params: {
             representation: "domino",
@@ -768,8 +757,7 @@ export const lessonK36Blueprint: LessonBlueprint = {
       warmUp: [
         {
           archetype: "JoinParts",
-          promptAr:
-            "تهيئة التعرّف السريع: انظر إلى لوحة الخمسة والرقم المضاف وتتبّع واكتب الكلّ:",
+          promptAr: "انظر إلى لوحة الخمسة والرقم المضاف وتتبّع واكتب الكلّ:",
           strategyHintAr:
             "تخيّل إضافة أقراص بالعدد المكتوب إلى لوحة الخمسة لمعرفة الكلّ بسرعة.",
           params: {
@@ -817,8 +805,7 @@ export const lessonK36Blueprint: LessonBlueprint = {
       challenge: [
         {
           archetype: "JudgeEquality",
-          promptAr:
-            "بناء التفكير (ما الخطأ؟ أ): في كل صف، ضع علامة ✕ على المعادلة غير الصحيحة:",
+          promptAr: "في كل صف، ضع علامة ✕ على المعادلة غير الصحيحة:",
           strategyHintAr:
             "تحقّق من كل معادلة بجمع الجزأين ذهنياً؛ المعادلة التي ناتجها خاطئ هي التي نشطبها.",
           params: {
@@ -831,7 +818,7 @@ export const lessonK36Blueprint: LessonBlueprint = {
         },
         {
           archetype: "JoinParts",
-          promptAr: "مسألة اليوم: ارسم ولوّن الأقراص لتكوين الكلّ المطلوب:",
+          promptAr: "ارسم ولوّن الأقراص لتكوين الكلّ المطلوب:",
           strategyHintAr: "أكمل رسم وتلوين الأقراص للوصول إلى الكلّ.",
           params: {
             representation: "five-frame",
@@ -896,8 +883,7 @@ export const lessonK36Blueprint: LessonBlueprint = {
       challenge: [
         {
           archetype: "JudgeEquality",
-          promptAr:
-            "بناء التفكير (ما الخطأ؟ أ): في كل صف، ضع علامة ✕ على المعادلة غير الصحيحة:",
+          promptAr: "في كل صف، ضع علامة ✕ على المعادلة غير الصحيحة:",
           strategyHintAr:
             "اجمع الجزأين في كل معادلة واستبعد المعادلة الخاطئة بوضع علامة ✕ عليها.",
           params: {
@@ -910,7 +896,7 @@ export const lessonK36Blueprint: LessonBlueprint = {
         },
         {
           archetype: "JoinParts",
-          promptAr: "مسألة اليوم: ارسم ولوّن الأقراص لتكوين الكلّ المطلوب:",
+          promptAr: "ارسم ولوّن الأقراص لتكوين الكلّ المطلوب:",
           strategyHintAr: "ارسم الأقراص لإكمال الكلّ واكتب المعادلة.",
           params: {
             representation: "five-frame",
@@ -927,8 +913,7 @@ export const lessonK36Blueprint: LessonBlueprint = {
       warmUp: [
         {
           archetype: "JoinParts",
-          promptAr:
-            "تهيئة متقدّمة: ارسم الأقراص على لوحة الخمسة وأكمل المعادلة:",
+          promptAr: "ارسم الأقراص على لوحة الخمسة وأكمل المعادلة:",
           strategyHintAr: "أكمل تمثيل الجزأين واكتب الكلّ.",
           params: {
             representation: "five-frame",
@@ -957,7 +942,7 @@ export const lessonK36Blueprint: LessonBlueprint = {
         },
         {
           archetype: "JoinParts",
-          promptAr: "ارسم الأقراص وأوجد الجزء المفقود في معادلة الجمع:",
+          promptAr: "ارسم الأقراص وأوجد الجزء الناقص في معادلة الجمع:",
           strategyHintAr:
             "عدّ كم قرصاً رسمته للوصول إلى الكلّ واكتبه كجزء ثانٍ.",
           params: {
@@ -974,8 +959,7 @@ export const lessonK36Blueprint: LessonBlueprint = {
       challenge: [
         {
           archetype: "JudgeEquality",
-          promptAr:
-            "بناء التفكير (ما الخطأ؟ أ): في كل صف، ضع علامة ✕ على المعادلة غير الصحيحة:",
+          promptAr: "في كل صف، ضع علامة ✕ على المعادلة غير الصحيحة:",
           strategyHintAr:
             "تحقّق من المساواة في كل معادلة واشطب المعادلة غير الصحيحة.",
           params: {
@@ -989,7 +973,7 @@ export const lessonK36Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "مسألة اليوم: أوجد الكلّ بالصيغة العكسية للمعادلة (الكلّ = الجزء + الجزء):",
+            "أوجد الكلّ بالصيغة العكسية للمعادلة (الكلّ = الجزء + الجزء):",
           strategyHintAr: "الكلّ يسبق إشارة التساوي في الصيغة العكسية.",
           params: {
             representation: "five-frame",
@@ -1019,8 +1003,7 @@ export const lessonK37Blueprint: LessonBlueprint = {
       warmUp: [
         {
           archetype: "JoinParts",
-          promptAr:
-            "تهيئة التعرّف السريع مع روابط الأعداد: تتبّع الجزأين واكتب الكلّ:",
+          promptAr: "تتبّع الجزأين واكتب الكلّ:",
           strategyHintAr:
             "تخيّل الجزأين على لوحة الخمسة واكتب الكلّ في الدائرة العلوية.",
           params: {
@@ -1066,8 +1049,7 @@ export const lessonK37Blueprint: LessonBlueprint = {
       challenge: [
         {
           archetype: "JudgeEquality",
-          promptAr:
-            "بناء التفكير (ما الخطأ؟ ب): ضع علامة ✕ على رابطة الأعداد غير الصحيحة في الصف:",
+          promptAr: "ضع علامة ✕ على رابطة الأعداد غير الصحيحة في الصف:",
           strategyHintAr:
             "تحقّق من أن الدائرة العلوية تساوي مجموع الدائرتين السفليتين؛ واشطب الرابطة الخاطئة.",
           params: {
@@ -1081,7 +1063,7 @@ export const lessonK37Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "مسألة اليوم: كم تحتاج بعد؟ حوّط ولوّن المربعات لإكمال الكلّ واكتب الجزء المفقود:",
+            "كم تحتاج بعد؟ حوّط ولوّن المربعات لإكمال الكلّ واكتب الجزء الناقص:",
           strategyHintAr:
             "عدّ المربعات الملوّنة المكمّلة لتعرف كم تحتاج بعد للوصول إلى الكلّ.",
           params: {
@@ -1144,8 +1126,7 @@ export const lessonK37Blueprint: LessonBlueprint = {
       challenge: [
         {
           archetype: "JudgeEquality",
-          promptAr:
-            "بناء التفكير (ما الخطأ؟ ب): ضع علامة ✕ على رابطة الأعداد غير الصحيحة في الصف:",
+          promptAr: "ضع علامة ✕ على رابطة الأعداد غير الصحيحة في الصف:",
           strategyHintAr:
             "اجمع الجزأين في كل رابطة واشطب الرابطة التي لا يتطابق كلّها مع الجزأين.",
           params: {
@@ -1159,7 +1140,7 @@ export const lessonK37Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "مسألة اليوم: كم تحتاج بعد؟ حوّط المربعات لإكمال الكلّ واكتب الجزء المفقود:",
+            "كم تحتاج بعد؟ حوّط المربعات لإكمال الكلّ واكتب الجزء الناقص:",
           strategyHintAr:
             "انظر إلى الجزء الموجود لتكتشف كم ينقصه للوصول إلى الكلّ.",
           params: {
@@ -1178,8 +1159,7 @@ export const lessonK37Blueprint: LessonBlueprint = {
       warmUp: [
         {
           archetype: "JoinParts",
-          promptAr:
-            "تهيئة متقدّمة: ارسم الأقراص على لوحة الخمسة وأكمل رابطة الأعداد:",
+          promptAr: "ارسم الأقراص على لوحة الخمسة وأكمل رابطة الأعداد:",
           strategyHintAr: "مثّل الجزأين واكتب الكلّ في الدائرة العلوية.",
           params: {
             representation: "five-frame",
@@ -1209,8 +1189,8 @@ export const lessonK37Blueprint: LessonBlueprint = {
         },
         {
           archetype: "JoinParts",
-          promptAr: "أوجد الجزء المفقود في رابطة الأعداد باستخدام لوحة الخمسة:",
-          strategyHintAr: "قارن الكلّ بالجزء المعطى لمعرفة الجزء المفقود.",
+          promptAr: "أوجد الجزء الناقص في رابطة الأعداد باستخدام لوحة الخمسة:",
+          strategyHintAr: "قارن الكلّ بالجزء المعطى لمعرفة الجزء الناقص.",
           params: {
             representation: "five-frame",
             responseForm: "number-bond",
@@ -1225,8 +1205,7 @@ export const lessonK37Blueprint: LessonBlueprint = {
       challenge: [
         {
           archetype: "JudgeEquality",
-          promptAr:
-            "بناء التفكير (ما الخطأ؟ ب): ضع علامة ✕ على رابطة الأعداد غير الصحيحة في الصف:",
+          promptAr: "ضع علامة ✕ على رابطة الأعداد غير الصحيحة في الصف:",
           strategyHintAr:
             "تحقّق من صحّة جميع روابط الأعداد واشطب الرابطة غير الصحيحة.",
           params: {
@@ -1240,7 +1219,7 @@ export const lessonK37Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "مسألة اليوم: كم تحتاج بعد؟ حوّط ولوّن المربعات لإكمال الكلّ واكتب الجزء المفقود:",
+            "كم تحتاج بعد؟ حوّط ولوّن المربعات لإكمال الكلّ واكتب الجزء الناقص:",
           strategyHintAr:
             "كم مربعاً إضافياً يلزم للوصول إلى الكلّ؟ اكتب العدد في دائرة الجزء.",
           params: {
@@ -1271,8 +1250,7 @@ export const lessonK38Blueprint: LessonBlueprint = {
       warmUp: [
         {
           archetype: "JoinParts",
-          promptAr:
-            "تهيئة الطلاقة في الجمع: تتبّع الجزأين واكتب الكلّ في معادلة الجمع:",
+          promptAr: "تتبّع الجزأين واكتب الكلّ في معادلة الجمع:",
           strategyHintAr:
             "اقرأ المعادلة من اليمين إلى اليسار وحدّد الجزأين والكلّ.",
           params: {
@@ -1320,8 +1298,7 @@ export const lessonK38Blueprint: LessonBlueprint = {
       challenge: [
         {
           archetype: "JudgeEquality",
-          promptAr:
-            "بناء التفكير (ما الخطأ؟ ج): ضع علامة ✕ على المعادلة غير الصحيحة في الصف:",
+          promptAr: "ضع علامة ✕ على المعادلة غير الصحيحة في الصف:",
           strategyHintAr:
             "اجمع الجزأين في كل معادلة واشطب المعادلة التي يكون ناتجها خاطئاً.",
           params: {
@@ -1334,8 +1311,7 @@ export const lessonK38Blueprint: LessonBlueprint = {
         },
         {
           archetype: "JoinParts",
-          promptAr:
-            "مسألة اليوم: كم تحتاج بعد؟ ارسم دوائر لإكمال الكلّ واكتب الجزء المفقود:",
+          promptAr: "كم تحتاج بعد؟ ارسم دوائر لإكمال الكلّ واكتب الجزء الناقص:",
           strategyHintAr:
             "عدّ الدوائر الإضافية التي رسمتها واكتبها كجزء ثانٍ في المعادلة.",
           params: {
@@ -1400,8 +1376,7 @@ export const lessonK38Blueprint: LessonBlueprint = {
       challenge: [
         {
           archetype: "JudgeEquality",
-          promptAr:
-            "بناء التفكير (ما الخطأ؟ ج): ضع علامة ✕ على المعادلة غير الصحيحة في الصف:",
+          promptAr: "ضع علامة ✕ على المعادلة غير الصحيحة في الصف:",
           strategyHintAr:
             "اجمع طرفي المعادلة واشطب المعادلة غير المتساوية بوضع علامة ✕ عليها.",
           params: {
@@ -1414,8 +1389,7 @@ export const lessonK38Blueprint: LessonBlueprint = {
         },
         {
           archetype: "JoinParts",
-          promptAr:
-            "مسألة اليوم: كم تحتاج بعد؟ ارسم دوائر لإكمال الكلّ واكتب الجزء المفقود:",
+          promptAr: "كم تحتاج بعد؟ ارسم دوائر لإكمال الكلّ واكتب الجزء الناقص:",
           strategyHintAr:
             "اكتشف كم يلزم إضافته إلى الجزء الأول للوصول إلى الكلّ.",
           params: {
@@ -1434,7 +1408,7 @@ export const lessonK38Blueprint: LessonBlueprint = {
       warmUp: [
         {
           archetype: "JoinParts",
-          promptAr: "تهيئة متقدّمة: ارسم الأقراص وأكمل معادلة الجمع:",
+          promptAr: "ارسم الأقراص وأكمل معادلة الجمع:",
           strategyHintAr: "أكمل تمثيل الجزأين واكتب الكلّ.",
           params: {
             representation: "five-frame",
@@ -1465,8 +1439,8 @@ export const lessonK38Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "أوجد الجزء المفقود في معادلة الجمع بطلاقة (كم يلزم لإكمال الكلّ؟):",
-          strategyHintAr: "استنتج الجزء المفقود الذي يجعل المعادلة متساوية.",
+            "أوجد الجزء الناقص في معادلة الجمع بطلاقة (كم يلزم لإكمال الكلّ؟):",
+          strategyHintAr: "استنتج الجزء الناقص الذي يجعل المعادلة متساوية.",
           params: {
             representation: "five-frame",
             responseForm: "equation",
@@ -1482,8 +1456,7 @@ export const lessonK38Blueprint: LessonBlueprint = {
       challenge: [
         {
           archetype: "JudgeEquality",
-          promptAr:
-            "بناء التفكير (ما الخطأ؟ ج): ضع علامة ✕ على المعادلة غير الصحيحة في الصف:",
+          promptAr: "ضع علامة ✕ على المعادلة غير الصحيحة في الصف:",
           strategyHintAr:
             "تحقّق من صحّة كل معادلة واشطب المعادلة الخاطئة بعلامة ✕.",
           params: {
@@ -1497,7 +1470,7 @@ export const lessonK38Blueprint: LessonBlueprint = {
         {
           archetype: "JoinParts",
           promptAr:
-            "مسألة اليوم: أوجد الجزء المفقود بالصيغة العكسية للمعادلة (الكلّ = الجزء + الجزء):",
+            "أوجد الجزء الناقص بالصيغة العكسية للمعادلة (الكلّ = الجزء + الجزء):",
           strategyHintAr:
             "في الصيغة العكسية يبدأ الكلّ في اليمين متبوعاً بإشارة التساوي.",
           params: {

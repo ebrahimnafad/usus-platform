@@ -735,6 +735,9 @@ export function SnapCubesSvg({
           const extraGap = isSecondary && separated ? gap : 0;
           const y = bottomY - (idx + 1) * cubeSize - extraGap;
           const pal = isSecondary ? secondaryPalette : primaryPalette;
+          const isRunEnd =
+            idx === total - 1 ||
+            (separated && secondary > 0 && idx === primary - 1);
 
           return (
             <g key={idx} data-cube-index={formatEasternNumber(idx + 1)}>
@@ -770,17 +773,19 @@ export function SnapCubesSvg({
                 stroke={pal.stroke}
                 strokeWidth="1.6"
               />
-              {/* Interlocking stud on top */}
-              <rect
-                x={baseX + 6}
-                y={y - 3.5}
-                width="6"
-                height="3"
-                rx="1"
-                fill={pal.fill}
-                stroke={pal.stroke}
-                strokeWidth="1.2"
-              />
+              {isRunEnd && (
+                <rect
+                  data-run-end-connector="true"
+                  x={baseX + 6}
+                  y={y - 3.5}
+                  width="6"
+                  height="3"
+                  rx="1"
+                  fill={pal.fill}
+                  stroke={pal.stroke}
+                  strokeWidth="1.2"
+                />
+              )}
               {/* Center circular dimple */}
               <circle
                 cx={baseX + cubeSize / 2}
@@ -824,6 +829,12 @@ export function SnapCubesSvg({
         const gapOffset = isSecondary && separated ? splitGap : 0;
         const x = startRightX - (idx + 1) * cubeW - gapOffset;
         const pal = isSecondary ? secondaryPalette : primaryPalette;
+        // The connector shows only at a free end of a run of snapped cubes, so
+        // nothing protrudes between cubes to be miscounted. When the run is split
+        // into two Parts, each Part keeps its own end connector.
+        const isRunEnd =
+          idx === total - 1 ||
+          (separated && secondary > 0 && idx === primary - 1);
 
         return (
           <g key={idx} data-cube-index={formatEasternNumber(idx + 1)}>
@@ -849,28 +860,29 @@ export function SnapCubesSvg({
               strokeWidth="1.6"
               strokeLinejoin="round"
             />
-            {/* Front face */}
+            {/* Front face: square corners so neighbouring cubes butt flush */}
             <rect
               x={x}
               y={baseY}
               width={cubeW}
               height={cubeH}
-              rx="2"
               fill={pal.fill}
               stroke={pal.stroke}
               strokeWidth="1.8"
             />
-            {/* Left interlocking peg (stud) */}
-            <rect
-              x={x - 4}
-              y={baseY + 8}
-              width="4"
-              height="10"
-              rx="1"
-              fill={pal.fillDark}
-              stroke={pal.stroke}
-              strokeWidth="1.3"
-            />
+            {isRunEnd && (
+              <rect
+                data-run-end-connector="true"
+                x={x - 4}
+                y={baseY + 8}
+                width="4"
+                height="10"
+                rx="1"
+                fill={pal.fillDark}
+                stroke={pal.stroke}
+                strokeWidth="1.3"
+              />
+            )}
             {/* Center stud recess & RTL cube count number */}
             <circle
               cx={x + cubeW / 2}
@@ -971,12 +983,12 @@ export function createTallyMarksSpec(
 
   const defaultLabelAr =
     secondary > 0
-      ? `تعبير إشارات العدّ: ${countAr} + ${formatEasternNumber(secondary)}`
+      ? `تعبير علامات العدّ: ${countAr} + ${formatEasternNumber(secondary)}`
       : variant === "sticks"
         ? `أعواد عدّ ملوّنة: ${countAr}`
         : count === 5
-          ? `إشارات العدّ: حزمة خماسية (${countAr})`
-          : `إشارات العدّ: ${countAr}`;
+          ? `علامات العدّ: حزمة خماسية (${countAr})`
+          : `علامات العدّ: ${countAr}`;
 
   return {
     kind: "tally-marks",
@@ -1027,7 +1039,7 @@ export function TallyMarksSvg({
       height={svgHeight}
       viewBox={`0 0 ${svgWidth} 68`}
       fill="none"
-      aria-label={`إشارات العدّ: ${formatEasternNumber(safeCount)}`}
+      aria-label={`علامات العدّ: ${formatEasternNumber(safeCount)}`}
       data-has-fifth-slash={hasFifthSlash ? "true" : "false"}
       data-variant={variant}
     >

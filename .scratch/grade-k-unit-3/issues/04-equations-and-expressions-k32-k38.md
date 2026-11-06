@@ -14,7 +14,7 @@
 - [x] `JudgeEquality` archetype with mode `whats-wrong`: a row of Equations or Number Bonds with exactly one false item that the student crosses off; covers WHAT'S WRONG A–C
 - [x] The total-first form (`٥ = ٣ + ٢`) appears only in Advanced Challenge items in these lessons
 - [x] Teacher Notes carry the timed subitizing activities; the worksheet never depends on timing
-- [ ] Arabic text for these six lessons is drafted and reviewed by the user
+- [ ] Arabic text for these six lessons is drafted and reviewed by the user — deferred to `06-arabic-msa-language-pass.md`, which rewrites this wording, so the user reviews the final text once
 - [x] Answer Keys show solved Equations, labeled Parts and Total, the crossed-off false item, and a Strategy Hint on every exercise
 - [x] Domain tests: every `whats-wrong` row has exactly one false item and every Equation's truth value is correct
 - [x] Constitution §12 holds for K-32 to K-34 and K-36 to K-38 (guard green for every authored lesson)
