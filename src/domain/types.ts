@@ -186,7 +186,8 @@ export type ExerciseArchetypeId =
   | "PictureGraphRead"
   | "SequenceAndZero"
   | "SubitizePartWhole"
-  | "JoinParts";
+  | "JoinParts"
+  | "JudgeEquality";
 
 export interface ConnectMatchPair {
   pairId: string;

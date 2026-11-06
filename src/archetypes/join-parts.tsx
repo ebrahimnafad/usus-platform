@@ -27,6 +27,7 @@ import {
 } from "@/visual-models/shapes-solids-coins";
 import {
   createDicePatternSpec,
+  createDigitCardSpec,
   createFiveFrameSpec,
   createSnapCubesSpec,
   createTallyMarksSpec,
@@ -43,7 +44,13 @@ import { ExerciseColumns } from "@/components/worksheet/ExerciseColumns";
 import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
 
 export type JoinPartsRepresentation =
-  "five-frame" | "snap-cubes" | "tally-marks" | "dice" | "domino" | "pictures";
+  | "five-frame"
+  | "five-frame-and-digit"
+  | "snap-cubes"
+  | "tally-marks"
+  | "dice"
+  | "domino"
+  | "pictures";
 
 export type JoinPartsPictureSubkind =
   "objects" | "flat-shapes" | "solid-shapes";
@@ -144,6 +151,7 @@ export interface JoinPartsBlueprintParams {
   equationLayout?: EquationLayout;
   showCompanionBond?: boolean;
   firstItemWorkedExample?: boolean;
+  showTermLabels?: boolean;
 }
 
 export interface JoinPartsItem {
@@ -160,6 +168,7 @@ export interface JoinPartsItem {
   unknownPosition: BondMissingPosition;
   tracePositions: Array<"total" | "part1" | "part2">;
   representationModel: VisualModelSpec;
+  companionDigitModel?: VisualModelSpec;
   responseModel?: VisualModelSpec;
   companionBondModel?: VisualModelSpec;
 }
@@ -169,6 +178,7 @@ export interface JoinPartsData extends GenericArchetypeData {
   representation: JoinPartsRepresentation;
   responseForm: JoinPartsResponseForm;
   action: JoinPartsAction;
+  showTermLabels?: boolean;
   items: JoinPartsItem[];
 }
 
@@ -229,7 +239,21 @@ function buildRepresentationModel(params: {
   const p2Ar = formatEasternNumber(part2);
   const totalAr = formatEasternNumber(total);
 
-  if (representation === "five-frame") {
+  if (
+    representation === "five-frame" ||
+    representation === "five-frame-and-digit"
+  ) {
+    if (representation === "five-frame-and-digit") {
+      return createFiveFrameSpec({
+        count: part1,
+        secondaryCount: 0,
+        colorTheme: primaryTheme,
+        showPartOutline: true,
+        highlightEmptySlots: true,
+        labelAr: `لوحة الخمسة: ${p1Ar} زائد الرقم ${p2Ar}`,
+      });
+    }
+
     if (action === "draw-counters") {
       // Show the non-zero Part as solid counters and the other Part as ghost counters (0 when part2 === 0)
       const shownPrimary = part1;
@@ -459,6 +483,14 @@ function generateJoinPartsExercise(ctx: ArchetypeGeneratorContext): Exercise {
         })
       : undefined;
 
+    const companionDigitModel =
+      itemRep === "five-frame-and-digit"
+        ? createDigitCardSpec(fact.part2, {
+            colorTheme: secondaryTheme,
+            labelAr: `الرقم ${formatEasternNumber(fact.part2)}`,
+          })
+        : undefined;
+
     return {
       id: `join-item-${idx + 1}-${fact.key}`,
       itemIndex: idx,
@@ -473,6 +505,7 @@ function generateJoinPartsExercise(ctx: ArchetypeGeneratorContext): Exercise {
       unknownPosition: missingPosition,
       tracePositions,
       representationModel,
+      companionDigitModel,
       responseModel,
       companionBondModel,
     };
@@ -481,6 +514,9 @@ function generateJoinPartsExercise(ctx: ArchetypeGeneratorContext): Exercise {
   const visualModels: VisualModelSpec[] = [];
   for (const item of items) {
     visualModels.push(item.representationModel);
+    if (item.companionDigitModel) {
+      visualModels.push(item.companionDigitModel);
+    }
     if (item.responseModel) {
       visualModels.push(item.responseModel);
     }
@@ -511,6 +547,7 @@ function generateJoinPartsExercise(ctx: ArchetypeGeneratorContext): Exercise {
     representation: representationPool[0],
     responseForm,
     action,
+    showTermLabels: Boolean(params.showTermLabels),
     items,
   };
 
@@ -565,10 +602,26 @@ function renderJoinPartsExercise({
               <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-[13px] font-extrabold leading-none text-white">
                 {formatEasternNumber(idx + 1)}
               </span>
-              <VisualModelView
-                model={item.representationModel}
-                solved={isAnswerKey}
-              />
+              <div className="flex items-center gap-1">
+                <VisualModelView
+                  model={item.representationModel}
+                  solved={isAnswerKey}
+                />
+                {item.companionDigitModel && (
+                  <div className="flex items-center gap-1">
+                    <span
+                      className="text-[28px] font-black leading-none text-indigo-700"
+                      aria-hidden="true"
+                    >
+                      +
+                    </span>
+                    <VisualModelView
+                      model={item.companionDigitModel}
+                      solved={isAnswerKey}
+                    />
+                  </div>
+                )}
+              </div>
               {isAnswerKey ? (
                 <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[13px] font-extrabold leading-none text-emerald-900">
                   {item.totalAr}
@@ -606,6 +659,26 @@ function renderJoinPartsExercise({
                 />
               )}
             </div>
+
+            {/* Optional term labels (K-38: label the parts and total) */}
+            {data.showTermLabels && (
+              <div
+                className="flex items-center justify-center gap-1.5 rounded-lg bg-indigo-50/70 px-2 py-0.5 text-[13px] font-extrabold text-indigo-950"
+                data-term-labels="true"
+              >
+                <span className="text-sky-900">
+                  الجزء{isAnswerKey ? ` (${item.part1Ar})` : ""}
+                </span>
+                <span className="text-indigo-400">+</span>
+                <span className="text-amber-900">
+                  الجزء{isAnswerKey ? ` (${item.part2Ar})` : ""}
+                </span>
+                <span className="text-indigo-400">=</span>
+                <span className="text-indigo-900">
+                  الكلّ{isAnswerKey ? ` (${item.totalAr})` : ""}
+                </span>
+              </div>
+            )}
           </div>
         ))}
       </ExerciseColumns>

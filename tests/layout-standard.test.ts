@@ -217,7 +217,7 @@ describe("Exercise layout primitives", () => {
     expect(htmlA).not.toMatch(/text-\[(8|8\.5|9|9\.5|10|10\.5|11|11\.5)px\]/);
   });
 
-  it("§3.2 & §4 all seven archetypes use ExerciseColumns (1 / 2 / 3) and only constitution §4 type sizes (no text below 12px)", () => {
+  it("§3.2 & §4 all archetypes use ExerciseColumns (1 / 2 / 3) and only constitution §4 type sizes (no text below 12px)", () => {
     const archetypeLessons = [
       { lessonNumber: 1, archetype: "ConnectMatch" },
       { lessonNumber: 5, archetype: "ClassifyAndCount" },
@@ -227,6 +227,7 @@ describe("Exercise layout primitives", () => {
       { lessonNumber: 22, archetype: "SequenceAndZero" },
       { lessonNumber: 26, archetype: "SubitizePartWhole" },
       { lessonNumber: 29, archetype: "JoinParts" },
+      { lessonNumber: 36, archetype: "JudgeEquality" },
     ];
 
     for (const { lessonNumber, archetype } of archetypeLessons) {

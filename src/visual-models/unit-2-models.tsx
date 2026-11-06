@@ -568,7 +568,7 @@ export function NumeralTraceSvg({
         x="18"
         y="27"
         textAnchor="middle"
-        fontSize="13"
+        fontSize="16"
         fontWeight="900"
         fill={solved ? "#047857" : "#64748B"}
       >
