@@ -105,7 +105,8 @@ export type VisualModelKind =
   | "numeral-trace"
   | "digit-card"
   | "number-bond"
-  | "equation-strip";
+  | "equation-strip"
+  | "balance-scale";
 
 export type EverydayObjectCategory =
   "animals" | "fruits" | "toys" | "school" | "nature" | "treats";

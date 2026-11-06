@@ -29,6 +29,7 @@ export const CANONICAL_SIZES_PX: {
   numberBondCircle: PixelSize;
   numberBondBox: PixelSize;
   equationStripHeight: number;
+  balanceScaleBox: PixelSize;
 } = standard.canonicalSizesPx;
 
 export type TypeRole = keyof typeof standard.typeScalePx;

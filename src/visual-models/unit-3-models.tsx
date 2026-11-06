@@ -7,7 +7,7 @@ import {
   AnswerSlot,
   type AnswerSlotKind,
 } from "@/components/worksheet/AnswerSlot";
-import { formatEasternNumber } from "@/lib/numerals";
+import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
 
 export type BondMissingPosition = "total" | "part1" | "part2" | "none";
 
@@ -587,6 +587,356 @@ function unpackPartWholeMeta(model: VisualModelSpec): {
   };
 }
 
+export type BalancePanKind = "digit" | "expression" | "slot";
+export type BalanceScaleTilt = "level" | "right-heavy" | "left-heavy";
+
+export interface BalancePanSpec {
+  kind: BalancePanKind;
+  value: number;
+  expressionAr?: string;
+  slotKind?: AnswerSlotKind;
+  /** Optional missing addend inside an expression pan so the student fills this pan too */
+  missingAddend?: {
+    givenPart: number;
+    missingValue: number;
+  };
+}
+
+export interface BalanceScaleOptions {
+  rightPan: BalancePanSpec;
+  leftPan: BalancePanSpec;
+  tilt?: BalanceScaleTilt;
+  colorTheme?: ColorThemeId;
+  secondaryColorTheme?: ColorThemeId;
+  labelAr?: string;
+}
+
+export function deriveBalanceScaleTilt(
+  rightValue: number,
+  leftValue: number
+): BalanceScaleTilt {
+  if (rightValue === leftValue) return "level";
+  return rightValue > leftValue ? "right-heavy" : "left-heavy";
+}
+
+function normalizeBalancePan(pan: BalancePanSpec): BalancePanSpec {
+  return {
+    kind: pan.kind,
+    value: pan.value,
+    expressionAr: pan.expressionAr,
+    slotKind: pan.slotKind ?? "unknown",
+    missingAddend: pan.missingAddend,
+  };
+}
+
+function formatBalancePanLabel(pan: BalancePanSpec): string {
+  if (pan.kind === "expression" && pan.expressionAr) {
+    return toEasternArabicNumerals(pan.expressionAr);
+  }
+  return formatEasternNumber(pan.value);
+}
+
+export function createBalanceScaleSpec(
+  options: BalanceScaleOptions
+): VisualModelSpec {
+  const rightPan = normalizeBalancePan(options.rightPan);
+  const leftPan = normalizeBalancePan(options.leftPan);
+  const tilt =
+    options.tilt ?? deriveBalanceScaleTilt(rightPan.value, leftPan.value);
+
+  const rightLabel = formatBalancePanLabel(rightPan);
+  const leftLabel = formatBalancePanLabel(leftPan);
+
+  return {
+    kind: "balance-scale",
+    id: `balance-scale-${rightPan.kind}-${rightPan.value}-${leftPan.kind}-${leftPan.value}-${tilt}`,
+    labelAr:
+      options.labelAr ??
+      `ميزان ذو كفّتين: الكفّة اليمنى ${rightLabel} والكفّة اليسرى ${leftLabel}`,
+    colorTheme: options.colorTheme ?? "sky",
+    count: rightPan.value,
+    secondaryCount: leftPan.value,
+    meta: {
+      rightPan,
+      leftPan,
+      tilt,
+      secondaryColorTheme: options.secondaryColorTheme ?? "amber",
+    },
+  };
+}
+
+export function BalanceScaleView({
+  rightPan,
+  leftPan,
+  tilt,
+  colorTheme = "sky",
+  secondaryColorTheme = "amber",
+  solved = false,
+}: {
+  rightPan: BalancePanSpec;
+  leftPan: BalancePanSpec;
+  tilt?: BalanceScaleTilt;
+  colorTheme?: ColorThemeId;
+  secondaryColorTheme?: ColorThemeId;
+  solved?: boolean;
+}): React.ReactElement {
+  const effectiveTilt =
+    tilt ?? deriveBalanceScaleTilt(rightPan.value, leftPan.value);
+  const boxW = CANONICAL_SIZES_PX.balanceScaleBox.width; // 212
+  const boxH = CANONICAL_SIZES_PX.balanceScaleBox.height; // 136
+
+  const primaryPalette = COLOR_PALETTES[colorTheme] ?? COLOR_PALETTES.sky;
+  const secondaryPalette =
+    COLOR_PALETTES[secondaryColorTheme] ?? COLOR_PALETTES.amber;
+
+  // Vertical coordinates for beam ends and pan tops based on tilt
+  const rightOffset =
+    effectiveTilt === "right-heavy"
+      ? 6
+      : effectiveTilt === "left-heavy"
+        ? -6
+        : 0;
+  const leftOffset = -rightOffset;
+
+  const pivotY = 90;
+  const beamRightY = pivotY + rightOffset;
+  const beamLeftY = pivotY + leftOffset;
+  const rightTrayY = 74 + rightOffset;
+  const leftTrayY = 74 + leftOffset;
+  const rightPanTop = 22 + rightOffset;
+  const leftPanTop = 22 + leftOffset;
+
+  const renderPanContent = (
+    pan: BalancePanSpec,
+    side: "right" | "left"
+  ): React.ReactNode => {
+    const valueAr = formatEasternNumber(pan.value);
+    const isRight = side === "right";
+    const ariaLabel = isRight
+      ? "مربع الكفّة اليمنى في الميزان"
+      : "مربع الكفّة اليسرى في الميزان";
+
+    if (pan.kind === "slot") {
+      return (
+        <AnswerSlot
+          solved={solved}
+          answer={valueAr}
+          ariaLabel={ariaLabel}
+          kind={pan.slotKind ?? "unknown"}
+          tone={isRight ? "sky" : "amber"}
+          solvedDataAttributes={{
+            [`data-solved-balance-${side}`]: valueAr,
+          }}
+        />
+      );
+    }
+
+    if (pan.kind === "expression") {
+      if (pan.missingAddend) {
+        const givenAr = formatEasternNumber(pan.missingAddend.givenPart);
+        const missingAr = formatEasternNumber(pan.missingAddend.missingValue);
+        return (
+          <div
+            dir="rtl"
+            className="inline-flex items-center justify-center gap-0.5"
+            data-pan-content="expression"
+          >
+            <span className="text-[28px] font-black leading-none text-slate-900">
+              {givenAr}+
+            </span>
+            <AnswerSlot
+              solved={solved}
+              answer={missingAr}
+              ariaLabel={ariaLabel}
+              kind={pan.slotKind ?? "unknown"}
+              tone={isRight ? "sky" : "amber"}
+              solvedDataAttributes={{
+                [`data-solved-balance-${side}`]: missingAr,
+              }}
+            />
+          </div>
+        );
+      }
+
+      const exprText = toEasternArabicNumerals(pan.expressionAr ?? valueAr);
+      return (
+        <span
+          dir="rtl"
+          className={`inline-flex h-12 min-w-16 items-center justify-center rounded-xl border-2 bg-white px-1.5 text-[28px] font-black leading-none text-slate-900 shadow-2xs ${
+            isRight ? "border-sky-500" : "border-dashed border-amber-500"
+          }`}
+          data-pan-content="expression"
+        >
+          {exprText}
+        </span>
+      );
+    }
+
+    return (
+      <span
+        className={`inline-flex h-12 w-12 items-center justify-center rounded-xl border-2 bg-white text-[28px] font-black leading-none text-slate-900 shadow-2xs ${
+          isRight ? "border-sky-500" : "border-dashed border-amber-500"
+        }`}
+        data-pan-content="digit"
+      >
+        {valueAr}
+      </span>
+    );
+  };
+
+  const rightValueAr = formatEasternNumber(rightPan.value);
+  const leftValueAr = formatEasternNumber(leftPan.value);
+
+  return (
+    <div
+      className="relative inline-block shrink-0 select-none"
+      style={{ width: `${boxW}px`, height: `${boxH}px` }}
+      data-visual-model="balance-scale"
+      data-direction="rtl"
+      data-scale-tilt={effectiveTilt}
+      data-right-value={rightValueAr}
+      data-left-value={leftValueAr}
+    >
+      <svg
+        width={boxW}
+        height={boxH}
+        viewBox={`0 0 ${boxW} ${boxH}`}
+        fill="none"
+        className="pointer-events-none absolute inset-0"
+        aria-hidden="true"
+      >
+        {/* Outer card background */}
+        <rect
+          x="2"
+          y="2"
+          width={boxW - 4}
+          height={boxH - 4}
+          rx="14"
+          fill="#F8FAFC"
+          stroke="#E2E8F0"
+          strokeWidth="1.5"
+        />
+
+        {/* Base pedestal */}
+        <rect x="74" y="120" width="64" height="8" rx="4" fill="#475569" />
+
+        {/* Fulcrum triangle */}
+        <polygon
+          points={`106,${pivotY} 88,120 124,120`}
+          fill="#6366F1"
+          stroke="#312E81"
+          strokeWidth="1.8"
+          strokeLinejoin="round"
+        />
+
+        {/* Equality / inequality sign on fulcrum */}
+        <text
+          x="106"
+          y="116"
+          textAnchor="middle"
+          fontSize="13"
+          fontWeight="900"
+          fill="#FFFFFF"
+        >
+          {effectiveTilt === "level" ? "=" : "≠"}
+        </text>
+
+        {/* Balance beam: right side solid, left side dashed for grayscale distinction */}
+        <line
+          x1="106"
+          y1={pivotY}
+          x2="156"
+          y2={beamRightY}
+          stroke={primaryPalette.stroke}
+          strokeWidth="4"
+          strokeLinecap="round"
+        />
+        <line
+          x1="106"
+          y1={pivotY}
+          x2="56"
+          y2={beamLeftY}
+          stroke={secondaryPalette.stroke}
+          strokeWidth="4"
+          strokeDasharray="6 3"
+          strokeLinecap="round"
+        />
+
+        {/* Right hanger stem and pan tray (solid stroke) */}
+        <line
+          x1="156"
+          y1={beamRightY}
+          x2="156"
+          y2={rightTrayY}
+          stroke={primaryPalette.stroke}
+          strokeWidth="2.5"
+        />
+        <path
+          d={`M 118 ${rightTrayY} L 194 ${rightTrayY} L 186 ${rightTrayY + 6} L 126 ${rightTrayY + 6} Z`}
+          fill={primaryPalette.fillLight}
+          stroke={primaryPalette.stroke}
+          strokeWidth="1.8"
+          strokeLinejoin="round"
+        />
+
+        {/* Left hanger stem and pan tray (dashed stroke for grayscale cue) */}
+        <line
+          x1="56"
+          y1={beamLeftY}
+          x2="56"
+          y2={leftTrayY}
+          stroke={secondaryPalette.stroke}
+          strokeWidth="2.5"
+          strokeDasharray="4 2"
+        />
+        <path
+          d={`M 18 ${leftTrayY} L 94 ${leftTrayY} L 86 ${leftTrayY + 6} L 26 ${leftTrayY + 6} Z`}
+          fill={secondaryPalette.fillLight}
+          stroke={secondaryPalette.stroke}
+          strokeWidth="1.8"
+          strokeDasharray="5 2"
+          strokeLinejoin="round"
+        />
+
+        {/* Center pivot pin */}
+        <circle
+          cx="106"
+          cy={pivotY}
+          r="5"
+          fill="#EEF2FF"
+          stroke="#312E81"
+          strokeWidth="2"
+        />
+      </svg>
+
+      {[
+        {
+          side: "right" as const,
+          pan: rightPan,
+          leftPx: 110,
+          topPx: rightPanTop,
+        },
+        { side: "left" as const, pan: leftPan, leftPx: 10, topPx: leftPanTop },
+      ].map(({ side, pan, leftPx, topPx }) => (
+        <div
+          key={side}
+          data-scale-pan={side}
+          data-pan-kind={pan.kind}
+          className="absolute flex items-center justify-center"
+          style={{
+            left: `${leftPx}px`,
+            top: `${topPx}px`,
+            width: "92px",
+            height: "48px",
+          }}
+        >
+          {renderPanContent(pan, side)}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function registerUnit3VisualModels(): void {
   registerVisualModel("number-bond", ({ model, solved }) => {
     const unpacked = unpackPartWholeMeta(model);
@@ -605,6 +955,32 @@ export function registerUnit3VisualModels(): void {
     const layout = (meta.layout as EquationLayout) ?? "standard";
 
     return <EquationStripView {...unpacked} layout={layout} solved={solved} />;
+  });
+
+  registerVisualModel("balance-scale", ({ model, solved }) => {
+    const meta = (model.meta ?? {}) as Record<string, unknown>;
+    const rightPan = (meta.rightPan as BalancePanSpec) ?? {
+      kind: "digit",
+      value: model.count ?? 1,
+    };
+    const leftPan = (meta.leftPan as BalancePanSpec) ?? {
+      kind: "digit",
+      value: model.secondaryCount ?? 1,
+    };
+    const tilt = meta.tilt as BalanceScaleTilt | undefined;
+    const secondaryColorTheme =
+      (meta.secondaryColorTheme as ColorThemeId) ?? "amber";
+
+    return (
+      <BalanceScaleView
+        rightPan={rightPan}
+        leftPan={leftPan}
+        tilt={tilt}
+        colorTheme={model.colorTheme ?? "sky"}
+        secondaryColorTheme={secondaryColorTheme}
+        solved={solved}
+      />
+    );
   });
 }
 

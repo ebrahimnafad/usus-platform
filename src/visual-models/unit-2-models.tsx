@@ -1256,6 +1256,7 @@ export interface DicePatternOptions {
   secondaryColorTheme?: ColorThemeId;
   hideLabel?: boolean;
   compact?: boolean;
+  ghostSecondPart?: boolean;
   labelAr?: string;
 }
 
@@ -1293,6 +1294,7 @@ export function createDicePatternSpec(
       secondaryColorTheme: options.secondaryColorTheme ?? "sky",
       hideLabel: Boolean(options.hideLabel),
       compact: Boolean(options.compact),
+      ghostSecondPart: Boolean(options.ghostSecondPart),
     },
   };
 }
@@ -1331,6 +1333,8 @@ export function DicePatternSvg({
   colorTheme = "coral",
   secondaryColorTheme = "sky",
   compact = false,
+  ghostSecondPart = false,
+  solved = false,
 }: {
   count?: number;
   secondaryCount?: number;
@@ -1338,6 +1342,8 @@ export function DicePatternSvg({
   colorTheme?: ColorThemeId;
   secondaryColorTheme?: ColorThemeId;
   compact?: boolean;
+  ghostSecondPart?: boolean;
+  solved?: boolean;
 }): React.ReactElement {
   const primary = Math.max(0, Math.min(5, count));
   const secondary = Math.max(0, Math.min(5 - primary, secondaryCount));
@@ -1346,6 +1352,39 @@ export function DicePatternSvg({
   const primaryPalette = COLOR_PALETTES[colorTheme] ?? COLOR_PALETTES.coral;
   const secondaryPalette =
     COLOR_PALETTES[secondaryColorTheme] ?? COLOR_PALETTES.sky;
+  const showGhostPips = ghostSecondPart && !solved;
+  const showColoredGhostPips = ghostSecondPart && solved;
+
+  const renderSecondaryPipGroup = (
+    key: string | number,
+    cx: number,
+    cy: number,
+    radius: number,
+    showInnerAccent: boolean
+  ): React.ReactElement => (
+    <g
+      key={key}
+      data-dot-group="secondary"
+      {...(showGhostPips
+        ? { "data-ghost-pip": "true" }
+        : showColoredGhostPips
+          ? { "data-colored-pip": "true" }
+          : {})}
+    >
+      <circle
+        cx={cx}
+        cy={cy}
+        r={radius}
+        fill={showGhostPips ? "#FFFFFF" : secondaryPalette.fill}
+        stroke={secondaryPalette.stroke}
+        strokeWidth="1.8"
+        strokeDasharray={showGhostPips ? "3 2" : "2 1"}
+      />
+      {showInnerAccent && !showGhostPips && (
+        <circle cx={cx} cy={cy} r="3.2" fill={secondaryPalette.accent} />
+      )}
+    </g>
+  );
 
   if (diceVariant === "domino") {
     const rightCoords = DIE_DOT_COORDS[primary] ?? [];
@@ -1395,15 +1434,23 @@ export function DicePatternSvg({
         ))}
         {/* Left Half Dots (Secondary Part in RTL) */}
         {leftCoords.map(([cx, cy], idx) => (
-          <g key={`l-${idx}`} data-dot-group="secondary">
+          <g
+            key={`l-${idx}`}
+            data-dot-group="secondary"
+            {...(showGhostPips
+              ? { "data-ghost-pip": "true" }
+              : showColoredGhostPips
+                ? { "data-colored-pip": "true" }
+                : {})}
+          >
             <circle
               cx={cx}
               cy={cy}
               r="5.8"
-              fill={secondaryPalette.fill}
+              fill={showGhostPips ? "#FFFFFF" : secondaryPalette.fill}
               stroke={secondaryPalette.stroke}
               strokeWidth="1.8"
-              strokeDasharray="2 1"
+              strokeDasharray={showGhostPips ? "3 2" : "2 1"}
             />
           </g>
         ))}
@@ -1458,16 +1505,24 @@ export function DicePatternSvg({
           <g
             key={idx}
             data-dot-group={isSecondaryDot ? "secondary" : "primary"}
+            {...(isSecondaryDot && showGhostPips
+              ? { "data-ghost-pip": "true" }
+              : isSecondaryDot && showColoredGhostPips
+                ? { "data-colored-pip": "true" }
+                : {})}
           >
             <circle
               cx={px}
               cy={py}
               r="6.2"
-              fill={pal.fill}
+              fill={isSecondaryDot && showGhostPips ? "#FFFFFF" : pal.fill}
               stroke={pal.stroke}
               strokeWidth="1.8"
+              {...(isSecondaryDot && showGhostPips
+                ? { strokeDasharray: "3 2" }
+                : {})}
             />
-            {isSecondaryDot && (
+            {isSecondaryDot && !showGhostPips && (
               <circle cx={px} cy={py} r="3.2" fill={pal.accent} />
             )}
           </g>
@@ -1479,7 +1534,7 @@ export function DicePatternSvg({
 
 // Register "dice-pattern"
 export function registerDicePatternVisualModel(): void {
-  registerVisualModel("dice-pattern", ({ model }) => {
+  registerVisualModel("dice-pattern", ({ model, solved }) => {
     const meta = (model.meta ?? {}) as Record<string, unknown>;
     const primary = model.count ?? 1;
     const secondary = model.secondaryCount ?? 0;
@@ -1487,6 +1542,7 @@ export function registerDicePatternVisualModel(): void {
     const diceVariant = (meta.diceVariant as DicePatternVariant) ?? "die";
     const hideLabel = Boolean(meta.hideLabel);
     const compact = Boolean(meta.compact);
+    const ghostSecondPart = Boolean(meta.ghostSecondPart);
 
     return (
       <div
@@ -1504,6 +1560,8 @@ export function registerDicePatternVisualModel(): void {
             (meta.secondaryColorTheme as ColorThemeId) ?? "sky"
           }
           compact={compact}
+          ghostSecondPart={ghostSecondPart}
+          solved={solved}
         />
         <span
           className={`${hideLabel ? "hidden " : ""}text-[13px] font-bold leading-tight text-slate-700`}

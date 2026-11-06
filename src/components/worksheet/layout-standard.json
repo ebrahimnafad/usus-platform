@@ -9,7 +9,8 @@
     "fiveFrameWidth": 240,
     "numberBondCircle": { "width": 56, "height": 56 },
     "numberBondBox": { "width": 212, "height": 160 },
-    "equationStripHeight": 48
+    "equationStripHeight": 48,
+    "balanceScaleBox": { "width": 212, "height": 136 }
   },
   "typeScalePx": {
     "sectionTitle": 20,

@@ -746,6 +746,271 @@ export const lessonK34Blueprint: LessonBlueprint = {
 
 registerLessonBlueprint(lessonK34Blueprint);
 
+export const lessonK35Blueprint: LessonBlueprint = {
+  lessonId: "K-35",
+  grade: "K",
+  lessonNumber: 35,
+  titleAr: AUTHORED_LESSON_LOCALIZATION["K-35"].titleAr,
+  teacherNotes: AUTHORED_LESSON_LOCALIZATION["K-35"].teacherNotes,
+  tiers: {
+    Easy: {
+      warmUp: [
+        {
+          archetype: "JoinParts",
+          promptAr:
+            "انظر إلى الجزأين على لوحة الخمسة، ثم اكتب الكلّ في المعادلة:",
+          strategyHintAr:
+            "عدّ الجزأين على لوحة الخمسة، ثم اكتب الكلّ بعد علامة =.",
+          params: {
+            representation: "five-frame",
+            responseForm: "equation",
+            action: "trace",
+            totalRange: [2, 4],
+            minPart: 1,
+            itemCount: 2,
+          },
+        },
+      ],
+      practice: [
+        {
+          archetype: "JudgeEquality",
+          promptAr:
+            "انظر إلى كل معادلة، ثم اختر صح إذا تساوى الطرفان أو خطأ إذا اختلفا:",
+          strategyHintAr:
+            "عدّ الجزأين في كل معادلة، ثم اختر صح عندما تتساوى قيمة الطرفين.",
+          params: {
+            mode: "true-false",
+            modelKind: "equation",
+            rowCount: 1,
+            itemCount: 3,
+            totalRange: [2, 4],
+            minPart: 1,
+          },
+        },
+        {
+          archetype: "JudgeEquality",
+          promptAr:
+            "عدّ الجزأين في كل معادلة، ثم اختر صح للمعادلة الصحيحة أو خطأ لغير الصحيحة:",
+          strategyHintAr:
+            "انظر إلى طرفي علامة =، ثم اختر صح إذا كان لهما نفس القيمة.",
+          params: {
+            mode: "true-false",
+            modelKind: "equation",
+            rowCount: 1,
+            itemCount: 3,
+            totalRange: [2, 4],
+            minPart: 1,
+          },
+        },
+      ],
+      challenge: [
+        {
+          archetype: "JudgeEquality",
+          promptAr:
+            "اختر عدداً لكل كفّة من بنك الأعداد، ثم اكتبه لتتساوى كفّتا الميزان:",
+          strategyHintAr:
+            "عدّ الجزأين في الكفّة الأولى، ثم اختر العدد المناسب لكل كفّة من بنك الأعداد.",
+          params: {
+            mode: "balance",
+            modelKind: "balance-scale",
+            rowCount: 1,
+            itemCount: 2,
+            totalRange: [2, 4],
+            minPart: 1,
+          },
+        },
+        {
+          archetype: "JoinParts",
+          promptAr:
+            "لوّن نقاط النرد المنقّطة ليتساوى الطرفان، ثم اكتب الجزء الناقص في المعادلة:",
+          strategyHintAr:
+            "لوّن نقاط الجزء الناقص على الدومينو، ثم اكتب عدده ليتساوى مع الكلّ.",
+          params: {
+            representation: "domino",
+            responseForm: "equation",
+            action: "draw-counters",
+            unknownPosition: "part2",
+            totalRange: [2, 4],
+            minPart: 1,
+            itemCount: 1,
+          },
+        },
+      ],
+    },
+    Intermediate: {
+      warmUp: [
+        {
+          archetype: "JoinParts",
+          promptAr:
+            "انظر إلى الجزأين على لوحة الخمسة، ثم اكتب الكلّ في المعادلة:",
+          strategyHintAr:
+            "عدّ الجزأين على لوحة الخمسة، ثم اكتب الكلّ في المعادلة.",
+          params: {
+            representation: "five-frame",
+            responseForm: "equation",
+            action: "write",
+            totalRange: [2, 5],
+            minPart: 1,
+            itemCount: 2,
+          },
+        },
+      ],
+      practice: [
+        {
+          archetype: "JudgeEquality",
+          promptAr:
+            "انظر إلى كل معادلة، ثم اختر صح إذا تساوى الطرفان أو خطأ إذا اختلفا:",
+          strategyHintAr:
+            "انظر إلى الطرف الأيمن والطرف الأيسر حول علامة =، ثم اختر صح عند تساويهما.",
+          params: {
+            mode: "true-false",
+            modelKind: "equation",
+            rowCount: 1,
+            itemCount: 3,
+            totalRange: [2, 5],
+            minPart: 1,
+          },
+        },
+        {
+          archetype: "JudgeEquality",
+          promptAr:
+            "عدّ الجزأين في كل معادلة، ثم اختر صح للمعادلة الصحيحة أو خطأ لغير الصحيحة:",
+          strategyHintAr:
+            "عدّ الجزأين في كل طرف، ثم اختر صح عندما تتساوى قيمة الطرفين.",
+          params: {
+            mode: "true-false",
+            modelKind: "equation",
+            rowCount: 1,
+            itemCount: 3,
+            totalRange: [2, 5],
+            minPart: 1,
+          },
+        },
+      ],
+      challenge: [
+        {
+          archetype: "JudgeEquality",
+          promptAr:
+            "اختر عدداً لكل كفّة من بنك الأعداد، ثم اكتبه لتتساوى كفّتا الميزان:",
+          strategyHintAr:
+            "انظر إلى الكفّتين، ثم اختر العدد المناسب لكل كفّة من بنك الأعداد.",
+          params: {
+            mode: "balance",
+            modelKind: "balance-scale",
+            rowCount: 1,
+            itemCount: 2,
+            totalRange: [2, 5],
+            minPart: 1,
+          },
+        },
+        {
+          archetype: "JoinParts",
+          promptAr:
+            "لوّن نقاط النرد المنقّطة ليتساوى الطرفان، ثم اكتب الجزء الناقص في المعادلة:",
+          strategyHintAr:
+            "لوّن نقاط الجزء الناقص على الدومينو، ثم اكتب العدد لإكمال توازن المعادلة.",
+          params: {
+            representation: "domino",
+            responseForm: "equation",
+            action: "draw-counters",
+            unknownPosition: "part2",
+            totalRange: [3, 5],
+            minPart: 1,
+            itemCount: 1,
+          },
+        },
+      ],
+    },
+    Advanced: {
+      warmUp: [
+        {
+          archetype: "JoinParts",
+          promptAr: "انظر إلى الجزأين على الدومينو، ثم اكتب الكلّ في المعادلة:",
+          strategyHintAr:
+            "عدّ نقاط الجزأين على الدومينو، ثم اكتب الكلّ في يمين المعادلة.",
+          params: {
+            representation: "domino",
+            responseForm: "equation",
+            equationLayout: "total-first",
+            action: "write",
+            totalRange: [3, 5],
+            minPart: 1,
+            itemCount: 2,
+          },
+        },
+      ],
+      practice: [
+        {
+          archetype: "JudgeEquality",
+          promptAr:
+            "انظر إلى كل معادلة، ثم اختر صح إذا تساوى الطرفان أو خطأ إذا اختلفا:",
+          strategyHintAr:
+            "عدّ الجزأين في التعبير، ثم اختر صح إذا تساوى مع الكلّ على الطرف الآخر.",
+          params: {
+            mode: "true-false",
+            modelKind: "equation",
+            rowCount: 1,
+            itemCount: 3,
+            totalRange: [2, 5],
+            minPart: 0,
+          },
+        },
+        {
+          archetype: "JudgeEquality",
+          promptAr:
+            "عدّ الجزأين في كل معادلة، ثم اختر صح عند تساوي القيمتين أو خطأ عند اختلافهما:",
+          strategyHintAr:
+            "انظر إلى الصفر (٠) في الجزء، ثم اختر صح إذا تساوت كفّتا المعادلة.",
+          params: {
+            mode: "true-false",
+            modelKind: "equation",
+            rowCount: 1,
+            itemCount: 3,
+            totalRange: [3, 5],
+            minPart: 0,
+          },
+        },
+      ],
+      challenge: [
+        {
+          archetype: "JudgeEquality",
+          promptAr:
+            "اختر عدداً لكل كفّة من بنك الأعداد، ثم اكتبه لتتساوى كفّتا الميزان:",
+          strategyHintAr:
+            "انظر إلى الكفّتين، ثم اكتب العدد المساوي في كل كفّة من بنك الأعداد.",
+          params: {
+            mode: "balance",
+            modelKind: "balance-scale",
+            rowCount: 1,
+            itemCount: 2,
+            totalRange: [3, 5],
+            minPart: 0,
+          },
+        },
+        {
+          archetype: "JoinParts",
+          promptAr:
+            "لوّن نقاط النرد المنقّطة ليتساوى الطرفان، ثم اكتب الجزء الناقص في المعادلة:",
+          strategyHintAr:
+            "لوّن نقاط الجزء الناقص على الدومينو، ثم اكتب عدده ليتساوى طرفا المعادلة.",
+          params: {
+            representation: "domino",
+            responseForm: "equation",
+            equationLayout: "total-first",
+            action: "draw-counters",
+            unknownPosition: "part2",
+            totalRange: [3, 5],
+            minPart: 1,
+            itemCount: 1,
+          },
+        },
+      ],
+    },
+  },
+};
+
+registerLessonBlueprint(lessonK35Blueprint);
+
 export const lessonK36Blueprint: LessonBlueprint = {
   lessonId: "K-36",
   grade: "K",

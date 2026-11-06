@@ -312,6 +312,7 @@ function buildRepresentationModel(params: {
       secondaryColorTheme: secondaryTheme,
       hideLabel: true,
       compact: true,
+      ghostSecondPart: action === "draw-counters",
       labelAr:
         representation === "domino"
           ? `دومينو: ${p1Ar} و${p2Ar} (الكلّ ${totalAr})`

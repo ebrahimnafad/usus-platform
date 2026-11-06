@@ -55,7 +55,7 @@ const authoredLessons = listAuthoredLessonBlueprints()
 
 describe("Ticket 06 — Arabic White MSA language pass", () => {
   it("registers every authored lesson so the pass covers the whole curriculum", () => {
-    expect(authoredLessons.length).toBeGreaterThanOrEqual(37);
+    expect(authoredLessons.length).toBeGreaterThanOrEqual(38);
   });
 
   it("keeps avoided Arabic forms out of every rendered Worksheet and Answer Key (§9.1)", () => {

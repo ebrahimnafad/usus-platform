@@ -386,6 +386,11 @@ function measureSheet(std) {
       { height: sizes.equationStripHeight },
       "Equation Strip",
     ],
+    [
+      '[data-visual-model="balance-scale"]',
+      sizes.balanceScaleBox,
+      "Balance Scale",
+    ],
   ];
   for (const [selector, size, name] of canonical) {
     for (const el of sheet.querySelectorAll(selector)) {

@@ -53,6 +53,7 @@ Each rule names its enforcement:
 | Five-frame cell     | 48 px (frame 240 px wide)           |
 | Number Bond         | 56 px circles in a 212 × 160 px box |
 | Equation Strip      | 48 px tall                          |
+| Balance Scale       | 212 × 136 px                        |
 
 3.5 Each new Visual Model adds its canonical size to the table in 3.4, sized to fit one column of 3.2.
 
@@ -94,7 +95,7 @@ Each rule names its enforcement:
 | Intermediate | The lesson's full range          | Shown                     | Write                          |
 | Advanced     | The lesson's full range          | Partly or fully withdrawn | Write or draw, with edge cases |
 
-6.3 Edge cases (0 as a quantity, an unknown in a non-standard position such as a missing Part, reversed forms such as `٥ = ٣ + ٢`) appear only at Advanced or in Challenge & Assessment. **[review]**
+6.3 Edge cases (0 as a quantity, an unknown in a non-standard position such as a missing Part, reversed forms such as `٥ = ٣ + ٢` outside K-35) appear only at Advanced or in Challenge & Assessment. **[review]**
 
 ## 7. Generation
 
@@ -155,3 +156,4 @@ A batch closes when all of these hold:
 
 - 2026-11-06: Constitution adopted.
 - 2026-11-06: §9.1 upgraded to `[test]`; §9.4 (child vs. teacher voice), §9.5 (Section names), and §9.6 (diacritics) added, acting on the Arabic language evaluation of K-31 (ADR-0014).
+- 2026-11-06: Added Balance Scale (`212 × 136 px`) to §3.4 canonical sizes per §3.5 and §10.1, and noted K-35's curriculum exception for reversed equations (`٥ = ٣ + ٢`) in §6.3.

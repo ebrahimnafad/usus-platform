@@ -69,6 +69,7 @@ describe("Layout standard matches WORKSHEET_CONSTITUTION.md", () => {
       numberBondCircle: { width: 56, height: 56 },
       numberBondBox: { width: 212, height: 160 },
       equationStripHeight: 48,
+      balanceScaleBox: { width: 212, height: 136 },
     });
   });
 
