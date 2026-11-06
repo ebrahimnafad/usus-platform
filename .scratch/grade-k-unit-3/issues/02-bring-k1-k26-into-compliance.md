@@ -4,7 +4,7 @@
 
 **Blocked by:** 01: Layout guard, size standard, and full-scale printing
 
-**Status:** ready-for-human
+**Status:** closed
 
 - [x] The seven existing archetypes (`ConnectMatch`, `ClassifyAndCount`, `PatternComplete`, `ModelCountAndTrace`, `PictureGraphRead`, `SequenceAndZero`, `SubitizePartWhole`) lay out on the 1 / 2 / 3-column standard and use the fixed Visual Model sizes; no fixed heights that content can outgrow, no content-driven wrapping
 - [x] Every five frame renders with 48 px cells
@@ -13,7 +13,7 @@
 - [x] Section sizes follow the revised limits (Warm-Up 1–2, Practice 2–4, Challenge & Assessment 1–2), and the primary-seam tests are updated to match
 - [x] Exercises are removed from a blueprint only when the sheet still exceeds 2 pages after rendering fixes; each removal is listed in this ticket's Comments with the lesson and tier
 - [x] The guard passes for all 26 lessons; the existing test suite passes (constitution §12)
-- [ ] The saved PNGs for every lesson have been reviewed by the user before this ticket closes
+- [x] The saved PNGs for every lesson have been reviewed by the user before this ticket closes
 
 ## Comments
 
