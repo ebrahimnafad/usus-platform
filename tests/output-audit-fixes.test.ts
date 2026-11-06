@@ -92,7 +92,7 @@ describe("Output Audit Fixes — Download PDF & Print Parity Seam Tests", () => 
     expect(src).toMatch(/text-\[13px\] font-bold text-slate-700 pb-1/);
   });
 
-  it("Seam 6: ConnectMatch SVG rowHeight constant accommodates row min-height", () => {
+  it("Seam 6: ConnectMatch SVG rowHeight constant accommodates row min-height and renders a single connecting port per side without duplicate inner-card dots", () => {
     const srcPath = path.resolve(
       __dirname,
       "../src/archetypes/connect-match.tsx"
@@ -102,6 +102,22 @@ describe("Output Audit Fixes — Download PDF & Print Parity Seam Tests", () => 
     expect(match).not.toBeNull();
     const value = parseInt(match![1], 10);
     expect(value).toBeGreaterThanOrEqual(48);
+
+    const htmlK1 = renderWorksheetSurface({
+      grade: "K",
+      lessonNumber: 1,
+      seed: "928BRJ",
+      difficultyLevel: "scaffolded",
+      viewMode: "worksheet",
+    });
+    expect(htmlK1).toContain('data-match-port="right"');
+    expect(htmlK1).toContain('data-match-port="left"');
+    expect(htmlK1).not.toContain(
+      "h-3 w-3 shrink-0 rounded-full border-2 border-indigo-600"
+    );
+    expect(htmlK1).not.toContain(
+      "h-3 w-3 shrink-0 rounded-full border-2 border-teal-600"
+    );
   });
 
   it("Seam 7: PDF exporter always prints at full scale (ADR-0013)", () => {

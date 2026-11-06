@@ -312,18 +312,25 @@ function renderConnectMatchExercise({
       m.kind === "equation-strip" ||
       (m.kind === "tally-marks" && (m.secondaryCount ?? 0) > 0)
   );
+  const hasNumeralTraceOrDigitCard = allModels.some(
+    (m) => m.kind === "numeral-trace" || m.kind === "digit-card"
+  );
   const isWideUnit3Match = hasNumberBond || hasMediumUnit3Model;
 
   const rowHeightPx = hasNumberBond
     ? 162
     : hasMediumUnit3Model
       ? 80
-      : ROW_HEIGHT_PX;
+      : hasNumeralTraceOrDigitCard
+        ? 62
+        : ROW_HEIGHT_PX;
   const rowMinHeightClass = hasNumberBond
     ? "min-h-[160px]"
     : hasMediumUnit3Model
       ? "min-h-[76px]"
-      : "min-h-[46px]";
+      : hasNumeralTraceOrDigitCard
+        ? "min-h-[58px]"
+        : "min-h-[46px]";
   const centerWidthPx = isWideUnit3Match ? 52 : 110;
   const gridColsClass = isWideUnit3Match
     ? "grid-cols-[1fr_52px_1fr] gap-0.5 p-0.5"
@@ -355,14 +362,12 @@ function renderConnectMatchExercise({
                 <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold leading-none text-white">
                   {formatEasternNumber(idx + 1)}
                 </span>
-                <VisualModelView
-                  model={item.model}
-                  solved={mode === "answer-key"}
-                />
-                <span
-                  className="h-3 w-3 shrink-0 rounded-full border-2 border-indigo-600 bg-indigo-100"
-                  aria-hidden="true"
-                />
+                <div className="flex flex-1 items-center justify-center">
+                  <VisualModelView
+                    model={item.model}
+                    solved={mode === "answer-key"}
+                  />
+                </div>
               </div>
             ))}
           </div>
@@ -397,14 +402,25 @@ function renderConnectMatchExercise({
 
                 return (
                   <g key={rightItem.id}>
-                    {/* Right & Left port circles in SVG */}
+                    {/* Single Right & Left port circles in SVG */}
                     <circle
                       cx={rightPortX}
                       cy={yRight}
-                      r="4.5"
-                      fill="#4F46E5"
+                      r="5"
+                      fill="#EEF2FF"
+                      stroke="#4F46E5"
+                      strokeWidth="2"
+                      data-match-port="right"
                     />
-                    <circle cx={leftPortX} cy={yLeft} r="4.5" fill="#0D9488" />
+                    <circle
+                      cx={leftPortX}
+                      cy={yLeft}
+                      r="5"
+                      fill="#F0FDFA"
+                      stroke="#0D9488"
+                      strokeWidth="2"
+                      data-match-port="left"
+                    />
 
                     {mode === "worksheet" ? (
                       <line
@@ -455,11 +471,7 @@ function renderConnectMatchExercise({
                   className={`flex ${rowMinHeightClass} items-center justify-between rounded-xl border border-slate-200 bg-white ${rowPadClass} shadow-2xs`}
                   data-match-left-id={item.id}
                 >
-                  <span
-                    className="h-3 w-3 shrink-0 rounded-full border-2 border-teal-600 bg-teal-100"
-                    aria-hidden="true"
-                  />
-                  <div className="flex items-center gap-1">
+                  <div className="flex flex-1 items-center justify-center gap-1">
                     {isPartsTableEndpoint ? (
                       <PartsTableView
                         part1={(itemMeta.part1 as number) ?? 1}
