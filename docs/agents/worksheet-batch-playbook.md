@@ -15,3 +15,5 @@ How to start a new batch of math Worksheets (usually one Unit). Every rule a bat
 6. **Write the spec.** Create `.scratch/<batch-slug>/spec.md` containing only what is new: the problem, the user stories per lesson, the new terms, Visual Models, and archetypes, the reuse-ladder table from step 3, and the batch's ranges. Refer to the constitution for everything else.
 
 7. **Write the tickets.** Create `.scratch/<batch-slug>/issues/NN-<slug>.md`, one per vertical slice (new models and archetypes together with the first lessons that use them). Every ticket's last checkbox is constitution §12 for the lessons it delivers.
+
+8. **Commit discipline.** `.husky/pre-commit` runs `lint-staged`, `tsc --noEmit`, numeral/console linters, and the full Vitest suite (~90 s). Always run `git commit` with a foreground timeout of at least `300000 ms` (`5 min`), and never edit tracked files while a commit command is still running (`lint-staged` stashes and restores the working tree, which will overwrite concurrent edits).

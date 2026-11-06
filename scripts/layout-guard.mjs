@@ -39,9 +39,19 @@ const PRINT_WIDTH_CSS = `@media print { .a4-sheet[data-worksheet-surface="true"]
 
 function parseArgs(argv) {
   const args = {};
+  let lastKey = null;
   for (const arg of argv.slice(2)) {
     const match = arg.match(/^--([^=]+)(?:=(.*))?$/);
-    if (match) args[match[1]] = match[2] ?? "true";
+    if (match) {
+      lastKey = match[1];
+      args[lastKey] = match[2] ?? "true";
+    } else if (
+      lastKey === "lessons" &&
+      /^([K1-5])-(\d+)(?:\.\.(?:[K1-5]-)?(\d+))?$/.test(arg)
+    ) {
+      // PowerShell splits unquoted --lessons=K-14,K-15 on commas into separate argv tokens
+      args.lessons = `${args.lessons},${arg}`;
+    }
   }
   return {
     baseUrl: args["base-url"],
@@ -447,6 +457,20 @@ function measureSheet(std) {
         parent,
         `${size.toFixed(1)}px (allowed: ${allowed.join(", ")}px)`
       );
+    } else if (
+      !(parent instanceof SVGElement) &&
+      roundedSize === std.typeScalePx.sectionTitle &&
+      parent.closest("[data-exercise-id]")
+    ) {
+      const key = `role-20|${where(parent).exercise}|${parent.tagName}`;
+      if (!reportedSizes.has(key)) {
+        reportedSizes.add(key);
+        push(
+          "off-type-role",
+          parent,
+          `${size.toFixed(1)}px inside exercise card (20px is reserved for Section title per §4.1)`
+        );
+      }
     }
 
     // 3.1 text spilling out of its box

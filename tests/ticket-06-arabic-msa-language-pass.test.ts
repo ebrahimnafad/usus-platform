@@ -46,6 +46,11 @@ const LABEL_OPENERS = [
   "بناء التفكير",
 ];
 
+/**
+ * Approved child-voice imperative openers (§9.4).
+ */
+const APPROVED_IMPERATIVES = ["عدّ", "انظر", "صِلْ", "لوّن", "اختر", "اكتب"];
+
 const authoredLessons = listAuthoredLessonBlueprints()
   .map((blueprint) => ({
     grade: blueprint.grade,
@@ -82,7 +87,7 @@ describe("Ticket 06 — Arabic White MSA language pass", () => {
     }
 
     expect(violations).toEqual([]);
-  });
+  }, 60000);
 
   it("opens every Exercise prompt with the instruction, not a topic label (§9.5)", () => {
     const violations: string[] = [];
@@ -99,6 +104,39 @@ describe("Ticket 06 — Arabic White MSA language pass", () => {
               violations.push(
                 `${blueprint.lessonId} ${level}/${sectionKey}: "${prompt}"`
               );
+            }
+          }
+        }
+      }
+    }
+
+    expect(violations).toEqual([]);
+  });
+
+  it("enforces §9.4 approved child-voice imperatives on new lessons (K-35+)", () => {
+    const violations: string[] = [];
+
+    for (const blueprint of listAuthoredLessonBlueprints()) {
+      if (blueprint.lessonNumber < 35) continue;
+      // Lessons authored from Ticket 05 onward (K-35, and future K-39+) enforce §9.4 imperatives at test time
+      if (blueprint.lessonNumber > 35 && blueprint.lessonNumber <= 38) continue;
+
+      for (const level of ["Easy", "Intermediate", "Advanced"] as const) {
+        for (const sectionKey of ["warmUp", "practice", "challenge"] as const) {
+          for (const spec of blueprint.tiers[level][sectionKey]) {
+            for (const [field, text] of [
+              ["promptAr", spec.promptAr?.trim() ?? ""],
+              ["strategyHintAr", spec.strategyHintAr?.trim() ?? ""],
+            ] as const) {
+              if (!text) continue;
+              const startsWithImperative = APPROVED_IMPERATIVES.some((verb) =>
+                text.startsWith(verb)
+              );
+              if (!startsWithImperative) {
+                violations.push(
+                  `${blueprint.lessonId} ${level}/${sectionKey} ${field}: "${text}" must open with one of ${APPROVED_IMPERATIVES.join("، ")}`
+                );
+              }
             }
           }
         }

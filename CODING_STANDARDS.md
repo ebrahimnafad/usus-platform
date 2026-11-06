@@ -68,3 +68,9 @@ content: counter(page, arabic-indic);
 All side-effect imports for visual models, exercise archetypes, and lesson blueprints must go in `src/registry/bootstrap.ts`. Do not add registration imports to `worksheet-engine.ts` or any other file.
 
 **Why**: Prevents Shotgun Surgery — adding a new slice should be a one-line change in one file, not scattered edits across the generation engine. See `src/registry/bootstrap.ts` for the pattern.
+
+## 5. Card interior centering and single-owner visual chrome
+
+- **Center visual models inside flex-column cards**: When an exercise or slot card uses `flex-col justify-between` with a top badge row, wrap the body `<VisualModelView />` in a `flex-1 flex flex-col items-center justify-center` container. Otherwise `justify-between` pins the model against the bottom border whenever a sibling card in the grid is taller.
+- **Single-owner visual chrome**: Connection ports, dividers, and item badges belong to either the HTML card or the SVG canvas, never both. Drawing a port ring inside the HTML card and a second port circle in the adjacent SVG canvas produces duplicate visual elements that drift apart when card height changes.
+- **Keep header + wide visual models within column width**: In a 2-column (`324 px`) or 3-column (`212 px`) cell, stack the item header row (number badge + summary pill) above any wide visual model (`240 px` five-frame, `five-frame-and-digit`, or `PartsTableView`) rather than placing four elements on a single horizontal flex line.
