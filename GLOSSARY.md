@@ -89,16 +89,24 @@ A short prompt accompanying an exercise or solution that guides the student's ma
 _Avoid_: Tip, clue, help text
 
 **Part**:
-One of the smaller quantities (الجزء) that together make up a Total; in addition, each quantity being joined is a Part.
-_Avoid_: Addend, piece, group
+One of the smaller quantities (الجزء) that together make up a Total; in addition, each quantity being joined is a Part; in subtraction, both the quantity taken away and the quantity left are Parts.
+_Avoid_: Addend, subtrahend, piece, group
 
 **Total**:
-The whole quantity (الكلّ) formed by joining Parts; in addition, the result is the Total.
-_Avoid_: Sum, whole, answer, result, المجموع, الناتج
+The whole quantity (الكلّ) formed by joining Parts; in addition, the result is the Total; in subtraction, the Total is the quantity you start with.
+_Avoid_: Sum, minuend, whole, answer, result, المجموع, الناتج
 
 **Missing Part**:
-The Part of a Number Bond or Equation whose value is unknown and which the student must find (الجزء الناقص).
-_Avoid_: الجزء المفقود, Blank, hidden number, unknown addend
+The Part of a Number Bond or Equation whose value is unknown and which the student must find (الجزء الناقص); in subtraction, it is the Part that is left, asked of the child as `كم بقي؟`.
+_Avoid_: الجزء المفقود, Difference, الفرق, الباقي, Blank, hidden number, unknown addend
+
+**Take Away**:
+Subtraction (الطرح) understood as removing a known Part from a Total to find the Missing Part that is left, written with the minus sign `−`.
+_Avoid_: Minus (as the name of the operation), deduct, difference, الفرق
+
+**Cross Off**:
+Marking the items of a Visual Model that are taken away with an X (اشطب), leaving them visible under the X so they can still be counted.
+_Avoid_: Strike out, erase, remove, delete
 
 **Number Bond**:
 A Visual Model showing the relationship between one Total and its two Parts: the Total circle on top, joined to two Part circles below, with the first Part on the right.
