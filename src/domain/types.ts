@@ -188,7 +188,8 @@ export type ExerciseArchetypeId =
   | "SequenceAndZero"
   | "SubitizePartWhole"
   | "JoinParts"
-  | "JudgeEquality";
+  | "JudgeEquality"
+  | "TakeAway";
 
 export interface ConnectMatchPair {
   pairId: string;

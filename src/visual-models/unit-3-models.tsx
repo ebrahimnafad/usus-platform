@@ -317,9 +317,11 @@ export function NumberBondView({
 }
 
 export type EquationLayout = "standard" | "total-first" | "expression";
+export type EquationOperation = "add" | "subtract";
 export type EquationMissingPosition = BondMissingPosition;
 
 export interface EquationStripOptions extends PartWholeSlotConfig {
+  operation?: EquationOperation;
   layout?: EquationLayout;
   labelAr?: string;
 }
@@ -327,30 +329,39 @@ export interface EquationStripOptions extends PartWholeSlotConfig {
 export function createEquationStripSpec(
   options: EquationStripOptions
 ): VisualModelSpec {
+  const operation: EquationOperation = options.operation ?? "add";
   const part1 = Math.max(0, Math.min(5, options.part1));
   const part2 = Math.max(0, Math.min(5, options.part2));
   const total = options.total ?? part1 + part2;
   const layout = options.layout ?? "standard";
-  const missingPosition = options.missingPosition ?? "total";
+  const missingPosition =
+    options.missingPosition ?? (operation === "subtract" ? "part2" : "total");
 
   const p1Ar = formatEasternNumber(part1);
   const p2Ar = formatEasternNumber(part2);
   const totalAr = formatEasternNumber(total);
 
   const defaultLabelAr =
-    layout === "expression"
-      ? `تعبير جمع: ${p1Ar} + ${p2Ar}`
-      : layout === "total-first"
-        ? `معادلة جمع: ${totalAr} = ${p1Ar} + ${p2Ar}`
-        : `معادلة جمع: ${p1Ar} + ${p2Ar} = ${totalAr}`;
+    operation === "subtract"
+      ? layout === "expression"
+        ? `تعبير طرح: ${totalAr} − ${p1Ar}`
+        : layout === "total-first"
+          ? `معادلة طرح: ${p2Ar} = ${totalAr} − ${p1Ar}`
+          : `معادلة طرح: ${totalAr} − ${p1Ar} = ${p2Ar}`
+      : layout === "expression"
+        ? `تعبير جمع: ${p1Ar} + ${p2Ar}`
+        : layout === "total-first"
+          ? `معادلة جمع: ${totalAr} = ${p1Ar} + ${p2Ar}`
+          : `معادلة جمع: ${p1Ar} + ${p2Ar} = ${totalAr}`;
 
   return {
     kind: "equation-strip",
-    id: `equation-strip-${part1}-${part2}-${total}-${layout}-${missingPosition}`,
+    id: `equation-strip-${operation}-${part1}-${part2}-${total}-${layout}-${missingPosition}`,
     labelAr: options.labelAr ?? defaultLabelAr,
     count: part1,
     secondaryCount: part2,
     meta: {
+      operation,
       part1,
       part2,
       total,
@@ -366,6 +377,7 @@ export function EquationStripView({
   part1,
   part2,
   total,
+  operation = "add",
   layout = "standard",
   missingPosition = "total",
   slotKind = "unknown",
@@ -375,6 +387,7 @@ export function EquationStripView({
   part1: number;
   part2: number;
   total: number;
+  operation?: EquationOperation;
   layout?: EquationLayout;
   missingPosition?: EquationMissingPosition;
   slotKind?: AnswerSlotKind;
@@ -425,13 +438,48 @@ export function EquationStripView({
       style={{ height: `${stripH}px` }}
       data-visual-model="equation-strip"
       data-direction="rtl"
+      data-equation-operation={operation}
       data-equation-layout={layout}
       data-missing-position={missingPosition}
       data-part1={p1Ar}
       data-part2={p2Ar}
       data-total={totalAr}
     >
-      {layout === "total-first" ? (
+      {operation === "subtract" ? (
+        layout === "total-first" ? (
+          <>
+            {renderTerm(
+              "part2",
+              p2Ar,
+              "مربع الجزء الناقص في المعادلة",
+              "amber"
+            )}
+            {opSpan("=")}
+            {renderTerm("total", totalAr, "مربع الكلّ في المعادلة", "indigo")}
+            {opSpan("−")}
+            {renderTerm("part1", p1Ar, "مربع الجزء الأول في المعادلة", "sky")}
+          </>
+        ) : layout === "expression" ? (
+          <>
+            {renderTerm("total", totalAr, "مربع الكلّ في التعبير", "indigo")}
+            {opSpan("−")}
+            {renderTerm("part1", p1Ar, "مربع الجزء الأول في التعبير", "sky")}
+          </>
+        ) : (
+          <>
+            {renderTerm("total", totalAr, "مربع الكلّ في المعادلة", "indigo")}
+            {opSpan("−")}
+            {renderTerm("part1", p1Ar, "مربع الجزء الأول في المعادلة", "sky")}
+            {opSpan("=")}
+            {renderTerm(
+              "part2",
+              p2Ar,
+              "مربع الجزء الناقص في المعادلة",
+              "amber"
+            )}
+          </>
+        )
+      ) : layout === "total-first" ? (
         <>
           {renderTerm("total", totalAr, "مربع الكلّ في المعادلة", "indigo")}
           {opSpan("=")}
@@ -953,8 +1001,16 @@ export function registerUnit3VisualModels(): void {
     const unpacked = unpackPartWholeMeta(model);
     const meta = (model.meta ?? {}) as Record<string, unknown>;
     const layout = (meta.layout as EquationLayout) ?? "standard";
+    const operation = (meta.operation as EquationOperation) ?? "add";
 
-    return <EquationStripView {...unpacked} layout={layout} solved={solved} />;
+    return (
+      <EquationStripView
+        {...unpacked}
+        operation={operation}
+        layout={layout}
+        solved={solved}
+      />
+    );
   });
 
   registerVisualModel("balance-scale", ({ model, solved }) => {

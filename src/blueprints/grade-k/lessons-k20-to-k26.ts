@@ -1063,7 +1063,7 @@ export const lessonK24Blueprint: LessonBlueprint = {
           archetype: "SequenceAndZero",
           promptAr: "تتبّع من ٥ حتى ٠ وأجب عن السؤال:",
           strategyHintAr:
-            "عندما نشطب ٥ أقراص من أصل ٥ أقراص على لوحة الخمسة فإن الباقي يساوي ٠.",
+            "عندما نشطب ٥ أقراص من أصل ٥ أقراص على لوحة الخمسة فلا يبقى شيء (٠).",
           params: {
             sequenceMode: "zero-take-away",
             visualKind: "five-frame",

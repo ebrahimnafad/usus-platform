@@ -229,6 +229,7 @@ describe("Exercise layout primitives", () => {
       { lessonNumber: 26, archetype: "SubitizePartWhole" },
       { lessonNumber: 29, archetype: "JoinParts" },
       { lessonNumber: 36, archetype: "JudgeEquality" },
+      { lessonNumber: 40, archetype: "TakeAway" },
     ];
 
     for (const { lessonNumber, archetype } of archetypeLessons) {

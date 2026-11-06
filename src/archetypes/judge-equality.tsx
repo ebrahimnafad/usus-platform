@@ -18,10 +18,7 @@ import {
 import { VisualModelView } from "@/visual-models/registry";
 import { ExerciseColumns } from "@/components/worksheet/ExerciseColumns";
 import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
-import {
-  selectAdditionFacts,
-  type AdditionFact,
-} from "@/archetypes/join-parts";
+import { selectAdditionFacts, type AdditionFact } from "@/lib/part-whole-facts";
 
 export type JudgeEqualityMode = "whats-wrong" | "true-false" | "balance";
 export type JudgeEqualityModelKind =

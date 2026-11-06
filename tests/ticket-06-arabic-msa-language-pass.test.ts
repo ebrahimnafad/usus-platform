@@ -25,6 +25,13 @@ const AVOIDED_FORMS: Array<{ pattern: RegExp; term: string; use: string }> = [
     use: "الجزء الناقص",
   },
   {
+    // الفرق بين / الفرق في / الفرق البصري ("visual difference between") are non-arithmetic;
+    // الفرق as a subtraction noun and الباقي as "the remainder" are avoided in Unit 4+.
+    pattern: /الفرق(?!\s+(?:بين|في|البصري))|الباقي(?!\s+بالتتابع)/,
+    term: "Missing Part / Take Away",
+    use: "الجزء الناقص / كم بقي؟",
+  },
+  {
     // المجموعة / المجموعتين / المجموعات ("group") share this prefix and stay legal,
     // so المجموع only counts as "sum" when no Arabic letter follows it.
     pattern: /المجموع(?![\u0621-\u064A])|الناتج|العدد الكلي/,
@@ -49,7 +56,16 @@ const LABEL_OPENERS = [
 /**
  * Approved child-voice imperative openers (§9.4).
  */
-const APPROVED_IMPERATIVES = ["عدّ", "انظر", "صِلْ", "لوّن", "اختر", "اكتب"];
+const APPROVED_IMPERATIVES = [
+  "عدّ",
+  "انظر",
+  "صِلْ",
+  "لوّن",
+  "اختر",
+  "اكتب",
+  "اشطب",
+  "اطرح",
+];
 
 const authoredLessons = listAuthoredLessonBlueprints()
   .map((blueprint) => ({

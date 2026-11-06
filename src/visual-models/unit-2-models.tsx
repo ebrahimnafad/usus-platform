@@ -14,10 +14,13 @@ import {
 import { registerVisualModel } from "@/visual-models/registry";
 import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
 
+export type CrossOffMode = "shown" | "student";
+
 export interface FiveFrameOptions {
   count: number;
   secondaryCount?: number;
   crossedOutCount?: number;
+  crossOffMode?: CrossOffMode;
   colorTheme?: ColorThemeId;
   secondaryColorTheme?: ColorThemeId;
   highlightEmptySlots?: boolean;
@@ -35,8 +38,13 @@ export function createFiveFrameSpec(
     0,
     Math.min(5 - primary, options.secondaryCount ?? 0)
   );
-  const total = primary + secondary;
+  const ghostCount = Math.max(
+    0,
+    Math.min(5 - (primary + secondary), options.ghostTargetCount ?? 0)
+  );
+  const total = primary + secondary + ghostCount;
   const crossedOut = Math.max(0, Math.min(total, options.crossedOutCount ?? 0));
+  const crossOffMode: CrossOffMode = options.crossOffMode ?? "shown";
   const remaining = Math.max(0, total - crossedOut);
 
   const defaultLabelAr =
@@ -52,13 +60,14 @@ export function createFiveFrameSpec(
 
   return {
     kind: "five-frame",
-    id: `five-frame-${primary}-${secondary}-${crossedOut}`,
+    id: `five-frame-${primary}-${secondary}-${crossedOut}-${crossOffMode}`,
     labelAr: options.labelAr ?? defaultLabelAr,
     colorTheme: options.colorTheme ?? "coral",
     count: primary,
     secondaryCount: secondary,
     crossedOutCount: crossedOut,
     meta: {
+      crossOffMode,
       secondaryColorTheme: options.secondaryColorTheme ?? "sky",
       highlightEmptySlots: options.highlightEmptySlots ?? true,
       showPartOutline: options.showPartOutline ?? secondary > 0,
@@ -71,6 +80,7 @@ export function FiveFrameSvg({
   count = 1,
   secondaryCount = 0,
   crossedOutCount = 0,
+  crossOffMode = "shown",
   colorTheme = "coral",
   secondaryColorTheme = "sky",
   highlightEmptySlots = true,
@@ -81,6 +91,7 @@ export function FiveFrameSvg({
   count?: number;
   secondaryCount?: number;
   crossedOutCount?: number;
+  crossOffMode?: CrossOffMode;
   colorTheme?: ColorThemeId;
   secondaryColorTheme?: ColorThemeId;
   highlightEmptySlots?: boolean;
@@ -91,8 +102,13 @@ export function FiveFrameSvg({
   const primary = Math.max(0, Math.min(5, count));
   const secondary = Math.max(0, Math.min(5 - primary, secondaryCount));
   const totalFilled = primary + secondary;
-  const crossedOut = Math.max(0, Math.min(totalFilled, crossedOutCount));
+  const totalShownOrDrawn = Math.min(
+    5,
+    totalFilled + Math.max(0, ghostTargetCount)
+  );
+  const crossedOut = Math.max(0, Math.min(totalShownOrDrawn, crossedOutCount));
   const ghostCount = Math.max(0, Math.min(5 - totalFilled, ghostTargetCount));
+  const shouldDrawCrossOff = crossOffMode === "shown" || solved;
 
   const primaryPalette = COLOR_PALETTES[colorTheme] ?? COLOR_PALETTES.coral;
   const secondaryPalette =
@@ -119,6 +135,7 @@ export function FiveFrameSvg({
       data-primary-count={formatEasternNumber(primary)}
       data-secondary-count={formatEasternNumber(secondary)}
       data-crossed-out={formatEasternNumber(crossedOut)}
+      data-cross-off-mode={crossOffMode}
     >
       {/* Outer Frame Shadow & Background */}
       <rect
@@ -190,11 +207,12 @@ export function FiveFrameSvg({
           rtlIdx >= totalFilled &&
           rtlIdx < totalFilled + ghostCount;
         const isFilled = isPrimary || isSecondary || (isGhost && solved);
-        // Cross out from the left end of filled counters (taking away one by one)
-        const isCrossedOut =
-          (isPrimary || isSecondary) &&
-          rtlIdx >= totalFilled - crossedOut &&
-          rtlIdx < totalFilled;
+        // Cross out from the left end of filled (or solved-ghost) counters (taking away one by one)
+        const isCrossedOutTarget =
+          (isPrimary || isSecondary || (isGhost && solved)) &&
+          rtlIdx >= totalShownOrDrawn - crossedOut &&
+          rtlIdx < totalShownOrDrawn;
+        const isCrossedOut = isCrossedOutTarget && shouldDrawCrossOff;
 
         const isSecondPartGhost = isGhost && primary > 0;
         const activePalette =
@@ -319,7 +337,12 @@ export function FiveFrameSvg({
 
             {/* Cross-out mark for zero / taking away */}
             {isCrossedOut && (
-              <g data-crossed-out-cell="true">
+              <g
+                data-crossed-out-cell="true"
+                {...(crossOffMode === "student" && solved
+                  ? { "data-solved-cross-off": "true" }
+                  : {})}
+              >
                 <line
                   x1={cx - 13}
                   y1={cy - 13}
@@ -585,6 +608,7 @@ export function registerFiveFrameVisualModel(): void {
     const primary = model.count ?? 1;
     const secondary = model.secondaryCount ?? 0;
     const crossedOut = model.crossedOutCount ?? 0;
+    const crossOffMode = (meta.crossOffMode as CrossOffMode) ?? "shown";
     const total = Math.max(0, primary + secondary - crossedOut);
 
     return (
@@ -593,11 +617,13 @@ export function registerFiveFrameVisualModel(): void {
         data-visual-model="five-frame"
         data-direction="rtl"
         data-count={formatEasternNumber(total)}
+        data-cross-off-mode={crossOffMode}
       >
         <FiveFrameSvg
           count={primary}
           secondaryCount={secondary}
           crossedOutCount={crossedOut}
+          crossOffMode={crossOffMode}
           colorTheme={model.colorTheme ?? "coral"}
           secondaryColorTheme={
             (meta.secondaryColorTheme as ColorThemeId) ?? "sky"
@@ -641,6 +667,8 @@ export function registerNumeralTraceVisualModel(): void {
 export interface SnapCubesOptions {
   count: number;
   secondaryCount?: number;
+  crossedOutCount?: number;
+  crossOffMode?: CrossOffMode;
   separated?: boolean;
   orientation?: "horizontal" | "vertical";
   compact?: boolean;
@@ -658,28 +686,37 @@ export function createSnapCubesSpec(
     Math.min(5 - primary, options.secondaryCount ?? 0)
   );
   const total = primary + secondary;
+  const crossedOut = Math.max(0, Math.min(total, options.crossedOutCount ?? 0));
+  const crossOffMode: CrossOffMode = options.crossOffMode ?? "shown";
+  const remaining = Math.max(0, total - crossedOut);
   const separated = options.separated ?? false;
   const orientation = options.orientation ?? "horizontal";
 
   const defaultLabelAr =
-    separated && secondary > 0
-      ? `مكعبات مفكوكة: ${formatEasternNumber(primary)} و${formatEasternNumber(
-          secondary
-        )} (الكل ${formatEasternNumber(total)})`
-      : secondary > 0
-        ? `قطار مكعبات متداخلة: ${formatEasternNumber(
-            primary
-          )} و${formatEasternNumber(secondary)} يساوي ${formatEasternNumber(total)}`
-        : `مكعبات متداخلة: ${formatEasternNumber(total)}`;
+    crossedOut > 0
+      ? `مكعبات متداخلة: ${formatEasternNumber(total)} شُطب منها ${formatEasternNumber(
+          crossedOut
+        )} وبقي ${formatEasternNumber(remaining)}`
+      : separated && secondary > 0
+        ? `مكعبات مفكوكة: ${formatEasternNumber(primary)} و${formatEasternNumber(
+            secondary
+          )} (الكل ${formatEasternNumber(total)})`
+        : secondary > 0
+          ? `قطار مكعبات متداخلة: ${formatEasternNumber(
+              primary
+            )} و${formatEasternNumber(secondary)} يساوي ${formatEasternNumber(total)}`
+          : `مكعبات متداخلة: ${formatEasternNumber(total)}`;
 
   return {
     kind: "snap-cubes",
-    id: `snap-cubes-${primary}-${secondary}-${separated ? "sep" : "joined"}-${orientation}`,
+    id: `snap-cubes-${primary}-${secondary}-${crossedOut}-${crossOffMode}-${separated ? "sep" : "joined"}-${orientation}`,
     labelAr: options.labelAr ?? defaultLabelAr,
     colorTheme: options.colorTheme ?? "emerald",
     count: primary,
     secondaryCount: secondary,
+    crossedOutCount: crossedOut,
     meta: {
+      crossOffMode,
       separated,
       orientation,
       compact: Boolean(options.compact),
@@ -691,23 +728,31 @@ export function createSnapCubesSpec(
 export function SnapCubesSvg({
   count = 1,
   secondaryCount = 0,
+  crossedOutCount = 0,
+  crossOffMode = "shown",
   separated = false,
   orientation = "horizontal",
   compact = false,
   colorTheme = "emerald",
   secondaryColorTheme = "amber",
+  solved = false,
 }: {
   count?: number;
   secondaryCount?: number;
+  crossedOutCount?: number;
+  crossOffMode?: CrossOffMode;
   separated?: boolean;
   orientation?: "horizontal" | "vertical";
   compact?: boolean;
   colorTheme?: ColorThemeId;
   secondaryColorTheme?: ColorThemeId;
+  solved?: boolean;
 }): React.ReactElement {
   const primary = Math.max(1, Math.min(5, count));
   const secondary = Math.max(0, Math.min(5 - primary, secondaryCount));
   const total = primary + secondary;
+  const crossedOut = Math.max(0, Math.min(total, crossedOutCount));
+  const shouldDrawCrossOff = crossOffMode === "shown" || solved;
 
   const primaryPalette = COLOR_PALETTES[colorTheme] ?? COLOR_PALETTES.emerald;
   const secondaryPalette =
@@ -729,6 +774,8 @@ export function SnapCubesSvg({
         aria-label={`برج مكعبات: ${formatEasternNumber(total)}`}
         data-separated={separated ? "true" : "false"}
         data-orientation="vertical"
+        data-crossed-out={formatEasternNumber(crossedOut)}
+        data-cross-off-mode={crossOffMode}
       >
         {Array.from({ length: total }, (_, idx) => {
           const isSecondary = idx >= primary;
@@ -738,6 +785,8 @@ export function SnapCubesSvg({
           const isRunEnd =
             idx === total - 1 ||
             (separated && secondary > 0 && idx === primary - 1);
+          const isCrossedOut =
+            idx >= total - crossedOut && idx < total && shouldDrawCrossOff;
 
           return (
             <g key={idx} data-cube-index={formatEasternNumber(idx + 1)}>
@@ -795,6 +844,33 @@ export function SnapCubesSvg({
                 stroke={pal.stroke}
                 strokeWidth="1"
               />
+              {isCrossedOut && (
+                <g
+                  data-crossed-out-cube="true"
+                  {...(crossOffMode === "student" && solved
+                    ? { "data-solved-cross-off": "true" }
+                    : {})}
+                >
+                  <line
+                    x1={baseX - 1}
+                    y1={y - 1}
+                    x2={baseX + cubeSize + 3}
+                    y2={y + cubeSize + 1}
+                    stroke="#BE123C"
+                    strokeWidth="2.8"
+                    strokeLinecap="round"
+                  />
+                  <line
+                    x1={baseX + cubeSize + 3}
+                    y1={y - 1}
+                    x2={baseX - 1}
+                    y2={y + cubeSize + 1}
+                    stroke="#BE123C"
+                    strokeWidth="2.8"
+                    strokeLinecap="round"
+                  />
+                </g>
+              )}
             </g>
           );
         })}
@@ -821,6 +897,8 @@ export function SnapCubesSvg({
       aria-label={`قطار مكعبات متداخلة: ${formatEasternNumber(total)}`}
       data-separated={separated ? "true" : "false"}
       data-orientation="horizontal"
+      data-crossed-out={formatEasternNumber(crossedOut)}
+      data-cross-off-mode={crossOffMode}
     >
       {/* Render from left to right in painter's order so right faces layer cleanly */}
       {Array.from({ length: total }, (_, revIdx) => {
@@ -835,6 +913,11 @@ export function SnapCubesSvg({
         const isRunEnd =
           idx === total - 1 ||
           (separated && secondary > 0 && idx === primary - 1);
+        const isCrossedOut =
+          idx >= total - crossedOut && idx < total && shouldDrawCrossOff;
+        const cx = x + cubeW / 2;
+        const cy = baseY + cubeH / 2;
+        const halfArm = compact ? 9 : 11;
 
         return (
           <g key={idx} data-cube-index={formatEasternNumber(idx + 1)}>
@@ -885,16 +968,16 @@ export function SnapCubesSvg({
             )}
             {/* Center stud recess & RTL cube count number */}
             <circle
-              cx={x + cubeW / 2}
-              cy={baseY + cubeH / 2}
+              cx={cx}
+              cy={cy}
               r="8.5"
               fill={pal.accent}
               stroke={pal.stroke}
               strokeWidth="1.2"
             />
             <text
-              x={x + cubeW / 2}
-              y={baseY + cubeH / 2 + 4.5}
+              x={cx}
+              y={cy + 4.5}
               textAnchor="middle"
               fontSize="12"
               fontWeight="900"
@@ -902,6 +985,33 @@ export function SnapCubesSvg({
             >
               {formatEasternNumber(idx + 1)}
             </text>
+            {isCrossedOut && (
+              <g
+                data-crossed-out-cube="true"
+                {...(crossOffMode === "student" && solved
+                  ? { "data-solved-cross-off": "true" }
+                  : {})}
+              >
+                <line
+                  x1={cx - halfArm}
+                  y1={cy - halfArm}
+                  x2={cx + halfArm}
+                  y2={cy + halfArm}
+                  stroke="#BE123C"
+                  strokeWidth="3.2"
+                  strokeLinecap="round"
+                />
+                <line
+                  x1={cx + halfArm}
+                  y1={cy - halfArm}
+                  x2={cx - halfArm}
+                  y2={cy + halfArm}
+                  stroke="#BE123C"
+                  strokeWidth="3.2"
+                  strokeLinecap="round"
+                />
+              </g>
+            )}
           </g>
         );
       })}
@@ -926,10 +1036,12 @@ export function SnapCubesSvg({
 
 // Register "snap-cubes"
 export function registerSnapCubesVisualModel(): void {
-  registerVisualModel("snap-cubes", ({ model }) => {
+  registerVisualModel("snap-cubes", ({ model, solved }) => {
     const meta = (model.meta ?? {}) as Record<string, unknown>;
     const primary = model.count ?? 1;
     const secondary = model.secondaryCount ?? 0;
+    const crossedOut = model.crossedOutCount ?? 0;
+    const crossOffMode = (meta.crossOffMode as CrossOffMode) ?? "shown";
     const separated = Boolean(meta.separated);
     const orientation =
       (meta.orientation as "horizontal" | "vertical") ?? "horizontal";
@@ -940,12 +1052,16 @@ export function registerSnapCubesVisualModel(): void {
         className="inline-flex flex-col items-center gap-0.5"
         data-visual-model="snap-cubes"
         data-count={formatEasternNumber(total)}
+        data-crossed-out={formatEasternNumber(crossedOut)}
+        data-cross-off-mode={crossOffMode}
         data-separated={separated ? "true" : "false"}
         data-orientation={orientation}
       >
         <SnapCubesSvg
           count={primary}
           secondaryCount={secondary}
+          crossedOutCount={crossedOut}
+          crossOffMode={crossOffMode}
           separated={separated}
           orientation={orientation}
           compact={Boolean(meta.compact)}
@@ -953,6 +1069,7 @@ export function registerSnapCubesVisualModel(): void {
           secondaryColorTheme={
             (meta.secondaryColorTheme as ColorThemeId) ?? "amber"
           }
+          solved={solved}
         />
         <span className="hidden text-[13px] font-bold leading-tight text-slate-700">
           {toEasternArabicNumerals(model.labelAr)}
@@ -967,6 +1084,9 @@ export type TallyMarksVariant = "tally" | "sticks" | "tally-and-sticks";
 export interface TallyMarksOptions {
   count: number;
   secondaryCount?: number;
+  crossedOutCount?: number;
+  crossOffMode?: CrossOffMode;
+  compact?: boolean;
   variant?: TallyMarksVariant;
   colorTheme?: ColorThemeId;
   secondaryColorTheme?: ColorThemeId;
@@ -978,30 +1098,42 @@ export function createTallyMarksSpec(
 ): VisualModelSpec {
   const count = Math.max(1, Math.min(5, options.count));
   const secondary = Math.max(0, Math.min(5, options.secondaryCount ?? 0));
+  const crossedOut = Math.max(0, Math.min(count, options.crossedOutCount ?? 0));
+  const crossOffMode: CrossOffMode = options.crossOffMode ?? "shown";
+  const remaining = Math.max(0, count - crossedOut);
   const variant = options.variant ?? "tally";
   const countAr = formatEasternNumber(count);
 
   const defaultLabelAr =
-    secondary > 0
-      ? `تعبير علامات العدّ: ${countAr} + ${formatEasternNumber(secondary)}`
-      : variant === "sticks"
-        ? `أعواد عدّ ملوّنة: ${countAr}`
-        : count === 5
-          ? `علامات العدّ: حزمة خماسية (${countAr})`
-          : `علامات العدّ: ${countAr}`;
+    crossedOut > 0
+      ? `علامات العدّ: ${countAr} شُطب منها ${formatEasternNumber(
+          crossedOut
+        )} وبقي ${formatEasternNumber(remaining)}`
+      : secondary > 0
+        ? `تعبير علامات العدّ: ${countAr} + ${formatEasternNumber(secondary)}`
+        : variant === "sticks"
+          ? `أعواد عدّ ملوّنة: ${countAr}`
+          : count === 5
+            ? `علامات العدّ: حزمة خماسية (${countAr})`
+            : `علامات العدّ: ${countAr}`;
 
   return {
     kind: "tally-marks",
     id:
-      secondary > 0
-        ? `tally-marks-${count}-plus-${secondary}-${variant}`
-        : `tally-marks-${count}-${variant}`,
+      crossedOut > 0
+        ? `tally-marks-${count}-minus-${crossedOut}-${crossOffMode}-${variant}`
+        : secondary > 0
+          ? `tally-marks-${count}-plus-${secondary}-${variant}`
+          : `tally-marks-${count}-${variant}`,
     labelAr: options.labelAr ?? defaultLabelAr,
     colorTheme: options.colorTheme ?? "amber",
     count,
-    secondaryCount: secondary > 0 ? secondary : undefined,
+    secondaryCount: crossedOut === 0 && secondary > 0 ? secondary : undefined,
+    crossedOutCount: crossedOut,
     meta: {
       variant,
+      crossOffMode,
+      compact: Boolean(options.compact),
       secondaryColorTheme: options.secondaryColorTheme ?? "sky",
     },
   };
@@ -1009,16 +1141,24 @@ export function createTallyMarksSpec(
 
 export function TallyMarksSvg({
   count = 1,
+  crossedOutCount = 0,
+  crossOffMode = "shown",
   variant = "tally",
   colorTheme = "amber",
   compact = false,
+  solved = false,
 }: {
   count?: number;
+  crossedOutCount?: number;
+  crossOffMode?: CrossOffMode;
   variant?: TallyMarksVariant;
   colorTheme?: ColorThemeId;
   compact?: boolean;
+  solved?: boolean;
 }): React.ReactElement {
   const safeCount = Math.max(1, Math.min(5, count));
+  const crossedOut = Math.max(0, Math.min(safeCount, crossedOutCount));
+  const shouldDrawCrossOff = crossOffMode === "shown" || solved;
   const verticalCount = Math.min(4, safeCount);
   const hasFifthSlash = safeCount >= 5;
   const palette = COLOR_PALETTES[colorTheme] ?? COLOR_PALETTES.amber;
@@ -1042,6 +1182,8 @@ export function TallyMarksSvg({
       aria-label={`علامات العدّ: ${formatEasternNumber(safeCount)}`}
       data-has-fifth-slash={hasFifthSlash ? "true" : "false"}
       data-variant={variant}
+      data-crossed-out={formatEasternNumber(crossedOut)}
+      data-cross-off-mode={crossOffMode}
     >
       {/* Background Board */}
       <rect
@@ -1104,6 +1246,110 @@ export function TallyMarksSvg({
                 y2="48"
                 stroke="#EF4444"
                 strokeWidth="3.5"
+                strokeLinecap="round"
+              />
+            </g>
+          )}
+
+          {/* Cross-off X marks rendered on top of all strokes */}
+          {Array.from({ length: verticalCount }, (_, idx) => {
+            const x = tallyBaseRightX - idx * spacing;
+            const isCrossedOut =
+              idx >= safeCount - crossedOut &&
+              idx < safeCount &&
+              shouldDrawCrossOff;
+            if (!isCrossedOut) return null;
+            const cyTop = hasFifthSlash ? 13 : 28;
+            const cyBot = hasFifthSlash ? 23 : 40;
+            return (
+              <g
+                key={`cross-${idx}`}
+                data-crossed-out-tally="true"
+                {...(crossOffMode === "student" && solved
+                  ? { "data-solved-cross-off": "true" }
+                  : {})}
+              >
+                <line
+                  x1={x - 5}
+                  y1={cyTop}
+                  x2={x + 5}
+                  y2={cyBot}
+                  stroke="#FFFFFF"
+                  strokeWidth="5"
+                  strokeLinecap="round"
+                />
+                <line
+                  x1={x + 5}
+                  y1={cyTop}
+                  x2={x - 5}
+                  y2={cyBot}
+                  stroke="#FFFFFF"
+                  strokeWidth="5"
+                  strokeLinecap="round"
+                />
+                <line
+                  x1={x - 5}
+                  y1={cyTop}
+                  x2={x + 5}
+                  y2={cyBot}
+                  stroke="#BE123C"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                />
+                <line
+                  x1={x + 5}
+                  y1={cyTop}
+                  x2={x - 5}
+                  y2={cyBot}
+                  stroke="#BE123C"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                />
+              </g>
+            );
+          })}
+
+          {hasFifthSlash && crossedOut >= 1 && shouldDrawCrossOff && (
+            <g
+              data-crossed-out-tally="true"
+              {...(crossOffMode === "student" && solved
+                ? { "data-solved-cross-off": "true" }
+                : {})}
+            >
+              <line
+                x1={tallyBaseRightX - 3 * spacing - 9}
+                y1="42"
+                x2={tallyBaseRightX - 3 * spacing + 3}
+                y2="54"
+                stroke="#FFFFFF"
+                strokeWidth="5.2"
+                strokeLinecap="round"
+              />
+              <line
+                x1={tallyBaseRightX - 3 * spacing + 3}
+                y1="42"
+                x2={tallyBaseRightX - 3 * spacing - 9}
+                y2="54"
+                stroke="#FFFFFF"
+                strokeWidth="5.2"
+                strokeLinecap="round"
+              />
+              <line
+                x1={tallyBaseRightX - 3 * spacing - 9}
+                y1="42"
+                x2={tallyBaseRightX - 3 * spacing + 3}
+                y2="54"
+                stroke="#BE123C"
+                strokeWidth="3.2"
+                strokeLinecap="round"
+              />
+              <line
+                x1={tallyBaseRightX - 3 * spacing + 3}
+                y1="42"
+                x2={tallyBaseRightX - 3 * spacing - 9}
+                y2="54"
+                stroke="#BE123C"
+                strokeWidth="3.2"
                 strokeLinecap="round"
               />
             </g>
@@ -1189,14 +1435,17 @@ export function TallyMarksSvg({
 
 // Register "tally-marks"
 export function registerTallyMarksVisualModel(): void {
-  registerVisualModel("tally-marks", ({ model }) => {
+  registerVisualModel("tally-marks", ({ model, solved }) => {
     const meta = (model.meta ?? {}) as Record<string, unknown>;
     const count = model.count ?? 1;
     const secondary = model.secondaryCount ?? 0;
+    const crossedOut = model.crossedOutCount ?? 0;
+    const crossOffMode = (meta.crossOffMode as CrossOffMode) ?? "shown";
+    const compact = Boolean(meta.compact);
     const variant = (meta.variant as TallyMarksVariant) ?? "tally";
     const secondaryTheme = (meta.secondaryColorTheme as ColorThemeId) ?? "sky";
 
-    if (secondary > 0) {
+    if (crossedOut === 0 && secondary > 0) {
       return (
         <div
           dir="rtl"
@@ -1213,6 +1462,7 @@ export function registerTallyMarksVisualModel(): void {
             variant="tally"
             colorTheme={model.colorTheme ?? "amber"}
             compact
+            solved={solved}
           />
           <span className="text-[28px] font-black leading-none text-indigo-700">
             +
@@ -1222,6 +1472,7 @@ export function registerTallyMarksVisualModel(): void {
             variant="tally"
             colorTheme={secondaryTheme}
             compact
+            solved={solved}
           />
         </div>
       );
@@ -1232,14 +1483,22 @@ export function registerTallyMarksVisualModel(): void {
         className="inline-flex flex-col items-center gap-0.5"
         data-visual-model="tally-marks"
         data-count={formatEasternNumber(count)}
+        data-crossed-out={formatEasternNumber(crossedOut)}
+        data-cross-off-mode={crossOffMode}
         data-has-fifth-slash={count >= 5 ? "true" : "false"}
       >
         <TallyMarksSvg
           count={count}
+          crossedOutCount={crossedOut}
+          crossOffMode={crossOffMode}
+          compact={compact}
           variant={variant}
           colorTheme={model.colorTheme ?? "amber"}
+          solved={solved}
         />
-        <span className="text-[13px] font-bold leading-tight text-slate-700">
+        <span
+          className={`${crossedOut > 0 || compact ? "hidden " : ""}text-[13px] font-bold leading-tight text-slate-700`}
+        >
           {toEasternArabicNumerals(model.labelAr)}
         </span>
       </div>
@@ -1252,6 +1511,8 @@ export type DicePatternVariant = "die" | "domino";
 export interface DicePatternOptions {
   count: number;
   secondaryCount?: number;
+  crossedOutCount?: number;
+  crossOffMode?: CrossOffMode;
   diceVariant?: DicePatternVariant;
   colorTheme?: ColorThemeId;
   secondaryColorTheme?: ColorThemeId;
@@ -1270,28 +1531,41 @@ export function createDicePatternSpec(
     Math.min(5 - primary, options.secondaryCount ?? 0)
   );
   const total = Math.max(1, primary + secondary);
+  const crossedOut = Math.max(0, Math.min(total, options.crossedOutCount ?? 0));
+  const crossOffMode: CrossOffMode = options.crossOffMode ?? "shown";
+  const remaining = Math.max(0, total - crossedOut);
   const diceVariant = options.diceVariant ?? "die";
 
   const defaultLabelAr =
-    diceVariant === "domino"
-      ? `بطاقة دومينو: ${formatEasternNumber(primary)} و${formatEasternNumber(
-          secondary
-        )} يساوي ${formatEasternNumber(total)}`
-      : secondary > 0
-        ? `وجه النرد (${formatEasternNumber(total)}): ${formatEasternNumber(
-            primary
-          )} و${formatEasternNumber(secondary)}`
-        : `وجه النرد: ${formatEasternNumber(total)}`;
+    crossedOut > 0
+      ? diceVariant === "domino"
+        ? `بطاقة دومينو: ${formatEasternNumber(total)} شُطب منها ${formatEasternNumber(
+            crossedOut
+          )} وبقي ${formatEasternNumber(remaining)}`
+        : `وجه النرد: ${formatEasternNumber(total)} شُطب منها ${formatEasternNumber(
+            crossedOut
+          )} وبقي ${formatEasternNumber(remaining)}`
+      : diceVariant === "domino"
+        ? `بطاقة دومينو: ${formatEasternNumber(primary)} و${formatEasternNumber(
+            secondary
+          )} يساوي ${formatEasternNumber(total)}`
+        : secondary > 0
+          ? `وجه النرد (${formatEasternNumber(total)}): ${formatEasternNumber(
+              primary
+            )} و${formatEasternNumber(secondary)}`
+          : `وجه النرد: ${formatEasternNumber(total)}`;
 
   return {
     kind: "dice-pattern",
-    id: `dice-pattern-${primary}-${secondary}-${diceVariant}`,
+    id: `dice-pattern-${primary}-${secondary}-${crossedOut}-${crossOffMode}-${diceVariant}`,
     labelAr: options.labelAr ?? defaultLabelAr,
     colorTheme: options.colorTheme ?? "coral",
     count: primary,
     secondaryCount: secondary,
+    crossedOutCount: crossedOut,
     meta: {
       diceVariant,
+      crossOffMode,
       secondaryColorTheme: options.secondaryColorTheme ?? "sky",
       hideLabel: Boolean(options.hideLabel),
       compact: Boolean(options.compact),
@@ -1327,9 +1601,69 @@ const DIE_DOT_COORDS: Record<number, Array<[number, number]>> = {
   ],
 };
 
+/**
+ * Resolves which pip indices on a die of `total` pips are crossed off when removing `crossedOut` pips,
+ * and whether the remaining pips form the canonical die pattern for `total - crossedOut`.
+ */
+export function resolveDieCrossOffPipIndices(
+  total: number,
+  crossedOut: number
+): { crossedIndices: Set<number>; leavesValidDiePattern: boolean } {
+  const safeTotal = Math.max(1, Math.min(5, total));
+  const safeCross = Math.max(0, Math.min(safeTotal, crossedOut));
+  const remaining = safeTotal - safeCross;
+  const crossedIndices = new Set<number>();
+
+  if (safeCross === 0) {
+    return { crossedIndices, leavesValidDiePattern: true };
+  }
+  if (remaining === 0) {
+    for (let i = 0; i < safeTotal; i++) crossedIndices.add(i);
+    return { crossedIndices, leavesValidDiePattern: true };
+  }
+
+  // Cases where remaining pips form the exact canonical die pattern of `remaining`:
+  // 5 -> 4 (remove center pip 4), 5 -> 3 (remove [1, 2] leaving diagonal [0, 3, 4]),
+  // 5 -> 2 (remove [1, 2, 4] leaving diagonal [0, 3]), 5 -> 1 (remove corners [0, 1, 2, 3] leaving center [4]),
+  // 4 -> 2 (remove [1, 2] leaving diagonal [0, 3]),
+  // 3 -> 2 (remove center [2] leaving diagonal [0, 1]), 3 -> 1 (remove corners [0, 1] leaving center [2]).
+  if (safeTotal === 5) {
+    const map5: Record<number, number[]> = {
+      1: [4],
+      2: [1, 2],
+      3: [1, 2, 4],
+      4: [0, 1, 2, 3],
+    };
+    for (const idx of map5[safeCross] ?? []) crossedIndices.add(idx);
+    return { crossedIndices, leavesValidDiePattern: true };
+  }
+  if (safeTotal === 4 && safeCross === 2) {
+    crossedIndices.add(1);
+    crossedIndices.add(2);
+    return { crossedIndices, leavesValidDiePattern: true };
+  }
+  if (safeTotal === 3 && safeCross === 1) {
+    crossedIndices.add(2);
+    return { crossedIndices, leavesValidDiePattern: true };
+  }
+  if (safeTotal === 3 && safeCross === 2) {
+    crossedIndices.add(0);
+    crossedIndices.add(1);
+    return { crossedIndices, leavesValidDiePattern: true };
+  }
+
+  // Otherwise (e.g. 4-1, 4-3, 2-1 where 4 and 2 have no center pip), cross off from the end in fixed pip order
+  for (let i = safeTotal - safeCross; i < safeTotal; i++) {
+    crossedIndices.add(i);
+  }
+  return { crossedIndices, leavesValidDiePattern: false };
+}
+
 export function DicePatternSvg({
   count = 1,
   secondaryCount = 0,
+  crossedOutCount = 0,
+  crossOffMode = "shown",
   diceVariant = "die",
   colorTheme = "coral",
   secondaryColorTheme = "sky",
@@ -1339,6 +1673,8 @@ export function DicePatternSvg({
 }: {
   count?: number;
   secondaryCount?: number;
+  crossedOutCount?: number;
+  crossOffMode?: CrossOffMode;
   diceVariant?: DicePatternVariant;
   colorTheme?: ColorThemeId;
   secondaryColorTheme?: ColorThemeId;
@@ -1349,6 +1685,8 @@ export function DicePatternSvg({
   const primary = Math.max(0, Math.min(5, count));
   const secondary = Math.max(0, Math.min(5 - primary, secondaryCount));
   const total = Math.max(1, Math.min(5, primary + secondary));
+  const crossedOut = Math.max(0, Math.min(total, crossedOutCount));
+  const shouldDrawCrossOff = crossOffMode === "shown" || solved;
 
   const primaryPalette = COLOR_PALETTES[colorTheme] ?? COLOR_PALETTES.coral;
   const secondaryPalette =
@@ -1356,40 +1694,10 @@ export function DicePatternSvg({
   const showGhostPips = ghostSecondPart && !solved;
   const showColoredGhostPips = ghostSecondPart && solved;
 
-  const renderSecondaryPipGroup = (
-    key: string | number,
-    cx: number,
-    cy: number,
-    radius: number,
-    showInnerAccent: boolean
-  ): React.ReactElement => (
-    <g
-      key={key}
-      data-dot-group="secondary"
-      {...(showGhostPips
-        ? { "data-ghost-pip": "true" }
-        : showColoredGhostPips
-          ? { "data-colored-pip": "true" }
-          : {})}
-    >
-      <circle
-        cx={cx}
-        cy={cy}
-        r={radius}
-        fill={showGhostPips ? "#FFFFFF" : secondaryPalette.fill}
-        stroke={secondaryPalette.stroke}
-        strokeWidth="1.8"
-        strokeDasharray={showGhostPips ? "3 2" : "2 1"}
-      />
-      {showInnerAccent && !showGhostPips && (
-        <circle cx={cx} cy={cy} r="3.2" fill={secondaryPalette.accent} />
-      )}
-    </g>
-  );
-
   if (diceVariant === "domino") {
     const rightCoords = DIE_DOT_COORDS[primary] ?? [];
     const leftCoords = DIE_DOT_COORDS[secondary] ?? [];
+    const crossLeftHalf = crossedOut > 0 && shouldDrawCrossOff;
 
     return (
       <svg
@@ -1399,6 +1707,8 @@ export function DicePatternSvg({
         fill="none"
         aria-label={`دومينو: ${formatEasternNumber(total)}`}
         data-variant="domino"
+        data-crossed-out={formatEasternNumber(crossedOut)}
+        data-cross-off-mode={crossOffMode}
       >
         {/* Domino Outer Tile */}
         <rect
@@ -1453,15 +1763,73 @@ export function DicePatternSvg({
               strokeWidth="1.8"
               strokeDasharray={showGhostPips ? "3 2" : "2 1"}
             />
+            {crossLeftHalf && (
+              <g
+                data-crossed-out-pip="true"
+                {...(crossOffMode === "student" && solved
+                  ? { "data-solved-cross-off": "true" }
+                  : {})}
+              >
+                <line
+                  x1={cx - 6}
+                  y1={cy - 6}
+                  x2={cx + 6}
+                  y2={cy + 6}
+                  stroke="#BE123C"
+                  strokeWidth="2.6"
+                  strokeLinecap="round"
+                />
+                <line
+                  x1={cx + 6}
+                  y1={cy - 6}
+                  x2={cx - 6}
+                  y2={cy + 6}
+                  stroke="#BE123C"
+                  strokeWidth="2.6"
+                  strokeLinecap="round"
+                />
+              </g>
+            )}
           </g>
         ))}
+        {/* Cross off the whole left half of the domino */}
+        {crossLeftHalf && (
+          <g
+            data-crossed-out-domino-half="true"
+            {...(crossOffMode === "student" && solved
+              ? { "data-solved-cross-off": "true" }
+              : {})}
+          >
+            <line
+              x1="14"
+              y1="12"
+              x2="62"
+              y2="56"
+              stroke="#BE123C"
+              strokeWidth="3.2"
+              strokeLinecap="round"
+            />
+            <line
+              x1="62"
+              y1="12"
+              x2="14"
+              y2="56"
+              stroke="#BE123C"
+              strokeWidth="3.2"
+              strokeLinecap="round"
+            />
+          </g>
+        )}
       </svg>
     );
   }
 
   const coords = DIE_DOT_COORDS[total] ?? DIE_DOT_COORDS[1];
-  // Color-group dots for subitizing: if secondary > 0, first `primary` dots use primaryPalette, remaining use secondaryPalette
-  const effectivePrimaryCount = secondary > 0 ? primary : total;
+  // Color-group dots for subitizing: if secondary > 0 and not crossing off, first `primary` dots use primaryPalette, remaining use secondaryPalette
+  const effectivePrimaryCount =
+    crossedOut === 0 && secondary > 0 ? primary : total;
+  const { crossedIndices, leavesValidDiePattern } =
+    resolveDieCrossOffPipIndices(total, crossedOut);
 
   return (
     <svg
@@ -1471,6 +1839,11 @@ export function DicePatternSvg({
       fill="none"
       aria-label={`وجه النرد: ${formatEasternNumber(total)}`}
       data-variant="die"
+      data-crossed-out={formatEasternNumber(crossedOut)}
+      data-cross-off-mode={crossOffMode}
+      data-remaining-die-pattern={
+        leavesValidDiePattern ? "valid" : "fixed-order"
+      }
     >
       {/* 3D Die Shadow & Face */}
       <rect x="7" y="7" width="56" height="56" rx="14" fill="#CBD5E1" />
@@ -1501,6 +1874,7 @@ export function DicePatternSvg({
         // Adjust coordinates slightly inside the 56x56 face (center at 32,32)
         const px = cx - 2;
         const py = cy - 2;
+        const isPipCrossed = crossedIndices.has(idx) && shouldDrawCrossOff;
 
         return (
           <g
@@ -1526,6 +1900,33 @@ export function DicePatternSvg({
             {isSecondaryDot && !showGhostPips && (
               <circle cx={px} cy={py} r="3.2" fill={pal.accent} />
             )}
+            {isPipCrossed && (
+              <g
+                data-crossed-out-pip="true"
+                {...(crossOffMode === "student" && solved
+                  ? { "data-solved-cross-off": "true" }
+                  : {})}
+              >
+                <line
+                  x1={px - 7}
+                  y1={py - 7}
+                  x2={px + 7}
+                  y2={py + 7}
+                  stroke="#BE123C"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                />
+                <line
+                  x1={px + 7}
+                  y1={py - 7}
+                  x2={px - 7}
+                  y2={py + 7}
+                  stroke="#BE123C"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                />
+              </g>
+            )}
           </g>
         );
       })}
@@ -1539,6 +1940,8 @@ export function registerDicePatternVisualModel(): void {
     const meta = (model.meta ?? {}) as Record<string, unknown>;
     const primary = model.count ?? 1;
     const secondary = model.secondaryCount ?? 0;
+    const crossedOut = model.crossedOutCount ?? 0;
+    const crossOffMode = (meta.crossOffMode as CrossOffMode) ?? "shown";
     const total = Math.max(1, primary + secondary);
     const diceVariant = (meta.diceVariant as DicePatternVariant) ?? "die";
     const hideLabel = Boolean(meta.hideLabel);
@@ -1550,11 +1953,15 @@ export function registerDicePatternVisualModel(): void {
         className="inline-flex flex-col items-center gap-0.5"
         data-visual-model="dice-pattern"
         data-count={formatEasternNumber(total)}
+        data-crossed-out={formatEasternNumber(crossedOut)}
+        data-cross-off-mode={crossOffMode}
         data-variant={diceVariant}
       >
         <DicePatternSvg
           count={primary}
           secondaryCount={secondary}
+          crossedOutCount={crossedOut}
+          crossOffMode={crossOffMode}
           diceVariant={diceVariant}
           colorTheme={model.colorTheme ?? "coral"}
           secondaryColorTheme={

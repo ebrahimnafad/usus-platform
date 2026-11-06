@@ -28,6 +28,7 @@ import "@/archetypes/sequence-and-zero";
 import "@/archetypes/subitize-part-whole";
 import "@/archetypes/join-parts";
 import "@/archetypes/judge-equality";
+import "@/archetypes/take-away";
 
 // --- Lesson Blueprints ---
 import "@/blueprints/grade-k/lesson-k1";
@@ -37,3 +38,4 @@ import "@/blueprints/grade-k/lessons-k12-to-k19";
 import "@/blueprints/grade-k/lessons-k20-to-k26";
 import "@/blueprints/grade-k/lessons-k27-to-k31";
 import "@/blueprints/grade-k/lessons-k32-to-k38";
+import "@/blueprints/grade-k/lessons-k40-to-k41";

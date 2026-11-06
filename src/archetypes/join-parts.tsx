@@ -14,7 +14,7 @@ import type {
   Solid3DId,
   VisualModelSpec,
 } from "@/domain/types";
-import type { SeededRandom } from "@/lib/seed";
+import { selectAdditionFacts } from "@/lib/part-whole-facts";
 import {
   EVERYDAY_OBJECT_CATALOG,
   createEverydayObjectSpec,
@@ -58,85 +58,6 @@ export type JoinPartsPictureSubkind =
 export type JoinPartsResponseForm = "parts-table" | "number-bond" | "equation";
 
 export type JoinPartsAction = "trace" | "write" | "draw-counters";
-
-export interface AdditionFact {
-  part1: number;
-  part2: number;
-  total: number;
-  key: string;
-}
-
-export interface FactSelectionLimits {
-  totalRange?: [number, number];
-  minPart?: number;
-  count: number;
-}
-
-/**
- * Selects `count` addition facts within `[minTotal, maxTotal]` with `part >= minPart`.
- * - No fact repeats within one Exercise.
- * - Across the sheet (`usedFacts`), unused facts come first; repeats are allowed only once the pool is used up.
- * - `3 + 2` and `2 + 3` have distinct keys (`"3+2"` vs `"2+3"`) and are different facts (§7.3).
- */
-export function selectAdditionFacts(
-  rng: SeededRandom,
-  difficultyLevel: DifficultyLevel,
-  limits: FactSelectionLimits,
-  usedFacts?: Set<string>
-): AdditionFact[] {
-  const defaultMaxTotal = difficultyLevel === "Easy" ? 4 : 5;
-  const defaultMinPart = difficultyLevel === "Advanced" ? 0 : 1;
-
-  const minPart = limits.minPart ?? defaultMinPart;
-  const minTotal = Math.max(
-    minPart * 2,
-    limits.totalRange ? limits.totalRange[0] : Math.max(2, minPart * 2)
-  );
-  const maxTotal = Math.min(
-    5,
-    limits.totalRange ? limits.totalRange[1] : defaultMaxTotal
-  );
-
-  const candidates: AdditionFact[] = [];
-  for (let total = minTotal; total <= maxTotal; total++) {
-    for (let part1 = minPart; part1 <= total - minPart; part1++) {
-      const part2 = total - part1;
-      if (part2 < minPart) continue;
-      candidates.push({
-        part1,
-        part2,
-        total,
-        key: `${part1}+${part2}`,
-      });
-    }
-  }
-
-  const shuffled = rng.shuffle(candidates);
-  const unused: AdditionFact[] = [];
-  const used: AdditionFact[] = [];
-
-  for (const fact of shuffled) {
-    if (usedFacts && usedFacts.has(fact.key)) {
-      used.push(fact);
-    } else {
-      unused.push(fact);
-    }
-  }
-
-  const orderedPool = [...unused, ...used];
-  const picked: AdditionFact[] = [];
-  const exerciseSeen = new Set<string>();
-
-  for (const fact of orderedPool) {
-    if (picked.length >= limits.count) break;
-    if (exerciseSeen.has(fact.key)) continue;
-    exerciseSeen.add(fact.key);
-    picked.push(fact);
-    usedFacts?.add(fact.key);
-  }
-
-  return picked;
-}
 
 export interface JoinPartsBlueprintParams {
   representation?: JoinPartsRepresentation;
