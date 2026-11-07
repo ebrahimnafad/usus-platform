@@ -227,7 +227,7 @@ function deriveComparisonFromCategories(
     explicitRelation ??
     (diff === 0 ? "نفس العدد" : diff > 0 ? "١ أكثر" : "١ أقل");
 
-  const promptAr = `قارن في التمثيل البياني بين «${pairB.labelAr}» (${pairB.countAr}) و«${pairA.labelAr}» (${pairA.countAr}): هل عدد «${pairB.labelAr}» في ${unitNameAr} يمثّل (١ أكثر) أم (١ أقل) أم (نفس العدد)؟`;
+  const promptAr = `قارن في التمثيل البياني بين «${pairB.labelAr}» و«${pairA.labelAr}»: هل عدد «${pairB.labelAr}» في ${unitNameAr} يمثّل (١ أكثر) أم (١ أقل) أم (نفس العدد)؟`;
 
   const answerAr =
     relation === "نفس العدد"

@@ -35,7 +35,8 @@ export const lessonK39Blueprint: LessonBlueprint = {
       practice: [
         {
           archetype: "PictureGraphRead",
-          promptAr: "عدّ الصور في كل صفّ، ثم تتبّع العدد واكتبه وقارن الصفوف:",
+          promptAr:
+            "عدّ الصور في كل صفّ من اليمين إلى اليسار، ثم تتبّع العدد واكتبه:",
           strategyHintAr:
             "عدّ من اليمين إلى اليسار، ثم قل العدد الذي يقلّ ١ في الصفّ التالي.",
           params: {
@@ -94,7 +95,7 @@ export const lessonK39Blueprint: LessonBlueprint = {
       warmUp: [
         {
           archetype: "PictureGraphRead",
-          promptAr: "عدّ الصور في كل صفّ، ثم اكتب العدد وقارن الصفوف:",
+          promptAr: "عدّ الصور في كل صفّ، ثم اكتب العدد في المربع:",
           strategyHintAr: "عدّ كل صفّ من اليمين إلى اليسار، ثم لاحظ نمط ١ أقل.",
           params: {
             ...decreasingGraphParams,
@@ -107,7 +108,7 @@ export const lessonK39Blueprint: LessonBlueprint = {
       practice: [
         {
           archetype: "PictureGraphRead",
-          promptAr: "عدّ الصور في كل صفّ أفقي، ثم اكتب العدد وقارن (١ أقل):",
+          promptAr: "عدّ الصور في كل صفّ أفقي، ثم اكتب كم صورة في كل فئة:",
           strategyHintAr:
             "انظر إلى نهاية كل صفّ، ثم اكتب العدد الذي يقلّ ١ عن الصفّ قبله.",
           params: {
@@ -119,7 +120,7 @@ export const lessonK39Blueprint: LessonBlueprint = {
         },
         {
           archetype: "PictureGraphRead",
-          promptAr: "اكتب عدد الصور في كل صفّ، ثم حدّد الصفّ الذي فيه ١ أقل:",
+          promptAr: "انظر إلى الصفوف المتنازلة، ثم عدّ الصور واكتب عدد كل فئة:",
           strategyHintAr:
             "عدّ الصور في الصفّ الأول، ثم عدّ تنازلياً صفاً صفاً.",
           params: {
@@ -166,7 +167,7 @@ export const lessonK39Blueprint: LessonBlueprint = {
       warmUp: [
         {
           archetype: "PictureGraphRead",
-          promptAr: "اكتب عدد الصور في كل صفّ، ثم قارن نمط العدّ التنازلي:",
+          promptAr: "عدّ الصور في كل صفّ، ثم اكتب عدد كل فئة:",
           strategyHintAr: "عدّ الصفّ الأول، ثم استخدم ١ أقل للصفّ الذي يليه.",
           params: {
             ...decreasingGraphParams,
@@ -179,7 +180,8 @@ export const lessonK39Blueprint: LessonBlueprint = {
       practice: [
         {
           archetype: "PictureGraphRead",
-          promptAr: "اكتب عدد كل صفّ، ثم اشرح كيف ينقص كل صفّ عن الصفّ قبله:",
+          promptAr:
+            "انظر إلى التمثيل البياني الأفقي، ثم اكتب عدد الصور في كل صفّ:",
           strategyHintAr:
             "انظر إلى أطوال الصفوف، ثم استخدم العدّ التنازلي للتحقق من الأعداد.",
           params: {

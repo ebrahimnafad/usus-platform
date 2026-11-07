@@ -26,7 +26,7 @@ export const lessonK20Blueprint: LessonBlueprint = {
             "عدّ عناصر كل صفّ أفقياً من اليمين إلى اليسار، ولاحظ كيف يزيد كل صفّ بمقدار ١ أكثر.",
           params: {
             orientation: "horizontal",
-            titleAr: "فواكه السلة الملوّنة",
+            titleAr: "تمثيل بياني أفقي بالصور",
             categoryCount: 3,
             countsPattern: "increasing-by-1",
             responseMode: "trace-and-write",
@@ -281,7 +281,7 @@ export const lessonK21Blueprint: LessonBlueprint = {
             "ابدأ العدّ من الخانة السفلية (١) صعوداً إلى الأعلى، أو اقرأ الرقم المقابل على المحور العمودي.",
           params: {
             orientation: "vertical",
-            titleAr: "أبراج الفواكه العمودية",
+            titleAr: "الأبراج العمودية بالصور",
             categoryCount: 3,
             countsPattern: "decreasing-by-1",
             responseMode: "trace-and-write",

@@ -136,12 +136,19 @@ export function createPictureGraphSpecFromCategories(
 export function PictureGraphIconSvg({
   icon,
   colorTheme,
-  sizePx,
+  sizePx = 30,
 }: {
   icon: PictureGraphIcon;
   colorTheme: ColorThemeId;
-  sizePx: number;
+  sizePx?: number;
 }): React.ReactElement {
+  if (icon.kind === "everyday-object") {
+    return (
+      <span className="inline-flex shrink-0" data-graph-icon-kind={icon.kind}>
+        <EverydayObjectSvg objectId={icon.id} size="tiny" />
+      </span>
+    );
+  }
   return (
     <svg
       width={sizePx}
@@ -181,6 +188,8 @@ function GraphIconGlyph({
 
   if (icon.kind === "everyday-object") {
     const palette = COLOR_PALETTES[colorTheme] ?? COLOR_PALETTES.coral;
+    // EverydayObjectSvg with size="small" renders a 32×32 <svg>.
+    // Scaling by 20/32 = 0.625 places a 20×20 icon at (2, 2), centered at (12, 12) inside the 24×24 badge.
     return (
       <g
         transform={`translate(${cx - half}, ${cy - half}) scale(${sizePx / OBJECT_ICON_BASE_PX})`}
@@ -188,12 +197,12 @@ function GraphIconGlyph({
         <circle
           cx={12}
           cy={12}
-          r={11}
+          r={10.5}
           fill={palette.accent}
           stroke={palette.stroke}
           strokeWidth="1.2"
         />
-        <g transform="translate(2, 2) scale(0.32)">
+        <g transform="translate(2, 2) scale(0.625)">
           <EverydayObjectSvg objectId={icon.id} size="small" />
         </g>
       </g>
@@ -436,26 +445,27 @@ export function PictureGraphSvg({
                       <>
                         <rect
                           x={colX + 4}
-                          y={cellTopY + 3}
+                          y={cellTopY + 1.5}
                           width={colWidth - 8}
-                          height={cellHeight - 6}
-                          rx="8"
+                          height={cellHeight - 3}
+                          rx="7"
                           fill={pal.accent}
                           stroke={pal.fill}
-                          strokeWidth="1.5"
+                          strokeWidth="1.4"
                         />
                         <GraphCellIconSvg
                           icon={cat.icon}
                           cx={colCenterX}
                           cy={cellCenterY}
                           colorTheme={cat.colorTheme}
+                          sizePx={16}
                         />
                       </>
                     ) : (
                       <circle
                         cx={colCenterX}
                         cy={cellCenterY}
-                        r="8"
+                        r="6"
                         fill="#F8FAFC"
                         stroke="#E2E8F0"
                         strokeWidth="1.2"
@@ -478,7 +488,7 @@ export function PictureGraphSvg({
               />
               <text
                 x={colCenterX}
-                y={gridBottomY + 15}
+                y={gridBottomY + 14}
                 textAnchor="middle"
                 fontSize="12"
                 fontWeight="900"
@@ -488,7 +498,7 @@ export function PictureGraphSvg({
               </text>
               <text
                 x={colCenterX}
-                y={gridBottomY + 28}
+                y={gridBottomY + 26}
                 textAnchor="middle"
                 fontSize="12"
                 fontWeight="900"
@@ -670,10 +680,10 @@ export function PictureGraphSvg({
                     <>
                       <rect
                         x={cellX + 3}
-                        y={rowY + 4}
+                        y={rowY + 2}
                         width={cellWidth - 6}
-                        height={rowHeight - 8}
-                        rx="8"
+                        height={rowHeight - 4}
+                        rx="7"
                         fill={pal.accent}
                         stroke={pal.fill}
                         strokeWidth="1.4"
@@ -683,13 +693,14 @@ export function PictureGraphSvg({
                         cx={cellCenterX}
                         cy={rowCenterY}
                         colorTheme={cat.colorTheme}
+                        sizePx={19}
                       />
                     </>
                   ) : (
                     <circle
                       cx={cellCenterX}
                       cy={rowCenterY}
-                      r="7.5"
+                      r="6.5"
                       fill="#F8FAFC"
                       stroke="#E2E8F0"
                       strokeWidth="1.2"
@@ -1253,9 +1264,11 @@ export function registerPictureGraphVisualModels(): void {
           maxCount={maxCount}
           solved={solved}
         />
-        <span className="text-[13px] font-bold text-slate-700">
-          {toEasternArabicNumerals(model.labelAr)}
-        </span>
+        {solved && (
+          <span className="text-[13px] font-bold text-slate-700">
+            {toEasternArabicNumerals(model.labelAr)}
+          </span>
+        )}
       </div>
     );
   });
