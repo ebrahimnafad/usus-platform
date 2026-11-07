@@ -41,3 +41,4 @@ import "@/blueprints/grade-k/lessons-k32-to-k38";
 import "@/blueprints/grade-k/lessons-k40-to-k41";
 import "@/blueprints/grade-k/lessons-k42-to-k44";
 import "@/blueprints/grade-k/lesson-k45";
+import "@/blueprints/grade-k/lessons-k46-to-k48";

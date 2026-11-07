@@ -20,7 +20,7 @@ export interface FiveFrameOptions {
   count: number;
   secondaryCount?: number;
   crossedOutCount?: number;
-  crossOffMode?: CrossOffMode;
+  crossOffMode?: CrossOffMode | "none";
   colorTheme?: ColorThemeId;
   secondaryColorTheme?: ColorThemeId;
   highlightEmptySlots?: boolean;
@@ -43,8 +43,11 @@ export function createFiveFrameSpec(
     Math.min(5 - (primary + secondary), options.ghostTargetCount ?? 0)
   );
   const total = primary + secondary + ghostCount;
-  const crossedOut = Math.max(0, Math.min(total, options.crossedOutCount ?? 0));
-  const crossOffMode: CrossOffMode = options.crossOffMode ?? "shown";
+  const crossOffMode: CrossOffMode | "none" = options.crossOffMode ?? "shown";
+  const crossedOut =
+    crossOffMode === "none"
+      ? 0
+      : Math.max(0, Math.min(total, options.crossedOutCount ?? 0));
   const remaining = Math.max(0, total - crossedOut);
 
   const defaultLabelAr =
@@ -91,7 +94,7 @@ export function FiveFrameSvg({
   count?: number;
   secondaryCount?: number;
   crossedOutCount?: number;
-  crossOffMode?: CrossOffMode;
+  crossOffMode?: CrossOffMode | "none";
   colorTheme?: ColorThemeId;
   secondaryColorTheme?: ColorThemeId;
   highlightEmptySlots?: boolean;
@@ -106,9 +109,13 @@ export function FiveFrameSvg({
     5,
     totalFilled + Math.max(0, ghostTargetCount)
   );
-  const crossedOut = Math.max(0, Math.min(totalShownOrDrawn, crossedOutCount));
+  const crossedOut =
+    crossOffMode === "none"
+      ? 0
+      : Math.max(0, Math.min(totalShownOrDrawn, crossedOutCount));
   const ghostCount = Math.max(0, Math.min(5 - totalFilled, ghostTargetCount));
-  const shouldDrawCrossOff = crossOffMode === "shown" || solved;
+  const shouldDrawCrossOff =
+    crossOffMode !== "none" && (crossOffMode === "shown" || solved);
 
   const primaryPalette = COLOR_PALETTES[colorTheme] ?? COLOR_PALETTES.coral;
   const secondaryPalette =
@@ -608,7 +615,8 @@ export function registerFiveFrameVisualModel(): void {
     const primary = model.count ?? 1;
     const secondary = model.secondaryCount ?? 0;
     const crossedOut = model.crossedOutCount ?? 0;
-    const crossOffMode = (meta.crossOffMode as CrossOffMode) ?? "shown";
+    const crossOffMode =
+      (meta.crossOffMode as CrossOffMode | "none") ?? "shown";
     const total = Math.max(0, primary + secondary - crossedOut);
 
     return (

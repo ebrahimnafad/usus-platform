@@ -137,13 +137,15 @@ function buildTakeAwayRepresentationModel(params: {
   const effectiveCrossedOut = crossOffMode === "none" ? 0 : partTakenAway;
   const effectiveCrossOffMode: CrossOffMode =
     crossOffMode === "student" ? "student" : "shown";
+  const fiveFrameCrossOffMode: CrossOffMode | "none" =
+    crossOffMode === "none" ? "none" : effectiveCrossOffMode;
 
   if (representation === "five-frame-and-digit") {
     return createFiveFrameSpec({
       count: total,
       secondaryCount: 0,
       crossedOutCount: effectiveCrossedOut,
-      crossOffMode: effectiveCrossOffMode,
+      crossOffMode: fiveFrameCrossOffMode,
       colorTheme: primaryTheme,
       highlightEmptySlots: true,
       labelAr: `لوحة الخمسة: الكلّ ${totalAr} ناقص الرقم ${partAr}`,
@@ -170,10 +172,13 @@ function buildTakeAwayRepresentationModel(params: {
       count: total,
       secondaryCount: 0,
       crossedOutCount: effectiveCrossedOut,
-      crossOffMode: effectiveCrossOffMode,
+      crossOffMode: fiveFrameCrossOffMode,
       colorTheme: primaryTheme,
       highlightEmptySlots: true,
-      labelAr: `لوحة الخمسة: الكلّ ${totalAr} شُطب منها ${partAr} وبقي ${missingAr}`,
+      labelAr:
+        fiveFrameCrossOffMode === "none"
+          ? `لوحة الخمسة: الكلّ ${totalAr}`
+          : `لوحة الخمسة: الكلّ ${totalAr} شُطب منها ${partAr} وبقي ${missingAr}`,
     });
   }
 
@@ -234,18 +239,21 @@ function buildTakeAwayRepresentationModel(params: {
 function generateTakeAwayExercise(ctx: ArchetypeGeneratorContext): Exercise {
   const params = (ctx.spec.params ?? {}) as TakeAwayBlueprintParams;
 
+  const isSubitizeLesson =
+    ctx.lesson.lessonNumber >= 46 && ctx.lesson.lessonNumber <= 48;
+
   const defaultAction: TakeAwayAction =
     ctx.difficultyLevel === "Easy"
       ? "trace"
-      : ctx.difficultyLevel === "Intermediate"
+      : ctx.difficultyLevel === "Intermediate" || isSubitizeLesson
         ? "write"
         : "draw-and-cross-off";
   const action: TakeAwayAction = params.action ?? defaultAction;
 
   const defaultResponseForm: TakeAwayResponseForm =
-    ctx.lesson.lessonNumber <= 40
+    ctx.lesson.lessonNumber <= 40 || ctx.lesson.lessonNumber === 47
       ? "number-bond"
-      : ctx.lesson.lessonNumber === 41
+      : ctx.lesson.lessonNumber === 41 || ctx.lesson.lessonNumber === 46
         ? "answer-slot"
         : "equation";
   const responseForm: TakeAwayResponseForm =
@@ -312,14 +320,19 @@ function generateTakeAwayExercise(ctx: ArchetypeGeneratorContext): Exercise {
       action === "draw-and-cross-off" && itemRep !== "five-frame"
         ? "cross-off-and-write"
         : action;
+    // K-46 to K-48 subitizing rule: the X is pre-drawn (shown) at Easy only; at Intermediate and Advanced the frame shows the Total with no X (none)
+    const defaultSubitizeCrossOff: CrossOffMode | "none" =
+      ctx.difficultyLevel === "Easy" ? "shown" : "none";
     const itemCrossOffMode: CrossOffMode | "none" =
       itemRep === "picture-graph"
         ? "none"
         : (params.crossOffMode ??
-          (itemAction === "cross-off-and-write" ||
-          itemAction === "draw-and-cross-off"
-            ? "student"
-            : "shown"));
+          (itemRep === "five-frame-and-digit" || isSubitizeLesson
+            ? defaultSubitizeCrossOff
+            : itemAction === "cross-off-and-write" ||
+                itemAction === "draw-and-cross-off"
+              ? "student"
+              : "shown"));
 
     const bondPart1 = swapBondParts ? fact.missingPart : fact.partTakenAway;
     const bondPart2 = swapBondParts ? fact.partTakenAway : fact.missingPart;
