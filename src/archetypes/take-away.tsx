@@ -6,11 +6,17 @@ import {
 } from "@/archetypes/registry";
 import type {
   ColorThemeId,
+  EverydayObjectId,
   Exercise,
   GenericArchetypeData,
   VisualModelSpec,
 } from "@/domain/types";
 import { selectSubtractionFacts } from "@/lib/part-whole-facts";
+import {
+  EVERYDAY_OBJECT_CATALOG,
+  EverydayObjectSvg,
+} from "@/visual-models/everyday-objects";
+import { createPictureGraphSpec } from "@/visual-models/picture-graphs";
 import {
   createDicePatternSpec,
   createDigitCardSpec,
@@ -36,7 +42,8 @@ export type TakeAwayRepresentation =
   | "snap-cubes"
   | "tally-marks"
   | "dice"
-  | "domino";
+  | "domino"
+  | "picture-graph";
 
 export type TakeAwayResponseForm = "number-bond" | "equation" | "answer-slot";
 
@@ -78,10 +85,12 @@ export interface TakeAwayItem {
   unknownPosition: BondMissingPosition;
   swapBondParts: boolean;
   tracePositions: Array<"total" | "part1" | "part2">;
-  representationModel: VisualModelSpec;
+  representationModel?: VisualModelSpec;
   companionDigitModel?: VisualModelSpec;
   responseModel?: VisualModelSpec;
   companionBondModel?: VisualModelSpec;
+  categoryObjectId?: EverydayObjectId;
+  categoryLabelAr?: string;
 }
 
 export interface TakeAwayData extends GenericArchetypeData {
@@ -90,6 +99,7 @@ export interface TakeAwayData extends GenericArchetypeData {
   responseForm: TakeAwayResponseForm;
   action: TakeAwayAction;
   showTermLabels?: boolean;
+  graphModel?: VisualModelSpec;
   items: TakeAwayItem[];
 }
 
@@ -249,7 +259,11 @@ function generateTakeAwayExercise(ctx: ArchetypeGeneratorContext): Exercise {
   const itemCount = Math.max(1, Math.min(2, params.itemCount ?? 2));
 
   const usesZeroCapableModel = representationPool.every(
-    (r) => r === "five-frame" || r === "domino" || r === "five-frame-and-digit"
+    (r) =>
+      r === "five-frame" ||
+      r === "domino" ||
+      r === "five-frame-and-digit" ||
+      r === "picture-graph"
   );
   const effectiveMinPart =
     params.minPart !== undefined
@@ -282,6 +296,11 @@ function generateTakeAwayExercise(ctx: ArchetypeGeneratorContext): Exercise {
   const swapBondParts =
     Boolean(params.swapBondParts) && ctx.difficultyLevel === "Advanced";
 
+  const isPictureGraphMode = representationPool[0] === "picture-graph";
+  const pickedObjects = isPictureGraphMode
+    ? ctx.rng.pickN(EVERYDAY_OBJECT_CATALOG, itemCount)
+    : [];
+
   const items: TakeAwayItem[] = facts.map((fact, idx) => {
     const [primaryTheme, secondaryTheme] =
       COLOR_PAIRS[idx % COLOR_PAIRS.length];
@@ -294,11 +313,13 @@ function generateTakeAwayExercise(ctx: ArchetypeGeneratorContext): Exercise {
         ? "cross-off-and-write"
         : action;
     const itemCrossOffMode: CrossOffMode | "none" =
-      params.crossOffMode ??
-      (itemAction === "cross-off-and-write" ||
-      itemAction === "draw-and-cross-off"
-        ? "student"
-        : "shown");
+      itemRep === "picture-graph"
+        ? "none"
+        : (params.crossOffMode ??
+          (itemAction === "cross-off-and-write" ||
+          itemAction === "draw-and-cross-off"
+            ? "student"
+            : "shown"));
 
     const bondPart1 = swapBondParts ? fact.missingPart : fact.partTakenAway;
     const bondPart2 = swapBondParts ? fact.partTakenAway : fact.missingPart;
@@ -329,16 +350,19 @@ function generateTakeAwayExercise(ctx: ArchetypeGeneratorContext): Exercise {
         ? ["total", "part1"]
         : [];
 
-    const representationModel = buildTakeAwayRepresentationModel({
-      representation: itemRep,
-      total: fact.total,
-      partTakenAway: fact.partTakenAway,
-      missingPart: fact.missingPart,
-      action: itemAction,
-      crossOffMode: itemCrossOffMode,
-      primaryTheme,
-      secondaryTheme,
-    });
+    const representationModel =
+      itemRep === "picture-graph"
+        ? undefined
+        : buildTakeAwayRepresentationModel({
+            representation: itemRep,
+            total: fact.total,
+            partTakenAway: fact.partTakenAway,
+            missingPart: fact.missingPart,
+            action: itemAction,
+            crossOffMode: itemCrossOffMode,
+            primaryTheme,
+            secondaryTheme,
+          });
 
     const responseModel =
       responseForm === "answer-slot"
@@ -392,6 +416,8 @@ function generateTakeAwayExercise(ctx: ArchetypeGeneratorContext): Exercise {
           })
         : undefined;
 
+    const pickedObj = pickedObjects[idx];
+
     return {
       id: `take-away-item-${idx + 1}-${fact.key}`,
       itemIndex: idx,
@@ -413,12 +439,34 @@ function generateTakeAwayExercise(ctx: ArchetypeGeneratorContext): Exercise {
       companionDigitModel,
       responseModel,
       companionBondModel,
+      categoryObjectId: pickedObj?.id,
+      categoryLabelAr: pickedObj?.labelAr,
     };
   });
 
+  const graphModel = isPictureGraphMode
+    ? createPictureGraphSpec({
+        orientation: "horizontal",
+        titleAr: "تمثيل بياني بالصور",
+        categories: items.map((item, idx) => ({
+          categoryId: `cat-${idx + 1}-${item.categoryObjectId ?? "star"}`,
+          labelAr:
+            item.categoryLabelAr ?? `فئة ${formatEasternNumber(idx + 1)}`,
+          objectId: item.categoryObjectId ?? "star",
+          count: item.total,
+          colorTheme: COLOR_PAIRS[idx % COLOR_PAIRS.length][0],
+        })),
+      })
+    : undefined;
+
   const visualModels: VisualModelSpec[] = [];
+  if (graphModel) {
+    visualModels.push(graphModel);
+  }
   for (const item of items) {
-    visualModels.push(item.representationModel);
+    if (!graphModel && item.representationModel) {
+      visualModels.push(item.representationModel);
+    }
     if (item.companionDigitModel) {
       visualModels.push(item.companionDigitModel);
     }
@@ -451,6 +499,7 @@ function generateTakeAwayExercise(ctx: ArchetypeGeneratorContext): Exercise {
     responseForm,
     action,
     showTermLabels: Boolean(params.showTermLabels),
+    graphModel,
     items,
   };
 
@@ -469,6 +518,14 @@ function generateTakeAwayExercise(ctx: ArchetypeGeneratorContext): Exercise {
   };
 }
 
+function resolveSolvedUnknownAr(item: TakeAwayItem): string {
+  return item.unknownKind === "partTakenAway"
+    ? item.partTakenAwayAr
+    : item.unknownKind === "total"
+      ? item.totalAr
+      : item.missingPartAr;
+}
+
 function renderTakeAwayExercise({
   exercise,
   mode,
@@ -476,6 +533,76 @@ function renderTakeAwayExercise({
   const data = exercise.data as TakeAwayData;
   const isAnswerKey = mode === "answer-key";
   const columns = data.items.length === 1 ? 1 : 2;
+
+  if (data.graphModel) {
+    return (
+      <div
+        className="space-y-1"
+        data-archetype="TakeAway"
+        data-response-form={data.responseForm}
+        data-action={data.action}
+        data-representation="picture-graph"
+      >
+        <ExerciseColumns columns={2}>
+          {/* Column 1 (Right in RTL): Picture Graph showing each category's count as the Total */}
+          <div className="flex flex-1 flex-col items-center justify-center rounded-xl border-2 border-indigo-100 bg-gradient-to-b from-white to-indigo-50/30 p-1 shadow-2xs">
+            <VisualModelView model={data.graphModel} solved={isAnswerKey} />
+          </div>
+
+          {/* Column 2 (Left in RTL): Take-away Equations taking away a given Part from each category's Total */}
+          <div
+            className="flex flex-col justify-between gap-1"
+            data-more-or-less-equations="true"
+          >
+            {data.items.map((item, idx) => {
+              const solvedUnknownAr = resolveSolvedUnknownAr(item);
+
+              return (
+                <div
+                  key={item.id}
+                  className="flex flex-col items-center justify-between gap-0.5 rounded-xl border border-indigo-100 bg-gradient-to-b from-white to-indigo-50/25 px-1.5 py-1 shadow-2xs"
+                  data-take-away-item-id={toEasternArabicNumerals(item.id)}
+                  data-fact={toEasternArabicNumerals(item.factKey)}
+                >
+                  <div className="flex w-full items-center justify-between gap-1">
+                    <div className="flex items-center gap-1">
+                      <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-[13px] font-extrabold leading-none text-white">
+                        {formatEasternNumber(idx + 1)}
+                      </span>
+                      {item.categoryObjectId && (
+                        <EverydayObjectSvg
+                          objectId={item.categoryObjectId}
+                          size="tiny"
+                        />
+                      )}
+                      {item.categoryLabelAr && (
+                        <span className="text-[13px] font-extrabold leading-none text-slate-900">
+                          {toEasternArabicNumerals(item.categoryLabelAr)}
+                        </span>
+                      )}
+                    </div>
+                    {isAnswerKey && (
+                      <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[13px] font-extrabold leading-none text-emerald-900">
+                        {solvedUnknownAr}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex flex-1 items-center justify-center">
+                    {item.responseModel && (
+                      <VisualModelView
+                        model={item.responseModel}
+                        solved={isAnswerKey}
+                      />
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </ExerciseColumns>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -486,12 +613,7 @@ function renderTakeAwayExercise({
     >
       <ExerciseColumns columns={columns}>
         {data.items.map((item, idx) => {
-          const solvedUnknownAr =
-            item.unknownKind === "partTakenAway"
-              ? item.partTakenAwayAr
-              : item.unknownKind === "total"
-                ? item.totalAr
-                : item.missingPartAr;
+          const solvedUnknownAr = resolveSolvedUnknownAr(item);
 
           const worksheetSummaryAr =
             item.unknownKind === "partTakenAway"
@@ -534,10 +656,12 @@ function renderTakeAwayExercise({
                     )}
                   </div>
                   <div className="flex w-full items-center justify-center gap-1">
-                    <VisualModelView
-                      model={item.representationModel}
-                      solved={isAnswerKey}
-                    />
+                    {item.representationModel && (
+                      <VisualModelView
+                        model={item.representationModel}
+                        solved={isAnswerKey}
+                      />
+                    )}
                     {item.companionDigitModel && (
                       <div className="flex items-center gap-1">
                         <span
@@ -564,10 +688,12 @@ function renderTakeAwayExercise({
                     {formatEasternNumber(idx + 1)}
                   </span>
                   <div className="flex flex-1 items-center justify-center gap-1">
-                    <VisualModelView
-                      model={item.representationModel}
-                      solved={isAnswerKey}
-                    />
+                    {item.representationModel && (
+                      <VisualModelView
+                        model={item.representationModel}
+                        solved={isAnswerKey}
+                      />
+                    )}
                     {item.companionDigitModel && (
                       <div className="flex items-center gap-1">
                         <span

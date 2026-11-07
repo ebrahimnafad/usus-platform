@@ -39,6 +39,7 @@ export type ConnectMatchMode =
   | "five-frame-to-parts-table"
   | "five-frame-to-number-bond"
   | "dice-to-number-bond"
+  | "number-bond-to-equation"
   | "five-frame-to-equation"
   | "tally-expression-to-total";
 
@@ -126,33 +127,41 @@ function generateConnectMatchExercise(
         const p2Ar = formatEasternNumber(fact.missingPart);
 
         const rightModel: VisualModelSpec =
-          mode === "dice-to-number-bond"
-            ? createDicePatternSpec({
-                count:
-                  fact.partTakenAway === 0 || fact.missingPart === 0
-                    ? fact.missingPart
-                    : fact.total,
-                secondaryCount:
-                  fact.partTakenAway === 0 || fact.missingPart === 0
-                    ? fact.partTakenAway
-                    : 0,
-                crossedOutCount: fact.partTakenAway,
-                crossOffMode: "shown",
-                diceVariant:
-                  fact.partTakenAway === 0 || fact.missingPart === 0
-                    ? "domino"
-                    : "die",
-                colorTheme: "coral",
-                secondaryColorTheme: "sky",
-                hideLabel: true,
+          mode === "number-bond-to-equation"
+            ? createNumberBondSpec({
+                part1: fact.partTakenAway,
+                part2: fact.missingPart,
+                total: fact.total,
+                missingPosition: "none",
+                tracePositions,
               })
-            : createFiveFrameSpec({
-                count: fact.total,
-                secondaryCount: 0,
-                crossedOutCount: fact.partTakenAway,
-                crossOffMode: "shown",
-                colorTheme: "coral",
-              });
+            : mode === "dice-to-number-bond"
+              ? createDicePatternSpec({
+                  count:
+                    fact.partTakenAway === 0 || fact.missingPart === 0
+                      ? fact.missingPart
+                      : fact.total,
+                  secondaryCount:
+                    fact.partTakenAway === 0 || fact.missingPart === 0
+                      ? fact.partTakenAway
+                      : 0,
+                  crossedOutCount: fact.partTakenAway,
+                  crossOffMode: "shown",
+                  diceVariant:
+                    fact.partTakenAway === 0 || fact.missingPart === 0
+                      ? "domino"
+                      : "die",
+                  colorTheme: "coral",
+                  secondaryColorTheme: "sky",
+                  hideLabel: true,
+                })
+              : createFiveFrameSpec({
+                  count: fact.total,
+                  secondaryCount: 0,
+                  crossedOutCount: fact.partTakenAway,
+                  crossOffMode: "shown",
+                  colorTheme: "coral",
+                });
 
         const leftModel: VisualModelSpec =
           mode === "five-frame-to-number-bond" || mode === "dice-to-number-bond"
