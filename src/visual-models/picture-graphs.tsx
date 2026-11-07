@@ -188,8 +188,8 @@ function GraphIconGlyph({
 
   if (icon.kind === "everyday-object") {
     const palette = COLOR_PALETTES[colorTheme] ?? COLOR_PALETTES.coral;
-    // EverydayObjectSvg with size="small" renders a 32×32 <svg>.
-    // Scaling by 20/32 = 0.625 places a 20×20 icon at (2, 2), centered at (12, 12) inside the 24×24 badge.
+    // EverydayObjectSvg with size="small" renders a 32×32 <svg viewBox="0 0 64 64"> with internal padding.
+    // Scaling by 24/32 = 0.75 maps the 32×32 viewport onto the full 24×24 badge centered at (12, 12).
     return (
       <g
         transform={`translate(${cx - half}, ${cy - half}) scale(${sizePx / OBJECT_ICON_BASE_PX})`}
@@ -202,7 +202,7 @@ function GraphIconGlyph({
           stroke={palette.stroke}
           strokeWidth="1.2"
         />
-        <g transform="translate(2, 2) scale(0.625)">
+        <g transform="scale(0.75)">
           <EverydayObjectSvg objectId={icon.id} size="small" />
         </g>
       </g>

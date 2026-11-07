@@ -74,3 +74,12 @@ All side-effect imports for visual models, exercise archetypes, and lesson bluep
 - **Center visual models inside flex-column cards**: When an exercise or slot card uses `flex-col justify-between` with a top badge row, wrap the body `<VisualModelView />` in a `flex-1 flex flex-col items-center justify-center` container. Otherwise `justify-between` pins the model against the bottom border whenever a sibling card in the grid is taller.
 - **Single-owner visual chrome**: Connection ports, dividers, and item badges belong to either the HTML card or the SVG canvas, never both. Drawing a port ring inside the HTML card and a second port circle in the adjacent SVG canvas produces duplicate visual elements that drift apart when card height changes.
 - **Keep header + wide visual models within column width**: In a 2-column (`324 px`) or 3-column (`212 px`) cell, stack the item header row (number badge + summary pill) above any wide visual model (`240 px` five-frame, `five-frame-and-digit`, or `PartsTableView`) rather than placing four elements on a single horizontal flex line.
+
+## 6. Blueprint prompt & title fidelity
+
+- **Prompt clauses must match visible student controls**: Every imperative or step in `promptAr` must correspond to a visible response control on the rendered exercise card. When a parameter disables a sub-prompt or response strip (such as `includeComparison: false` on `PictureGraphRead` or `responseMode: "write"` hiding tracing guides), `promptAr` must not ask the student to perform that disabled action (`وقارن`, `وتتبّع`).
+- **Category-neutral titles for random catalog pools**: When an exercise draws items randomly from a broad catalog (`EVERYDAY_OBJECT_CATALOG`, `SHAPE_2D_CATALOG`, `SOLID_3D_CATALOG`) rather than a fixed `categories` array, `titleAr` must use a category-neutral title (`تمثيل بياني أفقي بالصور`, `الأبراج العمودية بالصور`), never a narrow thematic noun (`فواكه`, `حيوانات`, `ألعاب`) that contradicts randomly drawn items.
+
+## 7. Multi-seed domain loops vs. SSR markup loops in tests
+
+- **Keep multi-seed domain invariant loops on `archetype.generate(...)` data**: Domain tests that iterate across `20–40` seeds × multiple difficulty levels should assert against the returned `Exercise` / `data` object directly, reserving `renderToStaticMarkup` / `renderWorksheetSurface` for representative seed checks (`1–4` seeds per mode). Full-SVG SSR serialization inside a 100+ iteration loop causes 30 s test timeouts under parallel suite load.

@@ -201,4 +201,41 @@ describe("Answer Slot standard", () => {
     }
     expect(answerKey).toContain('data-answer-slot="solved-digit"');
   });
+
+  it("never leaks category counts in picture-graph captions or comparison prompts on the student worksheet", () => {
+    for (const lessonNumber of [20, 21, 39]) {
+      const worksheet = renderWorksheet(
+        lessonNumber,
+        `AS-NO-LEAK-K${lessonNumber}`
+      );
+
+      // Extract all picture-graph visual model containers and comparison prompts on the worksheet
+      const graphContainers = [
+        ...worksheet.matchAll(
+          /<div[^>]*data-visual-model="picture-graph"[\s\S]*?<\/svg>([\s\S]*?)<\/div>/g
+        ),
+      ];
+      for (const match of graphContainers) {
+        const afterSvgCaption = match[1] ?? "";
+        // Worksheet mode must not print a caption listing category counts like "(٣)" or "(٥)"
+        expect(
+          afterSvgCaption,
+          `K-${lessonNumber} worksheet graph caption must not leak category counts`
+        ).not.toMatch(/\([٠-٩]+\)/);
+      }
+
+      const comparisonBlocks = [
+        ...worksheet.matchAll(
+          /<div[^>]*data-graph-comparison="true"[^>]*>([\s\S]*?)<\/div>\s*<\/div>/g
+        ),
+      ];
+      for (const block of comparisonBlocks) {
+        // Comparison prompt in worksheet mode must not leak category counts like «نجمة مضيئة» (٣)
+        expect(
+          block[1],
+          `K-${lessonNumber} worksheet comparison prompt must not leak category counts`
+        ).not.toMatch(/»\s*\([٠-٩]+\)/);
+      }
+    }
+  });
 });

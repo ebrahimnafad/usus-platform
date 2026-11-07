@@ -282,6 +282,68 @@ function measureSheet(std) {
     }
   }
 
+  // 3.1 SVG graph-cell icon centering & adjacent graph-cell non-overlap
+  for (const iconGroup of sheet.querySelectorAll("[data-graph-cell-icon]")) {
+    if (!isShown(iconGroup)) continue;
+    const badgeCircle = iconGroup.querySelector(":scope > g > circle");
+    const innerSvg = iconGroup.querySelector("svg");
+    if (badgeCircle && innerSvg) {
+      const circleRect = badgeCircle.getBoundingClientRect();
+      const svgRect = innerSvg.getBoundingClientRect();
+      if (hasArea(circleRect) && hasArea(svgRect)) {
+        const dx = Math.abs(
+          circleRect.left +
+            circleRect.width / 2 -
+            (svgRect.left + svgRect.width / 2)
+        );
+        const dy = Math.abs(
+          circleRect.top +
+            circleRect.height / 2 -
+            (svgRect.top + svgRect.height / 2)
+        );
+        if (dx > 2.5 || dy > 2.5) {
+          push(
+            "svg-icon-off-center",
+            iconGroup,
+            `nested icon center is offset by (${dx.toFixed(1)}, ${dy.toFixed(1)})px from its badge circle`
+          );
+        }
+        if (svgRect.width < circleRect.width * 0.55) {
+          push(
+            "svg-icon-under-scaled",
+            iconGroup,
+            `nested icon width (${svgRect.width.toFixed(1)}px) is less than 55% of badge diameter (${circleRect.width.toFixed(1)}px)`
+          );
+        }
+      }
+    }
+  }
+  for (const catGroup of sheet.querySelectorAll("[data-graph-category]")) {
+    if (!isShown(catGroup)) continue;
+    const cells = [...catGroup.querySelectorAll(":scope > [data-graph-cell]")];
+    for (let i = 0; i < cells.length; i++) {
+      const r1 = cells[i].getBoundingClientRect();
+      if (!hasArea(r1)) continue;
+      for (let j = i + 1; j < cells.length; j++) {
+        const r2 = cells[j].getBoundingClientRect();
+        if (!hasArea(r2)) continue;
+        const ix = Math.round(
+          Math.min(r1.right, r2.right) - Math.max(r1.left, r2.left)
+        );
+        const iy = Math.round(
+          Math.min(r1.bottom, r2.bottom) - Math.max(r1.top, r2.top)
+        );
+        if (ix > 1 && iy > 1) {
+          push(
+            "overlap",
+            cells[i],
+            `graph cell overlaps ${label(cells[j])} by ${ix}×${iy}px`
+          );
+        }
+      }
+    }
+  }
+
   // 3.1 clipped boxes
   for (const el of sheet.querySelectorAll("*")) {
     if (isSvgInternal(el) || el instanceof SVGElement || !isShown(el)) continue;
