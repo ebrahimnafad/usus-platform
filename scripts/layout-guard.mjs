@@ -403,6 +403,12 @@ function measureSheet(std) {
       sizes.balanceScaleBox,
       "Balance Scale",
     ],
+    [
+      '[data-graph-mode="draw-missing"] svg[data-shape-graph-box]',
+      sizes.shapeGraphBox,
+      "SHAPE GRAPH",
+    ],
+    ["[data-shape-graph-cell]", sizes.shapeGraphCell, "SHAPE GRAPH cell"],
   ];
   for (const [selector, size, name] of canonical) {
     for (const el of sheet.querySelectorAll(selector)) {

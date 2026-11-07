@@ -38,6 +38,7 @@ import "@/blueprints/grade-k/lessons-k12-to-k19";
 import "@/blueprints/grade-k/lessons-k20-to-k26";
 import "@/blueprints/grade-k/lessons-k27-to-k31";
 import "@/blueprints/grade-k/lessons-k32-to-k38";
+import "@/blueprints/grade-k/lesson-k39";
 import "@/blueprints/grade-k/lessons-k40-to-k41";
 import "@/blueprints/grade-k/lessons-k42-to-k44";
 import "@/blueprints/grade-k/lesson-k45";

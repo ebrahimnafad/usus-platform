@@ -30,6 +30,9 @@ export const CANONICAL_SIZES_PX: {
   numberBondBox: PixelSize;
   equationStripHeight: number;
   balanceScaleBox: PixelSize;
+  shapeGraphBox: PixelSize;
+  shapeGraphCell: PixelSize;
+  shapeGraphTableIcon: number;
 } = standard.canonicalSizesPx;
 
 export type TypeRole = keyof typeof standard.typeScalePx;

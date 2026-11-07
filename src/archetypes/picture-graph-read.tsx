@@ -7,16 +7,18 @@ import type {
   GenericArchetypeData,
   VisualModelSpec,
 } from "@/domain/types";
-import {
-  EVERYDAY_OBJECT_CATALOG,
-  EverydayObjectSvg,
-  getEverydayObjectById,
-} from "@/visual-models/everyday-objects";
+import { EVERYDAY_OBJECT_CATALOG } from "@/visual-models/everyday-objects";
 import {
   createPictureGraphSpec,
+  PictureGraphIconSvg,
   type PictureGraphCategorySpec,
+  type PictureGraphIcon,
   type PictureGraphOrientation,
 } from "@/visual-models/picture-graphs";
+import {
+  SHAPE_2D_CATALOG,
+  SOLID_3D_CATALOG,
+} from "@/visual-models/shapes-solids-coins";
 import {
   createNumeralTraceSpec,
   getArabicNumberWord,
@@ -33,12 +35,18 @@ import { ExerciseColumns } from "@/components/worksheet/ExerciseColumns";
 export type PictureGraphCountsPattern =
   "increasing-by-1" | "decreasing-by-1" | "with-equal-pair" | "mixed";
 
-export type PictureGraphResponseMode = "trace" | "write" | "trace-and-write";
+/** `draw-missing` is the SHAPE GRAPH: the child draws the missing icons so the graph matches its count table. */
+export type PictureGraphResponseMode =
+  "trace" | "write" | "trace-and-write" | "draw-missing";
+
+export type PictureGraphIconSet =
+  "everyday-objects" | "shapes-2d" | "solids-3d";
 
 export type ComparisonRelationLabelAr = "١ أكثر" | "١ أقل" | "نفس العدد";
 
 export interface PictureGraphCategoryInput {
-  objectId: EverydayObjectId;
+  objectId?: EverydayObjectId;
+  icon?: PictureGraphIcon;
   count: number;
   colorTheme?: ColorThemeId;
   labelAr?: string;
@@ -51,6 +59,10 @@ export interface PictureGraphReadBlueprintParams {
   categoryCount?: number;
   countsPattern?: PictureGraphCountsPattern;
   responseMode?: PictureGraphResponseMode;
+  iconSet?: PictureGraphIconSet;
+  /** `draw-missing` only: inclusive range of missing cells per category; at least 1 cell per row stays given. */
+  missingPerCategory?: [number, number];
+  includeComparison?: boolean;
   comparisonRelation?: ComparisonRelationLabelAr;
   comparisonPromptAr?: string;
   comparisonAnswerAr?: string;
@@ -60,6 +72,42 @@ export interface PictureGraphCategoryItem extends PictureGraphCategorySpec {
   countAr: string;
   numberWordAr: string;
   traceModel: VisualModelSpec;
+  givenCount: number;
+  missingCount: number;
+}
+
+interface IconChoice {
+  icon: PictureGraphIcon;
+  labelAr: string;
+  colorTheme?: ColorThemeId;
+}
+
+const ICON_SETS: Record<PictureGraphIconSet, IconChoice[]> = {
+  "everyday-objects": EVERYDAY_OBJECT_CATALOG.map((obj) => ({
+    icon: { kind: "everyday-object", id: obj.id },
+    labelAr: obj.labelAr,
+    colorTheme: obj.colorTheme,
+  })),
+  "shapes-2d": SHAPE_2D_CATALOG.map((shape) => ({
+    icon: { kind: "shape-2d", id: shape.id },
+    labelAr: shape.labelAr,
+    colorTheme: shape.defaultColorTheme,
+  })),
+  "solids-3d": SOLID_3D_CATALOG.map((solid) => ({
+    icon: { kind: "solid-3d", id: solid.id },
+    labelAr: solid.labelAr,
+    colorTheme: solid.defaultColorTheme,
+  })),
+};
+
+function getIconChoice(icon: PictureGraphIcon): IconChoice {
+  for (const choices of Object.values(ICON_SETS)) {
+    const found = choices.find(
+      (choice) => choice.icon.kind === icon.kind && choice.icon.id === icon.id
+    );
+    if (found) return found;
+  }
+  return { icon, labelAr: icon.id, colorTheme: "sky" };
 }
 
 export interface PictureGraphReadData extends GenericArchetypeData {
@@ -69,6 +117,7 @@ export interface PictureGraphReadData extends GenericArchetypeData {
   graphModel: VisualModelSpec;
   categories: PictureGraphCategoryItem[];
   comparisonRelation: ComparisonRelationLabelAr;
+  includeComparison: boolean;
   comparisonChoices: ComparisonRelationLabelAr[];
   comparisonPromptAr: string;
   comparisonAnswerAr: string;
@@ -93,18 +142,19 @@ const COMPARISON_CHOICES: ComparisonRelationLabelAr[] = [
 function buildDefaultCountsForPattern(
   pattern: PictureGraphCountsPattern,
   categoryCount: number,
-  rng: ArchetypeGeneratorContext["rng"]
+  rng: ArchetypeGeneratorContext["rng"],
+  minCount = 1
 ): number[] {
   if (pattern === "increasing-by-1") {
-    const maxStart = Math.max(1, 6 - categoryCount);
-    const start = rng.int(1, maxStart);
+    const maxStart = Math.max(minCount, 6 - categoryCount);
+    const start = rng.int(minCount, maxStart);
     return Array.from({ length: categoryCount }, (_, i) =>
       Math.min(5, start + i)
     );
   }
 
   if (pattern === "decreasing-by-1") {
-    const minStart = Math.min(5, categoryCount);
+    const minStart = Math.min(5, categoryCount + minCount - 1);
     const start = rng.int(minStart, 5);
     return Array.from({ length: categoryCount }, (_, i) =>
       Math.max(1, start - i)
@@ -217,48 +267,71 @@ function generatePictureGraphReadExercise(
     orientation === "vertical" ? "decreasing-by-1" : "increasing-by-1";
   const countsPattern = params.countsPattern ?? defaultPattern;
 
-  let rawCategories: PictureGraphCategoryInput[] = [];
+  const isDrawMissing = responseMode === "draw-missing";
+  const defaultMissingRange: [number, number] =
+    ctx.difficultyLevel === "Easy"
+      ? [1, 1]
+      : ctx.difficultyLevel === "Intermediate"
+        ? [1, 2]
+        : [1, 3];
+  const [missingMin, missingMax] =
+    params.missingPerCategory ?? defaultMissingRange;
+
+  let rawCategories: Array<IconChoice & { count: number }> = [];
   if (params.categories && params.categories.length > 0) {
-    rawCategories = params.categories;
+    rawCategories = params.categories.map((cat) => {
+      const icon: PictureGraphIcon = cat.icon ?? {
+        kind: "everyday-object",
+        id: cat.objectId ?? "star",
+      };
+      const def = getIconChoice(icon);
+      return {
+        icon,
+        labelAr: cat.labelAr ?? def.labelAr,
+        colorTheme: cat.colorTheme ?? def.colorTheme,
+        count: cat.count,
+      };
+    });
   } else {
-    const pickedObjects = ctx.rng.pickN(EVERYDAY_OBJECT_CATALOG, categoryCount);
+    const picked = ctx.rng.pickN(
+      ICON_SETS[params.iconSet ?? "everyday-objects"],
+      categoryCount
+    );
     const counts = buildDefaultCountsForPattern(
       countsPattern,
-      pickedObjects.length,
-      ctx.rng
+      picked.length,
+      ctx.rng,
+      isDrawMissing ? missingMin + 1 : 1
     );
-    rawCategories = pickedObjects.map((obj, idx) => ({
-      objectId: obj.id,
+    rawCategories = picked.map((choice, idx) => ({
+      ...choice,
       count: counts[idx] ?? 1,
-      colorTheme:
-        obj.colorTheme ?? GRAPH_COLOR_CYCLE[idx % GRAPH_COLOR_CYCLE.length],
-      labelAr: obj.labelAr,
     }));
   }
 
   const categories: PictureGraphCategoryItem[] = rawCategories.map(
     (cat, idx) => {
-      const def = getEverydayObjectById(cat.objectId);
       const safeCount = Math.max(1, Math.min(5, cat.count));
       const colorTheme =
-        cat.colorTheme ??
-        def.colorTheme ??
-        GRAPH_COLOR_CYCLE[idx % GRAPH_COLOR_CYCLE.length];
-      const countAr = formatEasternNumber(safeCount);
-      const labelAr = cat.labelAr ?? def.labelAr;
+        cat.colorTheme ?? GRAPH_COLOR_CYCLE[idx % GRAPH_COLOR_CYCLE.length];
+      const missingCount = isDrawMissing
+        ? ctx.rng.int(missingMin, Math.min(missingMax, safeCount - 1))
+        : 0;
 
       return {
-        categoryId: `cat-${idx + 1}-${cat.objectId}`,
-        objectId: cat.objectId,
-        labelAr,
+        categoryId: `cat-${idx + 1}-${cat.icon.id}`,
+        icon: cat.icon,
+        labelAr: cat.labelAr,
         count: safeCount,
-        countAr,
+        countAr: formatEasternNumber(safeCount),
         numberWordAr: getArabicNumberWord(safeCount),
         colorTheme,
         traceModel: createNumeralTraceSpec({
           digit: safeCount,
           colorTheme,
         }),
+        givenCount: safeCount - missingCount,
+        missingCount,
       };
     }
   );
@@ -267,6 +340,7 @@ function generatePictureGraphReadExercise(
     orientation,
     titleAr: params.titleAr,
     categories,
+    mode: isDrawMissing ? "draw-missing" : "read",
   });
 
   const derived = deriveComparisonFromCategories(
@@ -275,20 +349,21 @@ function generatePictureGraphReadExercise(
     params.comparisonRelation
   );
 
+  const includeComparison = params.includeComparison ?? !isDrawMissing;
   const comparisonRelation = derived.relation;
   const comparisonPromptAr = params.comparisonPromptAr ?? derived.promptAr;
   const comparisonAnswerAr = params.comparisonAnswerAr ?? derived.answerAr;
 
-  const visualModels: VisualModelSpec[] = [
-    graphModel,
-    ...categories.map((c) => c.traceModel),
-  ];
+  const visualModels: VisualModelSpec[] = isDrawMissing
+    ? [graphModel]
+    : [graphModel, ...categories.map((c) => c.traceModel)];
 
   const orientationWordAr =
     orientation === "vertical" ? "العمودي (الأعمدة)" : "الأفقي (الصفوف)";
 
-  const defaultPromptAr =
-    responseMode === "write"
+  const defaultPromptAr = isDrawMissing
+    ? "ارسم الأشكال الناقصة في كل صفّ، ثم عدّ لتتأكد أن التمثيل البياني يطابق الجدول:"
+    : responseMode === "write"
       ? `اقرأ التمثيل البياني ${orientationWordAr} بالصور، وعدّ عناصر كل فئة ثم اكتب الرقم من ذاكرتك وقارن بين الفئات:`
       : `اقرأ التمثيل البياني ${orientationWordAr} بالصور، وعدّ عناصر كل فئة ثم تتبّع الرقم واكتبه وقارن (١ أكثر / ١ أقل / نفس العدد):`;
 
@@ -296,8 +371,9 @@ function generatePictureGraphReadExercise(
     .map((c) => `${c.labelAr}: ${c.countAr}`)
     .join("، ");
 
-  const defaultStrategyHintAr =
-    orientation === "vertical"
+  const defaultStrategyHintAr = isDrawMissing
+    ? `عدّ الأشكال في كل صفّ ثم ارسم ما ينقص حتى يساوي عدد الجدول (${countsBreakdownAr}).`
+    : orientation === "vertical"
       ? `عدّ الصور في كل عمود من الأسفل إلى الأعلى أو اقرأ المحور العمودي (${countsBreakdownAr})، ثم قارن أطوال الأعمدة لتحدّد أي فئة هي (${comparisonRelation}).`
       : `عدّ الصور في كل صفّ من اليمين إلى اليسار أو اقرأ المحور الأفقي (${countsBreakdownAr})، ثم قارن أطوال الصفوف لتحدّد أي فئة هي (${comparisonRelation}).`;
 
@@ -308,6 +384,7 @@ function generatePictureGraphReadExercise(
     graphModel,
     categories,
     comparisonRelation,
+    includeComparison,
     comparisonChoices: COMPARISON_CHOICES,
     comparisonPromptAr,
     comparisonAnswerAr,
@@ -320,8 +397,9 @@ function generatePictureGraphReadExercise(
     archetype: "PictureGraphRead",
     difficultyLevel: ctx.difficultyLevel,
     sourceLessonId: ctx.sourceLessonId,
-    titleAr:
-      orientation === "vertical"
+    titleAr: isDrawMissing
+      ? "ارسم الأشكال الناقصة في التمثيل البياني"
+      : orientation === "vertical"
         ? "اقرأ التمثيل البياني العمودي بالصور"
         : "اقرأ التمثيل البياني الأفقي بالصور",
     promptAr: ctx.spec.promptAr ?? defaultPromptAr,
@@ -337,6 +415,22 @@ function renderPictureGraphReadExercise({
 }: ArchetypeRenderProps): React.ReactElement {
   const data = exercise.data as PictureGraphReadData;
   const isAnswerKey = mode === "answer-key";
+
+  if (data.responseMode === "draw-missing") {
+    return (
+      <div
+        data-archetype="PictureGraphRead"
+        data-graph-orientation={data.orientation}
+        data-graph-response-mode="draw-missing"
+      >
+        <ExerciseColumns columns={1}>
+          <div className="flex items-center justify-center">
+            <VisualModelView model={data.graphModel} solved={isAnswerKey} />
+          </div>
+        </ExerciseColumns>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -367,7 +461,11 @@ function renderPictureGraphReadExercise({
                 <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-xs font-extrabold leading-none text-white">
                   {formatEasternNumber(idx + 1)}
                 </span>
-                <EverydayObjectSvg objectId={cat.objectId} size="tiny" />
+                <PictureGraphIconSvg
+                  icon={cat.icon}
+                  colorTheme={cat.colorTheme}
+                  sizePx={30}
+                />
                 <div className="text-[13px] font-extrabold leading-tight text-slate-900">
                   {toEasternArabicNumerals(cat.labelAr)}
                 </div>
@@ -403,56 +501,57 @@ function renderPictureGraphReadExercise({
         </div>
       </ExerciseColumns>
 
-      {/* 3. Comparison & Pattern Reasoning Prompt (١ أكثر / ١ أقل / نفس العدد) */}
-      <div
-        className="space-y-0.5 rounded-xl border-2 border-amber-300 bg-amber-50/80 px-2 py-0.5 text-[13px] font-bold leading-tight text-amber-950"
-        data-graph-comparison="true"
-      >
-        <div className="flex flex-wrap items-center justify-between gap-1.5">
-          <span>
-            🤔 قارن بين الفئات:{" "}
-            {toEasternArabicNumerals(data.comparisonPromptAr)}
-          </span>
+      {data.includeComparison && (
+        <div
+          className="space-y-0.5 rounded-xl border-2 border-amber-300 bg-amber-50/80 px-2 py-0.5 text-[13px] font-bold leading-tight text-amber-950"
+          data-graph-comparison="true"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-1.5">
+            <span>
+              🤔 قارن بين الفئات:{" "}
+              {toEasternArabicNumerals(data.comparisonPromptAr)}
+            </span>
 
-          <div className="flex flex-wrap items-center gap-1">
-            {data.comparisonChoices.map((choice) => {
-              const isSelected =
-                isAnswerKey && choice === data.comparisonRelation;
-              return (
-                <span
-                  key={choice}
-                  className={`rounded-xl border-2 px-2 py-0.5 text-[13px] font-extrabold transition ${
-                    isSelected
-                      ? "border-emerald-600 bg-emerald-600 text-white shadow-2xs"
-                      : "border-dashed border-amber-400 bg-white text-amber-900"
-                  }`}
-                  data-comparison-choice={toEasternArabicNumerals(choice)}
-                  {...(isSelected
-                    ? {
-                        "data-solved-comparison-relation":
-                          toEasternArabicNumerals(choice),
-                      }
-                    : {})}
-                >
-                  {isSelected
-                    ? `✓ ${toEasternArabicNumerals(choice)}`
-                    : toEasternArabicNumerals(choice)}
-                </span>
-              );
-            })}
+            <div className="flex flex-wrap items-center gap-1">
+              {data.comparisonChoices.map((choice) => {
+                const isSelected =
+                  isAnswerKey && choice === data.comparisonRelation;
+                return (
+                  <span
+                    key={choice}
+                    className={`rounded-xl border-2 px-2 py-0.5 text-[13px] font-extrabold transition ${
+                      isSelected
+                        ? "border-emerald-600 bg-emerald-600 text-white shadow-2xs"
+                        : "border-dashed border-amber-400 bg-white text-amber-900"
+                    }`}
+                    data-comparison-choice={toEasternArabicNumerals(choice)}
+                    {...(isSelected
+                      ? {
+                          "data-solved-comparison-relation":
+                            toEasternArabicNumerals(choice),
+                        }
+                      : {})}
+                  >
+                    {isSelected
+                      ? `✓ ${toEasternArabicNumerals(choice)}`
+                      : toEasternArabicNumerals(choice)}
+                  </span>
+                );
+              })}
+            </div>
           </div>
+
+          {isAnswerKey && (
+            <div
+              className="rounded-lg bg-emerald-600 px-2 py-0.5 text-[13px] leading-tight text-white"
+              data-solved-comparison-answer="true"
+            >
+              الإجابة النموذجية:{" "}
+              {toEasternArabicNumerals(data.comparisonAnswerAr)}
+            </div>
+          )}
         </div>
-
-        {isAnswerKey && (
-          <div
-            className="rounded-lg bg-emerald-600 px-2 py-0.5 text-[13px] leading-tight text-white"
-            data-solved-comparison-answer="true"
-          >
-            الإجابة النموذجية:{" "}
-            {toEasternArabicNumerals(data.comparisonAnswerAr)}
-          </div>
-        )}
-      </div>
+      )}
     </div>
   );
 }

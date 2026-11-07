@@ -54,6 +54,7 @@ Each rule names its enforcement:
 | Number Bond         | 56 px circles in a 212 × 160 px box |
 | Equation Strip      | 48 px tall                          |
 | Balance Scale       | 212 × 136 px                        |
+| SHAPE GRAPH         | 48 px cells in a 428 × 284 px box   |
 
 3.5 Each new Visual Model adds its canonical size to the table in 3.4, sized to fit one column of 3.2.
 
@@ -123,7 +124,7 @@ Each rule names its enforcement:
 
 9.3 Equations, sequences, patterns, and frame fills flow right to left; the first Part is rightmost. In subtraction the Total is rightmost and the minus sign is `−` (U+2212), never a hyphen: `٥ − ٢ = ٣`. Multi-digit numbers keep positional order (`١٢`). **[review]**
 
-9.4 Child-facing and teacher-facing text are written in different voices. A child-facing prompt or Strategy Hint states what the child does, in at most two steps joined by `ثم`, opening with an approved imperative (`عدّ`، `انظر`، `صِلْ`، `لوّن`، `اختر`، `اكتب`، `اشطب`، `اطرح`), and naming only `GLOSSARY.md` terms. Teacher-facing text may state objectives and explain reasoning, and may use a descriptive phrase such as `العدد الكلي` where the child-facing term is `الكلّ`. **[review]**
+9.4 Child-facing and teacher-facing text are written in different voices. A child-facing prompt or Strategy Hint states what the child does, in at most two steps joined by `ثم`, opening with an approved imperative (`عدّ`، `انظر`، `صِلْ`، `لوّن`، `اختر`، `اكتب`، `ارسم`، `اشطب`، `اطرح`), and naming only `GLOSSARY.md` terms. Teacher-facing text may state objectives and explain reasoning, and may use a descriptive phrase such as `العدد الكلي` where the child-facing term is `الكلّ`. **[review]**
 
 9.5 An Exercise prompt opens with the instruction, never with a topic label naming the Section, the exercise type, or the lesson subject (`تهيئة الأشكال:`, `تحدّي المجسّمات:`, `مسألة اليوم:`). Section names belong to the Section header alone, and **Problem of the Day** (§5.4) is a structural type, not printed text. **[test]**
 
@@ -158,3 +159,4 @@ A batch closes when all of these hold:
 - 2026-11-06: §9.1 upgraded to `[test]`; §9.4 (child vs. teacher voice), §9.5 (Section names), and §9.6 (diacritics) added, acting on the Arabic language evaluation of K-31 (ADR-0014).
 - 2026-11-06: Added Balance Scale (`212 × 136 px`) to §3.4 canonical sizes per §3.5 and §10.1, and noted K-35's curriculum exception for reversed equations (`٥ = ٣ + ٢`) in §6.3.
 - 2026-11-07: For Grade K Unit 4 (subtraction): §9.4 adds the imperatives `اشطب` and `اطرح`; §9.3 fixes the minus sign `−` (U+2212) and the Total-rightmost order for subtraction; §6.3 extends the reversed-form exception to K-45.
+- 2026-11-07: Added SHAPE GRAPH (`428 × 284 px` with 48 px cells) to §3.4 canonical sizes per §3.5 and §10.1, and added the imperative `ارسم` to §9.4 for drawn graph responses.

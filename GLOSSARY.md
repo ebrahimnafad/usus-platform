@@ -124,6 +124,14 @@ _Avoid_: Problem, fact, equation
 A Visual Model of a two-pan scale whose tilt shows whether two sides of an Equation have the same value.
 _Avoid_: Teeter-totter, seesaw
 
+**Picture Graph**:
+A Visual Model showing quantities by repeating one icon for each item in a category (التمثيل البياني بالصور). In Grade K it is read right to left, either by counting filled cells or by drawing missing icons so the graph matches a Count Table.
+_Avoid_: pictograph, chart, bar chart
+
+**Count Table**:
+A small data table (جدول العدّ) listing each Picture Graph category and its count, used as given data for drawing or checking the matching graph.
+_Avoid_: data table, tally table, answer table
+
 **Tally Marks**:
 A Visual Model recording a quantity as upright strokes grouped in fives, where the fifth stroke crosses the preceding four (علامات العدّ).
 _Avoid_: إشارات العدّ, Hash marks, counting strokes, sticks

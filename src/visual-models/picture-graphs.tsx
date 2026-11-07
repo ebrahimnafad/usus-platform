@@ -2,34 +2,54 @@ import React from "react";
 import type {
   ColorThemeId,
   EverydayObjectId,
+  Shape2DId,
+  Solid3DId,
   VisualModelSpec,
 } from "@/domain/types";
-import { COLOR_PALETTES } from "@/visual-models/shapes-solids-coins";
+import {
+  COLOR_PALETTES,
+  Shape2DSvg,
+  Solid3DSvg,
+} from "@/visual-models/shapes-solids-coins";
 import {
   EverydayObjectSvg,
   getEverydayObjectById,
 } from "@/visual-models/everyday-objects";
 import { registerVisualModel } from "@/visual-models/registry";
+import { CANONICAL_SIZES_PX } from "@/components/worksheet/layout-standard";
 import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
 
 export type PictureGraphOrientation = "horizontal" | "vertical";
 
+export type PictureGraphIcon =
+  | { kind: "everyday-object"; id: EverydayObjectId }
+  | { kind: "shape-2d"; id: Shape2DId }
+  | { kind: "solid-3d"; id: Solid3DId };
+
+/** `draw-missing` is the SHAPE GRAPH: a count table beside a horizontal graph whose missing cells the child draws. */
+export type PictureGraphMode = "read" | "draw-missing";
+
 export interface PictureGraphCategorySpec {
   categoryId: string;
   labelAr: string;
-  objectId: EverydayObjectId;
+  icon: PictureGraphIcon;
   count: number;
   colorTheme: ColorThemeId;
+  /** `draw-missing` only: cells shown filled; the rest up to `count` are drawn by the child. */
+  givenCount?: number;
 }
 
 export interface PictureGraphOptions {
   orientation?: PictureGraphOrientation;
+  mode?: PictureGraphMode;
   titleAr?: string;
   categories: Array<{
     categoryId?: string;
     labelAr: string;
     objectId?: EverydayObjectId;
+    icon?: PictureGraphIcon;
     count: number;
+    givenCount?: number;
     colorTheme?: ColorThemeId;
     iconId?: string;
   }>;
@@ -40,28 +60,40 @@ export interface PictureGraphOptions {
 export function createPictureGraphSpec(
   options: PictureGraphOptions
 ): VisualModelSpec {
+  const mode: PictureGraphMode = options.mode ?? "read";
   const orientation: PictureGraphOrientation =
-    options.orientation ?? "horizontal";
+    mode === "draw-missing"
+      ? "horizontal"
+      : (options.orientation ?? "horizontal");
   const maxCount = Math.max(5, options.maxCount ?? 5);
   const categories: PictureGraphCategorySpec[] = options.categories.map(
     (cat, idx) => {
-      const objectId = (cat.objectId ??
-        cat.iconId ??
-        "star") as EverydayObjectId;
+      const icon: PictureGraphIcon = cat.icon ?? {
+        kind: "everyday-object",
+        id: (cat.objectId ?? cat.iconId ?? "star") as EverydayObjectId,
+      };
+      const count = Math.max(1, Math.min(5, cat.count));
       return {
-        categoryId: cat.categoryId ?? `cat-${idx + 1}-${objectId}`,
+        categoryId: cat.categoryId ?? `cat-${idx + 1}-${icon.id}`,
         labelAr: cat.labelAr,
-        objectId,
-        count: Math.max(1, Math.min(5, cat.count)),
+        icon,
+        count,
         colorTheme: cat.colorTheme ?? "sky",
+        ...(mode === "draw-missing"
+          ? {
+              givenCount: Math.max(0, Math.min(count, cat.givenCount ?? count)),
+            }
+          : {}),
       };
     }
   );
 
   const defaultTitleAr =
-    orientation === "vertical"
-      ? "تمثيل بياني عمودي بالصور حتى ٥"
-      : "تمثيل بياني أفقي بالصور حتى ٥";
+    mode === "draw-missing"
+      ? "الجدول والتمثيل البياني بالأشكال"
+      : orientation === "vertical"
+        ? "تمثيل بياني عمودي بالصور حتى ٥"
+        : "تمثيل بياني أفقي بالصور حتى ٥";
 
   const categoriesSummaryAr = categories
     .map((c) => `${c.labelAr} (${formatEasternNumber(c.count)})`)
@@ -69,8 +101,8 @@ export function createPictureGraphSpec(
 
   return {
     kind: "picture-graph",
-    id: `picture-graph-${orientation}-${categories
-      .map((c) => `${c.objectId}${c.count}`)
+    id: `picture-graph-${mode === "draw-missing" ? "draw-missing" : orientation}-${categories
+      .map((c) => `${c.icon.id}${c.count}`)
       .join("-")}`,
     labelAr:
       options.labelAr ??
@@ -79,6 +111,7 @@ export function createPictureGraphSpec(
     count: categories.length,
     meta: {
       orientation,
+      mode,
       titleAr: options.titleAr ?? defaultTitleAr,
       maxCount,
       categories,
@@ -99,36 +132,110 @@ export function createPictureGraphSpecFromCategories(
   return createPictureGraphSpec({ categories, orientation, maxCount });
 }
 
+/** Standalone icon (its own `<svg>`), for HTML contexts such as response rows. */
+export function PictureGraphIconSvg({
+  icon,
+  colorTheme,
+  sizePx,
+}: {
+  icon: PictureGraphIcon;
+  colorTheme: ColorThemeId;
+  sizePx: number;
+}): React.ReactElement {
+  return (
+    <svg
+      width={sizePx}
+      height={sizePx}
+      viewBox={`0 0 ${sizePx} ${sizePx}`}
+      fill="none"
+      data-graph-icon-kind={icon.kind}
+    >
+      <GraphIconGlyph
+        icon={icon}
+        cx={sizePx / 2}
+        cy={sizePx / 2}
+        sizePx={sizePx}
+        colorTheme={colorTheme}
+      />
+    </svg>
+  );
+}
+
+const SHAPE_SVG_PX = 30;
+const OBJECT_ICON_BASE_PX = 24;
+
+function GraphIconGlyph({
+  icon,
+  cx,
+  cy,
+  sizePx,
+  colorTheme,
+}: {
+  icon: PictureGraphIcon;
+  cx: number;
+  cy: number;
+  sizePx: number;
+  colorTheme: ColorThemeId;
+}): React.ReactElement {
+  const half = sizePx / 2;
+
+  if (icon.kind === "everyday-object") {
+    const palette = COLOR_PALETTES[colorTheme] ?? COLOR_PALETTES.coral;
+    return (
+      <g
+        transform={`translate(${cx - half}, ${cy - half}) scale(${sizePx / OBJECT_ICON_BASE_PX})`}
+      >
+        <circle
+          cx={12}
+          cy={12}
+          r={11}
+          fill={palette.accent}
+          stroke={palette.stroke}
+          strokeWidth="1.2"
+        />
+        <g transform="translate(2, 2) scale(0.32)">
+          <EverydayObjectSvg objectId={icon.id} size="small" />
+        </g>
+      </g>
+    );
+  }
+
+  // Shapes and solids carry no colored backing: the silhouette is the grayscale cue (§2.5).
+  return (
+    <g
+      transform={`translate(${cx - half}, ${cy - half}) scale(${sizePx / SHAPE_SVG_PX})`}
+    >
+      {icon.kind === "shape-2d" ? (
+        <Shape2DSvg shapeId={icon.id} colorTheme={colorTheme} size="large" />
+      ) : (
+        <Solid3DSvg solidId={icon.id} colorTheme={colorTheme} size="large" />
+      )}
+    </g>
+  );
+}
+
 function GraphCellIconSvg({
-  objectId,
+  icon,
   cx,
   cy,
   colorTheme,
+  sizePx = 24,
 }: {
-  objectId: EverydayObjectId;
+  icon: PictureGraphIcon;
   cx: number;
   cy: number;
   colorTheme: ColorThemeId;
+  sizePx?: number;
 }): React.ReactElement {
-  const palette = COLOR_PALETTES[colorTheme] ?? COLOR_PALETTES.coral;
-  const half = 12;
-
   return (
-    <g
-      transform={`translate(${cx - half}, ${cy - half})`}
-      data-graph-cell-icon={objectId}
-    >
-      <circle
-        cx={half}
-        cy={half}
-        r={11}
-        fill={palette.accent}
-        stroke={palette.stroke}
-        strokeWidth="1.2"
+    <g data-graph-cell-icon={icon.id} data-graph-icon-kind={icon.kind}>
+      <GraphIconGlyph
+        icon={icon}
+        cx={cx}
+        cy={cy}
+        sizePx={sizePx}
+        colorTheme={colorTheme}
       />
-      <g transform="translate(2, 2) scale(0.32)">
-        <EverydayObjectSvg objectId={objectId} size="small" />
-      </g>
     </g>
   );
 }
@@ -154,21 +261,21 @@ export function PictureGraphSvg({
           {
             categoryId: "cat-apple",
             labelAr: getEverydayObjectById("apple").labelAr,
-            objectId: "apple",
+            icon: { kind: "everyday-object", id: "apple" },
             count: 3,
             colorTheme: "coral",
           },
           {
             categoryId: "cat-banana",
             labelAr: getEverydayObjectById("banana").labelAr,
-            objectId: "banana",
+            icon: { kind: "everyday-object", id: "banana" },
             count: 4,
             colorTheme: "amber",
           },
           {
             categoryId: "cat-strawberry",
             labelAr: getEverydayObjectById("strawberry").labelAr,
-            objectId: "strawberry",
+            icon: { kind: "everyday-object", id: "strawberry" },
             count: 2,
             colorTheme: "rose",
           },
@@ -338,7 +445,7 @@ export function PictureGraphSvg({
                           strokeWidth="1.5"
                         />
                         <GraphCellIconSvg
-                          objectId={cat.objectId}
+                          icon={cat.icon}
                           cx={colCenterX}
                           cy={cellCenterY}
                           colorTheme={cat.colorTheme}
@@ -572,7 +679,7 @@ export function PictureGraphSvg({
                         strokeWidth="1.4"
                       />
                       <GraphCellIconSvg
-                        objectId={cat.objectId}
+                        icon={cat.icon}
                         cx={cellCenterX}
                         cy={rowCenterY}
                         colorTheme={cat.colorTheme}
@@ -678,6 +785,431 @@ export function PictureGraphSvg({
   );
 }
 
+const SHAPE_GRAPH_MAX_ROWS = 4;
+const SHAPE_GRAPH_COLUMNS = 5;
+const DRAWN_ACCENT = "#059669";
+
+function regularPolygonPoints(
+  cx: number,
+  cy: number,
+  radius: number,
+  sides: number
+): string {
+  return Array.from({ length: sides }, (_, i) => {
+    const angle = -Math.PI / 2 + (2 * Math.PI * i) / sides;
+    const x = cx + radius * Math.cos(angle);
+    const y = cy + radius * Math.sin(angle);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(" ");
+}
+
+/** The child's drawing on the Answer Key: an outline in the accent style (§8.2). */
+function DrawnShapeOutline({
+  icon,
+  cx,
+  cy,
+  colorTheme,
+}: {
+  icon: PictureGraphIcon;
+  cx: number;
+  cy: number;
+  colorTheme: ColorThemeId;
+}): React.ReactElement {
+  const stroke = {
+    stroke: DRAWN_ACCENT,
+    strokeWidth: 3,
+    strokeLinejoin: "round" as const,
+    fill: "none",
+  };
+
+  if (icon.kind !== "shape-2d") {
+    return (
+      <>
+        <rect
+          x={cx - 18}
+          y={cy - 18}
+          width="36"
+          height="36"
+          rx="8"
+          {...stroke}
+        />
+        <GraphIconGlyph
+          icon={icon}
+          cx={cx}
+          cy={cy}
+          sizePx={28}
+          colorTheme={colorTheme}
+        />
+      </>
+    );
+  }
+
+  switch (icon.id) {
+    case "circle":
+      return <circle cx={cx} cy={cy} r="14" {...stroke} />;
+    case "triangle":
+      return (
+        <polygon
+          points={`${cx},${cy - 15} ${cx + 15},${cy + 12} ${cx - 15},${cy + 12}`}
+          {...stroke}
+        />
+      );
+    case "square":
+      return (
+        <rect x={cx - 13} y={cy - 13} width="26" height="26" {...stroke} />
+      );
+    case "rectangle":
+      return (
+        <rect x={cx - 16} y={cy - 10} width="32" height="20" {...stroke} />
+      );
+    case "pentagon":
+      return (
+        <polygon points={regularPolygonPoints(cx, cy, 15, 5)} {...stroke} />
+      );
+    case "hexagon":
+      return (
+        <polygon points={regularPolygonPoints(cx, cy, 15, 6)} {...stroke} />
+      );
+  }
+}
+
+/**
+ * SHAPE GRAPH: a count table (right) beside a horizontal graph (left), read right to left.
+ * The box is sized for 4 categories (§3.3); fewer rows are centred vertically.
+ */
+export function ShapeGraphSvg({
+  titleAr,
+  categories,
+  solved = false,
+}: {
+  titleAr: string;
+  categories: PictureGraphCategorySpec[];
+  solved?: boolean;
+}): React.ReactElement {
+  const { width: boxW, height: boxH } = CANONICAL_SIZES_PX.shapeGraphBox;
+  const cell = CANONICAL_SIZES_PX.shapeGraphCell.width;
+  const tableIcon = CANONICAL_SIZES_PX.shapeGraphTableIcon;
+  const digitBox = CANONICAL_SIZES_PX.answerSlotDigit.width;
+
+  const padX = 8;
+  const titleTop = 6;
+  const titleH = 22;
+  const headerH = 24;
+  const tableIconColW = cell;
+  const tableDigitColW = 60;
+  const tableW = tableIconColW + tableDigitColW;
+  const tableGap = 16;
+  const labelColW = cell;
+
+  const rows = categories.slice(0, SHAPE_GRAPH_MAX_ROWS);
+  const tableRightX = boxW - padX;
+  const tableLeftX = tableRightX - tableW;
+  const graphRightX = tableLeftX - tableGap;
+  const labelLeftX = graphRightX - labelColW;
+  const cellsLeftX = labelLeftX - SHAPE_GRAPH_COLUMNS * cell;
+
+  const blockOffset = ((SHAPE_GRAPH_MAX_ROWS - rows.length) * cell) / 2;
+  const headerTop = titleTop + titleH + 6 + blockOffset;
+  const rowsTop = headerTop + headerH;
+  const rowsBottom = rowsTop + rows.length * cell;
+
+  const getRtlCellX = (cellIdx: number): number =>
+    labelLeftX - (cellIdx + 1) * cell;
+
+  return (
+    <svg
+      width={boxW}
+      height={boxH}
+      viewBox={`0 0 ${boxW} ${boxH}`}
+      fill="none"
+      aria-label={toEasternArabicNumerals(titleAr)}
+      data-orientation="horizontal"
+      data-direction="rtl"
+      data-graph-type="picture-graph"
+      data-shape-graph-box={`${boxW}x${boxH}`}
+    >
+      <rect
+        x="2"
+        y="2"
+        width={boxW - 4}
+        height={boxH - 4}
+        rx="16"
+        fill="#F8FAFC"
+        stroke="#4F46E5"
+        strokeWidth="2.2"
+      />
+      <rect
+        x={padX}
+        y={titleTop}
+        width={boxW - padX * 2}
+        height={titleH}
+        rx="6"
+        fill="#EEF2FF"
+      />
+      <text
+        x={boxW / 2}
+        y={titleTop + 16}
+        textAnchor="middle"
+        fontSize="13"
+        fontWeight="900"
+        fill="#312E81"
+      >
+        {toEasternArabicNumerals(titleAr)}
+      </text>
+
+      <g data-count-table="true">
+        <text
+          x={tableRightX - tableIconColW / 2}
+          y={headerTop + 17}
+          textAnchor="middle"
+          fontSize="13"
+          fontWeight="900"
+          fill="#312E81"
+        >
+          الشكل
+        </text>
+        <text
+          x={tableLeftX + tableDigitColW / 2}
+          y={headerTop + 17}
+          textAnchor="middle"
+          fontSize="13"
+          fontWeight="900"
+          fill="#312E81"
+        >
+          العدد
+        </text>
+        <rect
+          x={tableLeftX}
+          y={rowsTop}
+          width={tableW}
+          height={rows.length * cell}
+          rx="8"
+          fill="#FFFFFF"
+          stroke="#4338CA"
+          strokeWidth="2"
+        />
+        <line
+          x1={tableRightX - tableIconColW}
+          y1={rowsTop}
+          x2={tableRightX - tableIconColW}
+          y2={rowsBottom}
+          stroke="#A5B4FC"
+          strokeWidth="1.6"
+        />
+        {rows.map((cat, rowIdx) => {
+          const rowTop = rowsTop + rowIdx * cell;
+          const rowCenterY = rowTop + cell / 2;
+          return (
+            <g
+              key={cat.categoryId}
+              data-count-table-row={formatEasternNumber(rowIdx + 1)}
+              data-category-count={formatEasternNumber(cat.count)}
+            >
+              {rowIdx > 0 && (
+                <line
+                  x1={tableLeftX}
+                  y1={rowTop}
+                  x2={tableRightX}
+                  y2={rowTop}
+                  stroke="#A5B4FC"
+                  strokeWidth="1.6"
+                />
+              )}
+              <GraphIconGlyph
+                icon={cat.icon}
+                cx={tableRightX - tableIconColW / 2}
+                cy={rowCenterY}
+                sizePx={tableIcon}
+                colorTheme={cat.colorTheme}
+              />
+              <rect
+                x={tableRightX - tableIconColW / 2 - tableIcon / 2}
+                y={rowCenterY - tableIcon / 2}
+                width={tableIcon}
+                height={tableIcon}
+                fill="none"
+                data-shape-graph-table-icon={tableIcon}
+              />
+              <rect
+                x={tableLeftX + (tableDigitColW - digitBox) / 2}
+                y={rowTop}
+                width={digitBox}
+                height={digitBox}
+                fill="none"
+                data-count-table-digit-box={`${digitBox}x${digitBox}`}
+              />
+              <text
+                x={tableLeftX + tableDigitColW / 2}
+                y={rowCenterY + 10}
+                textAnchor="middle"
+                fontSize="28"
+                fontWeight="900"
+                fill="#1E1B4B"
+              >
+                {formatEasternNumber(cat.count)}
+              </text>
+            </g>
+          );
+        })}
+      </g>
+
+      <rect
+        x={cellsLeftX}
+        y={rowsTop}
+        width={graphRightX - cellsLeftX}
+        height={rows.length * cell}
+        rx="8"
+        fill="#FFFFFF"
+        stroke="#4338CA"
+        strokeWidth="2"
+      />
+      <line
+        x1={labelLeftX}
+        y1={rowsTop}
+        x2={labelLeftX}
+        y2={rowsBottom}
+        stroke="#3730A3"
+        strokeWidth="2.2"
+      />
+
+      {rows.map((cat, rowIdx) => {
+        const rowTop = rowsTop + rowIdx * cell;
+        const rowCenterY = rowTop + cell / 2;
+        const givenCount = cat.givenCount ?? cat.count;
+
+        return (
+          <g
+            key={cat.categoryId}
+            data-graph-category={toEasternArabicNumerals(cat.categoryId)}
+            data-category-count={formatEasternNumber(cat.count)}
+          >
+            {rowIdx > 0 && (
+              <line
+                x1={cellsLeftX}
+                y1={rowTop}
+                x2={graphRightX}
+                y2={rowTop}
+                stroke="#CBD5E1"
+                strokeWidth="1.6"
+              />
+            )}
+            <g data-graph-row-label="true">
+              <GraphIconGlyph
+                icon={cat.icon}
+                cx={labelLeftX + labelColW / 2}
+                cy={rowCenterY}
+                sizePx={tableIcon}
+                colorTheme={cat.colorTheme}
+              />
+              <rect
+                x={labelLeftX + labelColW / 2 - tableIcon / 2}
+                y={rowCenterY - tableIcon / 2}
+                width={tableIcon}
+                height={tableIcon}
+                fill="none"
+                data-shape-graph-table-icon={tableIcon}
+              />
+            </g>
+
+            {Array.from({ length: SHAPE_GRAPH_COLUMNS }, (_, cellIdx) => {
+              const cellX = getRtlCellX(cellIdx);
+              const cellCenterX = cellX + cell / 2;
+              const isGiven = cellIdx < givenCount;
+              const isMissing = !isGiven && cellIdx < cat.count;
+
+              return (
+                <g
+                  key={cellIdx}
+                  data-graph-cell={formatEasternNumber(cellIdx + 1)}
+                  data-cell-filled={isGiven ? "true" : "false"}
+                  {...(isMissing ? { "data-graph-cell-missing": "true" } : {})}
+                >
+                  <rect
+                    x={cellX}
+                    y={rowTop}
+                    width={cell}
+                    height={cell}
+                    fill="none"
+                    stroke="#E2E8F0"
+                    strokeWidth="1"
+                    data-shape-graph-cell={`${cell}x${cell}`}
+                  />
+                  {isGiven && (
+                    <GraphCellIconSvg
+                      icon={cat.icon}
+                      cx={cellCenterX}
+                      cy={rowCenterY}
+                      colorTheme={cat.colorTheme}
+                      sizePx={tableIcon}
+                    />
+                  )}
+                  {isMissing && (
+                    <rect
+                      x={cellX + 4}
+                      y={rowTop + 4}
+                      width={cell - 8}
+                      height={cell - 8}
+                      rx="8"
+                      fill="#FFFFFF"
+                      stroke="#64748B"
+                      strokeWidth="1.6"
+                      strokeDasharray="5 4"
+                    />
+                  )}
+                  {isMissing && solved && (
+                    <g
+                      data-drawn-cell="true"
+                      data-solved-drawn-shape={cat.icon.id}
+                    >
+                      <DrawnShapeOutline
+                        icon={cat.icon}
+                        cx={cellCenterX}
+                        cy={rowCenterY}
+                        colorTheme={cat.colorTheme}
+                      />
+                    </g>
+                  )}
+                </g>
+              );
+            })}
+          </g>
+        );
+      })}
+
+      <g data-graph-axis="horizontal">
+        {Array.from({ length: SHAPE_GRAPH_COLUMNS }, (_, cellIdx) => {
+          const cx = getRtlCellX(cellIdx) + cell / 2;
+          const numAr = formatEasternNumber(cellIdx + 1);
+          return (
+            <g key={cellIdx} data-axis-tick={numAr}>
+              <rect
+                x={cx - 11}
+                y={rowsBottom + 4}
+                width="22"
+                height="19"
+                rx="6"
+                fill="#E0E7FF"
+                stroke="#4338CA"
+                strokeWidth="1.2"
+              />
+              <text
+                x={cx}
+                y={rowsBottom + 18}
+                textAnchor="middle"
+                fontSize="13"
+                fontWeight="900"
+                fill="#1E1B4B"
+              >
+                {numAr}
+              </text>
+            </g>
+          );
+        })}
+      </g>
+    </svg>
+  );
+}
+
 export function registerPictureGraphVisualModels(): void {
   registerVisualModel("picture-graph", ({ model, solved }) => {
     const meta = (model.meta ?? {}) as Record<string, unknown>;
@@ -686,6 +1218,25 @@ export function registerPictureGraphVisualModels(): void {
     const titleAr = (meta.titleAr as string) ?? "تمثيل بياني بالصور";
     const maxCount = (meta.maxCount as number) ?? 5;
     const categories = (meta.categories as PictureGraphCategorySpec[]) ?? [];
+
+    if (meta.mode === "draw-missing") {
+      return (
+        <div
+          className="inline-flex"
+          data-visual-model="picture-graph"
+          data-graph-mode="draw-missing"
+          data-orientation="horizontal"
+          data-direction="rtl"
+          data-category-count={formatEasternNumber(categories.length)}
+        >
+          <ShapeGraphSvg
+            titleAr={titleAr}
+            categories={categories}
+            solved={solved}
+          />
+        </div>
+      );
+    }
 
     return (
       <div

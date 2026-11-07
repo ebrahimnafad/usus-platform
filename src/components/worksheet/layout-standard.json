@@ -10,7 +10,10 @@
     "numberBondCircle": { "width": 56, "height": 56 },
     "numberBondBox": { "width": 212, "height": 160 },
     "equationStripHeight": 48,
-    "balanceScaleBox": { "width": 212, "height": 136 }
+    "balanceScaleBox": { "width": 212, "height": 136 },
+    "shapeGraphBox": { "width": 428, "height": 284 },
+    "shapeGraphCell": { "width": 48, "height": 48 },
+    "shapeGraphTableIcon": 32
   },
   "typeScalePx": {
     "sectionTitle": 20,

@@ -70,6 +70,9 @@ describe("Layout standard matches WORKSHEET_CONSTITUTION.md", () => {
       numberBondBox: { width: 212, height: 160 },
       equationStripHeight: 48,
       balanceScaleBox: { width: 212, height: 136 },
+      shapeGraphBox: { width: 428, height: 284 },
+      shapeGraphCell: { width: 48, height: 48 },
+      shapeGraphTableIcon: 32,
     });
   });
 
@@ -229,6 +232,7 @@ describe("Exercise layout primitives", () => {
       { lessonNumber: 26, archetype: "SubitizePartWhole" },
       { lessonNumber: 29, archetype: "JoinParts" },
       { lessonNumber: 36, archetype: "JudgeEquality" },
+      { lessonNumber: 39, archetype: "PictureGraphRead" },
       { lessonNumber: 40, archetype: "TakeAway" },
     ];
 
@@ -353,5 +357,69 @@ describe("Exercise layout primitives", () => {
     expect(htmlEqA).toContain('data-answer-slot="solved-digit"');
     expect(htmlEqTotalFirst).toContain('data-equation-layout="total-first"');
     expect(htmlEqTotalFirst).toContain('data-missing-position="part1"');
+  });
+
+  it("§3.4 SHAPE GRAPH renders its canonical box, 48×48 cells, 32px table icons, and 48px count digits", () => {
+    const shapeGraphSpec = {
+      kind: "picture-graph" as const,
+      id: "shape-graph-standard",
+      labelAr: "الجدول والتمثيل البياني بالأشكال",
+      count: 4,
+      meta: {
+        mode: "draw-missing",
+        titleAr: "الجدول والتمثيل البياني بالأشكال",
+        categories: [
+          {
+            categoryId: "cat-circle",
+            labelAr: "دائرة",
+            icon: { kind: "shape-2d", id: "circle" },
+            count: 5,
+            givenCount: 3,
+            colorTheme: "coral",
+          },
+          {
+            categoryId: "cat-triangle",
+            labelAr: "مثلث",
+            icon: { kind: "shape-2d", id: "triangle" },
+            count: 4,
+            givenCount: 2,
+            colorTheme: "amber",
+          },
+          {
+            categoryId: "cat-square",
+            labelAr: "مربع",
+            icon: { kind: "shape-2d", id: "square" },
+            count: 3,
+            givenCount: 2,
+            colorTheme: "sky",
+          },
+          {
+            categoryId: "cat-rectangle",
+            labelAr: "مستطيل",
+            icon: { kind: "shape-2d", id: "rectangle" },
+            count: 2,
+            givenCount: 1,
+            colorTheme: "emerald",
+          },
+        ],
+      },
+    };
+
+    const html = renderToStaticMarkup(
+      React.createElement(VisualModelView, {
+        model: shapeGraphSpec,
+        solved: true,
+      })
+    );
+
+    expect(html).toContain('data-graph-mode="draw-missing"');
+    expect(html).toContain('width="428"');
+    expect(html).toContain('height="284"');
+    expect(html).toContain('viewBox="0 0 428 284"');
+    expect(html).toContain('data-shape-graph-box="428x284"');
+    expect(html.match(/data-shape-graph-cell="48x48"/g)).toHaveLength(20);
+    expect(html.match(/data-count-table-digit-box="48x48"/g)).toHaveLength(4);
+    expect(html.match(/data-shape-graph-table-icon="32"/g)).toHaveLength(8);
+    expect(html).toContain('data-drawn-cell="true"');
   });
 });
