@@ -14,19 +14,27 @@ import {
   createEquationStripSpec,
   createNumberBondSpec,
   type BalancePanSpec,
+  type EquationOperation,
 } from "@/visual-models/unit-3-models";
 import { VisualModelView } from "@/visual-models/registry";
 import { ExerciseColumns } from "@/components/worksheet/ExerciseColumns";
 import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
-import { selectAdditionFacts, type AdditionFact } from "@/lib/part-whole-facts";
+import {
+  selectAdditionFacts,
+  selectSubtractionFacts,
+  type AdditionFact,
+  type SubtractionFact,
+} from "@/lib/part-whole-facts";
 
 export type JudgeEqualityMode = "whats-wrong" | "true-false" | "balance";
 export type JudgeEqualityModelKind =
   "equation" | "number-bond" | "balance-scale";
 
 export interface JudgeEqualityBlueprintParams {
+  operation?: EquationOperation;
   mode?: JudgeEqualityMode;
   modelKind?: JudgeEqualityModelKind;
+  twoExpressionPans?: boolean;
   rowCount?: number;
   itemCount?: number;
   totalRange?: [number, number];
@@ -36,10 +44,13 @@ export interface JudgeEqualityBlueprintParams {
 export interface JudgeEqualityItem {
   id: string;
   itemIndex: number;
+  operation?: EquationOperation;
   part1: number;
   part2: number;
   shownTotal: number;
   realTotal: number;
+  missingPart?: number;
+  shownMissingPart?: number;
   isCorrect: boolean;
   explanationAr: string;
   equationLayout?: "standard" | "total-first";
@@ -58,27 +69,28 @@ export interface JudgeEqualityRow {
 
 export interface JudgeEqualityData extends GenericArchetypeData {
   kind: "JudgeEquality";
+  operation: EquationOperation;
   mode: JudgeEqualityMode;
   modelKind: JudgeEqualityModelKind;
   numberBank?: number[];
   rows: JudgeEqualityRow[];
 }
 
-function pickWrongTotal(
+function pickWrongValue(
   rowRng: ArchetypeGeneratorContext["rng"],
-  realTotal: number,
-  totalRange?: [number, number]
+  realValue: number,
+  minCandidate: number,
+  maxCandidate: number
 ): number {
-  const [minT, maxT] = totalRange ?? [2, 5];
-  const candidateTotals: number[] = [];
-  for (let t = minT; t <= maxT; t++) {
-    if (t !== realTotal) candidateTotals.push(t);
+  const candidates: number[] = [];
+  for (let c = minCandidate; c <= maxCandidate; c++) {
+    if (c !== realValue) candidates.push(c);
   }
-  return candidateTotals.length > 0
-    ? rowRng.pickOne(candidateTotals)
-    : realTotal === maxT
-      ? realTotal - 1
-      : realTotal + 1;
+  return candidates.length > 0
+    ? rowRng.pickOne(candidates)
+    : realValue === maxCandidate
+      ? realValue - 1
+      : realValue + 1;
 }
 
 function buildBalanceItem(
@@ -99,8 +111,10 @@ function buildBalanceItem(
     kind: "expression",
     value: realTotal,
     expressionAr: `${p1Ar} + ${p2Ar}`,
-    missingAddend: {
-      givenPart: part1,
+    missingTerm: {
+      operation: "add",
+      missingRole: "part",
+      givenValue: part1,
       missingValue: part2,
     },
   };
@@ -129,6 +143,7 @@ function buildBalanceItem(
   return {
     id: `judge-row-${r + 1}-item-${idx + 1}`,
     itemIndex: idx,
+    operation: "add",
     part1,
     part2,
     shownTotal: realTotal,
@@ -144,10 +159,108 @@ function buildBalanceItem(
   };
 }
 
+function buildSubtractionBalanceItem(
+  fact: SubtractionFact,
+  r: number,
+  idx: number,
+  allowTwoExpressionPans: boolean,
+  bankSolutions: number[],
+  summaryNotes: string[]
+): JudgeEqualityItem {
+  const { total, partTakenAway, missingPart } = fact;
+  const totalAr = formatEasternNumber(total);
+  const p1Ar = formatEasternNumber(partTakenAway);
+  const missingAr = formatEasternNumber(missingPart);
+  const equationLayout: "standard" | "total-first" =
+    idx % 2 === 0 ? "standard" : "total-first";
+  const missingRole: "part" | "total" = idx % 2 === 0 ? "part" : "total";
+  const missingTermAnswer = missingRole === "part" ? partTakenAway : total;
+
+  const exprPan: BalancePanSpec = {
+    kind: "expression",
+    value: missingPart,
+    expressionAr: `${totalAr} − ${p1Ar}`,
+    missingTerm: {
+      operation: "subtract",
+      missingRole,
+      givenValue: missingRole === "part" ? total : partTakenAway,
+      missingValue: missingTermAnswer,
+    },
+  };
+
+  const addA = Math.ceil(missingPart / 2);
+  const addB = missingPart - addA;
+  const addExprAr = `${formatEasternNumber(addA)} + ${formatEasternNumber(addB)}`;
+
+  const otherPan: BalancePanSpec = allowTwoExpressionPans
+    ? {
+        kind: "expression",
+        value: missingPart,
+        expressionAr: addExprAr,
+        missingTerm: {
+          operation: "add",
+          missingRole: "part",
+          givenValue: addA,
+          missingValue: addB,
+        },
+      }
+    : {
+        kind: "slot",
+        value: missingPart,
+        slotKind: "unknown",
+      };
+
+  const rightPan = equationLayout === "standard" ? exprPan : otherPan;
+  const leftPan = equationLayout === "standard" ? otherPan : exprPan;
+
+  const model = createBalanceScaleSpec({
+    rightPan,
+    leftPan,
+    tilt: "level",
+  });
+
+  const solutionValue = allowTwoExpressionPans
+    ? missingTermAnswer
+    : missingPart;
+  const secondarySolutionValue = allowTwoExpressionPans
+    ? addB
+    : missingTermAnswer;
+
+  bankSolutions.push(solutionValue, secondarySolutionValue);
+
+  const counterSideAr = allowTwoExpressionPans ? addExprAr : missingAr;
+  const explanationAr =
+    equationLayout === "standard"
+      ? `${totalAr} − ${p1Ar} = ${counterSideAr}`
+      : `${counterSideAr} = ${totalAr} − ${p1Ar}`;
+  summaryNotes.push(explanationAr);
+
+  return {
+    id: `judge-row-${r + 1}-item-${idx + 1}`,
+    itemIndex: idx,
+    operation: "subtract",
+    part1: partTakenAway,
+    part2: missingPart,
+    shownTotal: total,
+    realTotal: total,
+    missingPart,
+    shownMissingPart: missingPart,
+    isCorrect: true,
+    explanationAr,
+    equationLayout,
+    rightValue: rightPan.value,
+    leftValue: leftPan.value,
+    solutionValue,
+    secondarySolutionValue,
+    model,
+  };
+}
+
 function generateJudgeEqualityExercise(
   ctx: ArchetypeGeneratorContext
 ): Exercise {
   const params = (ctx.spec.params ?? {}) as JudgeEqualityBlueprintParams;
+  const operation: EquationOperation = params.operation ?? "add";
   const mode: JudgeEqualityMode = params.mode ?? "whats-wrong";
   const modelKind: JudgeEqualityModelKind =
     params.modelKind ?? (mode === "balance" ? "balance-scale" : "equation");
@@ -157,6 +270,10 @@ function generateJudgeEqualityExercise(
     2,
     Math.min(3, params.itemCount ?? defaultItemsPerRow)
   );
+  // Two-Expression pans appear only at Advanced or in Challenge & Assessment
+  const allowTwoExpressionPans =
+    Boolean(params.twoExpressionPans) &&
+    (ctx.difficultyLevel === "Advanced" || ctx.sectionId === "challenge");
 
   const rows: JudgeEqualityRow[] = [];
   const allVisualModels: VisualModelSpec[] = [];
@@ -165,6 +282,130 @@ function generateJudgeEqualityExercise(
 
   for (let r = 0; r < rowCount; r++) {
     const rowRng = ctx.rng.fork(`row:${r}`);
+
+    if (operation === "subtract") {
+      const subFacts = selectSubtractionFacts(
+        rowRng,
+        ctx.difficultyLevel,
+        {
+          totalRange: params.totalRange ?? [2, 5],
+          minPart: params.minPart ?? 1,
+          count: itemsPerRow,
+        },
+        ctx.usedFacts
+      );
+
+      if (mode === "balance") {
+        const items = subFacts.map((fact, idx) => {
+          const item = buildSubtractionBalanceItem(
+            fact,
+            r,
+            idx,
+            allowTwoExpressionPans,
+            bankSolutions,
+            summaryNotes
+          );
+          allVisualModels.push(item.model);
+          return item;
+        });
+        rows.push({ id: `judge-row-${r + 1}`, rowIndex: r, items });
+        continue;
+      }
+
+      const wrongIndex = rowRng.int(0, subFacts.length - 1);
+      const secondWrongIndex =
+        mode === "true-false" && subFacts.length >= 3 && rowRng.int(0, 1) === 1
+          ? (wrongIndex + 1) % subFacts.length
+          : -1;
+
+      const items: JudgeEqualityItem[] = subFacts.map((fact, idx) => {
+        const isWrong = idx === wrongIndex || idx === secondWrongIndex;
+        const { total, partTakenAway, missingPart } = fact;
+        const minSubCandidate = Math.max(0, params.minPart ?? 1);
+        const maxSubCandidate = Math.max(
+          minSubCandidate + 1,
+          Math.min(5, total)
+        );
+        const shownMissingPart = isWrong
+          ? pickWrongValue(
+              rowRng,
+              missingPart,
+              minSubCandidate,
+              maxSubCandidate
+            )
+          : missingPart;
+
+        const equationLayout: "standard" | "total-first" =
+          mode === "true-false" && idx % 2 === 1 ? "total-first" : "standard";
+
+        const totalAr = formatEasternNumber(total);
+        const p1Ar = formatEasternNumber(partTakenAway);
+        const missingAr = formatEasternNumber(missingPart);
+        const shownMissingAr = formatEasternNumber(shownMissingPart);
+
+        const explanationAr = isWrong
+          ? `${totalAr} − ${p1Ar} = ${missingAr} وليس ${shownMissingAr}`
+          : equationLayout === "total-first"
+            ? `${missingAr} = ${totalAr} − ${p1Ar}`
+            : `${totalAr} − ${p1Ar} = ${missingAr}`;
+
+        if (mode === "true-false" || isWrong) {
+          summaryNotes.push(explanationAr);
+        }
+
+        const model =
+          modelKind === "number-bond"
+            ? createNumberBondSpec({
+                part1: partTakenAway,
+                part2: shownMissingPart,
+                total,
+                missingPosition: "none",
+                labelAr: `رابطة الأعداد: الكلّ ${totalAr} والجزآن ${p1Ar} و${shownMissingAr}`,
+              })
+            : createEquationStripSpec({
+                operation: "subtract",
+                total,
+                part1: partTakenAway,
+                part2: shownMissingPart,
+                layout: equationLayout,
+                missingPosition: "none",
+                labelAr:
+                  equationLayout === "total-first"
+                    ? `معادلة طرح: ${shownMissingAr} = ${totalAr} − ${p1Ar}`
+                    : `معادلة طرح: ${totalAr} − ${p1Ar} = ${shownMissingAr}`,
+              });
+
+        allVisualModels.push(model);
+
+        return {
+          id: `judge-row-${r + 1}-item-${idx + 1}`,
+          itemIndex: idx,
+          operation: "subtract",
+          part1: partTakenAway,
+          part2: shownMissingPart,
+          shownTotal: total,
+          realTotal: total,
+          missingPart,
+          shownMissingPart,
+          isCorrect: !isWrong,
+          explanationAr,
+          equationLayout,
+          rightValue:
+            equationLayout === "total-first" ? shownMissingPart : missingPart,
+          leftValue:
+            equationLayout === "total-first" ? missingPart : shownMissingPart,
+          model,
+        };
+      });
+
+      rows.push({
+        id: `judge-row-${r + 1}`,
+        rowIndex: r,
+        items,
+      });
+      continue;
+    }
+
     const baseFacts = selectAdditionFacts(
       rowRng,
       ctx.difficultyLevel,
@@ -201,8 +442,9 @@ function generateJudgeEqualityExercise(
     const items: JudgeEqualityItem[] = baseFacts.map((fact, idx) => {
       const isWrong = idx === wrongIndex || idx === secondWrongIndex;
       const { part1, part2, total: realTotal } = fact;
+      const [minT, maxT] = params.totalRange ?? [2, 5];
       const shownTotal = isWrong
-        ? pickWrongTotal(rowRng, realTotal, params.totalRange)
+        ? pickWrongValue(rowRng, realTotal, minT, maxT)
         : realTotal;
 
       const equationLayout: "standard" | "total-first" =
@@ -249,6 +491,7 @@ function generateJudgeEqualityExercise(
       return {
         id: `judge-row-${r + 1}-item-${idx + 1}`,
         itemIndex: idx,
+        operation: "add",
         part1,
         part2,
         shownTotal,
@@ -292,14 +535,21 @@ function generateJudgeEqualityExercise(
           : "انظر إلى المعادلات في الصف، ثم اختر المعادلة غير الصحيحة بعلامة ✕:";
 
   const defaultStrategyHintAr =
-    mode === "balance"
-      ? `عدّ الجزأين في الكفّة، ثم اكتب العدد المناسب من بنك الأعداد (${summaryNotes.join("؛ ")}).`
-      : mode === "true-false"
-        ? `عدّ الجزأين في المعادلة، ثم اختر صح إذا تساوى الطرفان (${summaryNotes.join("؛ ")}).`
-        : `عدّ الجزأين في كل نموذج، ثم اختر غير الصحيح بعلامة ✕ (${summaryNotes.join("؛ ")}).`;
+    operation === "subtract"
+      ? mode === "balance"
+        ? `اطرح لإيجاد قيمة الكفّة، ثم اكتب العدد المناسب من بنك الأعداد (${summaryNotes.join("؛ ")}).`
+        : mode === "true-false"
+          ? `اطرح الجزء من الكلّ في المعادلة، ثم اختر صح إذا تساوى الطرفان (${summaryNotes.join("؛ ")}).`
+          : `اطرح الجزء من الكلّ في كل نموذج، ثم اختر غير الصحيح بعلامة ✕ (${summaryNotes.join("؛ ")}).`
+      : mode === "balance"
+        ? `عدّ الجزأين في الكفّة، ثم اكتب العدد المناسب من بنك الأعداد (${summaryNotes.join("؛ ")}).`
+        : mode === "true-false"
+          ? `عدّ الجزأين في المعادلة، ثم اختر صح إذا تساوى الطرفان (${summaryNotes.join("؛ ")}).`
+          : `عدّ الجزأين في كل نموذج، ثم اختر غير الصحيح بعلامة ✕ (${summaryNotes.join("؛ ")}).`;
 
   const data: JudgeEqualityData = {
     kind: "JudgeEquality",
+    operation,
     mode,
     modelKind,
     ...(numberBank ? { numberBank } : {}),

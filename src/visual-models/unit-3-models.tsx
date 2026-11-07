@@ -638,16 +638,20 @@ function unpackPartWholeMeta(model: VisualModelSpec): {
 export type BalancePanKind = "digit" | "expression" | "slot";
 export type BalanceScaleTilt = "level" | "right-heavy" | "left-heavy";
 
+export interface BalancePanMissingTermSpec {
+  operation: EquationOperation;
+  missingRole: "part" | "total";
+  givenValue: number;
+  missingValue: number;
+}
+
 export interface BalancePanSpec {
   kind: BalancePanKind;
   value: number;
   expressionAr?: string;
   slotKind?: AnswerSlotKind;
-  /** Optional missing addend inside an expression pan so the student fills this pan too */
-  missingAddend?: {
-    givenPart: number;
-    missingValue: number;
-  };
+  /** Generalized missing term inside an expression pan (missing Part such as ٣ + ؟ or ٥ − ؟, or missing Total such as ؟ − ٢) */
+  missingTerm?: BalancePanMissingTermSpec;
 }
 
 export interface BalanceScaleOptions {
@@ -673,7 +677,7 @@ function normalizeBalancePan(pan: BalancePanSpec): BalancePanSpec {
     value: pan.value,
     expressionAr: pan.expressionAr,
     slotKind: pan.slotKind ?? "unknown",
-    missingAddend: pan.missingAddend,
+    missingTerm: pan.missingTerm,
   };
 }
 
@@ -780,28 +784,51 @@ export function BalanceScaleView({
     }
 
     if (pan.kind === "expression") {
-      if (pan.missingAddend) {
-        const givenAr = formatEasternNumber(pan.missingAddend.givenPart);
-        const missingAr = formatEasternNumber(pan.missingAddend.missingValue);
+      if (pan.missingTerm) {
+        const givenAr = formatEasternNumber(pan.missingTerm.givenValue);
+        const missingAr = formatEasternNumber(pan.missingTerm.missingValue);
+        const opSign = pan.missingTerm.operation === "subtract" ? "−" : "+";
+        const isMissingTotal =
+          pan.missingTerm.operation === "subtract" &&
+          pan.missingTerm.missingRole === "total";
+
+        const slotElement = (
+          <AnswerSlot
+            solved={solved}
+            answer={missingAr}
+            ariaLabel={ariaLabel}
+            kind={pan.slotKind ?? "unknown"}
+            tone={isRight ? "sky" : "amber"}
+            solvedDataAttributes={{
+              [`data-solved-balance-${side}`]: missingAr,
+            }}
+          />
+        );
+
         return (
           <div
             dir="rtl"
             className="inline-flex items-center justify-center gap-0.5"
             data-pan-content="expression"
+            data-missing-role={pan.missingTerm.missingRole}
           >
-            <span className="text-[28px] font-black leading-none text-slate-900">
-              {givenAr}+
-            </span>
-            <AnswerSlot
-              solved={solved}
-              answer={missingAr}
-              ariaLabel={ariaLabel}
-              kind={pan.slotKind ?? "unknown"}
-              tone={isRight ? "sky" : "amber"}
-              solvedDataAttributes={{
-                [`data-solved-balance-${side}`]: missingAr,
-              }}
-            />
+            {isMissingTotal ? (
+              <>
+                {slotElement}
+                <span className="text-[28px] font-black leading-none text-slate-900">
+                  {opSign}
+                  {givenAr}
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="text-[28px] font-black leading-none text-slate-900">
+                  {givenAr}
+                  {opSign}
+                </span>
+                {slotElement}
+              </>
+            )}
           </div>
         );
       }
