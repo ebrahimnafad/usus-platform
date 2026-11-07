@@ -1,6 +1,6 @@
 # Grade K Unit 4 — Subtract to 5
 
-**Status:** open
+**Status:** closed
 
 ## Problem Statement
 
