@@ -180,6 +180,14 @@ _Avoid_: حافّة, خطّ, وجه
 The total distance around the outside of a flat 2D shape (المحيط), found in Grade K by counting its sides or the paper clips placed end to end along all its sides.
 _Avoid_: المساحة, الحجم
 
+**Numtanga**:
+A triangular-pyramid grid puzzle (نمتنغا) where each cell above holds the sum of the two cells below it; blank cells are filled by the student using addition facts.
+_Avoid_: addition pyramid, math triangle, هرم الجمع
+
+**Turnaround Pair**:
+Two Number Bonds that share the same Total but have their Parts swapped (الزوج المعكوس), such as (3, 4, 7) and (4, 3, 7), demonstrating that the order of Parts does not change the Total.
+_Avoid_: commutative pair, reversed bond, الزوج التبادلي
+
 **Eastern Arabic Numerals**:
 The numeral digits `٠١٢٣٤٥٦٧٨٩` used exclusively across the user interface, worksheets, and answer keys (except inside standard codes).
 _Avoid_: Hindi numerals, Arabic-Indic digits

@@ -35,6 +35,7 @@ import {
   createFiveFrameSpec,
   createSnapCubesSpec,
   createTallyMarksSpec,
+  createTenFrameSpec,
   type CrossOffMode,
 } from "@/visual-models/unit-2-models";
 import {
@@ -67,6 +68,8 @@ export interface FactSelectionLimits {
 export type JoinPartsRepresentation =
   | "five-frame"
   | "five-frame-and-digit"
+  | "ten-frame"
+  | "ten-frame-and-digit"
   | "snap-cubes"
   | "tally-marks"
   | "dice"
@@ -134,6 +137,8 @@ export interface JoinPartsPayload {
 export type TakeAwayRepresentation =
   | "five-frame"
   | "five-frame-and-digit"
+  | "ten-frame"
+  | "ten-frame-and-digit"
   | "snap-cubes"
   | "tally-marks"
   | "dice"
@@ -212,7 +217,10 @@ export type PartWholeMatchMode =
   | "number-bond-to-equation"
   | "five-frame-to-equation"
   | "tally-expression-to-total"
-  | "model-to-word-problem";
+  | "model-to-word-problem"
+  | "ten-frame-to-bond"
+  | "ten-frame-to-number-bond"
+  | "ten-frame-to-equation";
 
 export interface BuildPartWholeMatchPairsInput {
   rng: SeededRandom;
@@ -392,8 +400,10 @@ function isZeroCapableRepresentation(
 ): boolean {
   return (
     r === "five-frame" ||
+    r === "ten-frame" ||
     r === "domino" ||
     r === "five-frame-and-digit" ||
+    r === "ten-frame-and-digit" ||
     r === "picture-graph"
   );
 }
@@ -422,6 +432,47 @@ function buildJoinConcreteModel(params: {
   const p1Ar = formatEasternNumber(part1);
   const p2Ar = formatEasternNumber(part2);
   const totalAr = formatEasternNumber(total);
+
+  if (
+    representation === "ten-frame" ||
+    representation === "ten-frame-and-digit"
+  ) {
+    if (representation === "ten-frame-and-digit") {
+      return createTenFrameSpec({
+        count: part1,
+        secondaryCount: 0,
+        colorTheme: primaryTheme,
+        showPartOutline: true,
+        highlightEmptySlots: true,
+        labelAr: `لوحة العشرة: ${p1Ar} زائد الرقم ${p2Ar}`,
+      });
+    }
+
+    if (action === "draw-counters") {
+      const shownPrimary = part1;
+      const ghostTarget = Math.max(0, part2);
+      return createTenFrameSpec({
+        count: shownPrimary,
+        secondaryCount: 0,
+        ghostTargetCount: ghostTarget,
+        colorTheme: primaryTheme,
+        secondaryColorTheme: secondaryTheme,
+        showPartOutline: true,
+        highlightEmptySlots: true,
+        labelAr: `لوحة العشرة: ارسم ولوّن لإكمال ${p1Ar} و${p2Ar} (الكلّ ${totalAr})`,
+      });
+    }
+
+    return createTenFrameSpec({
+      count: part1,
+      secondaryCount: part2,
+      colorTheme: primaryTheme,
+      secondaryColorTheme: secondaryTheme,
+      showPartOutline: true,
+      highlightEmptySlots: true,
+      labelAr: `لوحة العشرة: ${p1Ar} و${p2Ar} يساوي ${totalAr}`,
+    });
+  }
 
   if (
     representation === "five-frame" ||
@@ -570,6 +621,47 @@ function buildTakeAwayConcreteModel(params: {
     crossOffMode === "student" ? "student" : "shown";
   const fiveFrameCrossOffMode: CrossOffMode | "none" =
     crossOffMode === "none" ? "none" : effectiveCrossOffMode;
+
+  if (representation === "ten-frame-and-digit") {
+    return createTenFrameSpec({
+      count: total,
+      secondaryCount: 0,
+      crossedOutCount: effectiveCrossedOut,
+      crossOffMode: fiveFrameCrossOffMode,
+      colorTheme: primaryTheme,
+      highlightEmptySlots: true,
+      labelAr: `لوحة العشرة: الكلّ ${totalAr} ناقص الرقم ${partAr}`,
+    });
+  }
+
+  if (representation === "ten-frame") {
+    if (action === "draw-and-cross-off") {
+      return createTenFrameSpec({
+        count: 0,
+        secondaryCount: 0,
+        ghostTargetCount: total,
+        crossedOutCount: effectiveCrossedOut,
+        crossOffMode: "student",
+        colorTheme: primaryTheme,
+        secondaryColorTheme: secondaryTheme,
+        highlightEmptySlots: true,
+        labelAr: `لوحة العشرة: ارسم الكلّ ${totalAr} واشطب ${partAr} فيبقى ${missingAr}`,
+      });
+    }
+
+    return createTenFrameSpec({
+      count: total,
+      secondaryCount: 0,
+      crossedOutCount: effectiveCrossedOut,
+      crossOffMode: fiveFrameCrossOffMode,
+      colorTheme: primaryTheme,
+      highlightEmptySlots: true,
+      labelAr:
+        fiveFrameCrossOffMode === "none"
+          ? `لوحة العشرة: الكلّ ${totalAr}`
+          : `لوحة العشرة: الكلّ ${totalAr} شُطب منها ${partAr} وبقي ${missingAr}`,
+    });
+  }
 
   if (representation === "five-frame-and-digit") {
     return createFiveFrameSpec({
@@ -796,7 +888,8 @@ export function buildJoinPartsPayload(
   ).map((fact, idx) => {
     const itemRep = representationPool[idx % representationPool.length];
     if (
-      itemRep === "five-frame-and-digit" &&
+      (itemRep === "five-frame-and-digit" ||
+        itemRep === "ten-frame-and-digit") &&
       fact.part1 === 0 &&
       fact.part2 > 0
     ) {
@@ -811,7 +904,9 @@ export function buildJoinPartsPayload(
   });
 
   const allowMissingPart =
-    ctx.sectionId === "challenge" || ctx.difficultyLevel === "Advanced";
+    ctx.sectionId === "challenge" ||
+    ctx.difficultyLevel === "Advanced" ||
+    ctx.lesson.lessonNumber >= 79;
   const requestedUnknown = params.unknownPosition ?? "total";
   const resolvedUnknown: "total" | "part1" | "part2" =
     requestedUnknown !== "total" && allowMissingPart
@@ -867,7 +962,7 @@ export function buildJoinPartsPayload(
       });
 
     const companionDigitModel =
-      itemRep === "five-frame-and-digit"
+      itemRep === "five-frame-and-digit" || itemRep === "ten-frame-and-digit"
         ? createDigitCardSpec(fact.part2, {
             colorTheme: secondaryTheme,
             labelAr: `الرقم ${formatEasternNumber(fact.part2)}`,
@@ -912,16 +1007,23 @@ export function buildJoinPartsPayload(
     .map((it) => `${it.part1Ar} و${it.part2Ar} يساوي ${it.totalAr}`)
     .join("؛ ");
 
+  const isTenFrame =
+    representationPool[0] === "ten-frame" ||
+    representationPool[0] === "ten-frame-and-digit";
+  const frameNameAr = isTenFrame ? "لوحة العشرة" : "لوحة الخمسة";
+
   const defaultPromptAr =
     responseForm === "parts-table"
       ? action === "trace"
-        ? "تتبّع الجزأين والكلّ على لوحة الخمسة وفي جدول الأجزاء والكلّ:"
+        ? `تتبّع الجزأين والكلّ على ${frameNameAr} وفي جدول الأجزاء والكلّ:`
         : "عدّ كل جزء في النموذج واكتب الكلّ في جدول الأجزاء والكلّ:"
       : responseForm === "number-bond"
         ? action === "draw-counters"
-          ? "ارسم ولوّن الأقراص لتمثيل الجزأين على لوحة الخمسة، ثم اكتب الكلّ في رابطة الأعداد:"
+          ? `ارسم ولوّن الأقراص لتمثيل الجزأين على ${frameNameAr}، ثم اكتب الكلّ في رابطة الأعداد:`
           : "استخدم النموذج لإيجاد الكلّ واكتبه في دائرة الكلّ في رابطة الأعداد:"
-        : "أكمل معادلة الجمع من اليمين إلى اليسار باستخدام النموذج:";
+        : action === "draw-counters"
+          ? `ارسم ولوّن الأقراص لتمثيل الجزأين على ${frameNameAr}، ثم اكتب الكلّ في المعادلة:`
+          : "أكمل معادلة الجمع من اليمين إلى اليسار باستخدام النموذج:";
 
   const defaultStrategyHintAr = `اجمع الجزأين معاً من اليمين إلى اليسار للوصول إلى الكلّ (${factsSummaryAr}).`;
 
@@ -1036,7 +1138,9 @@ export function buildTakeAwayPayload(
       itemRep === "picture-graph"
         ? "none"
         : (params.crossOffMode ??
-          (itemRep === "five-frame-and-digit" || isSubitizeLesson
+          (itemRep === "five-frame-and-digit" ||
+          itemRep === "ten-frame-and-digit" ||
+          isSubitizeLesson
             ? defaultSubitizeCrossOff
             : itemAction === "cross-off-and-write" ||
                 itemAction === "draw-and-cross-off"
@@ -1111,7 +1215,7 @@ export function buildTakeAwayPayload(
       });
 
     const companionDigitModel =
-      itemRep === "five-frame-and-digit"
+      itemRep === "five-frame-and-digit" || itemRep === "ten-frame-and-digit"
         ? createDigitCardSpec(fact.partTakenAway, {
             colorTheme: secondaryTheme,
             labelAr: `الرقم ${formatEasternNumber(fact.partTakenAway)}`,
@@ -1482,16 +1586,29 @@ export function buildPartWholeMatchPairs(
                 secondaryColorTheme: "sky",
                 hideLabel: true,
               })
-            : createFiveFrameSpec({
-                count: fact.total,
-                secondaryCount: 0,
-                crossedOutCount: fact.partTakenAway,
-                crossOffMode: "shown",
-                colorTheme: "coral",
-              });
+            : mode === "ten-frame-to-bond" ||
+                mode === "ten-frame-to-number-bond" ||
+                mode === "ten-frame-to-equation"
+              ? createTenFrameSpec({
+                  count: fact.total,
+                  secondaryCount: 0,
+                  crossedOutCount: fact.partTakenAway,
+                  crossOffMode: "shown",
+                  colorTheme: "coral",
+                })
+              : createFiveFrameSpec({
+                  count: fact.total,
+                  secondaryCount: 0,
+                  crossedOutCount: fact.partTakenAway,
+                  crossOffMode: "shown",
+                  colorTheme: "coral",
+                });
 
       const leftModel: VisualModelSpec =
-        mode === "five-frame-to-number-bond" || mode === "dice-to-number-bond"
+        mode === "five-frame-to-number-bond" ||
+        mode === "dice-to-number-bond" ||
+        mode === "ten-frame-to-bond" ||
+        mode === "ten-frame-to-number-bond"
           ? createNumberBondSpec({
               part1: fact.partTakenAway,
               part2: fact.missingPart,
@@ -1617,13 +1734,23 @@ export function buildPartWholeMatchPairs(
               count: Math.max(1, fact.part1),
               secondaryCount: Math.max(1, fact.part2),
             })
-          : createFiveFrameSpec({
-              count: fact.part1,
-              secondaryCount: fact.part2,
-              showPartOutline: true,
-              colorTheme: "coral",
-              secondaryColorTheme: "sky",
-            });
+          : mode === "ten-frame-to-bond" ||
+              mode === "ten-frame-to-number-bond" ||
+              mode === "ten-frame-to-equation"
+            ? createTenFrameSpec({
+                count: fact.part1,
+                secondaryCount: fact.part2,
+                showPartOutline: true,
+                colorTheme: "coral",
+                secondaryColorTheme: "sky",
+              })
+            : createFiveFrameSpec({
+                count: fact.part1,
+                secondaryCount: fact.part2,
+                showPartOutline: true,
+                colorTheme: "coral",
+                secondaryColorTheme: "sky",
+              });
 
     const leftModel: VisualModelSpec =
       mode === "five-frame-to-parts-table"
@@ -1641,7 +1768,10 @@ export function buildPartWholeMatchPairs(
               tracePositions,
             },
           })
-        : mode === "five-frame-to-number-bond" || mode === "dice-to-number-bond"
+        : mode === "five-frame-to-number-bond" ||
+            mode === "dice-to-number-bond" ||
+            mode === "ten-frame-to-bond" ||
+            mode === "ten-frame-to-number-bond"
           ? createNumberBondSpec({
               part1: fact.part1,
               part2: fact.part2,
@@ -1649,7 +1779,8 @@ export function buildPartWholeMatchPairs(
               missingPosition: "total",
               tracePositions,
             })
-          : mode === "five-frame-to-equation"
+          : mode === "five-frame-to-equation" ||
+              mode === "ten-frame-to-equation"
             ? createEquationStripSpec({
                 part1: fact.part1,
                 part2: fact.part2,

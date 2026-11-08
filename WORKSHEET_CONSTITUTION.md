@@ -58,6 +58,7 @@ Each rule names its enforcement:
 | SHAPE GRAPH         | 48 px cells in a 428 × 284 px box   |
 | Paper-Clip Bar      | 312 × 56 px                         |
 | Polygon Perimeter   | 212 × 160 px                        |
+| Numtanga Grid       | 324 × 212 px                        |
 
 3.5 Each new Visual Model adds its canonical size to the table in 3.4, sized to fit one column of 3.2.
 
@@ -170,3 +171,4 @@ A batch closes when all of these hold:
 - 2026-11-08: For Grade K Unit 5 (word problems and Shift 1): §9.4 adds the imperatives `اقرأ` and `اجمع`; §6.3 notes K-56's curriculum exception for `0` as a Part in Shift 1 decompositions `(N, 0) ... (0, N)`.
 - 2026-11-08: §12 scopes per-ticket layout guard runs to the ticket's own lessons (`--lessons=<ticket-range>`), reserving the full all-lessons guard sweep for once at batch close.
 - 2026-11-08: For Grade K Unit 6 (Numbers to 10, length measurement, and polygon perimeter): §3.4 adds Ten-frame (`240 × 108 px` with 48 px cells), Paper-Clip Bar (`312 × 56 px`), and Polygon Perimeter (`212 × 160 px`) canonical sizes; §9.4 adds the imperatives `قِسْ` and `رتّب`.
+- 2026-11-09: For Grade K Unit 7 (Add to 10): §3.4 adds Numtanga Grid (`324 × 212 px`) canonical size per §3.5 and §10.1.

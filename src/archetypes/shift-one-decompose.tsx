@@ -9,6 +9,7 @@ import { ExerciseColumns } from "@/components/worksheet/ExerciseColumns";
 import type {
   ColorThemeId,
   DifficultyLevel,
+  EverydayObjectId,
   Exercise,
   GenericArchetypeData,
   VisualModelSpec,
@@ -22,6 +23,7 @@ import {
 import { VisualModelView } from "@/visual-models/registry";
 import {
   createFiveFrameSpec,
+  createTenFrameSpec,
   type CrossOffMode,
 } from "@/visual-models/unit-2-models";
 import {
@@ -30,7 +32,7 @@ import {
 } from "@/visual-models/unit-3-models";
 
 export type ShiftOneMode =
-  "all-combinations" | "complete-pattern" | "give-away";
+  "all-combinations" | "complete-pattern" | "give-away" | "turnaround-pairs";
 
 export type ShiftOneAction = "trace-first" | "write";
 
@@ -42,6 +44,9 @@ export interface ShiftOneDecomposeBlueprintParams {
   showFiveFrames?: boolean;
   giveAwayCount?: number;
   crossOffMode?: CrossOffMode;
+  objectId?: EverydayObjectId;
+  pairCount?: number;
+  stepCount?: number;
 }
 
 export interface ShiftOneCombinationStep {
@@ -75,6 +80,21 @@ export interface ShiftOneGiveAwayRow {
   applesModel: VisualModelSpec;
 }
 
+export interface ShiftOneTurnaroundPairItem {
+  id: string;
+  pairIndex: number;
+  total: number;
+  part1: number;
+  part2: number;
+  totalAr: string;
+  part1Ar: string;
+  part2Ar: string;
+  factKey: string;
+  originalBond: VisualModelSpec;
+  turnaroundBond: VisualModelSpec;
+  tracePositions: Array<"total" | "part1" | "part2">;
+}
+
 export interface ShiftOneDecomposeData extends GenericArchetypeData {
   kind: "ShiftOneDecompose";
   mode: ShiftOneMode;
@@ -84,6 +104,7 @@ export interface ShiftOneDecomposeData extends GenericArchetypeData {
   showFiveFrames: boolean;
   steps: ShiftOneCombinationStep[];
   giveAwayRows: ShiftOneGiveAwayRow[];
+  turnaroundPairs: ShiftOneTurnaroundPairItem[];
   comparisonPromptAr?: string;
   comparisonDifference?: number;
   comparisonDifferenceAr?: string;
@@ -95,7 +116,7 @@ function resolveTargetTotal(
   mode: ShiftOneMode
 ): number {
   if (params.targetTotal !== undefined) {
-    return Math.max(2, Math.min(5, params.targetTotal));
+    return Math.max(2, Math.min(10, params.targetTotal));
   }
 
   const defaultRange: [number, number] =
@@ -109,15 +130,21 @@ function resolveTargetTotal(
           : ctx.difficultyLevel === "Intermediate"
             ? [4, 4]
             : [5, 5]
-        : ctx.difficultyLevel === "Easy"
-          ? [2, 3]
-          : ctx.difficultyLevel === "Intermediate"
-            ? [3, 4]
-            : [4, 5];
+        : mode === "turnaround-pairs"
+          ? ctx.difficultyLevel === "Easy"
+            ? [6, 7]
+            : ctx.difficultyLevel === "Intermediate"
+              ? [7, 8]
+              : [8, 10]
+          : ctx.difficultyLevel === "Easy"
+            ? [2, 3]
+            : ctx.difficultyLevel === "Intermediate"
+              ? [3, 4]
+              : [4, 5];
 
   const [minT, maxT] = params.totalRange ?? defaultRange;
-  const clampedMin = Math.max(2, Math.min(5, minT));
-  const clampedMax = Math.max(clampedMin, Math.min(5, maxT));
+  const clampedMin = Math.max(2, Math.min(10, minT));
+  const clampedMax = Math.max(clampedMin, Math.min(10, maxT));
 
   const candidates: number[] = [];
   for (let t = clampedMin; t <= clampedMax; t++) {
@@ -141,6 +168,7 @@ function buildShiftOneSteps(params: {
   showFiveFrames: boolean;
   primaryTheme: ColorThemeId;
   secondaryTheme: ColorThemeId;
+  stepCount?: number;
 }): ShiftOneCombinationStep[] {
   const {
     mode,
@@ -149,12 +177,18 @@ function buildShiftOneSteps(params: {
     showFiveFrames,
     primaryTheme,
     secondaryTheme,
+    stepCount,
   } = params;
 
   const totalAr = formatEasternNumber(targetTotal);
   const steps: ShiftOneCombinationStep[] = [];
 
-  for (let i = 0; i <= targetTotal; i++) {
+  const limit =
+    stepCount !== undefined
+      ? Math.min(stepCount, targetTotal + 1)
+      : targetTotal + 1;
+
+  for (let i = 0; i < limit; i++) {
     const part1 = targetTotal - i;
     const part2 = i;
     const part1Ar = formatEasternNumber(part1);
@@ -172,15 +206,25 @@ function buildShiftOneSteps(params: {
       : [];
 
     const fiveFrameModel = showFiveFrames
-      ? createFiveFrameSpec({
-          count: part1,
-          secondaryCount: part2,
-          colorTheme: primaryTheme,
-          secondaryColorTheme: secondaryTheme,
-          showPartOutline: true,
-          highlightEmptySlots: true,
-          labelAr: `لوحة الخمسة: ${part1Ar} و${part2Ar} يساوي ${totalAr}`,
-        })
+      ? targetTotal <= 5
+        ? createFiveFrameSpec({
+            count: part1,
+            secondaryCount: part2,
+            colorTheme: primaryTheme,
+            secondaryColorTheme: secondaryTheme,
+            showPartOutline: true,
+            highlightEmptySlots: true,
+            labelAr: `لوحة الخمسة: ${part1Ar} و${part2Ar} يساوي ${totalAr}`,
+          })
+        : createTenFrameSpec({
+            count: part1,
+            secondaryCount: part2,
+            colorTheme: primaryTheme,
+            secondaryColorTheme: secondaryTheme,
+            showPartOutline: true,
+            highlightEmptySlots: true,
+            labelAr: `لوحة العشرة: ${part1Ar} و${part2Ar} يساوي ${totalAr}`,
+          })
       : undefined;
 
     const bondModel = createNumberBondSpec({
@@ -242,7 +286,8 @@ function generateShiftOneDecomposeExercise(
         ? Math.max(1, Math.min(maxGiveFirst, params.giveAwayCount))
         : ctx.rng.int(1, maxGiveFirst);
     const crossOffMode: CrossOffMode = params.crossOffMode ?? "student";
-    const appleDef = getEverydayObjectById("apple");
+    const objectId = params.objectId ?? "apple";
+    const objectDef = getEverydayObjectById(objectId);
 
     const rowCounts = [k, k + 1];
     const giveAwayRows: ShiftOneGiveAwayRow[] = rowCounts.map(
@@ -252,15 +297,20 @@ function generateShiftOneDecomposeExercise(
         const takenAr = formatEasternNumber(taken);
         const remainingAr = formatEasternNumber(remaining);
 
-        const applesModel = createEverydayObjectSpec(appleDef, {
-          id: `give-away-apples-row-${rowIdx + 1}-${targetTotal}-${taken}`,
+        const applesModel = createEverydayObjectSpec(objectDef, {
+          id: `give-away-${objectId}-row-${rowIdx + 1}-${targetTotal}-${taken}`,
           count: targetTotal,
           secondaryCount: 0,
           crossedOutCount: taken,
           size: "small",
-          labelAr: `${totalAr} من ${appleDef.labelAr} شُطب منها ${takenAr} وبقي ${remainingAr}`,
+          labelAr: `${totalAr} من ${objectDef.labelAr} شُطب منها ${takenAr} وبقي ${remainingAr}`,
           meta: { crossOffMode },
         });
+
+        const promptAr =
+          objectId === "pencil"
+            ? `اشطب ${takenAr} من أقلام الرصاص، ثم اكتب كم بقي:`
+            : `اشطب ${takenAr} من الكلّ ${totalAr}، ثم اكتب كم بقي:`;
 
         return {
           id: `give-away-row-${rowIdx + 1}-${targetTotal}-${taken}`,
@@ -272,7 +322,7 @@ function generateShiftOneDecomposeExercise(
           partTakenAwayAr: takenAr,
           missingPartAr: remainingAr,
           factKey: `${targetTotal}-${taken}`,
-          promptAr: `اشطب ${takenAr} من الكلّ ${totalAr}، ثم اكتب كم بقي:`,
+          promptAr,
           applesModel,
         };
       }
@@ -282,12 +332,16 @@ function generateShiftOneDecomposeExercise(
     const row1 = giveAwayRows[0];
     const row2 = giveAwayRows[1];
     const comparisonPromptAr =
-      "عندما نشطب تفّاحة إضافية (إزاحة ١)، بكم يقلّ العدد الذي بقي؟";
+      objectId === "pencil"
+        ? "عندما نشطب قلماً إضافياً (إزاحة ١)، بكم يقلّ العدد الذي بقي؟"
+        : "عندما نشطب تفّاحة إضافية (إزاحة ١)، بكم يقلّ العدد الذي بقي؟";
     const comparisonDifference = row1.missingPart - row2.missingPart; // 1
     const comparisonDifferenceAr = formatEasternNumber(comparisonDifference);
 
     const defaultPromptAr =
-      "اشطب التفّاحات المعطاة في كل صف، ثم اكتب كم بقي وقارن بين الصفّين:";
+      objectId === "pencil"
+        ? "اشطب أقلام الرصاص المعطاة في كل صف، ثم اكتب كم بقي وقارن بين الصفّين:"
+        : "اشطب التفّاحات المعطاة في كل صف، ثم اكتب كم بقي وقارن بين الصفّين:";
     const defaultStrategyHintAr = `اشطب ${row1.partTakenAwayAr} من ${targetTotalAr} فيبقى ${row1.missingPartAr}، ثم اشطب ${row2.partTakenAwayAr} من ${targetTotalAr} فيبقى ${row2.missingPartAr} (يقلّ العدد الذي بقي بمقدار ${comparisonDifferenceAr}).`;
 
     const data: ShiftOneDecomposeData = {
@@ -299,6 +353,7 @@ function generateShiftOneDecomposeExercise(
       showFiveFrames: false,
       steps: [],
       giveAwayRows,
+      turnaroundPairs: [],
       comparisonPromptAr,
       comparisonDifference,
       comparisonDifferenceAr,
@@ -319,6 +374,115 @@ function generateShiftOneDecomposeExercise(
     };
   }
 
+  if (mode === "turnaround-pairs") {
+    const pairCount =
+      params.pairCount ?? (ctx.difficultyLevel === "Easy" ? 1 : 2);
+    const [minRange, maxRange] = params.totalRange ?? [7, 10];
+    const clampedMin = Math.max(6, Math.min(10, minRange));
+    const clampedMax = Math.max(clampedMin, Math.min(10, maxRange));
+
+    const totalPool: number[] = [];
+    for (let t = clampedMin; t <= clampedMax; t++) {
+      totalPool.push(t);
+    }
+    const chosenTotals = ctx.rng.pickN(
+      totalPool,
+      Math.min(pairCount, totalPool.length)
+    );
+
+    const turnaroundPairs: ShiftOneTurnaroundPairItem[] = chosenTotals.map(
+      (tot, pairIdx) => {
+        const totAr = formatEasternNumber(tot);
+        const validParts: number[] = [];
+        for (let p = 1; p < tot; p++) {
+          if (p !== tot - p) validParts.push(p);
+        }
+        const p1 = validParts.length > 0 ? ctx.rng.pickOne(validParts) : 1;
+        const p2 = tot - p1;
+        const p1Ar = formatEasternNumber(p1);
+        const p2Ar = formatEasternNumber(p2);
+
+        const isTraced = action === "trace-first" && pairIdx === 0;
+        const tracePositions: Array<"total" | "part1" | "part2"> = isTraced
+          ? ["part1", "part2"]
+          : [];
+
+        const originalBond = createNumberBondSpec({
+          part1: p1,
+          part2: p2,
+          total: tot,
+          missingPosition: "none",
+          tracePositions: [],
+          colorTheme: primaryTheme,
+          secondaryColorTheme: secondaryTheme,
+          labelAr: `رابطة الأعداد الأصلية: الكلّ ${totAr} والجزآن ${p1Ar} و${p2Ar}`,
+        });
+
+        const turnaroundBond = createNumberBondSpec({
+          part1: p2,
+          part2: p1,
+          total: tot,
+          missingPosition: isTraced ? "none" : "both-parts",
+          tracePositions,
+          colorTheme: secondaryTheme,
+          secondaryColorTheme: primaryTheme,
+          labelAr: `رابطة الأعداد المعكوسة: الكلّ ${totAr} والجزآن ${p2Ar} و${p1Ar}`,
+        });
+
+        return {
+          id: `turnaround-${pairIdx + 1}-${tot}-${p1}-${p2}`,
+          pairIndex: pairIdx,
+          total: tot,
+          part1: p1,
+          part2: p2,
+          totalAr: totAr,
+          part1Ar: p1Ar,
+          part2Ar: p2Ar,
+          factKey: `${p1}+${p2}<->${p2}+${p1}`,
+          originalBond,
+          turnaroundBond,
+          tracePositions,
+        };
+      }
+    );
+
+    const visualModels = turnaroundPairs.flatMap((p) => [
+      p.originalBond,
+      p.turnaroundBond,
+    ]);
+
+    const defaultPromptAr =
+      "انظر إلى رابطة الأعداد الأصلية، ثم اكتب الزوج المعكوس للكلّ نفسه:";
+    const defaultStrategyHintAr =
+      "اكتب الجزأين بالترتيب المعكوس لإيجاد الزوج المعكوس الذي يعطي الكلّ نفسه.";
+
+    const data: ShiftOneDecomposeData = {
+      kind: "ShiftOneDecompose",
+      mode: "turnaround-pairs",
+      targetTotal,
+      targetTotalAr,
+      action,
+      showFiveFrames: false,
+      steps: [],
+      giveAwayRows: [],
+      turnaroundPairs,
+    };
+
+    return {
+      id: `${ctx.lesson.id}-${ctx.sectionId}-ex-${ctx.exerciseNumber}`,
+      exerciseNumber: ctx.exerciseNumber,
+      sectionId: ctx.sectionId,
+      archetype: "ShiftOneDecompose",
+      difficultyLevel: ctx.difficultyLevel,
+      sourceLessonId: ctx.sourceLessonId,
+      titleAr: "أزواج الأعداد المعكوسة",
+      promptAr: ctx.spec.promptAr ?? defaultPromptAr,
+      strategyHintAr: ctx.spec.strategyHintAr ?? defaultStrategyHintAr,
+      visualModels,
+      data,
+    };
+  }
+
   const steps = buildShiftOneSteps({
     mode,
     targetTotal,
@@ -327,6 +491,7 @@ function generateShiftOneDecomposeExercise(
     showFiveFrames,
     primaryTheme,
     secondaryTheme,
+    stepCount: params.stepCount,
   });
 
   const visualModels: VisualModelSpec[] = [];
@@ -359,6 +524,7 @@ function generateShiftOneDecomposeExercise(
     showFiveFrames,
     steps,
     giveAwayRows: [],
+    turnaroundPairs: [],
   };
 
   return {
@@ -379,6 +545,51 @@ function generateShiftOneDecomposeExercise(
   };
 }
 
+function renderTurnaroundPairsMode({
+  data,
+  isAnswerKey,
+}: {
+  data: ShiftOneDecomposeData;
+  isAnswerKey: boolean;
+}): React.ReactElement {
+  return (
+    <div
+      className="space-y-1"
+      data-archetype="ShiftOneDecompose"
+      data-shift-mode="turnaround-pairs"
+      data-target-total={data.targetTotalAr}
+    >
+      <ExerciseColumns columns={1}>
+        {data.turnaroundPairs.map((pair) => (
+          <div
+            key={pair.id}
+            className="flex items-center justify-around gap-2 rounded-xl border border-indigo-100 bg-gradient-to-b from-white to-indigo-50/30 p-1.5 shadow-2xs"
+            data-turnaround-pair-id={toEasternArabicNumerals(pair.id)}
+            data-fact={toEasternArabicNumerals(pair.factKey)}
+          >
+            <div className="flex flex-col items-center gap-1">
+              <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-[12px] font-extrabold leading-tight text-indigo-950">
+                {`الزوج الأصلي (${pair.part1Ar} و${pair.part2Ar})`}
+              </span>
+              <VisualModelView model={pair.originalBond} solved={isAnswerKey} />
+            </div>
+
+            <div className="flex flex-col items-center gap-1">
+              <span className="rounded-full bg-teal-100 px-2 py-0.5 text-[12px] font-extrabold leading-tight text-teal-950">
+                {`الزوج المعكوس (${pair.part2Ar} و${pair.part1Ar})`}
+              </span>
+              <VisualModelView
+                model={pair.turnaroundBond}
+                solved={isAnswerKey}
+              />
+            </div>
+          </div>
+        ))}
+      </ExerciseColumns>
+    </div>
+  );
+}
+
 function renderGiveAwayMode({
   data,
   isAnswerKey,
@@ -393,7 +604,7 @@ function renderGiveAwayMode({
       data-shift-mode="give-away"
       data-target-total={data.targetTotalAr}
     >
-      <ExerciseColumns columns={2}>
+      <ExerciseColumns columns={1}>
         {data.giveAwayRows.map((row, idx) => (
           <div
             key={row.id}
@@ -481,6 +692,10 @@ function renderShiftOneDecomposeExercise({
 
   if (data.mode === "give-away") {
     return renderGiveAwayMode({ data, isAnswerKey });
+  }
+
+  if (data.mode === "turnaround-pairs") {
+    return renderTurnaroundPairsMode({ data, isAnswerKey });
   }
 
   return (

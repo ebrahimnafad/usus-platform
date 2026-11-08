@@ -307,7 +307,9 @@ export function PartWholeCardGrid({
           const isWideModelInMultiColumn =
             columns !== 1 &&
             (item.representation === "five-frame" ||
-              item.representation === "five-frame-and-digit");
+              item.representation === "five-frame-and-digit" ||
+              item.representation === "ten-frame" ||
+              item.representation === "ten-frame-and-digit");
 
           return (
             <div

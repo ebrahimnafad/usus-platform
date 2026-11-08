@@ -41,6 +41,7 @@ export interface ConnectMatchBlueprintParams {
   pairCount?: number;
   categories?: EverydayObjectCategory[];
   matchingMode?: ConnectMatchMode;
+  matchKind?: ConnectMatchMode;
   operation?: "add" | "subtract";
   situation?: WordProblemSituation;
   problemStyle?: WordProblemStyle;
@@ -89,9 +90,10 @@ function generateConnectMatchExercise(
   const pairCount =
     ctx.lesson.lessonNumber >= 17 ? Math.min(3, rawPairCount) : rawPairCount;
 
+  const matchingMode = params.matchingMode ?? params.matchKind;
   let pairs: ConnectMatchPair[] = [];
 
-  if (params.matchingMode === "shape-to-description") {
+  if (matchingMode === "shape-to-description") {
     const defaultShapePairs =
       ctx.lesson.lessonNumber === 73
         ? [
@@ -251,11 +253,11 @@ function generateConnectMatchExercise(
       leftItem: item.left,
       connectionReasonAr: item.reasonAr,
     }));
-  } else if (params.matchingMode) {
+  } else if (matchingMode) {
     pairs = buildPartWholeMatchPairs({
       rng: ctx.rng,
       difficultyLevel: ctx.difficultyLevel,
-      matchingMode: params.matchingMode,
+      matchingMode,
       operation: params.operation,
       situation: params.situation,
       problemStyle: params.problemStyle,
@@ -325,19 +327,38 @@ function generateConnectMatchExercise(
 
   const pairCountAr = formatEasternNumber(pairs.length);
   const isTakeApartMatch =
-    params.matchingMode === "model-to-word-problem" &&
+    matchingMode === "model-to-word-problem" &&
     params.situation === "take-apart";
+  const isTenFrameBondMatch =
+    matchingMode === "ten-frame-to-bond" ||
+    matchingMode === "ten-frame-to-number-bond";
+  const isTenFrameEqMatch = matchingMode === "ten-frame-to-equation";
+
+  const defaultRightTitle =
+    isTenFrameBondMatch || isTenFrameEqMatch ? "لوحة العشرة" : "العمود الأيمن";
+  const defaultLeftTitle = isTenFrameBondMatch
+    ? "رابطة الأعداد"
+    : isTenFrameEqMatch
+      ? params.operation === "subtract"
+        ? "معادلة الطرح"
+        : "معادلة الجمع"
+      : "العمود الأيسر";
+
   const takeApartMatchSummaryAr = isTakeApartMatch
     ? pairs.map((p) => p.connectionReasonAr).join("؛ ")
     : "";
 
   const defaultPromptAr = isTakeApartMatch
     ? "صِلْ كلّ رابطة أعداد بالمسألة التي تحمل الكلّ نفسه، ثم اكتب الجزأين:"
-    : ctx.difficultyLevel === "Easy"
-      ? `صل بخط بين كل شكل في العمود الأيمن وما يطابقه تماماً في العمود الأيسر (${pairCountAr} عناصر):`
-      : ctx.difficultyLevel === "Intermediate"
-        ? `قارن بدقة ثم صل بخط بين كل صورة في العمود الأيمن والصورة المطابقة لها في العمود الأيسر (${pairCountAr} عناصر):`
-        : `لاحظ التفاصيل الدقيقة للصور (${pairCountAr} عناصر)، وصل كل عنصر في العمود الأيمن بنظيره المطابق في العمود الأيسر:`;
+    : isTenFrameBondMatch
+      ? "صِلْ كلّ لوحة عشرة برابطة الأعداد المطابقة، ثم اكتب الكلّ في الدائرة:"
+      : isTenFrameEqMatch
+        ? "صِلْ كلّ لوحة عشرة بالمعادلة المطابقة، ثم اكتب الكلّ في المربّع:"
+        : ctx.difficultyLevel === "Easy"
+          ? `صل بخط بين كل شكل في العمود الأيمن وما يطابقه تماماً في العمود الأيسر (${pairCountAr} عناصر):`
+          : ctx.difficultyLevel === "Intermediate"
+            ? `قارن بدقة ثم صل بخط بين كل صورة في العمود الأيمن والصورة المطابقة لها في العمود الأيسر (${pairCountAr} عناصر):`
+            : `لاحظ التفاصيل الدقيقة للصور (${pairCountAr} عناصر)، وصل كل عنصر في العمود الأيمن بنظيره المطابق في العمود الأيسر:`;
 
   const defaultStrategyHintAr = isTakeApartMatch
     ? `صِلْ بالمسألة المطابقة للكلّ واكتب الجزأين (${takeApartMatchSummaryAr}).`
@@ -354,8 +375,8 @@ function generateConnectMatchExercise(
 
   const data: ConnectMatchData = {
     kind: "ConnectMatch",
-    rightColumnTitleAr: params.rightColumnTitleAr ?? "العمود الأيمن",
-    leftColumnTitleAr: params.leftColumnTitleAr ?? "العمود الأيسر",
+    rightColumnTitleAr: params.rightColumnTitleAr ?? defaultRightTitle,
+    leftColumnTitleAr: params.leftColumnTitleAr ?? defaultLeftTitle,
     rightItems,
     leftItems,
     solutionMap,
@@ -393,6 +414,7 @@ function renderConnectMatchExercise({
     ...data.leftItems.map((i) => i.model),
   ];
   const hasNumberBond = allModels.some((m) => m.kind === "number-bond");
+  const hasTenFrame = allModels.some((m) => m.kind === "ten-frame");
   const hasMediumUnit3Model = allModels.some(
     (m) =>
       Boolean(
@@ -408,26 +430,30 @@ function renderConnectMatchExercise({
   const hasPolygonPerimeter = allModels.some(
     (m) => m.kind === "polygon-perimeter" || m.kind === "shape-description"
   );
-  const isWideUnit3Match = hasNumberBond || hasMediumUnit3Model;
+  const isWideUnit3Match = hasNumberBond || hasMediumUnit3Model || hasTenFrame;
 
   const rowHeightPx = hasNumberBond
     ? 162
-    : hasMediumUnit3Model
-      ? 80
-      : hasNumeralTraceOrDigitCard
-        ? 62
-        : hasPolygonPerimeter
-          ? 58
-          : ROW_HEIGHT_PX;
+    : hasTenFrame
+      ? 118
+      : hasMediumUnit3Model
+        ? 80
+        : hasNumeralTraceOrDigitCard
+          ? 62
+          : hasPolygonPerimeter
+            ? 58
+            : ROW_HEIGHT_PX;
   const rowMinHeightClass = hasNumberBond
     ? "min-h-[160px]"
-    : hasMediumUnit3Model
-      ? "min-h-[76px]"
-      : hasNumeralTraceOrDigitCard
-        ? "min-h-[58px]"
-        : hasPolygonPerimeter
-          ? "min-h-[52px]"
-          : "min-h-[46px]";
+    : hasTenFrame
+      ? "min-h-[114px]"
+      : hasMediumUnit3Model
+        ? "min-h-[76px]"
+        : hasNumeralTraceOrDigitCard
+          ? "min-h-[58px]"
+          : hasPolygonPerimeter
+            ? "min-h-[52px]"
+            : "min-h-[46px]";
   const centerWidthPx = isWideUnit3Match ? 52 : 110;
   const gridColsClass = isWideUnit3Match
     ? "grid-cols-[1fr_52px_1fr] gap-0.5 p-0.5"
