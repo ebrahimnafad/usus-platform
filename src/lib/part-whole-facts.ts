@@ -12,8 +12,8 @@ import type {
 import { formatEasternNumber } from "@/lib/numerals";
 import type { SeededRandom } from "@/lib/seed";
 import {
-  ADD_TO_STORY_SCENES,
-  buildAddToWordProblemText,
+  buildWordProblemText,
+  getStoryScenesForSituation,
   type WordProblemSituation,
   type WordProblemStyle,
 } from "@/lib/word-problems";
@@ -1338,10 +1338,9 @@ export function buildPartWholeMatchPairs(
     difficultyLevel === "Easy" ? ["part1", "part2"] : [];
 
   if (mode === "model-to-word-problem") {
+    const scenePool = getStoryScenesForSituation(situation);
     const pickedScenes =
-      problemStyle === "story"
-        ? rng.pickN(ADD_TO_STORY_SCENES, facts.length)
-        : [];
+      problemStyle === "story" ? rng.pickN(scenePool, facts.length) : [];
     const effectiveShowProblemSlot =
       showProblemSlot ?? problemStyle === "story";
 
@@ -1363,7 +1362,8 @@ export function buildPartWholeMatchPairs(
         secondaryColorTheme: secondaryTheme,
       });
 
-      const textBundle = buildAddToWordProblemText({
+      const textBundle = buildWordProblemText({
+        situation,
         problemStyle,
         part1: fact.part1,
         part2: fact.part2,

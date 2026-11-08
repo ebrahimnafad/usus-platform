@@ -99,7 +99,7 @@ export interface SolveWordProblemPayload {
   defaultStrategyHintAr: string;
 }
 
-export interface AddToStoryScene {
+export interface WordProblemStoryScene {
   id: string;
   objectId: EverydayObjectId;
   questionLabelAr: "كم في الكلّ؟" | "كم أصبح الآن؟";
@@ -108,6 +108,8 @@ export interface AddToStoryScene {
   clozeMiddleAr: string;
   clozeTrailAr: string;
 }
+
+export type AddToStoryScene = WordProblemStoryScene;
 
 export const ADD_TO_STORY_SCENES: AddToStoryScene[] = [
   {
@@ -192,6 +194,89 @@ export const ADD_TO_STORY_SCENES: AddToStoryScene[] = [
   },
 ];
 
+export const PUT_TOGETHER_STORY_SCENES: WordProblemStoryScene[] = [
+  {
+    id: "put-apples-bowl",
+    objectId: "apple",
+    questionLabelAr: "كم في الكلّ؟",
+    buildStoryAr: (p1Ar, p2Ar) =>
+      `في السلّة ${p1Ar} تفّاحات حمراء و${p2Ar} تفّاحات خضراء. كم تفّاحة في الكلّ؟`,
+    clozeLeadAr: "في السلّة",
+    clozeMiddleAr: "تفّاحات حمراء و",
+    clozeTrailAr: "تفّاحات خضراء.",
+  },
+  {
+    id: "put-birds-tree",
+    objectId: "bird",
+    questionLabelAr: "كم في الكلّ؟",
+    buildStoryAr: (p1Ar, p2Ar) =>
+      `على الشجرة ${p1Ar} عصافير فوق الغصن الأيمن و${p2Ar} عصافير فوق الغصن الأيسر. كم عصفوراً في الكلّ؟`,
+    clozeLeadAr: "على الشجرة",
+    clozeMiddleAr: "عصافير على اليمين و",
+    clozeTrailAr: "عصافير على اليسار.",
+  },
+  {
+    id: "put-books-table",
+    objectId: "book",
+    questionLabelAr: "كم في الكلّ؟",
+    buildStoryAr: (p1Ar, p2Ar) =>
+      `على الطاولة ${p1Ar} كتب كبيرة و${p2Ar} كتب صغيرة. كم كتاباً في الكلّ؟`,
+    clozeLeadAr: "على الطاولة",
+    clozeMiddleAr: "كتب كبيرة و",
+    clozeTrailAr: "كتب صغيرة.",
+  },
+  {
+    id: "put-cars-box",
+    objectId: "car",
+    questionLabelAr: "كم في الكلّ؟",
+    buildStoryAr: (p1Ar, p2Ar) =>
+      `في الصندوق ${p1Ar} سيّارات حمراء و${p2Ar} سيّارات زرقاء. كم سيّارة في الكلّ؟`,
+    clozeLeadAr: "في الصندوق",
+    clozeMiddleAr: "سيّارات حمراء و",
+    clozeTrailAr: "سيّارات زرقاء.",
+  },
+  {
+    id: "put-flowers-vase",
+    objectId: "flower",
+    questionLabelAr: "كم في الكلّ؟",
+    buildStoryAr: (p1Ar, p2Ar) =>
+      `في المزهرية ${p1Ar} زهرات صفراء و${p2Ar} زهرات وردية. كم زهرة في الكلّ؟`,
+    clozeLeadAr: "في المزهرية",
+    clozeMiddleAr: "زهرات صفراء و",
+    clozeTrailAr: "زهرات وردية.",
+  },
+  {
+    id: "put-stars-chart",
+    objectId: "star",
+    questionLabelAr: "كم في الكلّ؟",
+    buildStoryAr: (p1Ar, p2Ar) =>
+      `على اللوحة ${p1Ar} نجمات ذهبية و${p2Ar} نجمات فضّية. كم نجمة في الكلّ؟`,
+    clozeLeadAr: "على اللوحة",
+    clozeMiddleAr: "نجمات ذهبية و",
+    clozeTrailAr: "نجمات فضّية.",
+  },
+  {
+    id: "put-strawberries-dishes",
+    objectId: "strawberry",
+    questionLabelAr: "كم في الكلّ؟",
+    buildStoryAr: (p1Ar, p2Ar) =>
+      `مع منى ${p1Ar} حبّات فراولة ومع أخيها ${p2Ar} حبّات فراولة. كم حبّة فراولة معهما في الكلّ؟`,
+    clozeLeadAr: "مع منى",
+    clozeMiddleAr: "حبّات فراولة ومع أخيها",
+    clozeTrailAr: "حبّات فراولة.",
+  },
+  {
+    id: "put-pencils-cups",
+    objectId: "pencil",
+    questionLabelAr: "كم في الكلّ؟",
+    buildStoryAr: (p1Ar, p2Ar) =>
+      `في الكوب الأوّل ${p1Ar} أقلام وفي الكوب الثاني ${p2Ar} أقلام. كم قلماً في الكلّ؟`,
+    clozeLeadAr: "في الكوب الأوّل",
+    clozeMiddleAr: "أقلام وفي الكوب الثاني",
+    clozeTrailAr: "أقلام.",
+  },
+];
+
 const ADD_TO_LEARNING_TEMPLATES: Array<{
   buildTextAr: (p1Ar: string, p2Ar: string) => string;
   clozeLeadAr: string;
@@ -221,12 +306,50 @@ const ADD_TO_LEARNING_TEMPLATES: Array<{
   },
 ];
 
-export function buildAddToWordProblemText(params: {
+const PUT_TOGETHER_LEARNING_TEMPLATES: Array<{
+  buildTextAr: (p1Ar: string, p2Ar: string) => string;
+  clozeLeadAr: string;
+  clozeMiddleAr: string;
+  clozeTrailAr: string;
+}> = [
+  {
+    buildTextAr: (p1Ar, p2Ar) =>
+      `في الجزء الأوّل ${p1Ar} مكعّبات وفي الجزء الثاني ${p2Ar} مكعّبات. كم مكعّباً في الكلّ؟`,
+    clozeLeadAr: "في الجزء الأوّل",
+    clozeMiddleAr: "مكعّبات وفي الجزء الثاني",
+    clozeTrailAr: "مكعّبات.",
+  },
+  {
+    buildTextAr: (p1Ar, p2Ar) =>
+      `لدينا ${p1Ar} مكعّبات في جزء و${p2Ar} مكعّبات في الجزء الآخر. كم مكعّباً في الكلّ؟`,
+    clozeLeadAr: "لدينا",
+    clozeMiddleAr: "مكعّبات في جزء و",
+    clozeTrailAr: "مكعّبات في الجزء الآخر.",
+  },
+  {
+    buildTextAr: (p1Ar, p2Ar) =>
+      `معنا ${p1Ar} مكعّبات حمراء و${p2Ar} مكعّبات زرقاء نضمّها معاً. كم مكعّباً في الكلّ؟`,
+    clozeLeadAr: "معنا",
+    clozeMiddleAr: "مكعّبات حمراء و",
+    clozeTrailAr: "مكعّبات زرقاء.",
+  },
+];
+
+export function getStoryScenesForSituation(
+  situation: WordProblemSituation
+): WordProblemStoryScene[] {
+  return situation === "put-together"
+    ? PUT_TOGETHER_STORY_SCENES
+    : ADD_TO_STORY_SCENES;
+}
+
+export function buildWordProblemText(params: {
+  situation: WordProblemSituation;
   problemStyle: WordProblemStyle;
   part1: number;
   part2: number;
   templateIndex: number;
-  scene?: AddToStoryScene;
+  scene?: WordProblemStoryScene;
 }): {
   problemTextAr: string;
   questionLabelAr: "كم في الكلّ؟" | "كم أصبح الآن؟";
@@ -239,12 +362,15 @@ export function buildAddToWordProblemText(params: {
   const p2Ar = formatEasternNumber(params.part2);
 
   if (params.problemStyle === "story") {
+    const scenePool = getStoryScenesForSituation(params.situation);
     const scene =
-      params.scene ??
-      ADD_TO_STORY_SCENES[params.templateIndex % ADD_TO_STORY_SCENES.length];
+      params.scene ?? scenePool[params.templateIndex % scenePool.length];
     return {
       problemTextAr: scene.buildStoryAr(p1Ar, p2Ar),
-      questionLabelAr: scene.questionLabelAr,
+      questionLabelAr:
+        params.situation === "put-together"
+          ? "كم في الكلّ؟"
+          : scene.questionLabelAr,
       clozeLeadAr: scene.clozeLeadAr,
       clozeMiddleAr: scene.clozeMiddleAr,
       clozeTrailAr: scene.clozeTrailAr,
@@ -252,10 +378,11 @@ export function buildAddToWordProblemText(params: {
     };
   }
 
-  const tpl =
-    ADD_TO_LEARNING_TEMPLATES[
-      params.templateIndex % ADD_TO_LEARNING_TEMPLATES.length
-    ];
+  const templatePool =
+    params.situation === "put-together"
+      ? PUT_TOGETHER_LEARNING_TEMPLATES
+      : ADD_TO_LEARNING_TEMPLATES;
+  const tpl = templatePool[params.templateIndex % templatePool.length];
   return {
     problemTextAr: tpl.buildTextAr(p1Ar, p2Ar),
     questionLabelAr: "كم في الكلّ؟",
@@ -264,6 +391,26 @@ export function buildAddToWordProblemText(params: {
     clozeTrailAr: tpl.clozeTrailAr,
     objectId: "apple",
   };
+}
+
+export function buildAddToWordProblemText(params: {
+  problemStyle: WordProblemStyle;
+  part1: number;
+  part2: number;
+  templateIndex: number;
+  scene?: WordProblemStoryScene;
+}) {
+  return buildWordProblemText({ ...params, situation: "add-to" });
+}
+
+export function buildPutTogetherWordProblemText(params: {
+  problemStyle: WordProblemStyle;
+  part1: number;
+  part2: number;
+  templateIndex: number;
+  scene?: WordProblemStoryScene;
+}) {
+  return buildWordProblemText({ ...params, situation: "put-together" });
 }
 
 function selectAddToFacts(
@@ -414,13 +561,17 @@ export function buildSolveWordProblemPayload(
       : ctx.difficultyLevel === "Easy";
   const showModel = params.showModel ?? defaultShowModel;
 
-  // Only five-frame or withdrawn-model items support 0 cleanly as the added Part in Add-To
+  // Only five-frame or withdrawn-model items support 0 cleanly as the change Part in Add-To / Take-From (spec §7)
   const usesZeroCapableRep =
     !showModel || representationPool.every((r) => r === "five-frame");
+  const allowsZeroChangePart =
+    situation === "add-to" || situation === "take-from";
   const effectiveMinPart =
     params.minPart !== undefined
       ? params.minPart
-      : ctx.difficultyLevel === "Advanced" && usesZeroCapableRep
+      : ctx.difficultyLevel === "Advanced" &&
+          usesZeroCapableRep &&
+          allowsZeroChangePart
         ? 0
         : 1;
 
@@ -443,12 +594,15 @@ export function buildSolveWordProblemPayload(
       ? requestedUnknown
       : "total";
 
-  const clozeIncludeEquation = Boolean(params.clozeIncludeEquation);
+  const clozeIncludeEquation =
+    params.clozeIncludeEquation !== undefined
+      ? Boolean(params.clozeIncludeEquation)
+      : situation === "put-together" && responseForm === "cloze-from-model";
 
-  const pickedScenes: AddToStoryScene[] =
-    problemStyle === "story"
-      ? ctx.rng.pickN(ADD_TO_STORY_SCENES, itemCount)
-      : [];
+  const scenePool = getStoryScenesForSituation(situation);
+
+  const pickedScenes: WordProblemStoryScene[] =
+    problemStyle === "story" ? ctx.rng.pickN(scenePool, itemCount) : [];
 
   const items: SolveWordProblemItem[] = facts.map((fact, idx) => {
     const [primaryTheme, secondaryTheme] =
@@ -456,7 +610,8 @@ export function buildSolveWordProblemPayload(
     const itemRep = representationPool[idx % representationPool.length];
     const scene = pickedScenes[idx];
 
-    const textBundle = buildAddToWordProblemText({
+    const textBundle = buildWordProblemText({
+      situation,
       problemStyle,
       part1: fact.part1,
       part2: fact.part2,
@@ -562,7 +717,9 @@ export function buildSolveWordProblemPayload(
         : "انظر إلى النموذج لكتابة المسألة، ثم اجمع الجزأين لإيجاد الكلّ:"
       : responseForm === "model-and-bond"
         ? problemStyle === "story"
-          ? "اقرأ المسألة القصصية، ثم أكمل رابطة الأعداد واكتب كم أصبح الآن:"
+          ? situation === "put-together"
+            ? "اقرأ المسألة القصصية، ثم أكمل رابطة الأعداد واكتب كم في الكلّ:"
+            : "اقرأ المسألة القصصية، ثم أكمل رابطة الأعداد واكتب كم أصبح الآن:"
           : "اقرأ المسألة وانظر إلى المكعّبات، ثم أكمل رابطة الأعداد واكتب الكلّ:"
         : "اقرأ المسألة، ثم اجمع الجزأين واكتب الكلّ في المربّع:";
 
