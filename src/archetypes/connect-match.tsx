@@ -17,6 +17,14 @@ import {
   buildPartWholeMatchPairs,
   type PartWholeMatchMode,
 } from "@/lib/part-whole-facts";
+import {
+  CUBE_CONE_CYLINDER_SET,
+  SQUARE_CIRCLE_SET,
+  TRIANGLE_HEXAGON_CIRCLE_SET,
+  TRIANGLE_SQUARE_CIRCLE_SET,
+  type TenFrameCategoryDef,
+  type TenFrameCategorySet,
+} from "@/lib/ten-frame-category-sets";
 import type {
   WordProblemSituation,
   WordProblemStyle,
@@ -29,13 +37,19 @@ import {
 import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
 import { AnswerLine, AnswerSlot } from "@/components/worksheet/AnswerSlot";
 import { ExerciseColumns } from "@/components/worksheet/ExerciseColumns";
-import { createShape2DSpec } from "@/visual-models/shapes-solids-coins";
+import {
+  createShape2DSpec,
+  getShapePluralAr,
+  getSolidPluralAr,
+} from "@/visual-models/shapes-solids-coins";
+import { createTenFrameSpec } from "@/visual-models/unit-2-models";
 import {
   createPolygonPerimeterSpec,
   createShapeDescriptionSpec,
 } from "@/visual-models/measurement-models";
 
-export type ConnectMatchMode = PartWholeMatchMode | "shape-to-description";
+export type ConnectMatchMode =
+  PartWholeMatchMode | "shape-to-description" | "ten-frame-to-description";
 
 export interface ConnectMatchBlueprintParams {
   pairCount?: number;
@@ -60,6 +74,12 @@ export interface ConnectMatchBlueprintParams {
     left: VisualModelSpec;
     reasonAr: string;
   }>;
+  /** ten-frame-to-description: parts per frame — 2 (MATCHING A/C) or 3 (MATCHING B) */
+  categoryCount?: 2 | 3;
+  /** ten-frame-to-description MATCHING C: each description card carries an AnswerSlot for the missing total */
+  missingTotal?: boolean;
+  /** ten-frame-to-description: pinned category sets; row i uses set (i mod list length). Defaults branch by arity. */
+  descriptionCategorySets?: TenFrameCategorySet[];
 }
 
 const CONNECTION_STROKE_COLORS = [
@@ -74,6 +94,81 @@ const CONNECTION_STROKE_COLORS = [
  * Row height in px for ConnectMatch rows and SVG connection canvas.
  */
 const ROW_HEIGHT_PX = 52;
+
+/**
+ * ten-frame-to-description category pools (blue → red → green fixed coding).
+ * The MATCHING A pair (square/circle) and the K-76-style trios are the shared
+ * named sets; the remaining 2-part alternates live here because only this
+ * mode's unpinned pool uses them (§2.5 grayscale holds via per-part shape +
+ * solid cue).
+ */
+const TEN_FRAME_DESCRIPTION_DEFAULT_SETS: Record<2 | 3, TenFrameCategorySet[]> =
+  {
+    2: [
+      SQUARE_CIRCLE_SET,
+      {
+        id: "triangle-circle",
+        categories: [
+          { shapeId: "triangle", colorTheme: "sky" },
+          { shapeId: "circle", colorTheme: "coral" },
+        ],
+      },
+      {
+        id: "hexagon-circle",
+        categories: [
+          { shapeId: "hexagon", colorTheme: "sky" },
+          { shapeId: "circle", colorTheme: "coral" },
+        ],
+      },
+      {
+        id: "square-triangle",
+        categories: [
+          { shapeId: "square", colorTheme: "sky" },
+          { shapeId: "triangle", colorTheme: "coral" },
+        ],
+      },
+    ],
+    3: [
+      TRIANGLE_SQUARE_CIRCLE_SET,
+      TRIANGLE_HEXAGON_CIRCLE_SET,
+      CUBE_CONE_CYLINDER_SET,
+    ],
+  };
+
+/** Arabic plural label (or fallback) for a description-match category */
+function descriptionCategoryLabelAr(category: TenFrameCategoryDef): string {
+  if (category.shapeId) return getShapePluralAr(category.shapeId);
+  if (category.solidId) return getSolidPluralAr(category.solidId);
+  return "أقراص";
+}
+
+/**
+ * Builds candidates as every ordered composition of `total` into `categoryCount`
+ * parts ≥ 1 (2 parts → 9; 3 parts → 36 distinct compositions), then seeds a
+ * non-repeating pick (§7.3). Caller adds the keys to `usedFacts`.
+ */
+function listTenFrameCompositions(
+  total: number,
+  categoryCount: 2 | 3
+): Array<{ parts: number[]; key: string }> {
+  const candidates: Array<{ parts: number[]; key: string }> = [];
+  const maxFirstPart = categoryCount === 2 ? total - 1 : total - 2;
+  for (let part1 = 1; part1 <= maxFirstPart; part1++) {
+    if (categoryCount === 2) {
+      const part2 = total - part1;
+      candidates.push({ parts: [part1, part2], key: `${part1}:${part2}` });
+      continue;
+    }
+    for (let part2 = 1; part2 <= total - part1 - 1; part2++) {
+      const part3 = total - part1 - part2;
+      candidates.push({
+        parts: [part1, part2, part3],
+        key: `${part1}:${part2}:${part3}`,
+      });
+    }
+  }
+  return candidates;
+}
 
 function generateConnectMatchExercise(
   ctx: ArchetypeGeneratorContext
@@ -253,6 +348,84 @@ function generateConnectMatchExercise(
       leftItem: item.left,
       connectionReasonAr: item.reasonAr,
     }));
+  } else if (matchingMode === "ten-frame-to-description") {
+    const categoryCount = Math.max(
+      2,
+      Math.min(3, params.categoryCount ?? 2)
+    ) as 2 | 3;
+    const totalCount = 10;
+    const totalAr = formatEasternNumber(totalCount);
+    const categorySetPool: TenFrameCategorySet[] =
+      params.descriptionCategorySets &&
+      params.descriptionCategorySets.length > 0
+        ? params.descriptionCategorySets
+        : TEN_FRAME_DESCRIPTION_DEFAULT_SETS[categoryCount];
+
+    const compositions = ctx.rng.pickN(
+      listTenFrameCompositions(totalCount, categoryCount),
+      Math.min(pairCount, categoryCount === 2 ? 9 : 36)
+    );
+
+    pairs = compositions.map((composition, idx) => {
+      const set = categorySetPool[idx % categorySetPool.length];
+      const categories = set.categories;
+      // listTenFrameCompositions already yields exactly `categoryCount` parts ≥ 1
+      const parts = composition.parts;
+      const partsAr = parts.map((part) => formatEasternNumber(part));
+      const labelsAr = [0, 1, 2]
+        .slice(0, categoryCount)
+        .map((i) => descriptionCategoryLabelAr(categories[i] ?? {}));
+
+      const descriptionTextAr = partsAr
+        .map((partAr, i) => `${partAr} ${labelsAr[i]}`)
+        .join(" و");
+
+      const rightModel = createTenFrameSpec({
+        count: parts[0],
+        secondaryCount: parts[1],
+        tertiaryCount: categoryCount === 3 ? parts[2] : undefined,
+        colorTheme: categories[0]?.colorTheme ?? "sky",
+        secondaryColorTheme: categories[1]?.colorTheme ?? "coral",
+        tertiaryColorTheme:
+          categoryCount === 3
+            ? (categories[2]?.colorTheme ?? "emerald")
+            : undefined,
+        shapeId: categories[0]?.shapeId,
+        solidId: categories[0]?.solidId,
+        secondaryShapeId: categories[1]?.shapeId,
+        secondarySolidId: categories[1]?.solidId,
+        tertiaryShapeId:
+          categoryCount === 3 ? categories[2]?.shapeId : undefined,
+        tertiarySolidId:
+          categoryCount === 3 ? categories[2]?.solidId : undefined,
+        showPartOutline: categoryCount === 2,
+        highlightEmptySlots: true,
+      });
+
+      const leftModel = createShapeDescriptionSpec({
+        id: `td-${set.id}-${composition.key}-${idx + 1}`,
+        textAr: descriptionTextAr,
+        meta: params.missingTotal
+          ? {
+              isTenFrameDescriptionEndpoint: true,
+              missingTotal: totalCount,
+              missingTotalAr: totalAr,
+            }
+          : undefined,
+      });
+
+      const factKey = `td-${composition.key}`;
+      ctx.usedFacts?.add(factKey);
+
+      return {
+        pairId: `pair-${idx + 1}-td-${set.id}-${composition.key}`,
+        rightItem: rightModel,
+        leftItem: leftModel,
+        connectionReasonAr: params.missingTotal
+          ? `الوصف ${descriptionTextAr} ينطبق على اللوحة، والكلّ يساوي ${totalAr}`
+          : `${descriptionTextAr} على اللوحة — والكلّ ${totalAr}`,
+      };
+    });
   } else if (matchingMode) {
     pairs = buildPartWholeMatchPairs({
       rng: ctx.rng,
@@ -333,45 +506,64 @@ function generateConnectMatchExercise(
     matchingMode === "ten-frame-to-bond" ||
     matchingMode === "ten-frame-to-number-bond";
   const isTenFrameEqMatch = matchingMode === "ten-frame-to-equation";
+  const isTenFrameDescMatch = matchingMode === "ten-frame-to-description";
 
   const defaultRightTitle =
-    isTenFrameBondMatch || isTenFrameEqMatch ? "لوحة العشرة" : "العمود الأيمن";
-  const defaultLeftTitle = isTenFrameBondMatch
-    ? "رابطة الأعداد"
-    : isTenFrameEqMatch
-      ? params.operation === "subtract"
-        ? "معادلة الطرح"
-        : "معادلة الجمع"
-      : "العمود الأيسر";
+    isTenFrameBondMatch || isTenFrameEqMatch || isTenFrameDescMatch
+      ? "لوحة العشرة"
+      : "العمود الأيمن";
+  const defaultLeftTitle = isTenFrameDescMatch
+    ? "الوصف"
+    : isTenFrameBondMatch
+      ? "رابطة الأعداد"
+      : isTenFrameEqMatch
+        ? params.operation === "subtract"
+          ? "معادلة الطرح"
+          : "معادلة الجمع"
+        : "العمود الأيسر";
 
   const takeApartMatchSummaryAr = isTakeApartMatch
+    ? pairs.map((p) => p.connectionReasonAr).join("؛ ")
+    : "";
+  const tenFrameDescSummaryAr = isTenFrameDescMatch
     ? pairs.map((p) => p.connectionReasonAr).join("؛ ")
     : "";
 
   const defaultPromptAr = isTakeApartMatch
     ? "صِلْ كلّ رابطة أعداد بالمسألة التي تحمل الكلّ نفسه، ثم اكتب الجزأين:"
-    : isTenFrameBondMatch
-      ? "صِلْ كلّ لوحة عشرة برابطة الأعداد المطابقة، ثم اكتب الكلّ في الدائرة:"
-      : isTenFrameEqMatch
-        ? "صِلْ كلّ لوحة عشرة بالمعادلة المطابقة، ثم اكتب الكلّ في المربّع:"
-        : ctx.difficultyLevel === "Easy"
-          ? `صل بخط بين كل شكل في العمود الأيمن وما يطابقه تماماً في العمود الأيسر (${pairCountAr} عناصر):`
-          : ctx.difficultyLevel === "Intermediate"
-            ? `قارن بدقة ثم صل بخط بين كل صورة في العمود الأيمن والصورة المطابقة لها في العمود الأيسر (${pairCountAr} عناصر):`
-            : `لاحظ التفاصيل الدقيقة للصور (${pairCountAr} عناصر)، وصل كل عنصر في العمود الأيمن بنظيره المطابق في العمود الأيسر:`;
+    : isTenFrameDescMatch
+      ? params.missingTotal
+        ? "صِلْ كلّ لوحة عشرة بالوصف المطابق، ثم اكتب الكلّ في المربّع:"
+        : "صِلْ كلّ لوحة عشرة بالوصف المطابق:"
+      : isTenFrameBondMatch
+        ? "صِلْ كلّ لوحة عشرة برابطة الأعداد المطابقة، ثم اكتب الكلّ في الدائرة:"
+        : isTenFrameEqMatch
+          ? "صِلْ كلّ لوحة عشرة بالمعادلة المطابقة، ثم اكتب الكلّ في المربّع:"
+          : ctx.difficultyLevel === "Easy"
+            ? `صل بخط بين كل شكل في العمود الأيمن وما يطابقه تماماً في العمود الأيسر (${pairCountAr} عناصر):`
+            : ctx.difficultyLevel === "Intermediate"
+              ? `قارن بدقة ثم صل بخط بين كل صورة في العمود الأيمن والصورة المطابقة لها في العمود الأيسر (${pairCountAr} عناصر):`
+              : `لاحظ التفاصيل الدقيقة للصور (${pairCountAr} عناصر)، وصل كل عنصر في العمود الأيمن بنظيره المطابق في العمود الأيسر:`;
 
-  const defaultStrategyHintAr = isTakeApartMatch
-    ? `صِلْ بالمسألة المطابقة للكلّ واكتب الجزأين (${takeApartMatchSummaryAr}).`
-    : ctx.difficultyLevel === "Easy"
-      ? `ابدأ من أول صورة في العمود الأيمن، لاحظ شكلها ولونها المميّز، ثم ابحث عن توأمها في العمود الأيسر وارسم خطاً يصل بينهما (التقابل ١ إلى ١).`
-      : ctx.difficultyLevel === "Intermediate"
-        ? `ركّز على الصفة المميّزة لكل عنصر (الشكل الخارجي والتفاصيل الداخلية) وتحقّق من أن كل عنصر في اليمين يتصل بعنصر واحد فقط في اليسار.`
-        : `قارن العناصر المتشابهة في الفئة بعناية، واستبعد الصور المختلفة في الشكل أو التفاصيل، ثم تأكّد من تساوي عدد العناصر في العمودين (${pairCountAr} مقابل ${pairCountAr}).`;
+  const defaultStrategyHintAr = isTenFrameDescMatch
+    ? `عدّ أشكال كل جزء على اللوحة، ثم صِلْ اللوحة بالوصف الذي يذكر الأعداد نفسها${
+        params.missingTotal ? "، واكتب الكلّ في المربّع" : ""
+      } (${tenFrameDescSummaryAr}).`
+    : isTakeApartMatch
+      ? `صِلْ بالمسألة المطابقة للكلّ واكتب الجزأين (${takeApartMatchSummaryAr}).`
+      : ctx.difficultyLevel === "Easy"
+        ? `ابدأ من أول صورة في العمود الأيمن، لاحظ شكلها ولونها المميّز، ثم ابحث عن توأمها في العمود الأيسر وارسم خطاً يصل بينهما (التقابل ١ إلى ١).`
+        : ctx.difficultyLevel === "Intermediate"
+          ? `ركّز على الصفة المميّزة لكل عنصر (الشكل الخارجي والتفاصيل الداخلية) وتحقّق من أن كل عنصر في اليمين يتصل بعنصر واحد فقط في اليسار.`
+          : `قارن العناصر المتشابهة في الفئة بعناية، واستبعد الصور المختلفة في الشكل أو التفاصيل، ثم تأكّد من تساوي عدد العناصر في العمودين (${pairCountAr} مقابل ${pairCountAr}).`;
 
-  const resolvedStrategyHintAr =
-    isTakeApartMatch && ctx.spec.strategyHintAr
-      ? `${ctx.spec.strategyHintAr.replace(/\.$/, "")} (${takeApartMatchSummaryAr}).`
-      : (ctx.spec.strategyHintAr ?? defaultStrategyHintAr);
+  const resolvedStrategyHintAr = ctx.spec.strategyHintAr
+    ? isTenFrameDescMatch
+      ? `${ctx.spec.strategyHintAr.replace(/\.$/, "")} (${tenFrameDescSummaryAr}).`
+      : isTakeApartMatch
+        ? `${ctx.spec.strategyHintAr.replace(/\.$/, "")} (${takeApartMatchSummaryAr}).`
+        : ctx.spec.strategyHintAr
+    : (ctx.spec.strategyHintAr ?? defaultStrategyHintAr);
 
   const data: ConnectMatchData = {
     kind: "ConnectMatch",
@@ -606,6 +798,9 @@ function renderConnectMatchExercise({
               const isWordProblemEndpoint = Boolean(
                 itemMeta.isWordProblemEndpoint
               );
+              const isTenFrameDescriptionEndpoint = Boolean(
+                itemMeta.isTenFrameDescriptionEndpoint
+              );
               const missingTotal = itemMeta.missingTotal as number | undefined;
 
               return (
@@ -753,6 +948,45 @@ function renderConnectMatchExercise({
                                   />
                                 </div>
                               ))}
+                          </div>
+                        );
+                      })()
+                    ) : isTenFrameDescriptionEndpoint ? (
+                      (() => {
+                        const descriptionTextAr = String(itemMeta.textAr ?? "");
+                        const endpointMissingTotal = itemMeta.missingTotal as
+                          number | undefined;
+                        const missingTotalAr =
+                          endpointMissingTotal !== undefined
+                            ? formatEasternNumber(endpointMissingTotal)
+                            : "";
+                        return (
+                          <div
+                            dir="rtl"
+                            className="flex min-h-[46px] w-full flex-col items-center justify-center gap-1 rounded-xl border border-teal-200 bg-teal-50/50 px-1.5 py-1"
+                            data-ten-frame-description-endpoint="true"
+                          >
+                            <span className="text-center text-[13px] font-extrabold leading-snug text-teal-950">
+                              {toEasternArabicNumerals(descriptionTextAr)}
+                            </span>
+                            {endpointMissingTotal !== undefined ? (
+                              <div className="flex items-center justify-center gap-1">
+                                <span className="text-[13px] font-extrabold leading-none text-teal-950">
+                                  الكلّ
+                                </span>
+                                <AnswerSlot
+                                  solved={mode === "answer-key"}
+                                  answer={missingTotalAr}
+                                  ariaLabel="مربع كتابة الكلّ المفقود في بطاقة الوصف"
+                                  kind="unknown"
+                                  tone="indigo"
+                                  solvedDataAttributes={{
+                                    "data-solved-match-description-total":
+                                      missingTotalAr,
+                                  }}
+                                />
+                              </div>
+                            ) : null}
                           </div>
                         );
                       })()

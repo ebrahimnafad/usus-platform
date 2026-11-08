@@ -10,13 +10,17 @@ export const ANSWER_SLOT_SIZE_CLASS = "h-12 w-12";
 /** Free-response line for a short written explanation. */
 export const ANSWER_LINE_SIZE_CLASS = "h-8 w-40";
 
-export type AnswerSlotTone = "indigo" | "sky" | "amber" | "slate";
+export type AnswerSlotTone =
+  "indigo" | "sky" | "amber" | "slate" | "coral" | "emerald";
 
 const SLOT_TONES: Record<AnswerSlotTone, string> = {
   indigo: "border-indigo-400 bg-indigo-50/30",
   sky: "border-sky-500 bg-white",
   amber: "border-amber-500 bg-white",
   slate: "border-slate-300 bg-white",
+  // The coral theme maps to Tailwind's red scale (coral.fill = #EF4444 = red-500)
+  coral: "border-red-500 bg-white",
+  emerald: "border-emerald-500 bg-white",
 };
 
 /**

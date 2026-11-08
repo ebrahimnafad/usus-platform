@@ -342,6 +342,41 @@ export function getSolid3DById(id: string): Solid3DDefinition {
   return SOLID_3D_CATALOG.find((s) => s.id === id) ?? SOLID_3D_CATALOG[0];
 }
 
+const SHAPE_PLURAL_AR: Record<Shape2DId, string> = {
+  circle: "دوائر",
+  triangle: "مثلثات",
+  square: "مربعات",
+  rectangle: "مستطيلات",
+  pentagon: "خماسيات",
+  hexagon: "سداسيات",
+  heptagon: "سباعيات",
+  octagon: "ثمانيات",
+  nonagon: "تساعيات",
+};
+
+const SOLID_PLURAL_AR: Record<Solid3DId, string> = {
+  sphere: "كرات",
+  cone: "مخاريط",
+  cylinder: "أسطوانات",
+  cube: "مكعبات",
+  "rectangular-prism": "متوازيات مستطيلات",
+  pyramid: "أهرامات",
+};
+
+/** Arabic plural label for a flat shape (مثلث → مثلثات), used by multi-category models. */
+export function getShapePluralAr(shapeId: string): string {
+  const def = SHAPE_2D_CATALOG.find((s) => s.id === shapeId);
+  if (!def) return "";
+  return SHAPE_PLURAL_AR[def.id] ?? def.labelAr;
+}
+
+/** Arabic plural label for a solid (مكعّب → مكعّبات), used by multi-category models. */
+export function getSolidPluralAr(solidId: string): string {
+  const def = SOLID_3D_CATALOG.find((s) => s.id === solidId);
+  if (!def) return "";
+  return SOLID_PLURAL_AR[def.id] ?? def.labelAr;
+}
+
 export function getRealWorldSolidById(id: string): RealWorldSolidDefinition {
   return (
     REAL_WORLD_SOLID_CATALOG.find((s) => s.id === id) ??

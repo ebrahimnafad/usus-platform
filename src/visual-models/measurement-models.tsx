@@ -858,6 +858,8 @@ export interface ShapeDescriptionOptions {
   id: string;
   textAr: string;
   missingNumber?: number;
+  /** Extra meta for endpoint flags (e.g. isTenFrameDescriptionEndpoint on ConnectMatch cards) */
+  meta?: Record<string, unknown>;
 }
 
 export function createShapeDescriptionSpec(
@@ -871,6 +873,7 @@ export function createShapeDescriptionSpec(
     meta: {
       textAr: options.textAr,
       missingNumber: options.missingNumber,
+      ...(options.meta ?? {}),
     },
   };
 }

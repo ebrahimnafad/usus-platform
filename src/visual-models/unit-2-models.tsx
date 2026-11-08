@@ -665,10 +665,13 @@ export function registerFiveFrameVisualModel(): void {
 export interface TenFrameOptions {
   count: number;
   secondaryCount?: number;
+  /** Third Part run: fills RTL right after the primary + secondary runs (K-76 three-parts-to-10) */
+  tertiaryCount?: number;
   crossedOutCount?: number;
   crossOffMode?: CrossOffMode | "none";
   colorTheme?: ColorThemeId;
   secondaryColorTheme?: ColorThemeId;
+  tertiaryColorTheme?: ColorThemeId;
   highlightEmptySlots?: boolean;
   showPartOutline?: boolean;
   /** Number of ghost counters in worksheet mode that become solid in answer-key mode */
@@ -679,6 +682,11 @@ export interface TenFrameOptions {
   labelAr?: string;
   shapeId?: string;
   solidId?: string;
+  /** Per-run shape/solid so two or three Parts can each show a different shape (MATCHING A–C, K-75/K-76) */
+  secondaryShapeId?: string;
+  secondarySolidId?: string;
+  tertiaryShapeId?: string;
+  tertiarySolidId?: string;
 }
 
 export function createTenFrameSpec(options: TenFrameOptions): VisualModelSpec {
@@ -690,11 +698,18 @@ export function createTenFrameSpec(options: TenFrameOptions): VisualModelSpec {
   const secondary = hasExplicitRows
     ? Math.max(0, Math.min(5, options.bottomRowCount ?? 0))
     : Math.max(0, Math.min(10 - primary, options.secondaryCount ?? 0));
+  const tertiary =
+    hasExplicitRows || options.tertiaryCount === undefined
+      ? 0
+      : Math.max(0, Math.min(10 - primary - secondary, options.tertiaryCount));
   const ghostCount = Math.max(
     0,
-    Math.min(10 - (primary + secondary), options.ghostTargetCount ?? 0)
+    Math.min(
+      10 - (primary + secondary + tertiary),
+      options.ghostTargetCount ?? 0
+    )
   );
-  const total = primary + secondary + ghostCount;
+  const total = primary + secondary + tertiary + ghostCount;
   const crossOffMode: CrossOffMode | "none" = options.crossOffMode ?? "shown";
   const crossedOut =
     crossOffMode === "none"
@@ -707,15 +722,23 @@ export function createTenFrameSpec(options: TenFrameOptions): VisualModelSpec {
       ? `لوحة العشرة: ${formatEasternNumber(total)} شُطب منها ${formatEasternNumber(
           crossedOut
         )} وبقي ${formatEasternNumber(remaining)}`
-      : secondary > 0
+      : tertiary > 0
         ? `لوحة العشرة: ${formatEasternNumber(primary)} و${formatEasternNumber(
             secondary
-          )} يساوي ${formatEasternNumber(total)}`
-        : `لوحة العشرة: ${formatEasternNumber(total)} من ١٠`;
+          )} و${formatEasternNumber(tertiary)} يساوي ${formatEasternNumber(
+            primary + secondary + tertiary
+          )}`
+        : secondary > 0
+          ? `لوحة العشرة: ${formatEasternNumber(primary)} و${formatEasternNumber(
+              secondary
+            )} يساوي ${formatEasternNumber(total)}`
+          : `لوحة العشرة: ${formatEasternNumber(total)} من ١٠`;
+
+  const baseId = `ten-frame-${primary}-${secondary}-${crossedOut}-${crossOffMode}`;
 
   return {
     kind: "ten-frame",
-    id: `ten-frame-${primary}-${secondary}-${crossedOut}-${crossOffMode}`,
+    id: tertiary > 0 ? `${baseId}-${tertiary}` : baseId,
     labelAr: options.labelAr ?? defaultLabelAr,
     colorTheme: options.colorTheme ?? "coral",
     count: primary,
@@ -724,6 +747,7 @@ export function createTenFrameSpec(options: TenFrameOptions): VisualModelSpec {
     meta: {
       crossOffMode,
       secondaryColorTheme: options.secondaryColorTheme ?? "sky",
+      tertiaryColorTheme: options.tertiaryColorTheme,
       highlightEmptySlots: options.highlightEmptySlots ?? true,
       showPartOutline: options.showPartOutline ?? secondary > 0,
       ghostTargetCount: options.ghostTargetCount ?? 0,
@@ -731,6 +755,11 @@ export function createTenFrameSpec(options: TenFrameOptions): VisualModelSpec {
       bottomRowCount: options.bottomRowCount,
       shapeId: options.shapeId,
       solidId: options.solidId,
+      secondaryShapeId: options.secondaryShapeId,
+      secondarySolidId: options.secondarySolidId,
+      tertiaryCount: options.tertiaryCount,
+      tertiaryShapeId: options.tertiaryShapeId,
+      tertiarySolidId: options.tertiarySolidId,
     },
   };
 }
@@ -738,10 +767,12 @@ export function createTenFrameSpec(options: TenFrameOptions): VisualModelSpec {
 export function TenFrameSvg({
   count = 6,
   secondaryCount = 0,
+  tertiaryCount = 0,
   crossedOutCount = 0,
   crossOffMode = "shown",
   colorTheme = "coral",
   secondaryColorTheme = "sky",
+  tertiaryColorTheme,
   highlightEmptySlots = true,
   showPartOutline = false,
   ghostTargetCount = 0,
@@ -749,14 +780,20 @@ export function TenFrameSvg({
   bottomRowCount,
   shapeId,
   solidId,
+  secondaryShapeId,
+  secondarySolidId,
+  tertiaryShapeId,
+  tertiarySolidId,
   solved = false,
 }: {
   count?: number;
   secondaryCount?: number;
+  tertiaryCount?: number;
   crossedOutCount?: number;
   crossOffMode?: CrossOffMode | "none";
   colorTheme?: ColorThemeId;
   secondaryColorTheme?: ColorThemeId;
+  tertiaryColorTheme?: ColorThemeId;
   highlightEmptySlots?: boolean;
   showPartOutline?: boolean;
   ghostTargetCount?: number;
@@ -764,6 +801,10 @@ export function TenFrameSvg({
   bottomRowCount?: number;
   shapeId?: string;
   solidId?: string;
+  secondaryShapeId?: string;
+  secondarySolidId?: string;
+  tertiaryShapeId?: string;
+  tertiarySolidId?: string;
   solved?: boolean;
 }): React.ReactElement {
   const hasExplicitRows =
@@ -774,7 +815,11 @@ export function TenFrameSvg({
   const secondary = hasExplicitRows
     ? Math.max(0, Math.min(5, bottomRowCount ?? 0))
     : Math.max(0, Math.min(10 - primary, secondaryCount));
-  const totalFilled = primary + secondary;
+  const tertiary =
+    hasExplicitRows || tertiaryCount === undefined
+      ? 0
+      : Math.max(0, Math.min(10 - primary - secondary, tertiaryCount || 0));
+  const totalFilled = primary + secondary + tertiary;
   const ghostCount = Math.max(0, Math.min(10 - totalFilled, ghostTargetCount));
   const totalShownOrDrawn = Math.min(10, totalFilled + ghostCount);
   const crossedOut =
@@ -787,6 +832,8 @@ export function TenFrameSvg({
   const primaryPalette = COLOR_PALETTES[colorTheme] ?? COLOR_PALETTES.coral;
   const secondaryPalette =
     COLOR_PALETTES[secondaryColorTheme] ?? COLOR_PALETTES.sky;
+  const tertiaryPalette =
+    COLOR_PALETTES[tertiaryColorTheme ?? "emerald"] ?? COLOR_PALETTES.emerald;
 
   const cellWidth = 48;
   const cellHeight = 48;
@@ -808,6 +855,7 @@ export function TenFrameSvg({
       data-direction="rtl"
       data-primary-count={formatEasternNumber(primary)}
       data-secondary-count={formatEasternNumber(secondary)}
+      data-tertiary-count={formatEasternNumber(tertiary)}
       data-crossed-out={formatEasternNumber(crossedOut)}
       data-cross-off-mode={crossOffMode}
     >
@@ -860,6 +908,7 @@ export function TenFrameSvg({
 
         let isPrimary = false;
         let isSecondary = false;
+        let isTertiary = false;
         let isGhost = false;
 
         if (hasExplicitRows) {
@@ -874,15 +923,17 @@ export function TenFrameSvg({
           }
         } else {
           isPrimary = rtlIdx < primary;
-          isSecondary = rtlIdx >= primary && rtlIdx < totalFilled;
+          isSecondary = !isPrimary && rtlIdx < primary + secondary;
+          isTertiary = !isPrimary && !isSecondary && rtlIdx < totalFilled;
           isGhost =
             !isPrimary &&
             !isSecondary &&
-            rtlIdx >= totalFilled &&
+            !isTertiary &&
             rtlIdx < totalFilled + ghostCount;
         }
 
-        const isFilled = isPrimary || isSecondary || (isGhost && solved);
+        const isFilled =
+          isPrimary || isSecondary || isTertiary || (isGhost && solved);
         const isCrossedOutTarget =
           isFilled &&
           rtlIdx >= totalShownOrDrawn - crossedOut &&
@@ -897,15 +948,31 @@ export function TenFrameSvg({
             secondary === 0 &&
             ghostCount === 0 &&
             rtlIdx >= 5);
-        const activePalette = useSecondaryTone
-          ? secondaryPalette
-          : primaryPalette;
+        const isTertiaryRun = isTertiary;
+        // Per-run shape/solid: each category run may show its own shape (falls back
+        // to the frame-level shape so existing single-category frames are unchanged)
+        const fillShapeId = isTertiaryRun
+          ? (tertiaryShapeId ?? shapeId)
+          : isSecondary
+            ? (secondaryShapeId ?? shapeId)
+            : shapeId;
+        const fillSolidId = isTertiaryRun
+          ? (tertiarySolidId ?? solidId)
+          : isSecondary
+            ? (secondarySolidId ?? solidId)
+            : solidId;
+        const activePalette = isTertiaryRun
+          ? tertiaryPalette
+          : useSecondaryTone
+            ? secondaryPalette
+            : primaryPalette;
 
         return (
           <g
             key={rtlIdx}
             data-rtl-cell={formatEasternNumber(rtlIdx + 1)}
             data-cell-box="48x48"
+            data-cell-shape={fillShapeId ?? fillSolidId}
             data-cell-state={
               isCrossedOut
                 ? "crossed-out"
@@ -1038,27 +1105,41 @@ export function TenFrameSvg({
             {/* Filled 3D two-tone counter or shape / solid */}
             {isFilled && (
               <g
-                data-counter-tone={useSecondaryTone ? "secondary" : "primary"}
+                data-counter-tone={
+                  isTertiaryRun
+                    ? "tertiary"
+                    : useSecondaryTone
+                      ? "secondary"
+                      : "primary"
+                }
                 {...(isGhost && solved
                   ? { "data-solved-counter": "true" }
                   : {})}
               >
-                {shapeId ? (
+                {fillShapeId ? (
                   <g transform={`translate(${cx - 13}, ${cy - 11})`}>
                     <Shape2DSvg
-                      shapeId={shapeId}
+                      shapeId={fillShapeId}
                       colorTheme={
-                        useSecondaryTone ? secondaryColorTheme : colorTheme
+                        isTertiaryRun
+                          ? (tertiaryColorTheme ?? "emerald")
+                          : useSecondaryTone
+                            ? secondaryColorTheme
+                            : colorTheme
                       }
                       size="medium"
                     />
                   </g>
-                ) : solidId ? (
+                ) : fillSolidId ? (
                   <g transform={`translate(${cx - 13}, ${cy - 11})`}>
                     <Solid3DSvg
-                      solidId={solidId}
+                      solidId={fillSolidId}
                       colorTheme={
-                        useSecondaryTone ? secondaryColorTheme : colorTheme
+                        isTertiaryRun
+                          ? (tertiaryColorTheme ?? "emerald")
+                          : useSecondaryTone
+                            ? secondaryColorTheme
+                            : colorTheme
                       }
                       size="medium"
                     />
@@ -1135,14 +1216,17 @@ export function registerTenFrameVisualModel(): void {
     const meta = (model.meta ?? {}) as Record<string, unknown>;
     const primary = model.count ?? 6;
     const secondary = model.secondaryCount ?? 0;
+    const tertiary = (meta.tertiaryCount as number | undefined) ?? 0;
     const crossedOut = model.crossedOutCount ?? 0;
     const ghostTargetCount = (meta.ghostTargetCount as number) ?? 0;
     const crossOffMode =
       (meta.crossOffMode as CrossOffMode | "none") ?? "shown";
     const total = Math.max(
       0,
-      primary + secondary + ghostTargetCount - crossedOut
+      primary + secondary + tertiary + ghostTargetCount - crossedOut
     );
+    const tertiaryColorTheme = meta.tertiaryColorTheme as
+      ColorThemeId | undefined;
 
     return (
       <div
@@ -1156,12 +1240,14 @@ export function registerTenFrameVisualModel(): void {
         <TenFrameSvg
           count={primary}
           secondaryCount={secondary}
+          tertiaryCount={tertiary}
           crossedOutCount={crossedOut}
           crossOffMode={crossOffMode}
           colorTheme={model.colorTheme ?? "coral"}
           secondaryColorTheme={
             (meta.secondaryColorTheme as ColorThemeId) ?? "sky"
           }
+          tertiaryColorTheme={tertiaryColorTheme}
           highlightEmptySlots={(meta.highlightEmptySlots as boolean) ?? true}
           showPartOutline={(meta.showPartOutline as boolean) ?? secondary > 0}
           ghostTargetCount={ghostTargetCount}
@@ -1169,6 +1255,10 @@ export function registerTenFrameVisualModel(): void {
           bottomRowCount={meta.bottomRowCount as number | undefined}
           shapeId={meta.shapeId as string | undefined}
           solidId={meta.solidId as string | undefined}
+          secondaryShapeId={meta.secondaryShapeId as string | undefined}
+          secondarySolidId={meta.secondarySolidId as string | undefined}
+          tertiaryShapeId={meta.tertiaryShapeId as string | undefined}
+          tertiarySolidId={meta.tertiarySolidId as string | undefined}
           solved={solved}
         />
         <span className="hidden text-[13px] font-bold leading-tight text-slate-700">

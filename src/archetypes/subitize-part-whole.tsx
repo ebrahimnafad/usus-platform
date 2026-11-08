@@ -13,6 +13,8 @@ import {
   createSolid3DSpec,
   getShape2DById,
   getSolid3DById,
+  getShapePluralAr,
+  getSolidPluralAr,
   Shape2DSvg,
   Solid3DSvg,
 } from "@/visual-models/shapes-solids-coins";
@@ -23,6 +25,12 @@ import {
   getArabicNumberWord,
 } from "@/visual-models/unit-2-models";
 import { createNumberBondSpec } from "@/visual-models/unit-3-models";
+import {
+  CUBE_CONE_CYLINDER_SET,
+  TRIANGLE_HEXAGON_CIRCLE_SET,
+  TRIANGLE_SQUARE_CIRCLE_SET,
+  type TenFrameCountedCategory,
+} from "@/lib/ten-frame-category-sets";
 import { VisualModelView } from "@/visual-models/registry";
 import {
   type ArchetypeGeneratorContext,
@@ -40,7 +48,8 @@ export type SubitizeMode =
   | "identify-quantity"
   | "both-parts-to-5"
   | "both-parts-to-10"
-  | "number-bond-maze";
+  | "number-bond-maze"
+  | "three-parts-to-10";
 
 export type SubitizeVisualKind =
   | "five-frame"
@@ -58,6 +67,31 @@ export interface SubitizeCardInput {
   quickStrategyAr?: string;
   shapeId?: Shape2DId;
   solidId?: Solid3DId;
+}
+
+export type SubitizeCategoryInput = TenFrameCountedCategory;
+
+export interface SubitizeThreePartCategorySet {
+  id: string;
+  categories: SubitizeCategoryInput[];
+}
+
+export interface SubitizeThreePartCardItem {
+  id: string;
+  cardIndex: number;
+  categories: Array<{
+    count: number;
+    countAr: string;
+    labelAr: string;
+    colorTheme: ColorThemeId;
+    shapeId?: Shape2DId;
+    solidId?: Solid3DId;
+  }>;
+  totalCount: number;
+  totalCountAr: string;
+  equationRtlAr: string;
+  quickStrategyAr: string;
+  visualModel: VisualModelSpec;
 }
 
 export interface SubitizeMazeBondInput {
@@ -85,6 +119,8 @@ export interface SubitizePartWholeBlueprintParams {
   reasoningAnswerAr?: string;
   targetTotal?: number;
   mazeBonds?: SubitizeMazeBondInput[];
+  /** three-parts-to-10: category trios (blue → red → green) that fill each card's Ten Frame */
+  threePartCategorySets?: SubitizeThreePartCategorySet[];
 }
 
 export interface SubitizeCardItem {
@@ -115,6 +151,7 @@ export interface SubitizePartWholeData extends GenericArchetypeData {
   reasoningAnswerAr: string;
   targetTotal?: number;
   mazeBonds?: SubitizeMazeBondItem[];
+  threePartCards?: SubitizeThreePartCardItem[];
 }
 
 const SUBITIZE_THEMES: ColorThemeId[] = [
@@ -142,6 +179,19 @@ const SOLID_IDS_CYCLE: Solid3DId[] = [
   "sphere",
   "pyramid",
 ];
+
+/**
+ * K-76 category trios: every category = one Part, fixed blue → red → green color
+ * coding (a color cue paired with a distinct shape/solid so the page reads in
+ * grayscale — constitution §2.5). Counts come from the Seed.
+ */
+const DEFAULT_THREE_PART_CATEGORY_SETS: SubitizeThreePartCategorySet[] = [
+  TRIANGLE_SQUARE_CIRCLE_SET,
+  TRIANGLE_HEXAGON_CIRCLE_SET,
+  CUBE_CONE_CYLINDER_SET,
+];
+
+const THREE_PART_ANCHORED_THEMES: ColorThemeId[] = ["sky", "coral", "emerald"];
 
 function buildDefaultQuickStrategyAr(
   filledCount: number,
@@ -193,6 +243,143 @@ function buildDefaultQuickStrategyAr(
   return "قرص واحد في اليمين و٤ خانات فارغة ← العدد هو ١";
 }
 
+/**
+ * K-76 «Model Combinations of 10 with 3 Parts»: three shape/solid Parts
+ * (blue → red → green) whose counts always sum to 10 (§7.4). Easy anchors the
+ * first Part at 5 (full top row); Advanced breaks the 5-anchor.
+ */
+function generateThreePartsTo10Exercise(
+  ctx: ArchetypeGeneratorContext,
+  params: SubitizePartWholeBlueprintParams
+): Exercise {
+  const subitizeMode: SubitizeMode = "three-parts-to-10";
+  const categorySets =
+    params.threePartCategorySets && params.threePartCategorySets.length > 0
+      ? params.threePartCategorySets
+      : DEFAULT_THREE_PART_CATEGORY_SETS;
+  const cardCount = Math.max(1, Math.min(2, params.cardCount ?? 1));
+  const totalCount = 10;
+  const totalCountAr = formatEasternNumber(totalCount);
+
+  const defaultPart1Range =
+    ctx.difficultyLevel === "Easy"
+      ? [5]
+      : ctx.difficultyLevel === "Intermediate"
+        ? [3, 4, 5, 6, 7]
+        : [2, 3, 4, 6, 7, 8];
+
+  const cards: SubitizeThreePartCardItem[] = Array.from(
+    { length: cardCount },
+    (_, cardIdx) => {
+      const set = categorySets[cardIdx % categorySets.length];
+      const inputs = set.categories;
+
+      // Seed unpinned counts, keeping every Part ≥ 1 and the sum at 10:
+      // part1 ∈ [1,8], part2 clamped to [1, 10-part1-1], part3 = the remainder.
+      const part1 = Math.max(
+        1,
+        Math.min(8, inputs[0].count ?? ctx.rng.pickOne(defaultPart1Range))
+      );
+      const part2 = Math.max(
+        1,
+        Math.min(
+          inputs[1].count ?? ctx.rng.int(1, totalCount - part1 - 1),
+          totalCount - part1 - 1
+        )
+      );
+      const part3 = totalCount - part1 - part2;
+      const counts = [part1, part2, part3];
+
+      const categories = inputs.map((input, i) => {
+        const colorTheme = input.colorTheme ?? THREE_PART_ANCHORED_THEMES[i];
+        const labelAr = input.shapeId
+          ? getShapePluralAr(input.shapeId)
+          : input.solidId
+            ? getSolidPluralAr(input.solidId)
+            : "قرصون";
+        return {
+          count: counts[i],
+          countAr: formatEasternNumber(counts[i]),
+          labelAr,
+          colorTheme,
+          shapeId: input.shapeId,
+          solidId: input.solidId,
+        };
+      });
+
+      const countsAr = categories.map((c) => c.countAr);
+      const equationRtlAr = `${countsAr[0]} و${countsAr[1]} و${countsAr[2]} يكوّنون الكلّ ${totalCountAr}`;
+
+      const isAnchored = counts[0] === 5;
+      const quickStrategyAr = isAnchored
+        ? `بلمحة واحدة: الصفّ العلوي الكامل (٥) والصفّ السفلي الكامل (٥) ← الكلّ ${totalCountAr} دون عدّ فردي`
+        : `بلمحة واحدة: ثلاثة أجزاء (${countsAr[0]} و${countsAr[1]} و${countsAr[2]}) تجتمع معاً في لوحة العشرة لتساوي الكلّ ${totalCountAr}`;
+
+      const visualModel = createTenFrameSpec({
+        count: counts[0],
+        secondaryCount: counts[1],
+        tertiaryCount: counts[2],
+        colorTheme: categories[0].colorTheme,
+        secondaryColorTheme: categories[1].colorTheme,
+        tertiaryColorTheme: categories[2].colorTheme,
+        shapeId: categories[0].shapeId,
+        solidId: categories[0].solidId,
+        secondaryShapeId: categories[1].shapeId,
+        secondarySolidId: categories[1].solidId,
+        tertiaryShapeId: categories[2].shapeId,
+        tertiarySolidId: categories[2].solidId,
+        highlightEmptySlots: true,
+        showPartOutline: true,
+      });
+
+      return {
+        id: `three-parts-card-${cardIdx + 1}-${set.id}`,
+        cardIndex: cardIdx,
+        categories,
+        totalCount,
+        totalCountAr,
+        equationRtlAr,
+        quickStrategyAr:
+          params.cards?.[cardIdx]?.quickStrategyAr ?? quickStrategyAr,
+        visualModel,
+      };
+    }
+  );
+
+  const visualModels = cards.map((card) => card.visualModel);
+
+  const firstCard = cards[0];
+  const countsAr = firstCard.categories.map((c) => c.countAr);
+  const defaultPromptAr = `انظر إلى لوحة العشرة، ثم عدّ الأجزاء الثلاثة واكتب عدد كلّ جزء:`;
+  const defaultStrategyHintAr = firstCard.quickStrategyAr;
+  const defaultReasoningPromptAr = `كيف عرفت الكلّ (${totalCountAr}) على اللوحة دون أن تعدّ الأشكال واحدة واحدة؟`;
+  const defaultReasoningAnswerAr = `الأجزاء الثلاثة (${countsAr[0]} و${countsAr[1]} و${countsAr[2]}) تجتمع معاً في لوحة العشرة فتساوي الكلّ ${totalCountAr} بترتيب من اليمين إلى اليسار`;
+
+  const data: SubitizePartWholeData = {
+    kind: "SubitizePartWhole",
+    subitizeMode,
+    visualKind: "ten-frame",
+    cards: [],
+    threePartCards: cards,
+    reasoningPromptAr: params.reasoningPromptAr ?? defaultReasoningPromptAr,
+    reasoningAnswerAr: params.reasoningAnswerAr ?? defaultReasoningAnswerAr,
+  };
+
+  return {
+    id: `${ctx.lesson.id}-${ctx.sectionId}-ex-${ctx.exerciseNumber}`,
+    exerciseNumber: ctx.exerciseNumber,
+    sectionId: ctx.sectionId,
+    archetype: "SubitizePartWhole",
+    difficultyLevel: ctx.difficultyLevel,
+    sourceLessonId: ctx.sourceLessonId,
+    titleAr: `اعرف العدد بسرعة: الأجزاء الثلاثة والكلّ (مكوّنات ${totalCountAr})`,
+    promptAr: ctx.spec.promptAr ?? defaultPromptAr,
+    strategyHintAr: ctx.spec.strategyHintAr ?? defaultStrategyHintAr,
+    visualModels,
+    data,
+  };
+}
+
 function generateSubitizePartWholeExercise(
   ctx: ArchetypeGeneratorContext
 ): Exercise {
@@ -205,6 +392,10 @@ function generateSubitizePartWholeExercise(
         ? "both-parts-to-10"
         : "identify-quantity";
   const subitizeMode: SubitizeMode = params.subitizeMode ?? defaultMode;
+
+  if (subitizeMode === "three-parts-to-10") {
+    return generateThreePartsTo10Exercise(ctx, params);
+  }
 
   const isTenLesson =
     ctx.lesson.lessonNumber >= 67 ||
@@ -538,6 +729,124 @@ function renderSubitizePartWholeExercise({
 }: ArchetypeRenderProps): React.ReactElement {
   const data = exercise.data as SubitizePartWholeData;
   const isAnswerKey = mode === "answer-key";
+
+  if (data.subitizeMode === "three-parts-to-10" && data.threePartCards) {
+    return (
+      <div
+        className="space-y-1"
+        data-archetype="SubitizePartWhole"
+        data-subitize-mode={data.subitizeMode}
+      >
+        <ExerciseColumns columns={2}>
+          {data.threePartCards.map((card, idx) => (
+            <div
+              key={card.id}
+              className="flex flex-col justify-between gap-1 rounded-xl border-2 border-indigo-100 bg-gradient-to-l from-white via-indigo-50/20 to-emerald-50/30 p-1.5 shadow-2xs"
+              data-three-part-card-id={card.id}
+              data-card-index={formatEasternNumber(idx + 1)}
+            >
+              {/* Top Header */}
+              <div className="flex flex-wrap items-center justify-between gap-1">
+                <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 text-xs font-extrabold leading-none text-white">
+                  {formatEasternNumber(idx + 1)}
+                </span>
+                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-extrabold leading-tight text-amber-950 border border-amber-300">
+                  ⚡ لمحة سريعة
+                </span>
+                {isAnswerKey && (
+                  <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-extrabold leading-tight text-emerald-900">
+                    ✓ {toEasternArabicNumerals(card.equationRtlAr)}
+                  </span>
+                )}
+              </div>
+
+              {/* Ten Frame with three category runs */}
+              <div className="flex items-center justify-center">
+                <VisualModelView
+                  model={card.visualModel}
+                  solved={isAnswerKey}
+                />
+              </div>
+
+              {/* Answer Slots: three category Parts + the Whole */}
+              <div className="grid grid-cols-4 gap-1 rounded-xl border border-indigo-200 bg-white p-1">
+                {card.categories.map((category, catIdx) => (
+                  <div
+                    key={`${card.id}-cat-${catIdx}`}
+                    className={`flex flex-col items-center gap-0.5 rounded-lg px-0.5 pt-0.5 pb-1 border ${
+                      catIdx === 0
+                        ? "border-sky-200 bg-sky-50/50"
+                        : catIdx === 1
+                          ? "border-red-200 bg-red-50/50"
+                          : "border-emerald-200 bg-emerald-50/50"
+                    }`}
+                    data-category={category.labelAr}
+                  >
+                    <span
+                      className={`text-[13px] font-extrabold leading-tight text-center ${
+                        catIdx === 0
+                          ? "text-sky-950"
+                          : catIdx === 1
+                            ? "text-red-900"
+                            : "text-emerald-950"
+                      }`}
+                    >
+                      {toEasternArabicNumerals(category.labelAr)}
+                    </span>
+                    <AnswerSlot
+                      solved={isAnswerKey}
+                      answer={category.countAr}
+                      ariaLabel={`مربع كتابة عدد ${category.labelAr}`}
+                      kind="write"
+                      tone={
+                        catIdx === 0
+                          ? "sky"
+                          : catIdx === 1
+                            ? "coral"
+                            : "emerald"
+                      }
+                      solvedDataAttributes={{
+                        "data-solved-subitize-three-part": category.countAr,
+                      }}
+                    />
+                  </div>
+                ))}
+
+                {/* Whole / Total */}
+                <div className="flex flex-col items-center gap-0.5 rounded-lg border-2 border-indigo-300 bg-indigo-50/80 px-0.5 pt-0.5 pb-1">
+                  <span className="text-[13px] font-extrabold leading-tight text-indigo-950">
+                    الكلّ
+                  </span>
+                  <span
+                    className={`inline-flex ${ANSWER_SLOT_SIZE_CLASS} items-center justify-center rounded-2xl bg-indigo-700 text-[28px] font-black leading-none text-white shadow-2xs`}
+                    {...(isAnswerKey
+                      ? { "data-solved-subitize-total": card.totalCountAr }
+                      : {})}
+                  >
+                    {card.totalCountAr}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </ExerciseColumns>
+
+        {/* Reasoning Prompt */}
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-300 bg-amber-50/80 px-2.5 py-1 text-[13px] font-bold leading-tight text-amber-950">
+          <span>
+            🤔 سؤال التعرّف السريع:{" "}
+            {toEasternArabicNumerals(data.reasoningPromptAr)}
+          </span>
+          <AnswerLine
+            solved={isAnswerKey}
+            answer={toEasternArabicNumerals(data.reasoningAnswerAr)}
+            ariaLabel="سطر كتابة إجابة سؤال التفكير"
+            solvedDataAttributes={{ "data-solved-subitize-reasoning": "true" }}
+          />
+        </div>
+      </div>
+    );
+  }
 
   if (data.subitizeMode === "number-bond-maze" && data.mazeBonds) {
     return (
