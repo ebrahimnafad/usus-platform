@@ -17,4 +17,4 @@
 - [ ] Prerequisite Warm-Ups resolve K-56 → K-47, K-57 → K-56, and K-58 → K-57
 - [ ] Arabic titles, Teacher Notes, classroom activities, misconceptions, prompts, and Strategy Hints for K-56 to K-58 are drafted and reviewed by the user
 - [ ] Domain tests across many Seeds: `ShiftOneDecompose` generates all $N + 1$ bonds in exact `(N − i, i)` order; `give-away` rows satisfy `N − k` and `N − (k + 1)`; every `take-apart` item satisfies `part1 + part2 = total` and open-ended items list all valid pairs in their Strategy Hint; MATCHING G and H rows have distinct Totals
-- [ ] Constitution §12 holds for K-56 to K-58 (guard green for every authored lesson K-1 to K-58)
+- [ ] Constitution §12 holds for K-56 to K-58 (`--lessons=K-56..K-58` guard green, followed by the single batch-close full guard sweep across K-1 to K-58)

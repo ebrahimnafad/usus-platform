@@ -15,4 +15,4 @@
 - [ ] Prerequisite Warm-Ups resolve K-51 → K-49, K-52 → K-51, and K-53 → K-52
 - [ ] Arabic titles, Teacher Notes, classroom activities, misconceptions, prompts, and Strategy Hints for K-51 to K-53 are drafted and reviewed by the user
 - [ ] Domain tests across many Seeds: every K-51 to K-53 item satisfies `part1 + part2 = total`, rendered text matches generated quantities, and MATCHING C and D solutions are 1-to-1
-- [ ] Constitution §12 holds for K-51 to K-53 (guard green for K-1 to K-53)
+- [ ] Constitution §12 holds for K-51 to K-53 (`--lessons=K-51..K-53` guard green)

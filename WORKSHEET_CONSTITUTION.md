@@ -146,9 +146,13 @@ Each rule names its enforcement:
 
 ## 12. Definition of done for a batch
 
+Per ticket within a batch:
+
+- The layout guard is green for the lessons delivered by that ticket (`--lessons=<ticket-range>`).
+
 A batch closes when all of these hold:
 
-- The layout guard is green for every authored lesson, not only the new ones.
+- The layout guard is green for every authored lesson across the curriculum (run once when closing the batch).
 - The primary-seam tests and domain tests pass for the new lessons.
 - Every new term is in `GLOSSARY.md` and every new size is in §3 or §4.
 - The user has reviewed the saved page PNGs and the Arabic text of every new lesson.
@@ -161,3 +165,4 @@ A batch closes when all of these hold:
 - 2026-11-07: For Grade K Unit 4 (subtraction): §9.4 adds the imperatives `اشطب` and `اطرح`; §9.3 fixes the minus sign `−` (U+2212) and the Total-rightmost order for subtraction; §6.3 extends the reversed-form exception to K-45.
 - 2026-11-07: Added SHAPE GRAPH (`428 × 284 px` with 48 px cells) to §3.4 canonical sizes per §3.5 and §10.1, and added the imperative `ارسم` to §9.4 for drawn graph responses.
 - 2026-11-08: For Grade K Unit 5 (word problems and Shift 1): §9.4 adds the imperatives `اقرأ` and `اجمع`; §6.3 notes K-56's curriculum exception for `0` as a Part in Shift 1 decompositions `(N, 0) ... (0, N)`.
+- 2026-11-08: §12 scopes per-ticket layout guard runs to the ticket's own lessons (`--lessons=<ticket-range>`), reserving the full all-lessons guard sweep for once at batch close.

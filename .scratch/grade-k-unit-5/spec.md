@@ -88,7 +88,7 @@ Author K-49 to K-58 on two new archetypes (`SolveWordProblem` and `ShiftOneDecom
 
 ## Testing Decisions
 
-- Constitution §12 is the definition of done; the layout guard gates every authored lesson (K-1 to K-58).
+- Constitution §12 is the definition of done: per ticket, the layout guard gates the ticket's new lessons (`--lessons=<ticket-range>`); at batch close, the layout guard runs once across all authored lessons (K-1 to K-58).
 - Primary-seam tests (`renderWorksheetSurface`) extend to K-49 to K-58: seed determinism, Warm-Up prerequisite resolution, difficulty progression, Strategy Hints on every Answer Key exercise, the Eastern Arabic Numerals invariant, Answer Slot sizes, no worksheet answer leaks, and `−` (never a hyphen) in every subtraction Equation.
 - Language tests (`tests/ticket-06-arabic-msa-language-pass.test.ts`): `APPROVED_IMPERATIVES` includes `اقرأ` and `اجمع`; avoided terms never appear in rendered student-facing HTML.
 - Domain tests across many Seeds:
