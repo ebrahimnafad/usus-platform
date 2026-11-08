@@ -400,60 +400,81 @@ function renderConnectMatchExercise({
                         solved={mode === "answer-key"}
                       />
                     ) : isWordProblemEndpoint ? (
-                      <div
-                        dir="rtl"
-                        className="flex w-full flex-col items-center justify-center gap-1 rounded-xl border border-indigo-100 bg-indigo-50/40 px-2 py-1"
-                        data-word-problem-endpoint="true"
-                      >
-                        <div className="flex w-full items-center justify-between gap-1">
-                          <div className="flex items-center gap-1">
-                            {itemMeta.problemStyle === "story" && (
-                              <EverydayObjectSvg
-                                objectId={String(itemMeta.objectId ?? "apple")}
-                                size="tiny"
-                              />
-                            )}
-                            <span className="text-[13px] font-extrabold leading-none text-indigo-950">
-                              {itemMeta.problemStyle === "story"
-                                ? "مسألة قصصية"
-                                : "مسألة تعليمية"}
-                            </span>
-                          </div>
-                          {mode === "answer-key" && (
-                            <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[13px] font-extrabold leading-none text-emerald-900">
-                              {String(itemMeta.totalAr ?? "")}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-[13px] font-bold leading-snug text-slate-900">
-                          {toEasternArabicNumerals(
-                            String(itemMeta.problemTextAr ?? "")
-                          )}
-                        </p>
-                        {Boolean(itemMeta.showProblemSlot) && (
-                          <div className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-indigo-200 bg-white px-2 py-0.5 shadow-2xs">
-                            <span className="text-[13px] font-extrabold leading-none text-indigo-950">
-                              {toEasternArabicNumerals(
-                                String(
-                                  itemMeta.questionLabelAr ?? "كم في الكلّ؟"
-                                )
+                      (() => {
+                        const isTakeFromEndpoint =
+                          itemMeta.situation === "take-from";
+                        const solvedEndpointAnswerAr = String(
+                          itemMeta.solvedAnswerAr ??
+                            (isTakeFromEndpoint
+                              ? itemMeta.missingPartAr
+                              : itemMeta.totalAr) ??
+                            ""
+                        );
+                        const solvedEndpointAttrKey = isTakeFromEndpoint
+                          ? "data-solved-match-problem-missing-part"
+                          : "data-solved-match-problem-total";
+                        return (
+                          <div
+                            dir="rtl"
+                            className="flex w-full flex-col items-center justify-center gap-1 rounded-xl border border-indigo-100 bg-indigo-50/40 px-2 py-1"
+                            data-word-problem-endpoint="true"
+                          >
+                            <div className="flex w-full items-center justify-between gap-1">
+                              <div className="flex items-center gap-1">
+                                {itemMeta.problemStyle === "story" && (
+                                  <EverydayObjectSvg
+                                    objectId={String(
+                                      itemMeta.objectId ?? "apple"
+                                    )}
+                                    size="tiny"
+                                  />
+                                )}
+                                <span className="text-[13px] font-extrabold leading-none text-indigo-950">
+                                  {itemMeta.problemStyle === "story"
+                                    ? "مسألة قصصية"
+                                    : "مسألة تعليمية"}
+                                </span>
+                              </div>
+                              {mode === "answer-key" && (
+                                <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[13px] font-extrabold leading-none text-emerald-900">
+                                  {solvedEndpointAnswerAr}
+                                </span>
                               )}
-                            </span>
-                            <AnswerSlot
-                              solved={mode === "answer-key"}
-                              answer={String(itemMeta.totalAr ?? "")}
-                              ariaLabel="مربع كتابة الكلّ في المسألة اللفظية"
-                              kind="unknown"
-                              tone="indigo"
-                              solvedDataAttributes={{
-                                "data-solved-match-problem-total": String(
-                                  itemMeta.totalAr ?? ""
-                                ),
-                              }}
-                            />
+                            </div>
+                            <p className="text-[13px] font-bold leading-snug text-slate-900">
+                              {toEasternArabicNumerals(
+                                String(itemMeta.problemTextAr ?? "")
+                              )}
+                            </p>
+                            {Boolean(itemMeta.showProblemSlot) && (
+                              <div className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-indigo-200 bg-white px-2 py-0.5 shadow-2xs">
+                                <span className="text-[13px] font-extrabold leading-none text-indigo-950">
+                                  {toEasternArabicNumerals(
+                                    String(
+                                      itemMeta.questionLabelAr ?? "كم في الكلّ؟"
+                                    )
+                                  )}
+                                </span>
+                                <AnswerSlot
+                                  solved={mode === "answer-key"}
+                                  answer={solvedEndpointAnswerAr}
+                                  ariaLabel={
+                                    isTakeFromEndpoint
+                                      ? "مربع كتابة الجزء الناقص في المسألة اللفظية"
+                                      : "مربع كتابة الكلّ في المسألة اللفظية"
+                                  }
+                                  kind="unknown"
+                                  tone="indigo"
+                                  solvedDataAttributes={{
+                                    [solvedEndpointAttrKey]:
+                                      solvedEndpointAnswerAr,
+                                  }}
+                                />
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </div>
+                        );
+                      })()
                     ) : missingTotal !== undefined ? (
                       <AnswerSlot
                         solved={mode === "answer-key"}

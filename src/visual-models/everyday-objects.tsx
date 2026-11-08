@@ -1229,13 +1229,85 @@ export function EverydayObjectSvg({
 
 export const renderEverydayObjectVisualModel: VisualModelRenderer = ({
   model,
+  solved = false,
 }) => {
+  const meta = (model.meta ?? {}) as Record<string, unknown>;
   const primary = model.count ?? 1;
   const secondary = model.secondaryCount ?? 0;
   const total = primary + secondary;
+  const crossedOut = Math.max(0, Math.min(total, model.crossedOutCount ?? 0));
+  const crossOffMode =
+    (meta.crossOffMode as "shown" | "student" | "none") ?? "shown";
+  const shouldDrawCrossOff =
+    crossedOut > 0 &&
+    crossOffMode !== "none" &&
+    (crossOffMode === "shown" || solved);
   const effectiveSize = model.size ?? (total >= 4 ? "tiny" : "small");
 
-  if (total <= 1) {
+  const renderObjectItem = (key: string, idx: number) => {
+    const isCrossedOut =
+      shouldDrawCrossOff && idx >= total - crossedOut && idx < total;
+    return (
+      <div
+        key={key}
+        className="relative inline-flex shrink-0 items-center justify-center"
+      >
+        <EverydayObjectSvg objectId={model.id} size={effectiveSize} />
+        {isCrossedOut && (
+          <svg
+            width="100%"
+            height="100%"
+            viewBox="0 0 32 32"
+            fill="none"
+            className="pointer-events-none absolute inset-0"
+            data-crossed-out-object="true"
+            {...(crossOffMode === "student" && solved
+              ? { "data-solved-cross-off": "true" }
+              : {})}
+          >
+            <line
+              x1="5"
+              y1="5"
+              x2="27"
+              y2="27"
+              stroke="#FFFFFF"
+              strokeWidth="5"
+              strokeLinecap="round"
+            />
+            <line
+              x1="27"
+              y1="5"
+              x2="5"
+              y2="27"
+              stroke="#FFFFFF"
+              strokeWidth="5"
+              strokeLinecap="round"
+            />
+            <line
+              x1="5"
+              y1="5"
+              x2="27"
+              y2="27"
+              stroke="#BE123C"
+              strokeWidth="3.2"
+              strokeLinecap="round"
+            />
+            <line
+              x1="27"
+              y1="5"
+              x2="5"
+              y2="27"
+              stroke="#BE123C"
+              strokeWidth="3.2"
+              strokeLinecap="round"
+            />
+          </svg>
+        )}
+      </div>
+    );
+  };
+
+  if (total <= 1 && crossedOut === 0) {
     return (
       <div
         className="inline-flex items-center gap-1"
@@ -1257,8 +1329,15 @@ export const renderEverydayObjectVisualModel: VisualModelRenderer = ({
       data-visual-model="everyday-object"
       data-object-id={model.id}
       data-count={formatEasternNumber(total)}
+      {...(crossedOut > 0
+        ? {
+            "data-crossed-out": formatEasternNumber(crossedOut),
+            "data-cross-off-mode": crossOffMode,
+          }
+        : {})}
     >
       <div
+        dir="rtl"
         className="flex shrink-0 items-center justify-center gap-0.5"
         data-visual-model="everyday-object-group"
         {...(secondary > 0
@@ -1276,23 +1355,15 @@ export const renderEverydayObjectVisualModel: VisualModelRenderer = ({
               : ""
           }`}
         >
-          {Array.from({ length: primary }, (_, idx) => (
-            <EverydayObjectSvg
-              key={`p-${idx}`}
-              objectId={model.id}
-              size={effectiveSize}
-            />
-          ))}
+          {Array.from({ length: primary }, (_, idx) =>
+            renderObjectItem(`p-${idx}`, idx)
+          )}
         </div>
         {secondary > 0 && (
           <div className="flex shrink-0 items-center gap-0.5 rounded-xl border border-dashed border-amber-300 bg-amber-50/40 px-1 py-0.5">
-            {Array.from({ length: secondary }, (_, idx) => (
-              <EverydayObjectSvg
-                key={`s-${idx}`}
-                objectId={model.id}
-                size={effectiveSize}
-              />
-            ))}
+            {Array.from({ length: secondary }, (_, idx) =>
+              renderObjectItem(`s-${idx}`, primary + idx)
+            )}
           </div>
         )}
       </div>

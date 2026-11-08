@@ -1239,6 +1239,95 @@ export function buildPartWholeMatchPairs(
           ? 0
           : 1;
 
+  const isTakeFromMatch =
+    mode === "model-to-word-problem" &&
+    (operation === "subtract" || situation === "take-from");
+
+  if (isTakeFromMatch) {
+    const subFacts = selectSubtractionFacts(
+      rng,
+      difficultyLevel,
+      {
+        totalRange,
+        minPart,
+        count: pairCount,
+      },
+      usedFacts
+    );
+
+    const tracePositions: Array<"total" | "part1"> =
+      difficultyLevel === "Easy" ? ["total", "part1"] : [];
+
+    const scenePool = getStoryScenesForSituation("take-from");
+    const pickedScenes =
+      problemStyle === "story" ? rng.pickN(scenePool, subFacts.length) : [];
+    const effectiveShowProblemSlot =
+      showProblemSlot ?? problemStyle === "story";
+
+    return subFacts.map((fact, idx) => {
+      const totalAr = formatEasternNumber(fact.total);
+      const p1Ar = formatEasternNumber(fact.partTakenAway);
+      const p2Ar = formatEasternNumber(fact.missingPart);
+      const [primaryTheme, secondaryTheme] =
+        COLOR_PAIRS[idx % COLOR_PAIRS.length];
+
+      const rightModel = createNumberBondSpec({
+        part1: fact.partTakenAway,
+        part2: fact.missingPart,
+        total: fact.total,
+        missingPosition: "part2",
+        slotKind: "unknown",
+        tracePositions,
+        colorTheme: primaryTheme,
+        secondaryColorTheme: secondaryTheme,
+      });
+
+      const textBundle = buildWordProblemText({
+        situation: "take-from",
+        problemStyle,
+        part1: fact.partTakenAway,
+        part2: fact.missingPart,
+        total: fact.total,
+        templateIndex: idx,
+        scene: pickedScenes[idx],
+      });
+
+      const leftModel = createDigitCardSpec(fact.missingPart, {
+        id: `word-problem-card-${fact.total}-${fact.partTakenAway}-${fact.missingPart}`,
+        labelAr: textBundle.problemTextAr,
+        count: fact.total,
+        secondaryCount: fact.partTakenAway,
+        meta: {
+          isWordProblemEndpoint: true,
+          situation: "take-from",
+          problemStyle,
+          part1: fact.partTakenAway,
+          part2: fact.missingPart,
+          total: fact.total,
+          partTakenAway: fact.partTakenAway,
+          missingPart: fact.missingPart,
+          part1Ar: p1Ar,
+          part2Ar: p2Ar,
+          totalAr,
+          partTakenAwayAr: p1Ar,
+          missingPartAr: p2Ar,
+          solvedAnswerAr: p2Ar,
+          objectId: textBundle.objectId,
+          problemTextAr: textBundle.problemTextAr,
+          questionLabelAr: textBundle.questionLabelAr,
+          showProblemSlot: effectiveShowProblemSlot,
+        },
+      });
+
+      return {
+        pairId: `pair-${idx + 1}-${fact.key}`,
+        rightItem: rightModel,
+        leftItem: leftModel,
+        connectionReasonAr: `الكلّ ${totalAr} شُطب منه ${p1Ar} فبقي الجزء الناقص ${p2Ar}`,
+      };
+    });
+  }
+
   if (operation === "subtract") {
     const subFacts = selectSubtractionFacts(
       rng,
