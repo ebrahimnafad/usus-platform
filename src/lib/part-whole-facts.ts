@@ -12,6 +12,12 @@ import type {
 import { formatEasternNumber } from "@/lib/numerals";
 import type { SeededRandom } from "@/lib/seed";
 import {
+  ADD_TO_STORY_SCENES,
+  buildAddToWordProblemText,
+  type WordProblemSituation,
+  type WordProblemStyle,
+} from "@/lib/word-problems";
+import {
   EVERYDAY_OBJECT_CATALOG,
   createEverydayObjectSpec,
 } from "@/visual-models/everyday-objects";
@@ -204,13 +210,17 @@ export type PartWholeMatchMode =
   | "dice-to-number-bond"
   | "number-bond-to-equation"
   | "five-frame-to-equation"
-  | "tally-expression-to-total";
+  | "tally-expression-to-total"
+  | "model-to-word-problem";
 
 export interface BuildPartWholeMatchPairsInput {
   rng: SeededRandom;
   difficultyLevel: DifficultyLevel;
   matchingMode: PartWholeMatchMode;
   operation?: "add" | "subtract";
+  situation?: WordProblemSituation;
+  problemStyle?: WordProblemStyle;
+  showProblemSlot?: boolean;
   pairCount: number;
   totalRange?: [number, number];
   minPart?: number;
@@ -218,7 +228,7 @@ export interface BuildPartWholeMatchPairsInput {
   usedFacts?: Set<string>;
 }
 
-const COLOR_PAIRS: Array<[ColorThemeId, ColorThemeId]> = [
+export const COLOR_PAIRS: Array<[ColorThemeId, ColorThemeId]> = [
   ["coral", "sky"],
   ["emerald", "amber"],
   ["violet", "teal"],
@@ -1210,6 +1220,9 @@ export function buildPartWholeMatchPairs(
     difficultyLevel,
     matchingMode: mode,
     operation = "add",
+    situation = "add-to",
+    problemStyle = "learning",
+    showProblemSlot,
     pairCount,
     totalRange,
     minPart: explicitMinPart,
@@ -1220,7 +1233,7 @@ export function buildPartWholeMatchPairs(
   const minPart =
     explicitMinPart !== undefined
       ? explicitMinPart
-      : mode === "tally-expression-to-total"
+      : mode === "tally-expression-to-total" || mode === "model-to-word-problem"
         ? 1
         : difficultyLevel === "Advanced"
           ? 0
@@ -1323,6 +1336,71 @@ export function buildPartWholeMatchPairs(
 
   const tracePositions: Array<"part1" | "part2"> =
     difficultyLevel === "Easy" ? ["part1", "part2"] : [];
+
+  if (mode === "model-to-word-problem") {
+    const pickedScenes =
+      problemStyle === "story"
+        ? rng.pickN(ADD_TO_STORY_SCENES, facts.length)
+        : [];
+    const effectiveShowProblemSlot =
+      showProblemSlot ?? problemStyle === "story";
+
+    return facts.map((fact, idx) => {
+      const p1Ar = formatEasternNumber(fact.part1);
+      const p2Ar = formatEasternNumber(fact.part2);
+      const totalAr = formatEasternNumber(fact.total);
+      const [primaryTheme, secondaryTheme] =
+        COLOR_PAIRS[idx % COLOR_PAIRS.length];
+
+      const rightModel = createNumberBondSpec({
+        part1: fact.part1,
+        part2: fact.part2,
+        total: fact.total,
+        missingPosition: "total",
+        slotKind: "unknown",
+        tracePositions,
+        colorTheme: primaryTheme,
+        secondaryColorTheme: secondaryTheme,
+      });
+
+      const textBundle = buildAddToWordProblemText({
+        problemStyle,
+        part1: fact.part1,
+        part2: fact.part2,
+        templateIndex: idx,
+        scene: pickedScenes[idx],
+      });
+
+      const leftModel = createDigitCardSpec(fact.total, {
+        id: `word-problem-card-${fact.part1}-${fact.part2}-${fact.total}`,
+        labelAr: textBundle.problemTextAr,
+        count: fact.part1,
+        secondaryCount: fact.part2,
+        meta: {
+          isWordProblemEndpoint: true,
+          situation,
+          problemStyle,
+          part1: fact.part1,
+          part2: fact.part2,
+          total: fact.total,
+          part1Ar: p1Ar,
+          part2Ar: p2Ar,
+          totalAr,
+          objectId: textBundle.objectId,
+          problemTextAr: textBundle.problemTextAr,
+          questionLabelAr: textBundle.questionLabelAr,
+          showProblemSlot: effectiveShowProblemSlot,
+        },
+      });
+
+      return {
+        pairId: `pair-${idx + 1}-${fact.key}`,
+        rightItem: rightModel,
+        leftItem: leftModel,
+        connectionReasonAr: `الجزءان ${p1Ar} و${p2Ar} يكوّنان الكلّ ${totalAr}`,
+      };
+    });
+  }
 
   return facts.map((fact, idx) => {
     const p1Ar = formatEasternNumber(fact.part1);

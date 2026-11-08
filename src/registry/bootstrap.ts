@@ -29,6 +29,7 @@ import "@/archetypes/subitize-part-whole";
 import "@/archetypes/join-parts";
 import "@/archetypes/judge-equality";
 import "@/archetypes/take-away";
+import "@/archetypes/solve-word-problem";
 
 // --- Lesson Blueprints ---
 import "@/blueprints/grade-k/lesson-k1";
@@ -43,3 +44,4 @@ import "@/blueprints/grade-k/lessons-k40-to-k41";
 import "@/blueprints/grade-k/lessons-k42-to-k44";
 import "@/blueprints/grade-k/lesson-k45";
 import "@/blueprints/grade-k/lessons-k46-to-k48";
+import "@/blueprints/grade-k/lessons-k49-to-k50";

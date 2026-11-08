@@ -9,6 +9,7 @@ import type {
 } from "@/domain/types";
 import {
   EVERYDAY_OBJECT_CATALOG,
+  EverydayObjectSvg,
   createEverydayObjectSpec,
 } from "@/visual-models/everyday-objects";
 import { PartsTableView } from "@/components/worksheet/PartsTableView";
@@ -16,6 +17,10 @@ import {
   buildPartWholeMatchPairs,
   type PartWholeMatchMode,
 } from "@/lib/part-whole-facts";
+import type {
+  WordProblemSituation,
+  WordProblemStyle,
+} from "@/lib/word-problems";
 import { VisualModelView } from "@/visual-models/registry";
 import {
   type ArchetypeGeneratorContext,
@@ -32,6 +37,9 @@ export interface ConnectMatchBlueprintParams {
   categories?: EverydayObjectCategory[];
   matchingMode?: ConnectMatchMode;
   operation?: "add" | "subtract";
+  situation?: WordProblemSituation;
+  problemStyle?: WordProblemStyle;
+  showProblemSlot?: boolean;
   totalRange?: [number, number];
   minPart?: number;
   showMissingTotalSlot?: boolean;
@@ -84,6 +92,9 @@ function generateConnectMatchExercise(
       difficultyLevel: ctx.difficultyLevel,
       matchingMode: params.matchingMode,
       operation: params.operation,
+      situation: params.situation,
+      problemStyle: params.problemStyle,
+      showProblemSlot: params.showProblemSlot,
       pairCount,
       totalRange: params.totalRange,
       minPart: params.minPart,
@@ -363,6 +374,9 @@ function renderConnectMatchExercise({
               const isPartsTableEndpoint = Boolean(
                 itemMeta.isPartsTableEndpoint
               );
+              const isWordProblemEndpoint = Boolean(
+                itemMeta.isWordProblemEndpoint
+              );
               const missingTotal = itemMeta.missingTotal as number | undefined;
 
               return (
@@ -385,6 +399,61 @@ function renderConnectMatchExercise({
                         }
                         solved={mode === "answer-key"}
                       />
+                    ) : isWordProblemEndpoint ? (
+                      <div
+                        dir="rtl"
+                        className="flex w-full flex-col items-center justify-center gap-1 rounded-xl border border-indigo-100 bg-indigo-50/40 px-2 py-1"
+                        data-word-problem-endpoint="true"
+                      >
+                        <div className="flex w-full items-center justify-between gap-1">
+                          <div className="flex items-center gap-1">
+                            {itemMeta.problemStyle === "story" && (
+                              <EverydayObjectSvg
+                                objectId={String(itemMeta.objectId ?? "apple")}
+                                size="tiny"
+                              />
+                            )}
+                            <span className="text-[13px] font-extrabold leading-none text-indigo-950">
+                              {itemMeta.problemStyle === "story"
+                                ? "مسألة قصصية"
+                                : "مسألة تعليمية"}
+                            </span>
+                          </div>
+                          {mode === "answer-key" && (
+                            <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[13px] font-extrabold leading-none text-emerald-900">
+                              {String(itemMeta.totalAr ?? "")}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[13px] font-bold leading-snug text-slate-900">
+                          {toEasternArabicNumerals(
+                            String(itemMeta.problemTextAr ?? "")
+                          )}
+                        </p>
+                        {Boolean(itemMeta.showProblemSlot) && (
+                          <div className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-indigo-200 bg-white px-2 py-0.5 shadow-2xs">
+                            <span className="text-[13px] font-extrabold leading-none text-indigo-950">
+                              {toEasternArabicNumerals(
+                                String(
+                                  itemMeta.questionLabelAr ?? "كم في الكلّ؟"
+                                )
+                              )}
+                            </span>
+                            <AnswerSlot
+                              solved={mode === "answer-key"}
+                              answer={String(itemMeta.totalAr ?? "")}
+                              ariaLabel="مربع كتابة الكلّ في المسألة اللفظية"
+                              kind="unknown"
+                              tone="indigo"
+                              solvedDataAttributes={{
+                                "data-solved-match-problem-total": String(
+                                  itemMeta.totalAr ?? ""
+                                ),
+                              }}
+                            />
+                          </div>
+                        )}
+                      </div>
                     ) : missingTotal !== undefined ? (
                       <AnswerSlot
                         solved={mode === "answer-key"}

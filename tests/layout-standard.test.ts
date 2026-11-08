@@ -234,6 +234,7 @@ describe("Exercise layout primitives", () => {
       { lessonNumber: 36, archetype: "JudgeEquality" },
       { lessonNumber: 39, archetype: "PictureGraphRead" },
       { lessonNumber: 40, archetype: "TakeAway" },
+      { lessonNumber: 49, archetype: "SolveWordProblem" },
     ];
 
     for (const { lessonNumber, archetype } of archetypeLessons) {

@@ -8,7 +8,12 @@ import { renderWorksheetSurface } from "@/lib/render-worksheet-surface";
  * Teacher Notes carry the teacher voice (§9.4) and are excluded from the Worksheet, so
  * scanning the rendered surfaces checks exactly the text a child reads.
  */
-const AVOIDED_FORMS: Array<{ pattern: RegExp; term: string; use: string }> = [
+const AVOIDED_FORMS: Array<{
+  pattern: RegExp;
+  term: string;
+  use: string;
+  minLessonNumber?: number;
+}> = [
   {
     pattern: /إشارات العدّ/,
     term: "Tally Marks",
@@ -38,6 +43,12 @@ const AVOIDED_FORMS: Array<{ pattern: RegExp; term: string; use: string }> = [
     term: "Total",
     use: "الكلّ",
   },
+  {
+    pattern: /البداية|التغيير|النتيجة|تمرين مجرّد|جدول التفكيك|تقسيم/,
+    term: "Story Problem / Learning Problem / Shift 1 / Take-Apart",
+    use: "الجزء والكلّ / المسألة التعليمية / إزاحة ١ / تفكيك الكلّ",
+    minLessonNumber: 49,
+  },
 ];
 
 /**
@@ -66,6 +77,8 @@ const APPROVED_IMPERATIVES = [
   "ارسم",
   "اشطب",
   "اطرح",
+  "اقرأ",
+  "اجمع",
 ];
 
 const authoredLessons = listAuthoredLessonBlueprints()
@@ -92,7 +105,13 @@ describe("Ticket 06 — Arabic White MSA language pass", () => {
           viewMode,
         });
 
-        for (const { pattern, term, use } of AVOIDED_FORMS) {
+        for (const { pattern, term, use, minLessonNumber } of AVOIDED_FORMS) {
+          if (
+            minLessonNumber !== undefined &&
+            lesson.lessonNumber < minLessonNumber
+          ) {
+            continue;
+          }
           const match = html.match(pattern);
           if (match) {
             violations.push(

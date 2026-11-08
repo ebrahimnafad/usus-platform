@@ -19,6 +19,7 @@ import type { PictureGraphReadBlueprintParams } from "@/archetypes/picture-graph
 import type { SequenceAndZeroBlueprintParams } from "@/archetypes/sequence-and-zero";
 import type { SubitizePartWholeBlueprintParams } from "@/archetypes/subitize-part-whole";
 import type { TakeAwayBlueprintParams } from "@/archetypes/take-away";
+import type { SolveWordProblemBlueprintParams } from "@/lib/word-problems";
 
 export interface TypedArchetypeParamsMap extends ArchetypeParamsByArchetypeId {
   ConnectMatch: ConnectMatchBlueprintParams & Record<string, unknown>;
@@ -32,6 +33,7 @@ export interface TypedArchetypeParamsMap extends ArchetypeParamsByArchetypeId {
   JoinParts: JoinPartsBlueprintParams & Record<string, unknown>;
   JudgeEquality: JudgeEqualityBlueprintParams & Record<string, unknown>;
   TakeAway: TakeAwayBlueprintParams & Record<string, unknown>;
+  SolveWordProblem: SolveWordProblemBlueprintParams & Record<string, unknown>;
 }
 
 const blueprintRegistry = new Map<string, LessonBlueprint>();
