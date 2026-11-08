@@ -81,20 +81,21 @@ for (const file of files) {
     }
 
     // Check 2: String literals containing Arabic text AND Western digits
-    const strMatches = line.matchAll(/["'`]([^"'`]*)["'`]/g);
+    // Strip template interpolations ${...} from the line first so inner quotes inside ${...} don't split template literals.
+    const lineWithoutInterpolations = line.replace(/\$\{[^}]*\}/g, "");
+    const strMatches = lineWithoutInterpolations.matchAll(
+      /"([^"]*)"|'([^']*)'|`([^`]*)`/g
+    );
     for (const m of strMatches) {
-      const str = m[1];
-      if (!/[0-9]/.test(str)) continue;
-      if (!/[\u0600-\u06FF]/.test(str)) continue;
-      // Strip out template expressions ${...} before checking
-      const stripped = str.replace(/\$\{[^}]*\}/g, "");
+      const stripped = m[1] ?? m[2] ?? m[3] ?? "";
       if (!/[0-9]/.test(stripped)) continue;
+      if (!/[\u0600-\u06FF]/.test(stripped)) continue;
       // Check allowlist on the stripped version
       if (ALLOWED.some((p) => p.test(stripped.trim()))) continue;
       // Allow standard code references (e.g., "K.G.4" inside Arabic text)
       if (/[A-Z]\.[A-Z0-9.]+/.test(stripped)) continue;
       console.error(
-        `❌ ${file}:${i + 1}: Western digit in Arabic string: "${str}"`
+        `❌ ${file}:${i + 1}: Western digit in Arabic string: "${stripped}"`
       );
       violations++;
     }
@@ -171,6 +172,55 @@ for (const file of blueprintFiles) {
         );
         violations++;
       }
+    }
+  }
+}
+
+// Check 4: New archetypes (Unit 5+) must also open defaultPromptAr / defaultStrategyHintAr with §9.4 imperatives
+const MODERN_ARCHETYPE_FILES = [
+  path.join("src", "archetypes", "solve-word-problem.tsx"),
+  path.join("src", "archetypes", "shift-one-decompose.tsx"),
+  path.join("src", "lib", "word-problems.ts"),
+];
+
+for (const file of MODERN_ARCHETYPE_FILES) {
+  if (!fs.existsSync(file)) continue;
+  const content = fs.readFileSync(file, "utf-8");
+  const lines = content.split("\n");
+  let inPromptOrHintBlock = false;
+
+  for (let i = 0; i < lines.length; i++) {
+    if (/const\s+(?:defaultPromptAr|defaultStrategyHintAr)\b/.test(lines[i])) {
+      inPromptOrHintBlock = true;
+    }
+    if (!inPromptOrHintBlock) continue;
+
+    const strMatches = lines[i].matchAll(/"([^"]+)"|'([^']+)'|`([^`]+)`/g);
+    for (const m of strMatches) {
+      const text = (m[1] ?? m[2] ?? m[3] ?? "").trim();
+      if (!/[\u0600-\u06FF]/.test(text) || text.length < 12) continue;
+
+      const badOpener = LABEL_OPENERS.find((label) => text.startsWith(label));
+      if (badOpener) {
+        console.error(
+          `❌ ${file}:${i + 1}: default prompt/hint opens with topic label "${badOpener}" (§9.5): "${text}"`
+        );
+        violations++;
+      }
+
+      const startsWithImperative = APPROVED_IMPERATIVES.some((verb) =>
+        text.startsWith(verb)
+      );
+      if (!startsWithImperative) {
+        console.error(
+          `❌ ${file}:${i + 1}: default prompt/hint must open with one of [${APPROVED_IMPERATIVES.join("، ")}] (§9.4): "${text}"`
+        );
+        violations++;
+      }
+    }
+
+    if (lines[i].includes(";")) {
+      inPromptOrHintBlock = false;
     }
   }
 }

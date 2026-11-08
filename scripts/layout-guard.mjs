@@ -53,12 +53,14 @@ function parseArgs(argv) {
       args.lessons = `${args.lessons},${arg}`;
     }
   }
+  const pngMode = args.png ?? "first";
+  const defaultConcurrency = pngMode === "none" ? 8 : 4;
   return {
     baseUrl: args["base-url"],
     lessons: args.lessons,
     seedCount: Math.min(SEEDS.length, Math.max(1, Number(args.seeds ?? 5))),
-    png: args.png ?? "first",
-    concurrency: Math.max(1, Number(args.concurrency ?? 4)),
+    png: pngMode,
+    concurrency: Math.max(1, Number(args.concurrency ?? defaultConcurrency)),
   };
 }
 

@@ -79,6 +79,7 @@ All side-effect imports for visual models, exercise archetypes, and lesson bluep
 
 - **Prompt clauses must match visible student controls**: Every imperative or step in `promptAr` must correspond to a visible response control on the rendered exercise card. When a parameter disables a sub-prompt or response strip (such as `includeComparison: false` on `PictureGraphRead` or `responseMode: "write"` hiding tracing guides), `promptAr` must not ask the student to perform that disabled action (`وقارن`, `وتتبّع`).
 - **Category-neutral titles for random catalog pools**: When an exercise draws items randomly from a broad catalog (`EVERYDAY_OBJECT_CATALOG`, `SHAPE_2D_CATALOG`, `SOLID_3D_CATALOG`) rather than a fixed `categories` array, `titleAr` must use a category-neutral title (`تمثيل بياني أفقي بالصور`, `الأبراج العمودية بالصور`), never a narrow thematic noun (`فواكه`, `حيوانات`, `ألعاب`) that contradicts randomly drawn items.
+- **Preserve authored `strategyHintAr` when appending dynamic facts**: When an archetype enriches `strategyHintAr` with seed-generated facts or valid-answer summaries, append `(${factsSummaryAr})` to `ctx.spec.strategyHintAr` rather than overwriting or ignoring the blueprint's authored hint.
 
 ## 7. Multi-seed domain loops vs. SSR markup loops in tests
 
