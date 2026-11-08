@@ -2,4 +2,4 @@ npx lint-staged
 npm run typecheck
 npm run lint:numerals
 npm run lint:console
-npx vitest run --exclude "tests/ticket-06-studio-and-pdf.test.ts"
+npm run test:fast

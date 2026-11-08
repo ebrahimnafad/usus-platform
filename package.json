@@ -8,6 +8,7 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "test:fast": "vitest run --exclude \"tests/ticket-06-studio-and-pdf.test.ts\" --exclude \"tests/reading-ticket-01-hub-and-routes.test.ts\"",
     "test:watch": "vitest",
     "test:e2e": "node scripts/run-e2e-tests.mjs",
     "guard:layout": "node scripts/layout-guard.mjs",
