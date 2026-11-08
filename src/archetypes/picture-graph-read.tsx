@@ -57,6 +57,7 @@ export interface PictureGraphReadBlueprintParams {
   titleAr?: string;
   categories?: PictureGraphCategoryInput[];
   categoryCount?: number;
+  maxCount?: number;
   countsPattern?: PictureGraphCountsPattern;
   responseMode?: PictureGraphResponseMode;
   iconSet?: PictureGraphIconSet;
@@ -143,32 +144,33 @@ function buildDefaultCountsForPattern(
   pattern: PictureGraphCountsPattern,
   categoryCount: number,
   rng: ArchetypeGeneratorContext["rng"],
-  minCount = 1
+  minCount = 1,
+  maxLimit = 5
 ): number[] {
   if (pattern === "increasing-by-1") {
-    const maxStart = Math.max(minCount, 6 - categoryCount);
+    const maxStart = Math.max(minCount, maxLimit + 1 - categoryCount);
     const start = rng.int(minCount, maxStart);
     return Array.from({ length: categoryCount }, (_, i) =>
-      Math.min(5, start + i)
+      Math.min(maxLimit, start + i)
     );
   }
 
   if (pattern === "decreasing-by-1") {
-    const minStart = Math.min(5, categoryCount + minCount - 1);
-    const start = rng.int(minStart, 5);
+    const minStart = Math.min(maxLimit, categoryCount + minCount - 1);
+    const start = rng.int(minStart, maxLimit);
     return Array.from({ length: categoryCount }, (_, i) =>
       Math.max(1, start - i)
     );
   }
 
   if (pattern === "with-equal-pair") {
-    const base = rng.int(2, 4);
-    const other = base < 5 ? base + 1 : base - 1;
+    const base = rng.int(Math.max(2, minCount), Math.max(2, maxLimit - 1));
+    const other = base < maxLimit ? base + 1 : base - 1;
     const raw = [base, base, other, Math.max(1, base - 1)];
     return raw.slice(0, categoryCount);
   }
 
-  const pool = [1, 2, 3, 4, 5];
+  const pool = maxLimit > 5 ? [6, 7, 8, 9, 10] : [1, 2, 3, 4, 5];
   return rng.pickN(pool, categoryCount);
 }
 
@@ -245,7 +247,19 @@ function generatePictureGraphReadExercise(
   const params = (ctx.spec.params ?? {}) as PictureGraphReadBlueprintParams;
   const orientation: PictureGraphOrientation =
     params.orientation ??
-    (ctx.lesson.lessonNumber === 21 ? "vertical" : "horizontal");
+    (ctx.lesson.lessonNumber === 21 || ctx.lesson.lessonNumber === 64
+      ? "vertical"
+      : "horizontal");
+  const isDrawMissing = params.responseMode === "draw-missing";
+  const maxCount = isDrawMissing
+    ? 5
+    : Math.max(
+        5,
+        Math.min(
+          10,
+          params.maxCount ?? (ctx.lesson.lessonNumber >= 63 ? 10 : 5)
+        )
+      );
 
   const defaultResponseMode: PictureGraphResponseMode =
     ctx.difficultyLevel === "Advanced" ? "write" : "trace-and-write";
@@ -267,7 +281,6 @@ function generatePictureGraphReadExercise(
     orientation === "vertical" ? "decreasing-by-1" : "increasing-by-1";
   const countsPattern = params.countsPattern ?? defaultPattern;
 
-  const isDrawMissing = responseMode === "draw-missing";
   const defaultMissingRange: [number, number] =
     ctx.difficultyLevel === "Easy"
       ? [1, 1]
@@ -297,11 +310,13 @@ function generatePictureGraphReadExercise(
       ICON_SETS[params.iconSet ?? "everyday-objects"],
       categoryCount
     );
+    const minBaseCount = isDrawMissing ? missingMin + 1 : maxCount > 5 ? 5 : 1;
     const counts = buildDefaultCountsForPattern(
       countsPattern,
       picked.length,
       ctx.rng,
-      isDrawMissing ? missingMin + 1 : 1
+      minBaseCount,
+      maxCount
     );
     rawCategories = picked.map((choice, idx) => ({
       ...choice,
@@ -311,7 +326,7 @@ function generatePictureGraphReadExercise(
 
   const categories: PictureGraphCategoryItem[] = rawCategories.map(
     (cat, idx) => {
-      const safeCount = Math.max(1, Math.min(5, cat.count));
+      const safeCount = Math.max(1, Math.min(maxCount, cat.count));
       const colorTheme =
         cat.colorTheme ?? GRAPH_COLOR_CYCLE[idx % GRAPH_COLOR_CYCLE.length];
       const missingCount = isDrawMissing
@@ -340,6 +355,7 @@ function generatePictureGraphReadExercise(
     orientation,
     titleAr: params.titleAr,
     categories,
+    maxCount,
     mode: isDrawMissing ? "draw-missing" : "read",
   });
 

@@ -35,8 +35,8 @@ export interface NumberBondOptions extends PartWholeSlotConfig {
 export function createNumberBondSpec(
   options: NumberBondOptions
 ): VisualModelSpec {
-  const part1 = Math.max(0, Math.min(5, options.part1));
-  const part2 = Math.max(0, Math.min(5, options.part2));
+  const part1 = Math.max(0, Math.min(10, options.part1));
+  const part2 = Math.max(0, Math.min(10, options.part2));
   const total = options.total ?? part1 + part2;
   const missingPosition = options.missingPosition ?? "total";
 
@@ -269,8 +269,8 @@ export function createEquationStripSpec(
   options: EquationStripOptions
 ): VisualModelSpec {
   const operation: EquationOperation = options.operation ?? "add";
-  const part1 = Math.max(0, Math.min(5, options.part1));
-  const part2 = Math.max(0, Math.min(5, options.part2));
+  const part1 = Math.max(0, Math.min(10, options.part1));
+  const part2 = Math.max(0, Math.min(10, options.part2));
   const total = options.total ?? part1 + part2;
   const layout = options.layout ?? "standard";
   const missingPosition =

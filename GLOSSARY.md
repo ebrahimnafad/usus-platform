@@ -164,6 +164,22 @@ _Avoid_: Unifix cubes, linking cubes, blocks
 A visual decomposition of an object quantity into instantly recognizable sub-groups (e.g., 5 = 3 + 2) rendered with dashed-border containers, enabling students to perceive total quantity without counting one by one.
 _Avoid_: Cluster, chunk, partition
 
+**Ten Frame**:
+A 2×5 rectangular grid of 10 equal cells (لوحة العشرة) used to model quantities 0 to 10 by anchoring at 5: filling the top row of 5 cells right to left first, then filling the bottom row right to left.
+_Avoid_: جدول العشرة, شبكة العشرة
+
+**Paper Clip Unit**:
+An informal unit of length (مشبك الورق) placed end to end along an object with no gaps or overlaps to measure a bar's length or a shape's perimeter.
+_Avoid_: سنتيمتر, مسطرة
+
+**Side**:
+A straight line segment (الضلع) that forms part of the boundary of a flat 2D shape.
+_Avoid_: حافّة, خطّ, وجه
+
+**Perimeter**:
+The total distance around the outside of a flat 2D shape (المحيط), found in Grade K by counting its sides or the paper clips placed end to end along all its sides.
+_Avoid_: المساحة, الحجم
+
 **Eastern Arabic Numerals**:
 The numeral digits `٠١٢٣٤٥٦٧٨٩` used exclusively across the user interface, worksheets, and answer keys (except inside standard codes).
 _Avoid_: Hindi numerals, Arabic-Indic digits

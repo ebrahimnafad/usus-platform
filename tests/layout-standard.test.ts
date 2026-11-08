@@ -66,6 +66,7 @@ describe("Layout standard matches WORKSHEET_CONSTITUTION.md", () => {
       answerSlotLine: { width: 160, height: 32 },
       fiveFrameCell: { width: 48, height: 48 },
       fiveFrameWidth: 240,
+      tenFrameBox: { width: 240, height: 108 },
       numberBondCircle: { width: 56, height: 56 },
       numberBondBox: { width: 212, height: 160 },
       equationStripHeight: 48,
@@ -73,6 +74,8 @@ describe("Layout standard matches WORKSHEET_CONSTITUTION.md", () => {
       shapeGraphBox: { width: 428, height: 284 },
       shapeGraphCell: { width: 48, height: 48 },
       shapeGraphTableIcon: 32,
+      paperClipBarBox: { width: 312, height: 56 },
+      polygonPerimeterBox: { width: 212, height: 160 },
     });
   });
 

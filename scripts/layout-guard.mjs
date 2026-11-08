@@ -455,6 +455,7 @@ function measureSheet(std) {
       { width: sizes.fiveFrameWidth },
       "five-frame",
     ],
+    ['[data-visual-model="ten-frame"]', sizes.tenFrameBox, "Ten Frame"],
     ['[data-visual-model="number-bond"]', sizes.numberBondBox, "Number Bond"],
     ["[data-number-bond-circle]", sizes.numberBondCircle, "Number Bond circle"],
     [
@@ -473,6 +474,16 @@ function measureSheet(std) {
       "SHAPE GRAPH",
     ],
     ["[data-shape-graph-cell]", sizes.shapeGraphCell, "SHAPE GRAPH cell"],
+    [
+      '[data-visual-model="paper-clip-bar"]',
+      sizes.paperClipBarBox,
+      "Paper-Clip Bar",
+    ],
+    [
+      '[data-visual-model="polygon-perimeter"]',
+      sizes.polygonPerimeterBox,
+      "Polygon Perimeter",
+    ],
   ];
   for (const [selector, size, name] of canonical) {
     for (const el of sheet.querySelectorAll(selector)) {

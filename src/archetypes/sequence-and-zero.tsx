@@ -16,6 +16,8 @@ import {
   createFiveFrameSpec,
   createNumeralTraceSpec,
   createSnapCubesSpec,
+  createTallyMarksSpec,
+  createTenFrameSpec,
   getArabicNumberWord,
 } from "@/visual-models/unit-2-models";
 import { VisualModelView } from "@/visual-models/registry";
@@ -34,7 +36,7 @@ import { ExerciseColumns } from "@/components/worksheet/ExerciseColumns";
 export type SequenceMode = "forward" | "backward" | "zero-take-away";
 
 export type SequenceVisualKind =
-  "snap-cubes" | "everyday-object" | "five-frame";
+  "snap-cubes" | "everyday-object" | "five-frame" | "ten-frame" | "tally-marks";
 
 export interface SequenceStepInput {
   value: number;
@@ -99,6 +101,26 @@ function buildStepVisualModel(
   objectId: EverydayObjectId,
   crossedOutFrom?: number
 ): VisualModelSpec {
+  if (visualKind === "ten-frame") {
+    const primary = Math.min(5, value);
+    const secondary = Math.max(0, value - 5);
+    return createTenFrameSpec({
+      count: primary,
+      secondaryCount: secondary,
+      colorTheme,
+      secondaryColorTheme: colorTheme === "sky" ? "amber" : "sky",
+      highlightEmptySlots: true,
+    });
+  }
+
+  if (visualKind === "tally-marks") {
+    return createTallyMarksSpec({
+      count: Math.max(1, value),
+      compact: true,
+      colorTheme,
+    });
+  }
+
   if (
     visualKind === "five-frame" ||
     value === 0 ||
@@ -180,7 +202,7 @@ function generateSequenceAndZeroExercise(
   const defaultMode: SequenceMode =
     ctx.lesson.lessonNumber === 24
       ? "zero-take-away"
-      : ctx.lesson.lessonNumber === 23
+      : ctx.lesson.lessonNumber === 23 || ctx.lesson.lessonNumber === 66
         ? "backward"
         : "forward";
 
@@ -198,14 +220,19 @@ function generateSequenceAndZeroExercise(
   if (params.steps && params.steps.length > 0) {
     rawSteps = params.steps;
   } else {
+    const isTenLesson = ctx.lesson.lessonNumber >= 65;
     const defaultNumbers =
       params.numbers && params.numbers.length > 0
         ? params.numbers
         : sequenceMode === "zero-take-away"
           ? [3, 2, 1, 0]
           : sequenceMode === "backward"
-            ? [5, 4, 3, 2, 1]
-            : [1, 2, 3, 4, 5];
+            ? isTenLesson
+              ? [10, 9, 8, 7, 6]
+              : [5, 4, 3, 2, 1]
+            : isTenLesson
+              ? [6, 7, 8, 9, 10]
+              : [1, 2, 3, 4, 5];
 
     const defaultMissingCount =
       ctx.difficultyLevel === "Easy"
@@ -243,12 +270,14 @@ function generateSequenceAndZeroExercise(
 
   const fallbackStepColors = ctx.rng.shuffle(STEP_COLORS);
 
+  const firstVal = rawSteps[0]?.value;
+  const lastVal = rawSteps[rawSteps.length - 1]?.value;
   const stepRuleBadgeAr =
     sequenceMode === "zero-take-away"
       ? "نأخذ ١ في كل مرة حتى يبقى صفر (٠)"
       : sequenceMode === "backward"
-        ? "عدّ تنازلي: ١ أقل في كل خطوة (٥ ← ١)"
-        : "عدّ تصاعدي: ١ أكثر في كل خطوة (١ ← ٥)";
+        ? `عدّ تنازلي: ١ أقل في كل خطوة (${formatEasternNumber(firstVal ?? 5)} ← ${formatEasternNumber(lastVal ?? 1)})`
+        : `عدّ تصاعدي: ١ أكثر في كل خطوة (${formatEasternNumber(firstVal ?? 1)} ← ${formatEasternNumber(lastVal ?? 5)})`;
 
   const stepDeltaLabelAr =
     sequenceMode === "zero-take-away"
@@ -258,7 +287,7 @@ function generateSequenceAndZeroExercise(
         : "١ أكثر";
 
   const steps: SequenceStepItem[] = rawSteps.map((step, idx) => {
-    const val = Math.max(0, Math.min(5, step.value));
+    const val = Math.max(0, Math.min(10, step.value));
     const valAr = formatEasternNumber(val);
     const theme =
       step.colorTheme ?? fallbackStepColors[idx % fallbackStepColors.length];
@@ -402,75 +431,85 @@ function renderSequenceAndZeroExercise({
         <ExerciseColumns
           columns={
             data.visualKind === "five-frame" ||
+            data.visualKind === "ten-frame" ||
+            data.visualKind === "tally-marks" ||
             data.visualKind === "everyday-object"
               ? 2
               : 3
           }
         >
-          {data.steps.slice(0, 4).map((step, idx) => {
-            const isSolvedStep = isAnswerKey && step.isMissing;
-            return (
-              <div
-                key={step.id}
-                className={`relative flex flex-col justify-between gap-0.5 rounded-xl border p-1 transition ${
-                  isSolvedStep
-                    ? "border-emerald-500 bg-emerald-50/90 shadow-xs"
-                    : step.isMissing
-                      ? "border-dashed border-amber-500 bg-amber-50/50"
-                      : "border-slate-200 bg-white shadow-2xs"
-                }`}
-                data-sequence-step={formatEasternNumber(idx + 1)}
-                data-step-value={step.valueAr}
-                data-step-missing={step.isMissing ? "true" : "false"}
-                {...(isSolvedStep
-                  ? { "data-solved-sequence-step": step.valueAr }
-                  : {})}
-              >
-                {/* Top Step Badge & Delta Pill */}
-                <div className="flex w-full items-center justify-between gap-1 text-xs font-extrabold leading-none">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-indigo-100 px-1.5 py-0.5 text-indigo-950">
-                    خطوة {formatEasternNumber(idx + 1)}
-                  </span>
-                  {idx > 0 && (
-                    <span className="rounded-full border border-amber-300 bg-amber-100 px-1.5 py-0.5 text-amber-950">
-                      {toEasternArabicNumerals(step.stepDeltaLabelAr)}
+          {data.steps
+            .slice(
+              0,
+              data.visualKind === "ten-frame" ||
+                data.visualKind === "five-frame"
+                ? 4
+                : 5
+            )
+            .map((step, idx) => {
+              const isSolvedStep = isAnswerKey && step.isMissing;
+              return (
+                <div
+                  key={step.id}
+                  className={`relative flex flex-col justify-between gap-0.5 rounded-xl border p-1 transition ${
+                    isSolvedStep
+                      ? "border-emerald-500 bg-emerald-50/90 shadow-xs"
+                      : step.isMissing
+                        ? "border-dashed border-amber-500 bg-amber-50/50"
+                        : "border-slate-200 bg-white shadow-2xs"
+                  }`}
+                  data-sequence-step={formatEasternNumber(idx + 1)}
+                  data-step-value={step.valueAr}
+                  data-step-missing={step.isMissing ? "true" : "false"}
+                  {...(isSolvedStep
+                    ? { "data-solved-sequence-step": step.valueAr }
+                    : {})}
+                >
+                  {/* Top Step Badge & Delta Pill */}
+                  <div className="flex w-full items-center justify-between gap-1 text-xs font-extrabold leading-none">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-indigo-100 px-1.5 py-0.5 text-indigo-950">
+                      خطوة {formatEasternNumber(idx + 1)}
                     </span>
-                  )}
-                </div>
-
-                {/* Visual Model + Numeral Trace + Digit Box */}
-                <div className="flex w-full items-center justify-between gap-1">
-                  <VisualModelView
-                    model={step.visualModel}
-                    solved={isAnswerKey}
-                  />
-
-                  <div className="flex shrink-0 items-center gap-1">
-                    {step.isMissing ? (
-                      <AnswerSlot
-                        solved={isAnswerKey}
-                        answer={step.valueAr}
-                        ariaLabel="مربع العدد المفقود في التسلسل"
-                        tone="amber"
-                        solvedDataAttributes={{
-                          "data-solved-missing-number": step.valueAr,
-                        }}
-                      />
-                    ) : (
-                      <span
-                        className={`inline-flex ${ANSWER_SLOT_SIZE_CLASS} shrink-0 items-center justify-center rounded-2xl border-2 border-indigo-500 bg-indigo-50 text-[28px] font-black leading-none text-indigo-950`}
-                        {...(isAnswerKey
-                          ? { "data-solved-sequence-step": step.valueAr }
-                          : {})}
-                      >
-                        {step.valueAr}
+                    {idx > 0 && (
+                      <span className="rounded-full border border-amber-300 bg-amber-100 px-1.5 py-0.5 text-amber-950">
+                        {toEasternArabicNumerals(step.stepDeltaLabelAr)}
                       </span>
                     )}
                   </div>
+
+                  {/* Visual Model + Numeral Trace + Digit Box */}
+                  <div className="flex w-full items-center justify-between gap-1">
+                    <VisualModelView
+                      model={step.visualModel}
+                      solved={isAnswerKey}
+                    />
+
+                    <div className="flex shrink-0 items-center gap-1">
+                      {step.isMissing ? (
+                        <AnswerSlot
+                          solved={isAnswerKey}
+                          answer={step.valueAr}
+                          ariaLabel="مربع العدد المفقود في التسلسل"
+                          tone="amber"
+                          solvedDataAttributes={{
+                            "data-solved-missing-number": step.valueAr,
+                          }}
+                        />
+                      ) : (
+                        <span
+                          className={`inline-flex ${ANSWER_SLOT_SIZE_CLASS} shrink-0 items-center justify-center rounded-2xl border-2 border-indigo-500 bg-indigo-50 text-[28px] font-black leading-none text-indigo-950`}
+                          {...(isAnswerKey
+                            ? { "data-solved-sequence-step": step.valueAr }
+                            : {})}
+                        >
+                          {step.valueAr}
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
         </ExerciseColumns>
         {data.steps.slice(4).map((step, idx) => {
           const isSolvedStep = isAnswerKey && step.isMissing;

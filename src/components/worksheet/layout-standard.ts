@@ -26,6 +26,7 @@ export const CANONICAL_SIZES_PX: {
   answerSlotLine: PixelSize;
   fiveFrameCell: PixelSize;
   fiveFrameWidth: number;
+  tenFrameBox: PixelSize;
   numberBondCircle: PixelSize;
   numberBondBox: PixelSize;
   equationStripHeight: number;
@@ -33,6 +34,8 @@ export const CANONICAL_SIZES_PX: {
   shapeGraphBox: PixelSize;
   shapeGraphCell: PixelSize;
   shapeGraphTableIcon: number;
+  paperClipBarBox: PixelSize;
+  polygonPerimeterBox: PixelSize;
 } = standard.canonicalSizesPx;
 
 export type TypeRole = keyof typeof standard.typeScalePx;

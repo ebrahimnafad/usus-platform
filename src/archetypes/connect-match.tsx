@@ -29,8 +29,13 @@ import {
 import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
 import { AnswerLine, AnswerSlot } from "@/components/worksheet/AnswerSlot";
 import { ExerciseColumns } from "@/components/worksheet/ExerciseColumns";
+import { createShape2DSpec } from "@/visual-models/shapes-solids-coins";
+import {
+  createPolygonPerimeterSpec,
+  createShapeDescriptionSpec,
+} from "@/visual-models/measurement-models";
 
-export type ConnectMatchMode = PartWholeMatchMode;
+export type ConnectMatchMode = PartWholeMatchMode | "shape-to-description";
 
 export interface ConnectMatchBlueprintParams {
   pairCount?: number;
@@ -86,7 +91,167 @@ function generateConnectMatchExercise(
 
   let pairs: ConnectMatchPair[] = [];
 
-  if (params.matchingMode) {
+  if (params.matchingMode === "shape-to-description") {
+    const defaultShapePairs =
+      ctx.lesson.lessonNumber === 73
+        ? [
+            {
+              id: "triangle",
+              right: createPolygonPerimeterSpec({
+                shapeId: "triangle",
+                sideCount: 3,
+                clipsPerSide: 1,
+                totalClips: 3,
+                colorTheme: "amber",
+                mode: "polygon-perimeter",
+                compact: true,
+              }),
+              left: createShapeDescriptionSpec({
+                id: "desc-tri",
+                textAr: "مثلث محيطه بمشابك الورق يساوي",
+                missingNumber: 3,
+              }),
+              reasonAr: "مثلث ٣ أضلاع × ١ مشبك = ٣ مشابك",
+            },
+            {
+              id: "square",
+              right: createPolygonPerimeterSpec({
+                shapeId: "square",
+                sideCount: 4,
+                clipsPerSide: 2,
+                totalClips: 8,
+                colorTheme: "sky",
+                mode: "polygon-perimeter",
+                compact: true,
+              }),
+              left: createShapeDescriptionSpec({
+                id: "desc-sq",
+                textAr: "مربع محيطه بمشابك الورق يساوي",
+                missingNumber: 8,
+              }),
+              reasonAr: "مربع ٤ أضلاع × ٢ مشبك = ٨ مشابك",
+            },
+            {
+              id: "rectangle",
+              right: createPolygonPerimeterSpec({
+                shapeId: "rectangle",
+                sideCount: 4,
+                clipsPerSide: 1,
+                totalClips: 4,
+                colorTheme: "emerald",
+                mode: "polygon-perimeter",
+                compact: true,
+              }),
+              left: createShapeDescriptionSpec({
+                id: "desc-rect",
+                textAr: "مستطيل محيطه بمشابك الورق يساوي",
+                missingNumber: 4,
+              }),
+              reasonAr: "مستطيل ٤ أضلاع = ٤ مشابك",
+            },
+            {
+              id: "pentagon",
+              right: createPolygonPerimeterSpec({
+                shapeId: "pentagon",
+                sideCount: 5,
+                clipsPerSide: 1,
+                totalClips: 5,
+                colorTheme: "violet",
+                mode: "polygon-perimeter",
+                compact: true,
+              }),
+              left: createShapeDescriptionSpec({
+                id: "desc-pent",
+                textAr: "خماسي محيطه بمشابك الورق يساوي",
+                missingNumber: 5,
+              }),
+              reasonAr: "خماسي ٥ أضلاع = ٥ مشابك",
+            },
+            {
+              id: "hexagon",
+              right: createPolygonPerimeterSpec({
+                shapeId: "hexagon",
+                sideCount: 6,
+                clipsPerSide: 1,
+                totalClips: 6,
+                colorTheme: "rose",
+                mode: "polygon-perimeter",
+                compact: true,
+              }),
+              left: createShapeDescriptionSpec({
+                id: "desc-hex",
+                textAr: "سداسي محيطه بمشابك الورق يساوي",
+                missingNumber: 6,
+              }),
+              reasonAr: "سداسي ٦ أضلاع = ٦ مشابك",
+            },
+          ]
+        : [
+            {
+              id: "triangle",
+              right: createShape2DSpec("triangle", { colorTheme: "amber" }),
+              left: createShapeDescriptionSpec({
+                id: "desc-tri",
+                textAr: "شكل له ٣ أضلاع مستقيمة و٣ زوايا",
+              }),
+              reasonAr: "المثلث له ٣ أضلاع مستقيمة و٣ زوايا",
+            },
+            {
+              id: "square",
+              right: createShape2DSpec("square", { colorTheme: "sky" }),
+              left: createShapeDescriptionSpec({
+                id: "desc-sq",
+                textAr: "شكل له ٤ أضلاع متساوية في الطول",
+              }),
+              reasonAr: "المربع له ٤ أضلاع متساوية في الطول و٤ زوايا",
+            },
+            {
+              id: "rectangle",
+              right: createShape2DSpec("rectangle", { colorTheme: "emerald" }),
+              left: createShapeDescriptionSpec({
+                id: "desc-rect",
+                textAr: "شكل له ٤ أضلاع (ضلعان طويلان وضلعان قصيران)",
+              }),
+              reasonAr: "المستطيل له ٤ أضلاع متقابلة متطابقة",
+            },
+            {
+              id: "pentagon",
+              right: createShape2DSpec("pentagon", { colorTheme: "violet" }),
+              left: createShapeDescriptionSpec({
+                id: "desc-pent",
+                textAr: "شكل له ٥ أضلاع مستقيمة و٥ زوايا",
+              }),
+              reasonAr: "الخماسي له ٥ أضلاع مستقيمة و٥ زوايا",
+            },
+            {
+              id: "hexagon",
+              right: createShape2DSpec("hexagon", { colorTheme: "rose" }),
+              left: createShapeDescriptionSpec({
+                id: "desc-hex",
+                textAr: "شكل له ٦ أضلاع مستقيمة و٦ زوايا",
+              }),
+              reasonAr: "السداسي له ٦ أضلاع مستقيمة و٦ زوايا",
+            },
+            {
+              id: "octagon",
+              right: createShape2DSpec("octagon", { colorTheme: "indigo" }),
+              left: createShapeDescriptionSpec({
+                id: "desc-oct",
+                textAr: "شكل له ٨ أضلاع مستقيمة و٨ زوايا",
+              }),
+              reasonAr: "الثماني له ٨ أضلاع مستقيمة و٨ زوايا",
+            },
+          ];
+
+    const sourcePairs = params.customCandidatePairs ?? defaultShapePairs;
+    const picked = ctx.rng.pickN(sourcePairs, pairCount);
+    pairs = picked.map((item, idx) => ({
+      pairId: `pair-${idx + 1}-${item.id}`,
+      rightItem: item.right,
+      leftItem: item.left,
+      connectionReasonAr: item.reasonAr,
+    }));
+  } else if (params.matchingMode) {
     pairs = buildPartWholeMatchPairs({
       rng: ctx.rng,
       difficultyLevel: ctx.difficultyLevel,
@@ -240,6 +405,9 @@ function renderConnectMatchExercise({
   const hasNumeralTraceOrDigitCard = allModels.some(
     (m) => m.kind === "numeral-trace" || m.kind === "digit-card"
   );
+  const hasPolygonPerimeter = allModels.some(
+    (m) => m.kind === "polygon-perimeter" || m.kind === "shape-description"
+  );
   const isWideUnit3Match = hasNumberBond || hasMediumUnit3Model;
 
   const rowHeightPx = hasNumberBond
@@ -248,19 +416,27 @@ function renderConnectMatchExercise({
       ? 80
       : hasNumeralTraceOrDigitCard
         ? 62
-        : ROW_HEIGHT_PX;
+        : hasPolygonPerimeter
+          ? 58
+          : ROW_HEIGHT_PX;
   const rowMinHeightClass = hasNumberBond
     ? "min-h-[160px]"
     : hasMediumUnit3Model
       ? "min-h-[76px]"
       : hasNumeralTraceOrDigitCard
         ? "min-h-[58px]"
-        : "min-h-[46px]";
+        : hasPolygonPerimeter
+          ? "min-h-[52px]"
+          : "min-h-[46px]";
   const centerWidthPx = isWideUnit3Match ? 52 : 110;
   const gridColsClass = isWideUnit3Match
     ? "grid-cols-[1fr_52px_1fr] gap-0.5 p-0.5"
     : "grid-cols-[1fr_110px_1fr] gap-1.5 p-1.5";
-  const rowPadClass = isWideUnit3Match ? "px-1 py-0 gap-0.5" : "px-2 py-0.5";
+  const rowPadClass = isWideUnit3Match
+    ? "px-1 py-0 gap-0.5"
+    : hasPolygonPerimeter
+      ? "px-1.5 py-0.5"
+      : "px-2 py-0.5";
   const rightPortX = isWideUnit3Match ? 44 : 98;
   const leftPortX = isWideUnit3Match ? 8 : 12;
   const svgHeight = Math.max(rowCount * rowHeightPx, rowHeightPx);
@@ -298,7 +474,7 @@ function renderConnectMatchExercise({
           </div>
 
           {/* Center Matching Canvas (SVG ports + solved curves in Answer Key) */}
-          <div className="flex flex-col justify-between pt-5">
+          <div className="flex flex-col justify-between pt-[22px]">
             <svg
               width="100%"
               height={svgHeight}
@@ -311,13 +487,15 @@ function renderConnectMatchExercise({
               }
             >
               {data.rightItems.map((rightItem, rIdx) => {
-                const yRight = rIdx * rowHeightPx + rowHeightPx / 2;
+                const cardGapPx = isWideUnit3Match ? 2 : 4;
+                const cardActualHPx = rowHeightPx - cardGapPx;
+                const yRight = rIdx * rowHeightPx + cardActualHPx / 2;
                 const matchedLeftId = data.solutionMap[rightItem.id];
                 const lIdx = data.leftItems.findIndex(
                   (li) => li.id === matchedLeftId
                 );
                 const yLeft =
-                  (lIdx >= 0 ? lIdx : rIdx) * rowHeightPx + rowHeightPx / 2;
+                  (lIdx >= 0 ? lIdx : rIdx) * rowHeightPx + cardActualHPx / 2;
                 const strokeColor =
                   CONNECTION_STROKE_COLORS[
                     rIdx % CONNECTION_STROKE_COLORS.length
@@ -348,15 +526,26 @@ function renderConnectMatchExercise({
                     />
 
                     {mode === "worksheet" ? (
-                      <line
-                        x1={rightPortX - 6}
-                        y1={yRight}
-                        x2={rightPortX - 18}
-                        y2={yRight}
-                        stroke="#CBD5E1"
-                        strokeWidth="2"
-                        strokeDasharray="4 4"
-                      />
+                      <>
+                        <line
+                          x1={rightPortX - 6}
+                          y1={yRight}
+                          x2={rightPortX - 18}
+                          y2={yRight}
+                          stroke="#CBD5E1"
+                          strokeWidth="2"
+                          strokeDasharray="4 4"
+                        />
+                        <line
+                          x1={leftPortX + 6}
+                          y1={yLeft}
+                          x2={leftPortX + 18}
+                          y2={yLeft}
+                          stroke="#CBD5E1"
+                          strokeWidth="2"
+                          strokeDasharray="4 4"
+                        />
+                      </>
                     ) : (
                       <path
                         d={`M ${rightPortX} ${yRight} C ${ctrlRightX} ${yRight}, ${ctrlLeftX} ${yLeft}, ${leftPortX} ${yLeft}`}
@@ -419,10 +608,16 @@ function renderConnectMatchExercise({
                           itemMeta.situation === "take-from";
                         const isTakeApartEndpoint =
                           itemMeta.situation === "take-apart";
+                        const firstEndpointPartAr = String(
+                          itemMeta.part1Ar ?? ""
+                        );
+                        const secondEndpointPartAr = String(
+                          itemMeta.part2Ar ?? ""
+                        );
                         const solvedEndpointAnswerAr = String(
                           itemMeta.solvedAnswerAr ??
                             (isTakeApartEndpoint
-                              ? `${itemMeta.part1Ar ?? ""} و${itemMeta.part2Ar ?? ""}`
+                              ? `${firstEndpointPartAr} و${secondEndpointPartAr}`
                               : isTakeFromEndpoint
                                 ? itemMeta.missingPartAr
                                 : itemMeta.totalAr) ??

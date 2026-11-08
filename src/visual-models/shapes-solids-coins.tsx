@@ -136,6 +136,30 @@ export const SHAPE_2D_CATALOG: Shape2DDefinition[] = [
     defaultColorTheme: "rose",
     attributeNoteAr: "٦ أضلاع مستقيمة و٦ زوايا",
   },
+  {
+    id: "heptagon",
+    labelAr: "سباعي",
+    sides: 7,
+    corners: 7,
+    defaultColorTheme: "teal",
+    attributeNoteAr: "٧ أضلاع مستقيمة و٧ زوايا",
+  },
+  {
+    id: "octagon",
+    labelAr: "ثماني",
+    sides: 8,
+    corners: 8,
+    defaultColorTheme: "indigo",
+    attributeNoteAr: "٨ أضلاع مستقيمة و٨ زوايا",
+  },
+  {
+    id: "nonagon",
+    labelAr: "تساعي",
+    sides: 9,
+    corners: 9,
+    defaultColorTheme: "coral",
+    attributeNoteAr: "٩ أضلاع مستقيمة و٩ زوايا",
+  },
 ];
 
 export interface Solid3DDefinition {
@@ -595,6 +619,108 @@ export function Shape2DSvg({
             <circle cx="32" cy="57" r="2.5" fill={palette.stroke} />
             <circle cx="10" cy="45" r="2.5" fill={palette.stroke} />
             <circle cx="10" cy="19" r="2.5" fill={palette.stroke} />
+          </>
+        )}
+        {def.id === "heptagon" && (
+          <>
+            <polygon
+              points="32,7 52,16 56,38 43,55 21,55 8,38 12,16"
+              fill={palette.fill}
+              stroke={palette.stroke}
+              strokeWidth="3"
+              strokeLinejoin="round"
+            />
+            <polygon
+              points="32,16 45,22 48,36 39,47 25,47 16,36 19,22"
+              fill="none"
+              stroke={palette.fillLight}
+              strokeWidth="2"
+              strokeDasharray="3 2"
+              strokeLinejoin="round"
+            />
+            {[
+              [32, 7],
+              [52, 16],
+              [56, 38],
+              [43, 55],
+              [21, 55],
+              [8, 38],
+              [12, 16],
+            ].map(([x, y], idx) => (
+              <g key={idx}>
+                <circle cx={x} cy={y} r="2.6" fill={palette.stroke} />
+                <circle cx={x} cy={y} r="1" fill="#FFFFFF" />
+              </g>
+            ))}
+          </>
+        )}
+        {def.id === "octagon" && (
+          <>
+            <polygon
+              points="22,7 42,7 57,22 57,42 42,57 22,57 7,42 7,22"
+              fill={palette.fill}
+              stroke={palette.stroke}
+              strokeWidth="3"
+              strokeLinejoin="round"
+            />
+            <polygon
+              points="25.5,16 38.5,16 48,25.5 48,38.5 38.5,48 25.5,48 16,38.5 16,25.5"
+              fill="none"
+              stroke={palette.fillLight}
+              strokeWidth="2"
+              strokeDasharray="3 2"
+              strokeLinejoin="round"
+            />
+            {[
+              [22, 7],
+              [42, 7],
+              [57, 22],
+              [57, 42],
+              [42, 57],
+              [22, 57],
+              [7, 42],
+              [7, 22],
+            ].map(([x, y], idx) => (
+              <g key={idx}>
+                <circle cx={x} cy={y} r="2.6" fill={palette.stroke} />
+                <circle cx={x} cy={y} r="1" fill="#FFFFFF" />
+              </g>
+            ))}
+          </>
+        )}
+        {def.id === "nonagon" && (
+          <>
+            <polygon
+              points="32,7 48,13 57,28 54,45 41,56 23,56 10,45 7,28 16,13"
+              fill={palette.fill}
+              stroke={palette.stroke}
+              strokeWidth="3"
+              strokeLinejoin="round"
+            />
+            <polygon
+              points="32,16 42.5,20 48,29.5 46.5,40.5 38,47.5 26,47.5 17.5,40.5 16,29.5 21.5,20"
+              fill="none"
+              stroke={palette.fillLight}
+              strokeWidth="2"
+              strokeDasharray="3 2"
+              strokeLinejoin="round"
+            />
+            {[
+              [32, 7],
+              [48, 13],
+              [57, 28],
+              [54, 45],
+              [41, 56],
+              [23, 56],
+              [10, 45],
+              [7, 28],
+              [16, 13],
+            ].map(([x, y], idx) => (
+              <g key={idx}>
+                <circle cx={x} cy={y} r="2.6" fill={palette.stroke} />
+                <circle cx={x} cy={y} r="1" fill="#FFFFFF" />
+              </g>
+            ))}
           </>
         )}
       </g>

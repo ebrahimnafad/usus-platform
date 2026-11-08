@@ -51,10 +51,13 @@ Each rule names its enforcement:
 | Answer Slot (digit) | 48 × 48 px                          |
 | Answer Slot (line)  | 32 × 160 px                         |
 | Five-frame cell     | 48 px (frame 240 px wide)           |
+| Ten-frame           | 48 px cells in a 240 × 108 px box   |
 | Number Bond         | 56 px circles in a 212 × 160 px box |
 | Equation Strip      | 48 px tall                          |
 | Balance Scale       | 212 × 136 px                        |
 | SHAPE GRAPH         | 48 px cells in a 428 × 284 px box   |
+| Paper-Clip Bar      | 312 × 56 px                         |
+| Polygon Perimeter   | 212 × 160 px                        |
 
 3.5 Each new Visual Model adds its canonical size to the table in 3.4, sized to fit one column of 3.2.
 
@@ -124,7 +127,7 @@ Each rule names its enforcement:
 
 9.3 Equations, sequences, patterns, and frame fills flow right to left; the first Part is rightmost. In subtraction the Total is rightmost and the minus sign is `−` (U+2212), never a hyphen: `٥ − ٢ = ٣`. Multi-digit numbers keep positional order (`١٢`). **[review]**
 
-9.4 Child-facing and teacher-facing text are written in different voices. A child-facing prompt or Strategy Hint states what the child does, in at most two steps joined by `ثم`, opening with an approved imperative (`عدّ`، `انظر`، `صِلْ`، `لوّن`، `اختر`، `اكتب`، `ارسم`، `اشطب`، `اطرح`، `اقرأ`، `اجمع`), and naming only `GLOSSARY.md` terms. Teacher-facing text may state objectives and explain reasoning, and may use a descriptive phrase such as `العدد الكلي` where the child-facing term is `الكلّ`. **[review]**
+9.4 Child-facing and teacher-facing text are written in different voices. A child-facing prompt or Strategy Hint states what the child does, in at most two steps joined by `ثم`, opening with an approved imperative (`عدّ`، `انظر`، `صِلْ`، `لوّن`، `اختر`، `اكتب`، `ارسم`، `اشطب`، `اطرح`، `اقرأ`، `اجمع`، `قِسْ`، `رتّب`), and naming only `GLOSSARY.md` terms. Teacher-facing text may state objectives and explain reasoning, and may use a descriptive phrase such as `العدد الكلي` where the child-facing term is `الكلّ`. **[review]**
 
 9.5 An Exercise prompt opens with the instruction, never with a topic label naming the Section, the exercise type, or the lesson subject (`تهيئة الأشكال:`, `تحدّي المجسّمات:`, `مسألة اليوم:`). Section names belong to the Section header alone, and **Problem of the Day** (§5.4) is a structural type, not printed text. **[test]**
 
@@ -166,3 +169,4 @@ A batch closes when all of these hold:
 - 2026-11-07: Added SHAPE GRAPH (`428 × 284 px` with 48 px cells) to §3.4 canonical sizes per §3.5 and §10.1, and added the imperative `ارسم` to §9.4 for drawn graph responses.
 - 2026-11-08: For Grade K Unit 5 (word problems and Shift 1): §9.4 adds the imperatives `اقرأ` and `اجمع`; §6.3 notes K-56's curriculum exception for `0` as a Part in Shift 1 decompositions `(N, 0) ... (0, N)`.
 - 2026-11-08: §12 scopes per-ticket layout guard runs to the ticket's own lessons (`--lessons=<ticket-range>`), reserving the full all-lessons guard sweep for once at batch close.
+- 2026-11-08: For Grade K Unit 6 (Numbers to 10, length measurement, and polygon perimeter): §3.4 adds Ten-frame (`240 × 108 px` with 48 px cells), Paper-Clip Bar (`312 × 56 px`), and Polygon Perimeter (`212 × 160 px`) canonical sizes; §9.4 adds the imperatives `قِسْ` and `رتّب`.

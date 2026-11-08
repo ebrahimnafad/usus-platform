@@ -97,6 +97,7 @@ export type VisualModelKind =
   | "real-world-solid"
   | "coin"
   | "five-frame"
+  | "ten-frame"
   | "snap-cubes"
   | "tally-marks"
   | "dice-pattern"
@@ -106,7 +107,10 @@ export type VisualModelKind =
   | "digit-card"
   | "number-bond"
   | "equation-strip"
-  | "balance-scale";
+  | "balance-scale"
+  | "paper-clip-bar"
+  | "polygon-perimeter"
+  | "shape-description";
 
 export type EverydayObjectCategory =
   "animals" | "fruits" | "toys" | "school" | "nature" | "treats";
@@ -137,7 +141,15 @@ export type EverydayObjectId =
   | "cupcake";
 
 export type Shape2DId =
-  "circle" | "triangle" | "square" | "rectangle" | "pentagon" | "hexagon";
+  | "circle"
+  | "triangle"
+  | "square"
+  | "rectangle"
+  | "pentagon"
+  | "hexagon"
+  | "heptagon"
+  | "octagon"
+  | "nonagon";
 
 export type Solid3DId =
   "sphere" | "cone" | "cylinder" | "cube" | "rectangular-prism" | "pyramid";
@@ -191,7 +203,8 @@ export type ExerciseArchetypeId =
   | "JudgeEquality"
   | "TakeAway"
   | "SolveWordProblem"
-  | "ShiftOneDecompose";
+  | "ShiftOneDecompose"
+  | "MeasureAndCompareLength";
 
 export interface ConnectMatchPair {
   pairId: string;
@@ -324,6 +337,7 @@ export interface ArchetypeParamsByArchetypeId {
   TakeAway: Record<string, unknown>;
   SolveWordProblem: Record<string, unknown>;
   ShiftOneDecompose: Record<string, unknown>;
+  MeasureAndCompareLength: Record<string, unknown>;
 }
 
 export type BlueprintExerciseSpecFor<K extends ExerciseArchetypeId> = {

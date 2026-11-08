@@ -49,6 +49,12 @@ const AVOIDED_FORMS: Array<{
     use: "الجزء والكلّ / المسألة التعليمية / إزاحة ١ / تفكيك الكلّ",
     minLessonNumber: 49,
   },
+  {
+    pattern: /جدول العشرة|شبكة العشرة|سنتيمتر|مسطرة|حافّة|المساحة/,
+    term: "Ten Frame / Paper Clip Unit / Side / Perimeter",
+    use: "لوحة العشرة / مشبك الورق / الضلع / المحيط",
+    minLessonNumber: 59,
+  },
 ];
 
 /**
@@ -79,6 +85,8 @@ const APPROVED_IMPERATIVES = [
   "اطرح",
   "اقرأ",
   "اجمع",
+  "قِسْ",
+  "رتّب",
 ];
 
 const authoredLessons = listAuthoredLessonBlueprints()

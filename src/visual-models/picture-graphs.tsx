@@ -65,14 +65,21 @@ export function createPictureGraphSpec(
     mode === "draw-missing"
       ? "horizontal"
       : (options.orientation ?? "horizontal");
-  const maxCount = Math.max(5, options.maxCount ?? 5);
+  const maxCategoryCount = options.categories.reduce(
+    (max, cat) => Math.max(max, cat.count),
+    5
+  );
+  const maxCount = Math.max(
+    5,
+    Math.min(10, options.maxCount ?? (maxCategoryCount > 5 ? 10 : 5))
+  );
   const categories: PictureGraphCategorySpec[] = options.categories.map(
     (cat, idx) => {
       const icon: PictureGraphIcon = cat.icon ?? {
         kind: "everyday-object",
         id: (cat.objectId ?? cat.iconId ?? "star") as EverydayObjectId,
       };
-      const count = Math.max(1, Math.min(5, cat.count));
+      const count = Math.max(1, Math.min(maxCount, cat.count));
       return {
         categoryId: cat.categoryId ?? `cat-${idx + 1}-${icon.id}`,
         labelAr: cat.labelAr,
@@ -88,12 +95,13 @@ export function createPictureGraphSpec(
     }
   );
 
+  const maxCountAr = formatEasternNumber(maxCount);
   const defaultTitleAr =
     mode === "draw-missing"
       ? "الجدول والتمثيل البياني بالأشكال"
       : orientation === "vertical"
-        ? "تمثيل بياني عمودي بالصور حتى ٥"
-        : "تمثيل بياني أفقي بالصور حتى ٥";
+        ? `تمثيل بياني عمودي بالصور حتى ${maxCountAr}`
+        : `تمثيل بياني أفقي بالصور حتى ${maxCountAr}`;
 
   const categoriesSummaryAr = categories
     .map((c) => `${c.labelAr} (${formatEasternNumber(c.count)})`)
@@ -291,8 +299,9 @@ export function PictureGraphSvg({
         ];
 
   if (orientation === "vertical") {
+    const isTenScale = safeMax > 5;
     const colWidth = 56;
-    const cellHeight = 20;
+    const cellHeight = isTenScale ? 15 : 20;
     const topHeaderH = 22;
     const bottomLabelH = 36;
     const axisWidth = 28;
@@ -377,20 +386,20 @@ export function PictureGraphSvg({
                     y1={rowTopY + cellHeight}
                     x2={gridRightX}
                     y2={rowTopY + cellHeight}
-                    stroke="#CBD5E1"
-                    strokeWidth="1.4"
-                    strokeDasharray="4 3"
+                    stroke={levelIdx === 5 ? "#6366F1" : "#CBD5E1"}
+                    strokeWidth={levelIdx === 5 ? "1.8" : "1.4"}
+                    strokeDasharray={levelIdx === 5 ? "none" : "4 3"}
                   />
                 )}
                 <rect
                   x={gridRightX + 6}
-                  y={cy - 11}
+                  y={cy - (isTenScale ? 7 : 11)}
                   width="26"
-                  height="22"
-                  rx="7"
+                  height={isTenScale ? "14" : "22"}
+                  rx={isTenScale ? "4" : "7"}
                   fill="#E0E7FF"
                   stroke="#4338CA"
-                  strokeWidth="1.4"
+                  strokeWidth="1.2"
                 />
                 <text
                   x={gridRightX + 19}
@@ -445,27 +454,27 @@ export function PictureGraphSvg({
                       <>
                         <rect
                           x={colX + 4}
-                          y={cellTopY + 1.5}
+                          y={cellTopY + 1}
                           width={colWidth - 8}
-                          height={cellHeight - 3}
-                          rx="7"
+                          height={cellHeight - 2}
+                          rx="5"
                           fill={pal.accent}
                           stroke={pal.fill}
-                          strokeWidth="1.4"
+                          strokeWidth="1.2"
                         />
                         <GraphCellIconSvg
                           icon={cat.icon}
                           cx={colCenterX}
                           cy={cellCenterY}
                           colorTheme={cat.colorTheme}
-                          sizePx={16}
+                          sizePx={isTenScale ? 12 : 16}
                         />
                       </>
                     ) : (
                       <circle
                         cx={colCenterX}
                         cy={cellCenterY}
-                        r="6"
+                        r={isTenScale ? "4" : "6"}
                         fill="#F8FAFC"
                         stroke="#E2E8F0"
                         strokeWidth="1.2"
@@ -515,17 +524,18 @@ export function PictureGraphSvg({
     );
   }
 
-  const cellWidth = 28;
+  const isTenHorizontal = safeMax > 5;
+  const cellWidth = isTenHorizontal ? 18 : 28;
   const rowHeight = 24;
   const topHeaderH = 22;
   const bottomAxisH = 26;
-  const rightCategoryColW = 92;
+  const rightCategoryColW = isTenHorizontal ? 82 : 92;
   // The count summary is answer-key-only. In worksheet mode the child derives
   // the count and writes it in the dedicated response row, so a second "؟"
   // column here would create two competing answer slots for one quantity.
   const showSummaryColumn = solved;
-  const leftSummaryColW = showSummaryColumn ? 36 : 0;
-  const padX = 8;
+  const leftSummaryColW = showSummaryColumn ? (isTenHorizontal ? 22 : 36) : 0;
+  const padX = isTenHorizontal ? 5 : 8;
 
   const cellsGridW = safeMax * cellWidth;
   const svgWidth = padX * 2 + leftSummaryColW + cellsGridW + rightCategoryColW;
@@ -679,28 +689,28 @@ export function PictureGraphSvg({
                   {isFilled ? (
                     <>
                       <rect
-                        x={cellX + 3}
+                        x={cellX + (isTenHorizontal ? 2 : 3)}
                         y={rowY + 2}
-                        width={cellWidth - 6}
+                        width={cellWidth - (isTenHorizontal ? 4 : 6)}
                         height={rowHeight - 4}
-                        rx="7"
+                        rx={isTenHorizontal ? "5" : "7"}
                         fill={pal.accent}
                         stroke={pal.fill}
-                        strokeWidth="1.4"
+                        strokeWidth="1.2"
                       />
                       <GraphCellIconSvg
                         icon={cat.icon}
                         cx={cellCenterX}
                         cy={rowCenterY}
                         colorTheme={cat.colorTheme}
-                        sizePx={19}
+                        sizePx={isTenHorizontal ? 14 : 19}
                       />
                     </>
                   ) : (
                     <circle
                       cx={cellCenterX}
                       cy={rowCenterY}
-                      r="6.5"
+                      r={isTenHorizontal ? "4.5" : "6.5"}
                       fill="#F8FAFC"
                       stroke="#E2E8F0"
                       strokeWidth="1.2"
@@ -757,11 +767,11 @@ export function PictureGraphSvg({
           return (
             <g key={cellIdx} data-axis-tick={numAr}>
               <rect
-                x={cx - 11}
+                x={cx - (isTenHorizontal ? 8 : 11)}
                 y={gridBottomY + 4}
-                width="22"
+                width={isTenHorizontal ? "16" : "22"}
                 height="19"
-                rx="6"
+                rx={isTenHorizontal ? "4" : "6"}
                 fill="#E0E7FF"
                 stroke="#4338CA"
                 strokeWidth="1.2"
@@ -880,6 +890,19 @@ function DrawnShapeOutline({
     case "hexagon":
       return (
         <polygon points={regularPolygonPoints(cx, cy, 15, 6)} {...stroke} />
+      );
+    case "heptagon":
+      return (
+        <polygon points={regularPolygonPoints(cx, cy, 15, 7)} {...stroke} />
+      );
+    case "octagon":
+      return (
+        <polygon points={regularPolygonPoints(cx, cy, 15, 8)} {...stroke} />
+      );
+    case "nonagon":
+    default:
+      return (
+        <polygon points={regularPolygonPoints(cx, cy, 15, 9)} {...stroke} />
       );
   }
 }

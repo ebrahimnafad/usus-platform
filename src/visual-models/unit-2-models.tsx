@@ -6,7 +6,11 @@ import type {
   VisualSize,
 } from "@/domain/types";
 import { ANSWER_SLOT_SIZE_CLASS } from "@/components/worksheet/AnswerSlot";
-import { COLOR_PALETTES } from "@/visual-models/shapes-solids-coins";
+import {
+  COLOR_PALETTES,
+  Shape2DSvg,
+  Solid3DSvg,
+} from "@/visual-models/shapes-solids-coins";
 import {
   EVERYDAY_OBJECT_CATALOG,
   EverydayObjectSvg,
@@ -395,6 +399,7 @@ const ARABIC_NUMBER_WORDS: Record<number, string> = {
   7: "سبعة",
   8: "ثمانية",
   9: "تسعة",
+  10: "عشرة",
 };
 
 export function getArabicNumberWord(n: number): string {
@@ -404,7 +409,7 @@ export function getArabicNumberWord(n: number): string {
 export function createNumeralTraceSpec(
   options: NumeralTraceOptions
 ): VisualModelSpec {
-  const digit = Math.max(0, Math.min(9, options.digit));
+  const digit = Math.max(0, Math.min(10, options.digit));
   const digitAr = formatEasternNumber(digit);
   const wordAr = getArabicNumberWord(digit);
   return {
@@ -491,6 +496,13 @@ const DIGIT_STROKE_GUIDES: Record<number, DigitStrokeGuide> = {
     startY: 26,
     arrowPoints: "43,12 36,15 43,19",
   },
+  10: {
+    // Eastern Arabic ١٠ (١ on left + ٠ diamond on right)
+    pathD: "M 36 14 L 36 54 M 54 27 L 62 35 L 54 43 L 46 35 Z",
+    startX: 36,
+    startY: 14,
+    arrowPoints: "30,24 34,24 32,31",
+  },
 };
 
 export function NumeralTraceSvg({
@@ -502,7 +514,7 @@ export function NumeralTraceSvg({
   solved?: boolean;
   colorTheme?: ColorThemeId;
 }): React.ReactElement {
-  const safeDigit = Math.max(0, Math.min(9, digit));
+  const safeDigit = Math.max(0, Math.min(10, digit));
   const digitAr = formatEasternNumber(safeDigit);
   const guide = DIGIT_STROKE_GUIDES[safeDigit] ?? DIGIT_STROKE_GUIDES[1];
   const palette = COLOR_PALETTES[colorTheme] ?? COLOR_PALETTES.indigo;
@@ -650,6 +662,523 @@ export function registerFiveFrameVisualModel(): void {
   });
 }
 
+export interface TenFrameOptions {
+  count: number;
+  secondaryCount?: number;
+  crossedOutCount?: number;
+  crossOffMode?: CrossOffMode | "none";
+  colorTheme?: ColorThemeId;
+  secondaryColorTheme?: ColorThemeId;
+  highlightEmptySlots?: boolean;
+  showPartOutline?: boolean;
+  /** Number of ghost counters in worksheet mode that become solid in answer-key mode */
+  ghostTargetCount?: number;
+  /** Optional explicit top-row / bottom-row split (e.g., 4+4 or 3+5 in K-59) */
+  topRowCount?: number;
+  bottomRowCount?: number;
+  labelAr?: string;
+  shapeId?: string;
+  solidId?: string;
+}
+
+export function createTenFrameSpec(options: TenFrameOptions): VisualModelSpec {
+  const hasExplicitRows =
+    options.topRowCount !== undefined && options.bottomRowCount !== undefined;
+  const primary = hasExplicitRows
+    ? Math.max(0, Math.min(5, options.topRowCount ?? 0))
+    : Math.max(0, Math.min(10, options.count));
+  const secondary = hasExplicitRows
+    ? Math.max(0, Math.min(5, options.bottomRowCount ?? 0))
+    : Math.max(0, Math.min(10 - primary, options.secondaryCount ?? 0));
+  const ghostCount = Math.max(
+    0,
+    Math.min(10 - (primary + secondary), options.ghostTargetCount ?? 0)
+  );
+  const total = primary + secondary + ghostCount;
+  const crossOffMode: CrossOffMode | "none" = options.crossOffMode ?? "shown";
+  const crossedOut =
+    crossOffMode === "none"
+      ? 0
+      : Math.max(0, Math.min(total, options.crossedOutCount ?? 0));
+  const remaining = Math.max(0, total - crossedOut);
+
+  const defaultLabelAr =
+    crossedOut > 0
+      ? `لوحة العشرة: ${formatEasternNumber(total)} شُطب منها ${formatEasternNumber(
+          crossedOut
+        )} وبقي ${formatEasternNumber(remaining)}`
+      : secondary > 0
+        ? `لوحة العشرة: ${formatEasternNumber(primary)} و${formatEasternNumber(
+            secondary
+          )} يساوي ${formatEasternNumber(total)}`
+        : `لوحة العشرة: ${formatEasternNumber(total)} من ١٠`;
+
+  return {
+    kind: "ten-frame",
+    id: `ten-frame-${primary}-${secondary}-${crossedOut}-${crossOffMode}`,
+    labelAr: options.labelAr ?? defaultLabelAr,
+    colorTheme: options.colorTheme ?? "coral",
+    count: primary,
+    secondaryCount: secondary,
+    crossedOutCount: crossedOut,
+    meta: {
+      crossOffMode,
+      secondaryColorTheme: options.secondaryColorTheme ?? "sky",
+      highlightEmptySlots: options.highlightEmptySlots ?? true,
+      showPartOutline: options.showPartOutline ?? secondary > 0,
+      ghostTargetCount: options.ghostTargetCount ?? 0,
+      topRowCount: options.topRowCount,
+      bottomRowCount: options.bottomRowCount,
+      shapeId: options.shapeId,
+      solidId: options.solidId,
+    },
+  };
+}
+
+export function TenFrameSvg({
+  count = 6,
+  secondaryCount = 0,
+  crossedOutCount = 0,
+  crossOffMode = "shown",
+  colorTheme = "coral",
+  secondaryColorTheme = "sky",
+  highlightEmptySlots = true,
+  showPartOutline = false,
+  ghostTargetCount = 0,
+  topRowCount,
+  bottomRowCount,
+  shapeId,
+  solidId,
+  solved = false,
+}: {
+  count?: number;
+  secondaryCount?: number;
+  crossedOutCount?: number;
+  crossOffMode?: CrossOffMode | "none";
+  colorTheme?: ColorThemeId;
+  secondaryColorTheme?: ColorThemeId;
+  highlightEmptySlots?: boolean;
+  showPartOutline?: boolean;
+  ghostTargetCount?: number;
+  topRowCount?: number;
+  bottomRowCount?: number;
+  shapeId?: string;
+  solidId?: string;
+  solved?: boolean;
+}): React.ReactElement {
+  const hasExplicitRows =
+    topRowCount !== undefined && bottomRowCount !== undefined;
+  const primary = hasExplicitRows
+    ? Math.max(0, Math.min(5, topRowCount ?? 0))
+    : Math.max(0, Math.min(10, count));
+  const secondary = hasExplicitRows
+    ? Math.max(0, Math.min(5, bottomRowCount ?? 0))
+    : Math.max(0, Math.min(10 - primary, secondaryCount));
+  const totalFilled = primary + secondary;
+  const ghostCount = Math.max(0, Math.min(10 - totalFilled, ghostTargetCount));
+  const totalShownOrDrawn = Math.min(10, totalFilled + ghostCount);
+  const crossedOut =
+    crossOffMode === "none"
+      ? 0
+      : Math.max(0, Math.min(totalShownOrDrawn, crossedOutCount));
+  const shouldDrawCrossOff =
+    crossOffMode !== "none" && (crossOffMode === "shown" || solved);
+
+  const primaryPalette = COLOR_PALETTES[colorTheme] ?? COLOR_PALETTES.coral;
+  const secondaryPalette =
+    COLOR_PALETTES[secondaryColorTheme] ?? COLOR_PALETTES.sky;
+
+  const cellWidth = 48;
+  const cellHeight = 48;
+  const frameX = 0;
+  const frameY = 6;
+  const totalWidth = cellWidth * 5;
+  const totalHeight = cellHeight * 2;
+
+  const getRtlColX = (colIdx: number): number =>
+    frameX + (4 - colIdx) * cellWidth;
+
+  return (
+    <svg
+      width="240"
+      height="108"
+      viewBox="0 0 240 108"
+      fill="none"
+      aria-label={`لوحة العشرة: ${formatEasternNumber(totalShownOrDrawn)}`}
+      data-direction="rtl"
+      data-primary-count={formatEasternNumber(primary)}
+      data-secondary-count={formatEasternNumber(secondary)}
+      data-crossed-out={formatEasternNumber(crossedOut)}
+      data-cross-off-mode={crossOffMode}
+    >
+      {/* Outer Frame Background (240 × 96 inside 240 × 108 viewport) */}
+      <rect
+        x={frameX + 1}
+        y={frameY}
+        width={totalWidth - 2}
+        height={totalHeight}
+        rx="8"
+        fill="#FFFFFF"
+        stroke="#312E81"
+        strokeWidth="2"
+      />
+
+      {/* Horizontal row divider between top row (1..5) and bottom row (6..10) */}
+      <line
+        x1={frameX + 1}
+        y1={frameY + cellHeight}
+        x2={totalWidth - 1}
+        y2={frameY + cellHeight}
+        stroke="#4338CA"
+        strokeWidth="2"
+      />
+
+      {/* Optional Part-Grouping Outlines */}
+      {(showPartOutline || secondary > 0 || ghostCount > 0) && primary > 0 && (
+        <rect
+          x={getRtlColX(Math.min(5, primary) - 1) + 2}
+          y={frameY - 3}
+          width={Math.min(5, primary) * cellWidth - 4}
+          height={primary > 5 ? totalHeight + 6 : cellHeight + 3}
+          rx="8"
+          fill="none"
+          stroke={primaryPalette.stroke}
+          strokeWidth="1.8"
+          strokeDasharray="4 3"
+          data-part-outline="primary"
+        />
+      )}
+
+      {/* 10 RTL Cells: 0..4 in top row (RTL), 5..9 in bottom row (RTL) */}
+      {Array.from({ length: 10 }, (_, rtlIdx) => {
+        const rowIdx = Math.floor(rtlIdx / 5);
+        const colIdx = rtlIdx % 5;
+        const cellX = getRtlColX(colIdx);
+        const cellY = frameY + rowIdx * cellHeight;
+        const cx = cellX + cellWidth / 2;
+        const cy = cellY + cellHeight / 2;
+
+        let isPrimary = false;
+        let isSecondary = false;
+        let isGhost = false;
+
+        if (hasExplicitRows) {
+          if (rowIdx === 0) {
+            isPrimary = colIdx < primary;
+          } else {
+            isSecondary = colIdx < secondary;
+            isGhost =
+              !isSecondary &&
+              colIdx >= secondary &&
+              colIdx < secondary + ghostCount;
+          }
+        } else {
+          isPrimary = rtlIdx < primary;
+          isSecondary = rtlIdx >= primary && rtlIdx < totalFilled;
+          isGhost =
+            !isPrimary &&
+            !isSecondary &&
+            rtlIdx >= totalFilled &&
+            rtlIdx < totalFilled + ghostCount;
+        }
+
+        const isFilled = isPrimary || isSecondary || (isGhost && solved);
+        const isCrossedOutTarget =
+          isFilled &&
+          rtlIdx >= totalShownOrDrawn - crossedOut &&
+          rtlIdx < totalShownOrDrawn;
+        const isCrossedOut = isCrossedOutTarget && shouldDrawCrossOff;
+
+        // Anchor at 5: bottom row or secondary part uses secondary tone when secondary > 0 or ghost > 0
+        const useSecondaryTone =
+          isSecondary ||
+          (isGhost && primary > 0) ||
+          (!hasExplicitRows &&
+            secondary === 0 &&
+            ghostCount === 0 &&
+            rtlIdx >= 5);
+        const activePalette = useSecondaryTone
+          ? secondaryPalette
+          : primaryPalette;
+
+        return (
+          <g
+            key={rtlIdx}
+            data-rtl-cell={formatEasternNumber(rtlIdx + 1)}
+            data-cell-box="48x48"
+            data-cell-state={
+              isCrossedOut
+                ? "crossed-out"
+                : isFilled
+                  ? "filled"
+                  : isGhost
+                    ? "ghost"
+                    : "empty"
+            }
+          >
+            {/* Exact 48×48 cell hit box for layout standard */}
+            <rect
+              x={cellX}
+              y={cellY}
+              width={cellWidth}
+              height={cellHeight}
+              fill="transparent"
+              stroke="none"
+            />
+
+            {/* Vertical Cell Divider */}
+            {colIdx < 4 && (
+              <line
+                x1={cellX}
+                y1={cellY}
+                x2={cellX}
+                y2={cellY + cellHeight}
+                stroke="#4338CA"
+                strokeWidth="1.8"
+              />
+            )}
+
+            {/* Small RTL cell index label in top-right corner */}
+            <text
+              x={cellX + cellWidth - 10}
+              y={cellY + 15}
+              textAnchor="middle"
+              fontSize="12"
+              fontWeight="800"
+              fill="#94A3B8"
+            >
+              {formatEasternNumber(rtlIdx + 1)}
+            </text>
+
+            {/* Empty-slot highlight */}
+            {!isFilled &&
+              !isGhost &&
+              highlightEmptySlots &&
+              (shapeId ? (
+                <g
+                  transform={`translate(${cx - 13}, ${cy - 11})`}
+                  opacity="0.18"
+                  data-empty-slot="true"
+                >
+                  <Shape2DSvg
+                    shapeId={shapeId}
+                    colorTheme="indigo"
+                    size="medium"
+                  />
+                </g>
+              ) : solidId ? (
+                <g
+                  transform={`translate(${cx - 13}, ${cy - 11})`}
+                  opacity="0.18"
+                  data-empty-slot="true"
+                >
+                  <Solid3DSvg
+                    solidId={solidId}
+                    colorTheme="indigo"
+                    size="medium"
+                  />
+                </g>
+              ) : (
+                <circle
+                  cx={cx}
+                  cy={cy + 2}
+                  r="12.5"
+                  fill="#F8FAFC"
+                  stroke="#CBD5E1"
+                  strokeWidth="1.5"
+                  strokeDasharray="3 3"
+                  data-empty-slot="true"
+                />
+              ))}
+
+            {/* Ghost counter for student drawing in worksheet mode */}
+            {isGhost &&
+              !solved &&
+              (shapeId ? (
+                <g
+                  transform={`translate(${cx - 13}, ${cy - 11})`}
+                  opacity="0.45"
+                  data-ghost-counter="true"
+                >
+                  <Shape2DSvg
+                    shapeId={shapeId}
+                    colorTheme={
+                      useSecondaryTone ? secondaryColorTheme : colorTheme
+                    }
+                    size="medium"
+                  />
+                </g>
+              ) : solidId ? (
+                <g
+                  transform={`translate(${cx - 13}, ${cy - 11})`}
+                  opacity="0.45"
+                  data-ghost-counter="true"
+                >
+                  <Solid3DSvg
+                    solidId={solidId}
+                    colorTheme={
+                      useSecondaryTone ? secondaryColorTheme : colorTheme
+                    }
+                    size="medium"
+                  />
+                </g>
+              ) : (
+                <circle
+                  cx={cx}
+                  cy={cy + 2}
+                  r="13.5"
+                  fill={activePalette.accent}
+                  stroke={activePalette.fill}
+                  strokeWidth="2.2"
+                  strokeDasharray="4 3"
+                  data-ghost-counter="true"
+                />
+              ))}
+
+            {/* Filled 3D two-tone counter or shape / solid */}
+            {isFilled && (
+              <g
+                data-counter-tone={useSecondaryTone ? "secondary" : "primary"}
+                {...(isGhost && solved
+                  ? { "data-solved-counter": "true" }
+                  : {})}
+              >
+                {shapeId ? (
+                  <g transform={`translate(${cx - 13}, ${cy - 11})`}>
+                    <Shape2DSvg
+                      shapeId={shapeId}
+                      colorTheme={
+                        useSecondaryTone ? secondaryColorTheme : colorTheme
+                      }
+                      size="medium"
+                    />
+                  </g>
+                ) : solidId ? (
+                  <g transform={`translate(${cx - 13}, ${cy - 11})`}>
+                    <Solid3DSvg
+                      solidId={solidId}
+                      colorTheme={
+                        useSecondaryTone ? secondaryColorTheme : colorTheme
+                      }
+                      size="medium"
+                    />
+                  </g>
+                ) : (
+                  <>
+                    <circle
+                      cx={cx}
+                      cy={cy + 2}
+                      r="14"
+                      fill={activePalette.fill}
+                      stroke={activePalette.stroke}
+                      strokeWidth="2.2"
+                    />
+                    {/* Inner ring for grayscale distinction (dashed on secondary tone) */}
+                    <circle
+                      cx={cx}
+                      cy={cy + 2}
+                      r="9"
+                      fill="none"
+                      stroke={activePalette.fillLight}
+                      strokeWidth="1.8"
+                      strokeDasharray={useSecondaryTone ? "3 2" : "none"}
+                    />
+                    {/* Specular highlight */}
+                    <circle
+                      cx={cx - 4}
+                      cy={cy - 2}
+                      r="2.4"
+                      fill={activePalette.accent}
+                    />
+                  </>
+                )}
+              </g>
+            )}
+
+            {/* Cross-out mark */}
+            {isCrossedOut && (
+              <g
+                data-crossed-out-cell="true"
+                {...(crossOffMode === "student" && solved
+                  ? { "data-solved-cross-off": "true" }
+                  : {})}
+              >
+                <line
+                  x1={cx - 12}
+                  y1={cy - 10}
+                  x2={cx + 12}
+                  y2={cy + 14}
+                  stroke="#BE123C"
+                  strokeWidth="3.2"
+                  strokeLinecap="round"
+                />
+                <line
+                  x1={cx + 12}
+                  y1={cy - 10}
+                  x2={cx - 12}
+                  y2={cy + 14}
+                  stroke="#BE123C"
+                  strokeWidth="3.2"
+                  strokeLinecap="round"
+                />
+              </g>
+            )}
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+export function registerTenFrameVisualModel(): void {
+  registerVisualModel("ten-frame", ({ model, solved }) => {
+    const meta = (model.meta ?? {}) as Record<string, unknown>;
+    const primary = model.count ?? 6;
+    const secondary = model.secondaryCount ?? 0;
+    const crossedOut = model.crossedOutCount ?? 0;
+    const ghostTargetCount = (meta.ghostTargetCount as number) ?? 0;
+    const crossOffMode =
+      (meta.crossOffMode as CrossOffMode | "none") ?? "shown";
+    const total = Math.max(
+      0,
+      primary + secondary + ghostTargetCount - crossedOut
+    );
+
+    return (
+      <div
+        className="inline-flex shrink-0 items-center"
+        style={{ width: "240px", height: "108px" }}
+        data-visual-model="ten-frame"
+        data-direction="rtl"
+        data-count={formatEasternNumber(total)}
+        data-cross-off-mode={crossOffMode}
+      >
+        <TenFrameSvg
+          count={primary}
+          secondaryCount={secondary}
+          crossedOutCount={crossedOut}
+          crossOffMode={crossOffMode}
+          colorTheme={model.colorTheme ?? "coral"}
+          secondaryColorTheme={
+            (meta.secondaryColorTheme as ColorThemeId) ?? "sky"
+          }
+          highlightEmptySlots={(meta.highlightEmptySlots as boolean) ?? true}
+          showPartOutline={(meta.showPartOutline as boolean) ?? secondary > 0}
+          ghostTargetCount={ghostTargetCount}
+          topRowCount={meta.topRowCount as number | undefined}
+          bottomRowCount={meta.bottomRowCount as number | undefined}
+          shapeId={meta.shapeId as string | undefined}
+          solidId={meta.solidId as string | undefined}
+          solved={solved}
+        />
+        <span className="hidden text-[13px] font-bold leading-tight text-slate-700">
+          {toEasternArabicNumerals(model.labelAr)}
+        </span>
+      </div>
+    );
+  });
+}
+
 // Register "numeral-trace"
 export function registerNumeralTraceVisualModel(): void {
   registerVisualModel("numeral-trace", ({ model, solved }) => {
@@ -689,10 +1218,10 @@ export interface SnapCubesOptions {
 export function createSnapCubesSpec(
   options: SnapCubesOptions
 ): VisualModelSpec {
-  const primary = Math.max(1, Math.min(5, options.count));
+  const primary = Math.max(1, Math.min(10, options.count));
   const secondary = Math.max(
     0,
-    Math.min(5 - primary, options.secondaryCount ?? 0)
+    Math.min(10 - primary, options.secondaryCount ?? 0)
   );
   const total = primary + secondary;
   const crossedOut = Math.max(0, Math.min(total, options.crossedOutCount ?? 0));
@@ -757,8 +1286,8 @@ export function SnapCubesSvg({
   secondaryColorTheme?: ColorThemeId;
   solved?: boolean;
 }): React.ReactElement {
-  const primary = Math.max(1, Math.min(5, count));
-  const secondary = Math.max(0, Math.min(5 - primary, secondaryCount));
+  const primary = Math.max(1, Math.min(10, count));
+  const secondary = Math.max(0, Math.min(10 - primary, secondaryCount));
   const total = primary + secondary;
   const crossedOut = Math.max(0, Math.min(total, crossedOutCount));
   const shouldDrawCrossOff = crossOffMode === "shown" || solved;
@@ -768,8 +1297,8 @@ export function SnapCubesSvg({
     COLOR_PALETTES[secondaryColorTheme] ?? COLOR_PALETTES.amber;
 
   if (orientation === "vertical") {
-    const cubeSize = 13;
-    const gap = separated && secondary > 0 ? 6 : 0;
+    const cubeSize = total > 6 ? 10 : 13;
+    const gap = separated && secondary > 0 ? 5 : 0;
     const svgHeight = Math.max(42, total * cubeSize + gap + 10);
     const baseX = 22;
     const bottomY = svgHeight - 4;
@@ -888,14 +1417,19 @@ export function SnapCubesSvg({
   }
 
   // Horizontal RTL cube train: cube 1 starts on the right and extends left
-  const cubeW = compact ? 22 : 28;
-  const cubeH = compact ? 22 : 28;
-  const splitGap = separated && secondary > 0 ? (compact ? 12 : 16) : 0;
+  const isLongTrain = total > 5;
+  const cubeW = compact ? (isLongTrain ? 16 : 22) : isLongTrain ? 17 : 28;
+  const cubeH = compact ? (isLongTrain ? 19 : 22) : isLongTrain ? 22 : 28;
+  const splitGap =
+    separated && secondary > 0 ? (compact || isLongTrain ? 6 : 16) : 0;
   const totalTrainWidth = total * cubeW + splitGap;
-  const svgWidth = Math.max(compact ? 96 : 120, totalTrainWidth + 20);
-  const svgHeight = compact ? 40 : 52;
-  const startRightX = svgWidth - 10;
-  const baseY = compact ? 11 : 16;
+  const svgWidth = Math.max(
+    compact ? 96 : isLongTrain ? 132 : 120,
+    totalTrainWidth + 16
+  );
+  const svgHeight = compact ? 40 : isLongTrain ? 42 : 52;
+  const startRightX = svgWidth - 7;
+  const baseY = compact ? 11 : isLongTrain ? 12 : 16;
 
   return (
     <svg
@@ -979,7 +1513,7 @@ export function SnapCubesSvg({
             <circle
               cx={cx}
               cy={cy}
-              r="8.5"
+              r={isLongTrain ? "6.2" : "8.5"}
               fill={pal.accent}
               stroke={pal.stroke}
               strokeWidth="1.2"
@@ -1105,7 +1639,7 @@ export interface TallyMarksOptions {
 export function createTallyMarksSpec(
   options: TallyMarksOptions
 ): VisualModelSpec {
-  const count = Math.max(1, Math.min(5, options.count));
+  const count = Math.max(1, Math.min(10, options.count));
   const secondary = Math.max(0, Math.min(5, options.secondaryCount ?? 0));
   const crossedOut = Math.max(0, Math.min(count, options.crossedOutCount ?? 0));
   const crossOffMode: CrossOffMode = options.crossOffMode ?? "shown";
@@ -1122,9 +1656,11 @@ export function createTallyMarksSpec(
         ? `تعبير علامات العدّ: ${countAr} + ${formatEasternNumber(secondary)}`
         : variant === "sticks"
           ? `أعواد عدّ ملوّنة: ${countAr}`
-          : count === 5
-            ? `علامات العدّ: حزمة خماسية (${countAr})`
-            : `علامات العدّ: ${countAr}`;
+          : count > 5
+            ? `علامات العدّ: حزمة خماسية و${formatEasternNumber(count - 5)} (${countAr})`
+            : count === 5
+              ? `علامات العدّ: حزمة خماسية (${countAr})`
+              : `علامات العدّ: ${countAr}`;
 
   return {
     kind: "tally-marks",
@@ -1165,21 +1701,51 @@ export function TallyMarksSvg({
   compact?: boolean;
   solved?: boolean;
 }): React.ReactElement {
-  const safeCount = Math.max(1, Math.min(5, count));
+  const safeCount = Math.max(1, Math.min(10, count));
   const crossedOut = Math.max(0, Math.min(safeCount, crossedOutCount));
   const shouldDrawCrossOff = crossOffMode === "shown" || solved;
   const verticalCount = Math.min(4, safeCount);
   const hasFifthSlash = safeCount >= 5;
+  const secondGroupCount = Math.max(0, safeCount - 5);
+  const secondVerticalCount = Math.min(4, secondGroupCount);
+  const hasTenthSlash = safeCount >= 10;
   const palette = COLOR_PALETTES[colorTheme] ?? COLOR_PALETTES.amber;
 
   const showSticks = variant === "sticks" || variant === "tally-and-sticks";
   const showTally = variant === "tally" || variant === "tally-and-sticks";
-  const svgWidth = variant === "tally-and-sticks" ? 186 : compact ? 84 : 124;
+  const svgWidth =
+    variant === "tally-and-sticks"
+      ? 186
+      : safeCount > 5
+        ? compact
+          ? 144
+          : 184
+        : compact
+          ? 84
+          : 124;
 
-  // RTL vertical positions for the 4 vertical strokes (right to left)
+  // RTL vertical positions for the first 4 vertical strokes (right to left)
   const tallyBaseRightX =
-    variant === "tally-and-sticks" ? 168 : compact ? 68 : 98;
-  const spacing = variant === "tally-and-sticks" ? 16 : compact ? 13 : 18;
+    variant === "tally-and-sticks"
+      ? 168
+      : safeCount > 5
+        ? compact
+          ? 128
+          : 162
+        : compact
+          ? 68
+          : 98;
+  const spacing =
+    variant === "tally-and-sticks"
+      ? 16
+      : safeCount > 5
+        ? compact
+          ? 11
+          : 15
+        : compact
+          ? 13
+          : 18;
+  const secondGroupRightX = tallyBaseRightX - 3 * spacing - (compact ? 22 : 28);
   const svgHeight = compact ? 40 : 68;
 
   return (
@@ -1257,6 +1823,61 @@ export function TallyMarksSvg({
                 strokeWidth="3.5"
                 strokeLinecap="round"
               />
+            </g>
+          )}
+
+          {/* Second RTL group of tallies (6..10) on the left of the first bundle of 5 */}
+          {secondVerticalCount > 0 && (
+            <g data-tally-second-bundle="true">
+              {Array.from({ length: secondVerticalCount }, (_, idx) => {
+                const x = secondGroupRightX - idx * spacing;
+                return (
+                  <g key={`s-${idx}`}>
+                    <line
+                      x1={x}
+                      y1="14"
+                      x2={x}
+                      y2="54"
+                      stroke="#0C4A6E"
+                      strokeWidth="6"
+                      strokeLinecap="round"
+                      data-tally-stroke="vertical"
+                    />
+                    <line
+                      x1={x}
+                      y1="15"
+                      x2={x}
+                      y2="53"
+                      stroke="#0EA5E9"
+                      strokeWidth="3.2"
+                      strokeLinecap="round"
+                    />
+                  </g>
+                );
+              })}
+              {hasTenthSlash && (
+                <g>
+                  <line
+                    x1={secondGroupRightX + 8}
+                    y1="20"
+                    x2={secondGroupRightX - 3 * spacing - 8}
+                    y2="48"
+                    stroke="#991B1B"
+                    strokeWidth="6.5"
+                    strokeLinecap="round"
+                    data-tally-stroke="fifth-slash"
+                  />
+                  <line
+                    x1={secondGroupRightX + 8}
+                    y1="20"
+                    x2={secondGroupRightX - 3 * spacing - 8}
+                    y2="48"
+                    stroke="#EF4444"
+                    strokeWidth="3.5"
+                    strokeLinecap="round"
+                  />
+                </g>
+              )}
             </g>
           )}
 
@@ -1535,10 +2156,10 @@ export function createDicePatternSpec(
   options: DicePatternOptions
 ): VisualModelSpec {
   const diceVariant = options.diceVariant ?? "die";
-  const rawPrimary = Math.max(0, Math.min(5, options.count));
+  const rawPrimary = Math.max(0, Math.min(10, options.count));
   const rawSecondary = Math.max(
     0,
-    Math.min(5 - rawPrimary, options.secondaryCount ?? 0)
+    Math.min(10 - rawPrimary, options.secondaryCount ?? 0)
   );
   const rawTotal = Math.max(1, rawPrimary + rawSecondary);
   const crossedOut = Math.max(
@@ -1707,9 +2328,9 @@ export function DicePatternSvg({
   ghostSecondPart?: boolean;
   solved?: boolean;
 }): React.ReactElement {
-  const rawPrimary = Math.max(0, Math.min(5, count));
-  const rawSecondary = Math.max(0, Math.min(5 - rawPrimary, secondaryCount));
-  const total = Math.max(1, Math.min(5, rawPrimary + rawSecondary));
+  const rawPrimary = Math.max(0, Math.min(10, count));
+  const rawSecondary = Math.max(0, Math.min(10 - rawPrimary, secondaryCount));
+  const total = Math.max(1, Math.min(10, rawPrimary + rawSecondary));
   const crossedOut = Math.max(0, Math.min(total, crossedOutCount));
   const primary =
     diceVariant === "domino" && crossedOut > 0 && rawSecondary === 0
@@ -1727,15 +2348,25 @@ export function DicePatternSvg({
   const showGhostPips = ghostSecondPart && !solved;
   const showColoredGhostPips = ghostSecondPart && solved;
 
-  if (diceVariant === "domino") {
-    const rightCoords = DIE_DOT_COORDS[primary] ?? [];
-    const leftCoords = DIE_DOT_COORDS[secondary] ?? [];
+  if (diceVariant === "domino" || total > 5) {
+    const rightCount =
+      total > 5 && rawSecondary === 0 ? 5 : Math.min(5, primary);
+    const leftCount =
+      total > 5 && rawSecondary === 0
+        ? Math.min(5, total - 5)
+        : Math.min(
+            5,
+            secondary > 0 ? secondary : Math.max(0, total - rightCount)
+          );
+    const rightCoords = DIE_DOT_COORDS[rightCount] ?? [];
+    const leftCoords = DIE_DOT_COORDS[leftCount] ?? [];
     const crossLeftHalf = crossedOut > 0 && shouldDrawCrossOff;
+    const isTwoDice = total > 5 && diceVariant !== "domino";
 
     return (
       <svg
-        width={compact ? "88" : "140"}
-        height={compact ? "40" : "68"}
+        width={compact ? "88" : isTwoDice ? "116" : "140"}
+        height={compact ? "40" : isTwoDice ? "56" : "68"}
         viewBox="0 0 140 68"
         fill="none"
         aria-label={`دومينو: ${formatEasternNumber(total)}`}
@@ -2026,10 +2657,10 @@ export interface CircularArrangementOptions {
 export function createCircularArrangementSpec(
   options: CircularArrangementOptions
 ): VisualModelSpec {
-  const primary = Math.max(1, Math.min(5, options.count));
+  const primary = Math.max(1, Math.min(10, options.count));
   const secondary = Math.max(
     0,
-    Math.min(5 - primary, options.secondaryCount ?? 0)
+    Math.min(10 - primary, options.secondaryCount ?? 0)
   );
   const total = primary + secondary;
   const itemMotif = options.itemMotif ?? "star";
@@ -2068,9 +2699,10 @@ export function CircularArrangementSvg({
   secondaryColorTheme?: ColorThemeId;
   itemMotif?: "star" | "flower" | "apple" | "gem";
 }): React.ReactElement {
-  const primary = Math.max(1, Math.min(5, count));
-  const secondary = Math.max(0, Math.min(5 - primary, secondaryCount));
-  const total = Math.max(1, Math.min(5, primary + secondary));
+  const primary = Math.max(1, Math.min(10, count));
+  const secondary = Math.max(0, Math.min(10 - primary, secondaryCount));
+  const total = Math.max(1, Math.min(10, primary + secondary));
+  const effectivePrimary = total > 5 && secondary === 0 ? 5 : primary;
 
   const primaryPalette = COLOR_PALETTES[colorTheme] ?? COLOR_PALETTES.violet;
   const secondaryPalette =
@@ -2078,7 +2710,9 @@ export function CircularArrangementSvg({
 
   const centerX = 48;
   const centerY = 46;
-  const radius = 26;
+  const radius = total > 6 ? 29 : 26;
+  const nodeR = total > 7 ? 8.8 : 11.5;
+  const innerR = total > 7 ? 5.8 : 7.5;
 
   return (
     <svg
@@ -2093,7 +2727,7 @@ export function CircularArrangementSvg({
       <circle
         cx={centerX}
         cy={centerY}
-        r={radius + 11}
+        r={37}
         fill="#F5F3FF"
         stroke="#DDD6FE"
         strokeWidth="1.5"
@@ -2130,7 +2764,7 @@ export function CircularArrangementSvg({
         const x = Math.round((centerX + radius * Math.cos(angleRad)) * 10) / 10;
         const y = Math.round((centerY + radius * Math.sin(angleRad)) * 10) / 10;
 
-        const isSecondary = idx >= primary;
+        const isSecondary = idx >= effectivePrimary;
         const pal = isSecondary ? secondaryPalette : primaryPalette;
 
         return (
@@ -2143,7 +2777,7 @@ export function CircularArrangementSvg({
             <circle
               cx={x}
               cy={y}
-              r="11.5"
+              r={nodeR}
               fill={pal.fill}
               stroke={pal.stroke}
               strokeWidth={idx === 0 ? "2.6" : "1.8"}
@@ -2151,15 +2785,15 @@ export function CircularArrangementSvg({
             {/* Inner Motif Ring / Diamond */}
             {itemMotif === "gem" || isSecondary ? (
               <polygon
-                points={`${x},${y - 7.5} ${x + 7.5},${y} ${x},${y + 7.5} ${
-                  x - 7.5
+                points={`${x},${y - innerR} ${x + innerR},${y} ${x},${y + innerR} ${
+                  x - innerR
                 },${y}`}
                 fill={pal.accent}
                 stroke={pal.stroke}
                 strokeWidth="1"
               />
             ) : (
-              <circle cx={x} cy={y} r="7.5" fill={pal.accent} />
+              <circle cx={x} cy={y} r={innerR} fill={pal.accent} />
             )}
             {/* Eastern Arabic Number Label Inside Each Circular Node */}
             <text
@@ -2216,7 +2850,7 @@ export function createDigitCardSpec(
   digit: number,
   overrides?: Partial<VisualModelSpec>
 ): VisualModelSpec {
-  const safeDigit = Math.max(0, Math.min(9, digit));
+  const safeDigit = Math.max(0, Math.min(10, digit));
   const digitAr = formatEasternNumber(safeDigit);
   return {
     kind: "digit-card",
@@ -2246,6 +2880,7 @@ export function registerDigitCardVisualModel(): void {
 export type { EverydayObjectId, VisualSize };
 
 registerFiveFrameVisualModel();
+registerTenFrameVisualModel();
 registerNumeralTraceVisualModel();
 registerSnapCubesVisualModel();
 registerTallyMarksVisualModel();
