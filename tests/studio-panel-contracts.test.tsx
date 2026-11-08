@@ -4,6 +4,11 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { getCurriculumCatalog } from "@/curriculum/catalog";
 import { findWesternNumeralsInRenderedHtml } from "@/lib/numerals";
 import { renderTeacherStudio } from "@/lib/render-teacher-studio";
+import {
+  buildStudioSearchParams,
+  resolveStudioNavigationTransition,
+  resolveStudioStateFromSearchParams,
+} from "@/lib/studio-state";
 import { StudioPanel } from "@/components/studio/StudioPanel";
 import { StudioCanvas } from "@/components/studio/StudioCanvas";
 
@@ -204,5 +209,71 @@ describe("Readiness-protocol attributes", () => {
     );
     expect(html).toContain('data-canvas-pending="false"');
     expect(html).not.toContain('data-canvas-pending="true"');
+  });
+});
+
+describe("Teacher Studio navigation & URL state seam", () => {
+  it("preserves non-empty q across replace transitions (difficulty, seed, view) and uses push for lesson/prerequisite jumps", () => {
+    const base = resolveStudioStateFromSearchParams({
+      grade: "K",
+      lesson: "5",
+      seed: "S1",
+      difficulty: "scaffolded",
+      view: "worksheet",
+      q: "طرح",
+    });
+
+    const diffTransition = resolveStudioNavigationTransition(
+      base,
+      { type: "select-difficulty", difficultyLevel: "Advanced" },
+      "/math/k"
+    );
+    expect(diffTransition.historyMode).toBe("replace");
+    expect(diffTransition.href).toBe(
+      `/math/k?${buildStudioSearchParams({
+        ...base,
+        difficultyLevel: "Advanced",
+      })}`
+    );
+    expect(diffTransition.searchParams).toContain("q=");
+
+    const viewTransition = resolveStudioNavigationTransition(
+      base,
+      { type: "select-view", viewMode: "answer-key" },
+      "/math/k"
+    );
+    expect(viewTransition.historyMode).toBe("replace");
+    expect(viewTransition.nextState.viewMode).toBe("answer-key");
+    expect(viewTransition.nextState.searchQuery).toBe("طرح");
+
+    const lessonTransition = resolveStudioNavigationTransition(
+      base,
+      { type: "select-lesson", grade: "K", lessonNumber: 12 },
+      "/math/k"
+    );
+    expect(lessonTransition.historyMode).toBe("push");
+    expect(lessonTransition.pathname).toBe("/math/k");
+    expect(lessonTransition.nextState.lessonNumber).toBe(12);
+
+    const prereqTransition = resolveStudioNavigationTransition(
+      base,
+      { type: "select-prerequisite", prerequisiteCode: "K-٢" },
+      "/math/k"
+    );
+    expect(prereqTransition.historyMode).toBe("push");
+    expect(prereqTransition.nextState.lessonNumber).toBe(2);
+  });
+
+  it("omits q from query string when searchQuery is empty", () => {
+    const state = resolveStudioStateFromSearchParams({
+      grade: "K",
+      lesson: 1,
+      seed: "K1-2026",
+      difficulty: "scaffolded",
+      view: "worksheet",
+    });
+    expect(buildStudioSearchParams(state)).toBe(
+      "grade=K&lesson=1&seed=K1-2026&difficulty=scaffolded&view=worksheet"
+    );
   });
 });

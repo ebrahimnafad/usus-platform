@@ -309,12 +309,29 @@ export interface RenderWorksheetSurfaceInput extends GenerateWorksheetInput {
 /**
  * Declarative Lesson Blueprint interface (ADR-0005).
  */
-export interface BlueprintExerciseSpec {
-  archetype: ExerciseArchetypeId;
+export interface ArchetypeParamsByArchetypeId {
+  ConnectMatch: Record<string, unknown>;
+  ClassifyAndCount: Record<string, unknown>;
+  PatternComplete: Record<string, unknown>;
+  ModelCountAndTrace: Record<string, unknown>;
+  PictureGraphRead: Record<string, unknown>;
+  SequenceAndZero: Record<string, unknown>;
+  SubitizePartWhole: Record<string, unknown>;
+  JoinParts: Record<string, unknown>;
+  JudgeEquality: Record<string, unknown>;
+  TakeAway: Record<string, unknown>;
+}
+
+export type BlueprintExerciseSpecFor<K extends ExerciseArchetypeId> = {
+  archetype: K;
   promptAr?: string;
   strategyHintAr?: string;
-  params?: Record<string, unknown>;
-}
+  params?: ArchetypeParamsByArchetypeId[K];
+};
+
+export type BlueprintExerciseSpec = {
+  [K in ExerciseArchetypeId]: BlueprintExerciseSpecFor<K>;
+}[ExerciseArchetypeId];
 
 export interface BlueprintTierSpec {
   warmUp: BlueprintExerciseSpec[];

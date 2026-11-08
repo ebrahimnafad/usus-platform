@@ -13,10 +13,12 @@ import { StudioPanel } from "@/components/studio/StudioPanel";
 import { StudioCanvas } from "@/components/studio/StudioCanvas";
 import { StudioSkeleton } from "@/components/studio/StudioSkeleton";
 import { GRADES, getGradeAccents, getGradeConfig } from "@/config/grades";
-import { ZOOM_LEVELS } from "@/lib/studio-state";
-import { buildStudioSearchParams } from "@/lib/studio-helpers";
 import {
+  applyStudioNavigationAction,
+  buildStudioSearchParams,
   resolveStudioStateFromSearchParams,
+  stepStudioZoom,
+  type StudioNavigationAction,
   type StudioResolvedState,
   type StudioSearchParamsInput,
 } from "@/lib/studio-state";
@@ -73,22 +75,18 @@ export function TeacherStudio({
     [grades, selectedGradeId]
   );
 
-  const navigateToLesson = (
-    grade: GradeId,
-    lessonNumber: number,
-    seed: string = initialBundle.seed,
-    difficultyLevel: WorksheetDifficultyMode = initialBundle.difficultyMode,
-    view: ViewMode = viewMode
-  ) => {
-    const nextState: StudioResolvedState = {
-      grade,
-      lessonNumber,
-      seed,
-      difficultyLevel,
-      viewMode: view,
-      searchQuery: initialSearchQuery,
-      zoomPercent,
-    };
+  const currentState: StudioResolvedState = {
+    grade: initialBundle.grade.id,
+    lessonNumber: initialBundle.lesson.lessonNumber,
+    seed: initialBundle.seed,
+    difficultyLevel: initialBundle.difficultyMode,
+    viewMode,
+    searchQuery: initialSearchQuery,
+    zoomPercent,
+  };
+
+  const navigateWithAction = (action: StudioNavigationAction) => {
+    const nextState = applyStudioNavigationAction(currentState, action);
 
     if (onNavigateState) {
       onNavigateState(nextState);
@@ -101,23 +99,8 @@ export function TeacherStudio({
     }
   };
 
-  const handleRegenerateSeed = (nextSeed: string) => {
-    navigateToLesson(
-      initialBundle.grade.id,
-      initialBundle.lesson.lessonNumber,
-      nextSeed,
-      initialBundle.difficultyMode,
-      viewMode
-    );
-  };
-
   const handleZoomStep = (delta: -1 | 1) => {
-    setZoomPercent((current) => {
-      const index = ZOOM_LEVELS.indexOf(current);
-      const base = index >= 0 ? index : 2;
-      const next = Math.max(0, Math.min(ZOOM_LEVELS.length - 1, base + delta));
-      return ZOOM_LEVELS[next];
-    });
+    setZoomPercent((current) => stepStudioZoom(current, delta));
   };
 
   return (
@@ -136,17 +119,25 @@ export function TeacherStudio({
             selectedGradeId={selectedGradeId}
             showGradePills={showGradePills}
             expandAllUnitsByDefault={expandAllUnitsByDefault}
-            onSelectLesson={navigateToLesson}
-            onSelectDifficulty={(mode) =>
-              navigateToLesson(
-                initialBundle.grade.id,
-                initialBundle.lesson.lessonNumber,
-                initialBundle.seed,
-                mode,
-                viewMode
-              )
+            onSelectLesson={(grade, lessonNumber) =>
+              navigateWithAction({
+                type: "select-lesson",
+                grade,
+                lessonNumber,
+              })
             }
-            onRegenerateSeed={handleRegenerateSeed}
+            onSelectDifficulty={(difficultyLevel: WorksheetDifficultyMode) =>
+              navigateWithAction({
+                type: "select-difficulty",
+                difficultyLevel,
+              })
+            }
+            onRegenerateSeed={(seed) =>
+              navigateWithAction({
+                type: "regenerate-seed",
+                seed,
+              })
+            }
             onSelectGrade={setSelectedGradeId}
           />
         )
@@ -163,13 +154,11 @@ export function TeacherStudio({
           onViewModeChange={setViewMode}
           onZoomStep={handleZoomStep}
           onSelectPrerequisite={(grade, lessonNumber) =>
-            navigateToLesson(
+            navigateWithAction({
+              type: "select-prerequisite",
               grade,
               lessonNumber,
-              initialBundle.seed,
-              initialBundle.difficultyMode,
-              viewMode
-            )
+            })
           }
         />
       )}

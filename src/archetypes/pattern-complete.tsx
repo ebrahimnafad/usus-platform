@@ -28,10 +28,7 @@ import {
   type ArchetypeRenderProps,
 } from "@/archetypes/registry";
 import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
-import {
-  ANSWER_SLOT_SIZE_CLASS,
-  AnswerLine,
-} from "@/components/worksheet/AnswerSlot";
+import { AnswerLine, AnswerSlot } from "@/components/worksheet/AnswerSlot";
 import { ExerciseColumns } from "@/components/worksheet/ExerciseColumns";
 
 export type PatternUnitRule = "AB" | "ABC";
@@ -429,16 +426,13 @@ function renderPatternCompleteExercise({
                         className="flex flex-1 flex-col items-center justify-center gap-0.5"
                         data-pattern-slot-body="centered"
                       >
-                        <span
-                          data-answer-slot="unknown"
-                          role="img"
-                          aria-label="الخانة المفقودة في النمط"
-                          className={`inline-flex ${ANSWER_SLOT_SIZE_CLASS} items-center justify-center rounded-2xl border-2 border-dashed border-amber-500 bg-white text-[28px] font-black leading-none shadow-2xs`}
-                        >
-                          <span aria-hidden="true" className="text-slate-400">
-                            ؟
-                          </span>
-                        </span>
+                        <AnswerSlot
+                          solved={false}
+                          ariaLabel="الخانة المفقودة في النمط"
+                          kind="unknown"
+                          tone="amber"
+                          className="shadow-2xs"
+                        />
                         <span className="text-center text-xs font-extrabold leading-tight text-amber-900">
                           {data.direction === "backward"
                             ? "البداية المفقودة"

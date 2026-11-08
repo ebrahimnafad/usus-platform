@@ -7,7 +7,7 @@ import type {
   ViewMode,
 } from "@/domain/types";
 import { WorksheetSurface } from "@/components/worksheet/WorksheetSurface";
-import { buildPdfExportUrl } from "@/lib/studio-helpers";
+import { buildPdfExportUrl } from "@/lib/studio-state";
 import { formatEasternNumber } from "@/lib/numerals";
 import { getGradeAccents, getGradeConfig } from "@/config/grades";
 import {

@@ -9,7 +9,6 @@ import type {
   GeneratedWorksheetBundle,
   Lesson,
   LessonBlueprint,
-  RenderWorksheetSurfaceInput,
   Section,
   SectionId,
   Worksheet,
@@ -19,8 +18,6 @@ import type {
 import { getCurriculumCatalog } from "@/curriculum/catalog";
 import { getExerciseArchetype } from "@/archetypes/registry";
 import { getLessonBlueprint } from "@/blueprints/registry";
-import { createFallbackBlueprint } from "@/blueprints/fallback";
-import { WorksheetSurface } from "@/components/worksheet/WorksheetSurface";
 import { createSeededRandom, type SeededRandom } from "@/lib/seed";
 import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
 
@@ -175,6 +172,38 @@ function buildWorksheetSection(input: BuildWorksheetSectionInput): {
   };
 }
 
+function buildEmptyFallbackSections(
+  lessonId: string,
+  difficultyMode: WorksheetDifficultyMode
+): [Section, Section, Section] {
+  return [
+    {
+      id: "warm-up",
+      titleAr: SECTION_METADATA["warm-up"].titleAr,
+      badgeEmoji: SECTION_METADATA["warm-up"].badgeEmoji,
+      difficultyLevel: resolveSectionDifficulty("warm-up", difficultyMode),
+      sourceLessonId: lessonId,
+      exercises: [],
+    },
+    {
+      id: "practice",
+      titleAr: SECTION_METADATA.practice.titleAr,
+      badgeEmoji: SECTION_METADATA.practice.badgeEmoji,
+      difficultyLevel: resolveSectionDifficulty("practice", difficultyMode),
+      sourceLessonId: lessonId,
+      exercises: [],
+    },
+    {
+      id: "challenge",
+      titleAr: SECTION_METADATA.challenge.titleAr,
+      badgeEmoji: SECTION_METADATA.challenge.badgeEmoji,
+      difficultyLevel: resolveSectionDifficulty("challenge", difficultyMode),
+      sourceLessonId: lessonId,
+      exercises: [],
+    },
+  ];
+}
+
 /**
  * Primary Seam — Generates a deterministic Worksheet, mirrored Answer Key, and Teacher Notes
  * for a given `(grade, lessonNumber, seed, difficultyLevel)`.
@@ -204,92 +233,68 @@ export function generateWorksheet(
     input.difficultyLevel ?? "scaffolded";
 
   const authoredBlueprint = getLessonBlueprint(lesson.id);
-  const activeBlueprint = authoredBlueprint ?? createFallbackBlueprint(lesson);
 
-  const warmUpSource = resolveWarmUpSourceBlueprint(
-    lesson,
-    activeBlueprint,
-    catalog
-  );
+  let sections: [Section, Section, Section];
+  let warmUpSourceLessonId = lesson.id;
 
-  const rootRng = createSeededRandom(`${lesson.id}::${seed}`);
-  const usedFacts = new Set<string>();
+  if (authoredBlueprint) {
+    const warmUpSource = resolveWarmUpSourceBlueprint(
+      lesson,
+      authoredBlueprint,
+      catalog
+    );
+    warmUpSourceLessonId = warmUpSource.sourceLessonId;
 
-  const warmUpBuilt = buildWorksheetSection({
-    sectionId: "warm-up",
-    blueprint: warmUpSource.blueprint,
-    sourceLessonId: warmUpSource.sourceLessonId,
-    lesson,
-    catalog,
-    rootRng,
-    difficultyMode,
-    pickSpecs: (tier) => tier.warmUp,
-    startingExerciseNumber: 1,
-    usedFacts,
-  });
+    const rootRng = createSeededRandom(`${lesson.id}::${seed}`);
+    const usedFacts = new Set<string>();
 
-  const practiceBuilt = buildWorksheetSection({
-    sectionId: "practice",
-    blueprint: activeBlueprint,
-    sourceLessonId: lesson.id,
-    lesson,
-    catalog,
-    rootRng,
-    difficultyMode,
-    pickSpecs: (tier) => tier.practice,
-    startingExerciseNumber: warmUpBuilt.nextExerciseNumber,
-    usedFacts,
-  });
+    const warmUpBuilt = buildWorksheetSection({
+      sectionId: "warm-up",
+      blueprint: warmUpSource.blueprint,
+      sourceLessonId: warmUpSource.sourceLessonId,
+      lesson,
+      catalog,
+      rootRng,
+      difficultyMode,
+      pickSpecs: (tier) => tier.warmUp,
+      startingExerciseNumber: 1,
+      usedFacts,
+    });
 
-  const challengeBuilt = buildWorksheetSection({
-    sectionId: "challenge",
-    blueprint: activeBlueprint,
-    sourceLessonId: lesson.id,
-    lesson,
-    catalog,
-    rootRng,
-    difficultyMode,
-    pickSpecs: (tier) => tier.challenge,
-    startingExerciseNumber: practiceBuilt.nextExerciseNumber,
-    usedFacts,
-  });
-
-  const authoredSections: [Section, Section, Section] = [
-    warmUpBuilt.section,
-    practiceBuilt.section,
-    challengeBuilt.section,
-  ];
-
-  const fallbackSections: [Section, Section, Section] = [
-    {
-      id: "warm-up",
-      titleAr: SECTION_METADATA["warm-up"].titleAr,
-      badgeEmoji: SECTION_METADATA["warm-up"].badgeEmoji,
-      difficultyLevel: resolveSectionDifficulty("warm-up", difficultyMode),
+    const practiceBuilt = buildWorksheetSection({
+      sectionId: "practice",
+      blueprint: authoredBlueprint,
       sourceLessonId: lesson.id,
-      exercises: [],
-    },
-    {
-      id: "practice",
-      titleAr: SECTION_METADATA.practice.titleAr,
-      badgeEmoji: SECTION_METADATA.practice.badgeEmoji,
-      difficultyLevel: resolveSectionDifficulty("practice", difficultyMode),
-      sourceLessonId: lesson.id,
-      exercises: [],
-    },
-    {
-      id: "challenge",
-      titleAr: SECTION_METADATA.challenge.titleAr,
-      badgeEmoji: SECTION_METADATA.challenge.badgeEmoji,
-      difficultyLevel: resolveSectionDifficulty("challenge", difficultyMode),
-      sourceLessonId: lesson.id,
-      exercises: [],
-    },
-  ];
+      lesson,
+      catalog,
+      rootRng,
+      difficultyMode,
+      pickSpecs: (tier) => tier.practice,
+      startingExerciseNumber: warmUpBuilt.nextExerciseNumber,
+      usedFacts,
+    });
 
-  const sections: [Section, Section, Section] = authoredBlueprint
-    ? authoredSections
-    : fallbackSections;
+    const challengeBuilt = buildWorksheetSection({
+      sectionId: "challenge",
+      blueprint: authoredBlueprint,
+      sourceLessonId: lesson.id,
+      lesson,
+      catalog,
+      rootRng,
+      difficultyMode,
+      pickSpecs: (tier) => tier.challenge,
+      startingExerciseNumber: practiceBuilt.nextExerciseNumber,
+      usedFacts,
+    });
+
+    sections = [
+      warmUpBuilt.section,
+      practiceBuilt.section,
+      challengeBuilt.section,
+    ];
+  } else {
+    sections = buildEmptyFallbackSections(lesson.id, difficultyMode);
+  }
 
   const seedAr = toEasternArabicNumerals(seed);
   const header: WorksheetHeader = {
@@ -300,7 +305,7 @@ export function generateWorksheet(
     unitTitleAr: unit.titleAr,
     lessonNumber: lesson.lessonNumber,
     lessonNumberAr: formatEasternNumber(lesson.lessonNumber),
-    lessonTitleAr: activeBlueprint.titleAr || lesson.titleAr,
+    lessonTitleAr: authoredBlueprint?.titleAr || lesson.titleAr,
     standards: lesson.standards,
     seed,
     difficultyMode,
@@ -353,11 +358,9 @@ export function generateWorksheet(
     seed,
     difficultyMode,
     isAuthoredBlueprint: Boolean(authoredBlueprint),
-    warmUpSourceLessonId: warmUpSource.sourceLessonId,
+    warmUpSourceLessonId,
     worksheet,
     answerKey,
-    teacherNotes: activeBlueprint.teacherNotes ?? lesson.teacherNotes,
+    teacherNotes: authoredBlueprint?.teacherNotes ?? lesson.teacherNotes,
   };
 }
-
-// (renderWorksheetSurface moved to src/lib/render-worksheet-surface.ts)

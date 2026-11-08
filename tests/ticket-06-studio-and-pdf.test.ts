@@ -1,10 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { getCurriculumCatalog } from "@/curriculum/catalog";
 import { findWesternNumeralsInRenderedHtml } from "@/lib/numerals";
-import {
-  applyStudioNavigationAction,
-  filterUnitsForStudioSearch,
-} from "@/lib/studio-helpers";
+import { filterUnitsForStudioSearch } from "@/lib/arabic-search";
+import { applyStudioNavigationAction } from "@/lib/studio-state";
 import { renderTeacherStudio } from "@/lib/render-teacher-studio";
 
 describe("Ticket 06 — RTL Teacher Studio: Grades K–5, 12 Units Accordion, Search & Badges", () => {

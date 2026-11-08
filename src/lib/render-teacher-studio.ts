@@ -7,8 +7,6 @@ import { TeacherStudio } from "@/components/studio/TeacherStudioClient";
 import {
   buildPdfExportUrl,
   buildStudioSearchParams,
-} from "@/lib/studio-helpers";
-import {
   resolveStudioStateFromSearchParams,
   type StudioSearchParamsInput,
 } from "@/lib/studio-state";

@@ -9,8 +9,13 @@ import type {
 } from "@/domain/types";
 import { StudioCanvas } from "@/components/studio/StudioCanvas";
 import { useStudioUi } from "@/components/studio/StudioShell";
-import { buildStudioSearchParams } from "@/lib/studio-helpers";
-import { ZOOM_LEVELS } from "@/lib/studio-state";
+import {
+  resolveStudioNavigationTransition,
+  resolveStudioStateFromSearchParams,
+  stepStudioZoom,
+  type StudioNavigationAction,
+  type StudioResolvedState,
+} from "@/lib/studio-state";
 
 export interface StudioCanvasRouteProps {
   bundle: GeneratedWorksheetBundle;
@@ -41,34 +46,51 @@ export function StudioCanvasRoute({
     settle();
   }, [bundle.lesson.id, bundle.seed, bundle.difficultyMode, settle]);
 
+  const currentSnapshot = (): StudioResolvedState => {
+    const rawSearch =
+      typeof window !== "undefined"
+        ? Object.fromEntries(new URLSearchParams(window.location.search))
+        : {};
+    return resolveStudioStateFromSearchParams({
+      ...rawSearch,
+      grade: bundle.grade.id,
+      lesson: bundle.lesson.lessonNumber,
+      seed: bundle.seed,
+      difficulty: bundle.difficultyMode,
+      view: viewMode,
+      zoom: zoomPercent,
+    });
+  };
+
+  const dispatchCanvasNavigation = (action: StudioNavigationAction) => {
+    const transition = resolveStudioNavigationTransition(
+      currentSnapshot(),
+      action,
+      pathname
+    );
+    if (transition.historyMode === "push") {
+      router.push(transition.href, { scroll: false });
+    } else {
+      router.replace(transition.href, { scroll: false });
+    }
+  };
+
   const onViewModeChange = (nextViewMode: ViewMode) => {
     setViewMode(nextViewMode);
     if (typeof window === "undefined") return;
-    const params = new URLSearchParams(window.location.search);
-    params.set("view", nextViewMode);
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    dispatchCanvasNavigation({ type: "select-view", viewMode: nextViewMode });
   };
 
   const onZoomStep = (delta: -1 | 1) => {
-    setZoomPercent((current) => {
-      const index = ZOOM_LEVELS.indexOf(current);
-      const base = index >= 0 ? index : 2;
-      const next = Math.max(0, Math.min(ZOOM_LEVELS.length - 1, base + delta));
-      return ZOOM_LEVELS[next];
-    });
+    setZoomPercent((current) => stepStudioZoom(current, delta));
   };
 
   const onSelectPrerequisite = (targetGrade: GradeId, lessonNumber: number) => {
     beginTuning();
-    const params = buildStudioSearchParams({
+    dispatchCanvasNavigation({
+      type: "select-prerequisite",
       grade: targetGrade,
       lessonNumber,
-      seed: bundle.seed,
-      difficultyLevel: bundle.difficultyMode,
-      viewMode,
-    });
-    router.push(`/math/${targetGrade.toLowerCase()}?${params}`, {
-      scroll: false,
     });
   };
 

@@ -11,20 +11,10 @@ import {
   EVERYDAY_OBJECT_CATALOG,
   createEverydayObjectSpec,
 } from "@/visual-models/everyday-objects";
+import { PartsTableView } from "@/components/worksheet/PartsTableView";
 import {
-  createDicePatternSpec,
-  createDigitCardSpec,
-  createFiveFrameSpec,
-  createTallyMarksSpec,
-} from "@/visual-models/unit-2-models";
-import {
-  PartsTableView,
-  createEquationStripSpec,
-  createNumberBondSpec,
-} from "@/visual-models/unit-3-models";
-import {
-  selectAdditionFacts,
-  selectSubtractionFacts,
+  buildPartWholeMatchPairs,
+  type PartWholeMatchMode,
 } from "@/lib/part-whole-facts";
 import { VisualModelView } from "@/visual-models/registry";
 import {
@@ -35,13 +25,7 @@ import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
 import { AnswerLine, AnswerSlot } from "@/components/worksheet/AnswerSlot";
 import { ExerciseColumns } from "@/components/worksheet/ExerciseColumns";
 
-export type ConnectMatchMode =
-  | "five-frame-to-parts-table"
-  | "five-frame-to-number-bond"
-  | "dice-to-number-bond"
-  | "number-bond-to-equation"
-  | "five-frame-to-equation"
-  | "tally-expression-to-total";
+export type ConnectMatchMode = PartWholeMatchMode;
 
 export interface ConnectMatchBlueprintParams {
   pairCount?: number;
@@ -95,192 +79,17 @@ function generateConnectMatchExercise(
   let pairs: ConnectMatchPair[] = [];
 
   if (params.matchingMode) {
-    const mode = params.matchingMode;
-    const operation = params.operation ?? "add";
-    const minPart =
-      params.minPart !== undefined
-        ? params.minPart
-        : mode === "tally-expression-to-total"
-          ? 1
-          : ctx.difficultyLevel === "Advanced"
-            ? 0
-            : 1;
-
-    if (operation === "subtract") {
-      const subFacts = selectSubtractionFacts(
-        ctx.rng,
-        ctx.difficultyLevel,
-        {
-          totalRange: params.totalRange,
-          minPart,
-          count: pairCount,
-        },
-        ctx.usedFacts
-      );
-
-      const tracePositions: Array<"total" | "part1"> =
-        ctx.difficultyLevel === "Easy" ? ["total", "part1"] : [];
-
-      pairs = subFacts.map((fact, idx) => {
-        const totalAr = formatEasternNumber(fact.total);
-        const p1Ar = formatEasternNumber(fact.partTakenAway);
-        const p2Ar = formatEasternNumber(fact.missingPart);
-
-        const rightModel: VisualModelSpec =
-          mode === "number-bond-to-equation"
-            ? createNumberBondSpec({
-                part1: fact.partTakenAway,
-                part2: fact.missingPart,
-                total: fact.total,
-                missingPosition: "none",
-                tracePositions,
-              })
-            : mode === "dice-to-number-bond"
-              ? createDicePatternSpec({
-                  count:
-                    fact.partTakenAway === 0 || fact.missingPart === 0
-                      ? fact.missingPart
-                      : fact.total,
-                  secondaryCount:
-                    fact.partTakenAway === 0 || fact.missingPart === 0
-                      ? fact.partTakenAway
-                      : 0,
-                  crossedOutCount: fact.partTakenAway,
-                  crossOffMode: "shown",
-                  diceVariant:
-                    fact.partTakenAway === 0 || fact.missingPart === 0
-                      ? "domino"
-                      : "die",
-                  colorTheme: "coral",
-                  secondaryColorTheme: "sky",
-                  hideLabel: true,
-                })
-              : createFiveFrameSpec({
-                  count: fact.total,
-                  secondaryCount: 0,
-                  crossedOutCount: fact.partTakenAway,
-                  crossOffMode: "shown",
-                  colorTheme: "coral",
-                });
-
-        const leftModel: VisualModelSpec =
-          mode === "five-frame-to-number-bond" || mode === "dice-to-number-bond"
-            ? createNumberBondSpec({
-                part1: fact.partTakenAway,
-                part2: fact.missingPart,
-                total: fact.total,
-                missingPosition: "part2",
-                tracePositions,
-              })
-            : createEquationStripSpec({
-                operation: "subtract",
-                total: fact.total,
-                part1: fact.partTakenAway,
-                part2: fact.missingPart,
-                missingPosition: "part2",
-                tracePositions,
-              });
-
-        return {
-          pairId: `pair-${idx + 1}-${fact.key}`,
-          rightItem: rightModel,
-          leftItem: leftModel,
-          connectionReasonAr: `الكلّ ${totalAr} شُطب منه ${p1Ar} فبقي الجزء الناقص ${p2Ar}`,
-        };
-      });
-    } else {
-      const facts = selectAdditionFacts(
-        ctx.rng,
-        ctx.difficultyLevel,
-        {
-          totalRange: params.totalRange,
-          minPart,
-          count: pairCount,
-        },
-        ctx.usedFacts
-      );
-
-      const tracePositions: Array<"part1" | "part2"> =
-        ctx.difficultyLevel === "Easy" ? ["part1", "part2"] : [];
-
-      pairs = facts.map((fact, idx) => {
-        const p1Ar = formatEasternNumber(fact.part1);
-        const p2Ar = formatEasternNumber(fact.part2);
-        const totalAr = formatEasternNumber(fact.total);
-
-        const rightModel: VisualModelSpec =
-          mode === "dice-to-number-bond"
-            ? createDicePatternSpec({
-                count: fact.part1,
-                secondaryCount: fact.part2,
-                diceVariant:
-                  fact.part1 === 0 || fact.part2 === 0 ? "domino" : "die",
-                colorTheme: "coral",
-                secondaryColorTheme: "sky",
-                hideLabel: true,
-              })
-            : mode === "tally-expression-to-total"
-              ? createTallyMarksSpec({
-                  count: Math.max(1, fact.part1),
-                  secondaryCount: Math.max(1, fact.part2),
-                })
-              : createFiveFrameSpec({
-                  count: fact.part1,
-                  secondaryCount: fact.part2,
-                  showPartOutline: true,
-                  colorTheme: "coral",
-                  secondaryColorTheme: "sky",
-                });
-
-        const leftModel: VisualModelSpec =
-          mode === "five-frame-to-parts-table"
-            ? createDigitCardSpec(fact.total, {
-                id: `parts-table-${fact.part1}-${fact.part2}-${fact.total}`,
-                labelAr: `جدول الأجزاء والكلّ: ${p1Ar} و${p2Ar} والكلّ ${totalAr}`,
-                count: fact.part1,
-                secondaryCount: fact.part2,
-                meta: {
-                  isPartsTableEndpoint: true,
-                  part1: fact.part1,
-                  part2: fact.part2,
-                  total: fact.total,
-                  missingPosition: "total",
-                  tracePositions,
-                },
-              })
-            : mode === "five-frame-to-number-bond" ||
-                mode === "dice-to-number-bond"
-              ? createNumberBondSpec({
-                  part1: fact.part1,
-                  part2: fact.part2,
-                  total: fact.total,
-                  missingPosition: "total",
-                  tracePositions,
-                })
-              : mode === "five-frame-to-equation"
-                ? createEquationStripSpec({
-                    part1: fact.part1,
-                    part2: fact.part2,
-                    total: fact.total,
-                    missingPosition: "total",
-                    tracePositions,
-                  })
-                : createDigitCardSpec(fact.total, {
-                    meta: {
-                      missingTotal: params.showMissingTotalSlot
-                        ? fact.total
-                        : undefined,
-                    },
-                  });
-
-        return {
-          pairId: `pair-${idx + 1}-${fact.key}`,
-          rightItem: rightModel,
-          leftItem: leftModel,
-          connectionReasonAr: `الجزءان ${p1Ar} و${p2Ar} يكوّنان الكلّ ${totalAr}`,
-        };
-      });
-    }
+    pairs = buildPartWholeMatchPairs({
+      rng: ctx.rng,
+      difficultyLevel: ctx.difficultyLevel,
+      matchingMode: params.matchingMode,
+      operation: params.operation,
+      pairCount,
+      totalRange: params.totalRange,
+      minPart: params.minPart,
+      showMissingTotalSlot: params.showMissingTotalSlot,
+      usedFacts: ctx.usedFacts,
+    });
   } else if (
     params.customCandidatePairs &&
     params.customCandidatePairs.length > 0

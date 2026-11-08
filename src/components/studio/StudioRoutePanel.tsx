@@ -5,19 +5,15 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { Grade, GradeId, WorksheetDifficultyMode } from "@/domain/types";
 import { StudioPanel } from "@/components/studio/StudioPanel";
 import { useStudioUi } from "@/components/studio/StudioShell";
-import { buildStudioSearchParams } from "@/lib/studio-helpers";
 import {
+  resolveStudioNavigationTransition,
   resolveStudioStateFromSearchParams,
-  type StudioResolvedState,
+  type StudioNavigationAction,
 } from "@/lib/studio-state";
 
 export interface StudioRoutePanelProps {
   grade: Grade;
   initialRailCollapsed?: boolean;
-}
-
-function routeForGrade(grade: GradeId): string {
-  return `/math/${grade.toLowerCase()}`;
 }
 
 /**
@@ -38,55 +34,45 @@ export function StudioRoutePanel({
     grade: grade.id,
   });
 
-  const queryString = useCallback(
-    (overrides: Partial<StudioResolvedState> = {}): string =>
-      buildStudioSearchParams({
-        grade: state.grade,
-        lessonNumber: state.lessonNumber,
-        seed: state.seed,
-        difficultyLevel: state.difficultyLevel,
-        viewMode: state.viewMode,
-        ...overrides,
-      }),
-    [state]
-  );
-
-  const pushState = useCallback(
-    (overrides: Partial<StudioResolvedState>) => {
-      const targetGrade = overrides.grade ?? state.grade;
-      const params = queryString({ ...overrides, grade: targetGrade });
-      router.push(`${routeForGrade(targetGrade)}?${params}`, {
-        scroll: false,
-      });
+  const dispatchNavigation = useCallback(
+    (action: StudioNavigationAction, shouldBeginTuning: boolean) => {
+      if (shouldBeginTuning) {
+        beginTuning();
+      }
+      const transition = resolveStudioNavigationTransition(
+        state,
+        action,
+        pathname
+      );
+      if (transition.historyMode === "push") {
+        router.push(transition.href, { scroll: false });
+      } else {
+        router.replace(transition.href, { scroll: false });
+      }
     },
-    [queryString, router, state.grade]
-  );
-
-  const replaceState = useCallback(
-    (overrides: Partial<StudioResolvedState>) => {
-      const params = queryString(overrides);
-      router.replace(`${pathname}?${params}`, { scroll: false });
-    },
-    [pathname, queryString, router]
+    [beginTuning, pathname, router, state]
   );
 
   const onSelectLesson = (targetGrade: GradeId, lessonNumber: number) => {
-    beginTuning();
-    pushState({ grade: targetGrade, lessonNumber });
+    dispatchNavigation(
+      { type: "select-lesson", grade: targetGrade, lessonNumber },
+      true
+    );
   };
 
   const onSelectDifficulty = (mode: WorksheetDifficultyMode) => {
-    beginTuning();
-    replaceState({ difficultyLevel: mode });
+    dispatchNavigation(
+      { type: "select-difficulty", difficultyLevel: mode },
+      true
+    );
   };
 
   const onRegenerateSeed = (nextSeed: string) => {
-    beginTuning();
-    replaceState({ seed: nextSeed });
+    dispatchNavigation({ type: "regenerate-seed", seed: nextSeed }, true);
   };
 
   const onSelectGrade = (targetGrade: GradeId) => {
-    replaceState({ grade: targetGrade, lessonNumber: 1 });
+    dispatchNavigation({ type: "select-grade", grade: targetGrade }, false);
   };
 
   return (

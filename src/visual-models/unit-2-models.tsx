@@ -5,6 +5,7 @@ import type {
   VisualModelSpec,
   VisualSize,
 } from "@/domain/types";
+import { ANSWER_SLOT_SIZE_CLASS } from "@/components/worksheet/AnswerSlot";
 import { COLOR_PALETTES } from "@/visual-models/shapes-solids-coins";
 import {
   EVERYDAY_OBJECT_CATALOG,
@@ -2228,6 +2229,20 @@ export function createDigitCardSpec(
   };
 }
 
+export function registerDigitCardVisualModel(): void {
+  registerVisualModel("digit-card", ({ model }) => {
+    const digit = model.digit ?? model.count ?? 1;
+    return (
+      <div
+        className={`inline-flex ${ANSWER_SLOT_SIZE_CLASS} items-center justify-center rounded-2xl border-2 border-indigo-600 bg-indigo-50 text-[28px] font-extrabold leading-none text-indigo-900 shadow-xs`}
+        data-visual-model="digit-card"
+      >
+        {formatEasternNumber(digit)}
+      </div>
+    );
+  });
+}
+
 export type { EverydayObjectId, VisualSize };
 
 registerFiveFrameVisualModel();
@@ -2236,3 +2251,4 @@ registerSnapCubesVisualModel();
 registerTallyMarksVisualModel();
 registerDicePatternVisualModel();
 registerCircularArrangementVisualModel();
+registerDigitCardVisualModel();

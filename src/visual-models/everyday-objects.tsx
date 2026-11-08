@@ -5,6 +5,8 @@ import type {
   EverydayObjectId,
   VisualModelSpec,
 } from "@/domain/types";
+import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
+import type { VisualModelRenderer } from "@/visual-models/registry";
 
 export interface EverydayObjectDefinition {
   id: EverydayObjectId;
@@ -1224,3 +1226,79 @@ export function EverydayObjectSvg({
       );
   }
 }
+
+export const renderEverydayObjectVisualModel: VisualModelRenderer = ({
+  model,
+}) => {
+  const primary = model.count ?? 1;
+  const secondary = model.secondaryCount ?? 0;
+  const total = primary + secondary;
+  const effectiveSize = model.size ?? (total >= 4 ? "tiny" : "small");
+
+  if (total <= 1) {
+    return (
+      <div
+        className="inline-flex items-center gap-1"
+        data-visual-model="everyday-object"
+        data-object-id={model.id}
+        data-count={formatEasternNumber(1)}
+      >
+        <EverydayObjectSvg objectId={model.id} size={model.size ?? "medium"} />
+        <span className="text-[13px] font-bold leading-tight text-slate-700">
+          {toEasternArabicNumerals(model.labelAr)}
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="inline-flex items-center gap-1"
+      data-visual-model="everyday-object"
+      data-object-id={model.id}
+      data-count={formatEasternNumber(total)}
+    >
+      <div
+        className="flex shrink-0 items-center justify-center gap-0.5"
+        data-visual-model="everyday-object-group"
+        {...(secondary > 0
+          ? {
+              "data-subitize-parts": `${formatEasternNumber(
+                primary
+              )}+${formatEasternNumber(secondary)}`,
+            }
+          : {})}
+      >
+        <div
+          className={`flex shrink-0 items-center gap-0.5 ${
+            secondary > 0
+              ? "rounded-xl border border-dashed border-indigo-300 bg-indigo-50/40 px-1 py-0.5"
+              : ""
+          }`}
+        >
+          {Array.from({ length: primary }, (_, idx) => (
+            <EverydayObjectSvg
+              key={`p-${idx}`}
+              objectId={model.id}
+              size={effectiveSize}
+            />
+          ))}
+        </div>
+        {secondary > 0 && (
+          <div className="flex shrink-0 items-center gap-0.5 rounded-xl border border-dashed border-amber-300 bg-amber-50/40 px-1 py-0.5">
+            {Array.from({ length: secondary }, (_, idx) => (
+              <EverydayObjectSvg
+                key={`s-${idx}`}
+                objectId={model.id}
+                size={effectiveSize}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+      <span className="hidden text-[13px] font-bold leading-tight text-slate-700">
+        {toEasternArabicNumerals(model.labelAr)}
+      </span>
+    </div>
+  );
+};

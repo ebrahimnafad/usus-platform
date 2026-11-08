@@ -19,7 +19,7 @@ import {
   buildStudioSearchParams,
   formatGradePillLabelAr,
   mintNextStudioSeed,
-} from "@/lib/studio-helpers";
+} from "@/lib/studio-state";
 import {
   filterUnitsForStudioSearch,
   summariseSearchResults,
