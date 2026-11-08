@@ -15,4 +15,4 @@
 - [ ] Prerequisite Warm-Ups resolve K-54 → K-43 and K-55 → K-54
 - [ ] Arabic titles, Teacher Notes (including `البداية` / `التغيير` / `النتيجة` guidance for teachers), classroom activities, misconceptions, prompts, and Strategy Hints for K-54 and K-55 are drafted and reviewed by the user
 - [ ] Domain tests across many Seeds: every K-54 and K-55 item satisfies `total − partTakenAway = missingPart`, crossed-off counts equal `partTakenAway`, every subtraction Equation uses `−`, and MATCHING E and F solutions are 1-to-1
-- [ ] Constitution §12 holds for K-54 and K-55 (`--lessons=K-54..K-55` guard green)
+- [ ] Constitution §12 holds for K-54 and K-55 (`--lessons=K-54..K-55 --seeds=2` guard green)

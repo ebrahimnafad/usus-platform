@@ -20,4 +20,5 @@ Read `WORKSHEET_CONSTITUTION.md` before designing, authoring, or reviewing any m
 
 ### Environment
 
-Headless browser testing uses Playwright with `channel: 'msedge'` — Microsoft Edge is installed; Chromium is not.
+- Headless browser testing uses Playwright with `channel: 'msedge'` — Microsoft Edge is installed; Chromium is not.
+- Windows PowerShell 5.1: chain dependent commands with `; if ($LASTEXITCODE -eq 0) { ... }` (never `&&`).

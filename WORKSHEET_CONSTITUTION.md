@@ -148,11 +148,11 @@ Each rule names its enforcement:
 
 Per ticket within a batch:
 
-- The layout guard is green for the lessons delivered by that ticket (`--lessons=<ticket-range>`).
+- The layout guard is green for the lessons delivered by that ticket (`--lessons=<ticket-range> --seeds=2`).
 
 A batch closes when all of these hold:
 
-- The layout guard is green for every authored lesson across the curriculum (run once when closing the batch).
+- The layout guard is green for every authored lesson across the curriculum (`--seeds=5`, run once when closing the batch).
 - The primary-seam tests and domain tests pass for the new lessons.
 - Every new term is in `GLOSSARY.md` and every new size is in §3 or §4.
 - The user has reviewed the saved page PNGs and the Arabic text of every new lesson.

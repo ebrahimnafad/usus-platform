@@ -101,11 +101,85 @@ for (const file of files) {
   }
 }
 
+// Check 3: Constitution §9.4 (approved child-voice imperatives on K-35, K-39+) and §9.5 (no topic-label openers)
+const LABEL_OPENERS = [
+  "تهيئة",
+  "تدرّب",
+  "تحدٍّ وتقييم",
+  "تحدّي",
+  "مسألة اليوم",
+  "بناء التفكير",
+];
+
+const APPROVED_IMPERATIVES = [
+  "عدّ",
+  "انظر",
+  "صِلْ",
+  "لوّن",
+  "اختر",
+  "اكتب",
+  "ارسم",
+  "اشطب",
+  "اطرح",
+  "اقرأ",
+  "اجمع",
+];
+
+const blueprintFiles = walk("src/blueprints");
+for (const file of blueprintFiles) {
+  const content = fs.readFileSync(file, "utf-8");
+
+  // Track current lessonNumber as we scan through the file
+  const lines = content.split("\n");
+  let currentLessonNum = 0;
+
+  for (let i = 0; i < lines.length; i++) {
+    const lessonMatch = lines[i].match(/lessonNumber:\s*(\d+)/);
+    if (lessonMatch) {
+      currentLessonNum = Number(lessonMatch[1]);
+    }
+
+    const fieldMatch = lines[i].match(/^\s*(promptAr|strategyHintAr):\s*(.*)$/);
+    if (!fieldMatch) continue;
+
+    const fieldName = fieldMatch[1];
+    // Collect the string literal on this line or the immediately following line
+    const slice = `${lines[i]}\n${lines[i + 1] ?? ""}`;
+    const strLiteral = slice.match(
+      /(?:promptAr|strategyHintAr):\s*\n?\s*["'`]([^"'`]+)["'`]/
+    );
+    if (!strLiteral) continue;
+    const text = strLiteral[1].trim();
+
+    if (fieldName === "promptAr") {
+      const badOpener = LABEL_OPENERS.find((label) => text.startsWith(label));
+      if (badOpener) {
+        console.error(
+          `❌ ${file}:${i + 1} (K-${currentLessonNum}): promptAr opens with topic label "${badOpener}" (§9.5): "${text}"`
+        );
+        violations++;
+      }
+    }
+
+    if (currentLessonNum === 35 || currentLessonNum >= 39) {
+      const startsWithImperative = APPROVED_IMPERATIVES.some((verb) =>
+        text.startsWith(verb)
+      );
+      if (!startsWithImperative) {
+        console.error(
+          `❌ ${file}:${i + 1} (K-${currentLessonNum}): ${fieldName} must open with one of [${APPROVED_IMPERATIVES.join("، ")}] (§9.4): "${text}"`
+        );
+        violations++;
+      }
+    }
+  }
+}
+
 if (violations > 0) {
-  console.error(`\n${violations} numeral violation(s) found.`);
+  console.error(`\n${violations} numeral/language violation(s) found.`);
   process.exit(1);
 } else {
   console.log(
-    "✅ No Western numeral violations found in user-visible Arabic strings."
+    "✅ No Western numeral or §9.4/§9.5 blueprint prompt violations found."
   );
 }
