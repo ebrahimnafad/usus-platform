@@ -1243,6 +1243,12 @@ export const renderEverydayObjectVisualModel: VisualModelRenderer = ({
     crossOffMode !== "none" &&
     (crossOffMode === "shown" || solved);
   const effectiveSize = model.size ?? (total >= 4 ? "tiny" : "small");
+  const resolvedObjectId =
+    (meta.objectId as string) ??
+    (EVERYDAY_OBJECT_CATALOG.some((item) => item.id === model.id)
+      ? model.id
+      : (EVERYDAY_OBJECT_CATALOG.find((item) => model.id.includes(item.id))
+          ?.id ?? model.id));
 
   const renderObjectItem = (key: string, idx: number) => {
     const isCrossedOut =
@@ -1252,7 +1258,7 @@ export const renderEverydayObjectVisualModel: VisualModelRenderer = ({
         key={key}
         className="relative inline-flex shrink-0 items-center justify-center"
       >
-        <EverydayObjectSvg objectId={model.id} size={effectiveSize} />
+        <EverydayObjectSvg objectId={resolvedObjectId} size={effectiveSize} />
         {isCrossedOut && (
           <svg
             width="100%"
@@ -1312,10 +1318,13 @@ export const renderEverydayObjectVisualModel: VisualModelRenderer = ({
       <div
         className="inline-flex items-center gap-1"
         data-visual-model="everyday-object"
-        data-object-id={model.id}
+        data-object-id={resolvedObjectId}
         data-count={formatEasternNumber(1)}
       >
-        <EverydayObjectSvg objectId={model.id} size={model.size ?? "medium"} />
+        <EverydayObjectSvg
+          objectId={resolvedObjectId}
+          size={model.size ?? "medium"}
+        />
         <span className="text-[13px] font-bold leading-tight text-slate-700">
           {toEasternArabicNumerals(model.labelAr)}
         </span>
@@ -1327,7 +1336,7 @@ export const renderEverydayObjectVisualModel: VisualModelRenderer = ({
     <div
       className="inline-flex items-center gap-1"
       data-visual-model="everyday-object"
-      data-object-id={model.id}
+      data-object-id={resolvedObjectId}
       data-count={formatEasternNumber(total)}
       {...(crossedOut > 0
         ? {

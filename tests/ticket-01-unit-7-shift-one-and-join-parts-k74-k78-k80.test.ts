@@ -118,7 +118,26 @@ describe("Ticket 01 (Unit 7) — Slice 1: ShiftOneDecompose totals 6-10 and turn
     const data = ex.data as any;
     expect(data.mode).toBe("give-away");
     expect(data.giveAwayRows).toHaveLength(2);
-    expect(data.giveAwayRows[0].applesModel.id).toContain("pencil");
+    expect(data.giveAwayRows[0].applesModel.id).toBe("pencil");
+
+    const htmlW = renderToStaticMarkup(
+      shiftDef.render({ exercise: ex, mode: "worksheet" })
+    );
+    const htmlA = renderToStaticMarkup(
+      shiftDef.render({ exercise: ex, mode: "answer-key" })
+    );
+
+    // Renders pencil SVG and not cherry cupcake
+    expect(htmlW).toContain('aria-label="قلم رصاص"');
+    expect(htmlW).not.toContain("كعكة الكرز");
+    expect(htmlA).toContain('aria-label="قلم رصاص"');
+    expect(htmlA).not.toContain("كعكة الكرز");
+
+    // Student worksheet has clean pencils without pre-drawn cross lines
+    expect(htmlW).not.toContain('data-crossed-out-object="true"');
+
+    // Answer key has crossed-out pencils showing the solved state
+    expect(htmlA).toContain('data-crossed-out-object="true"');
   });
 });
 

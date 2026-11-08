@@ -298,13 +298,17 @@ function generateShiftOneDecomposeExercise(
         const remainingAr = formatEasternNumber(remaining);
 
         const applesModel = createEverydayObjectSpec(objectDef, {
-          id: `give-away-${objectId}-row-${rowIdx + 1}-${targetTotal}-${taken}`,
+          id: objectDef.id,
           count: targetTotal,
           secondaryCount: 0,
           crossedOutCount: taken,
           size: "small",
           labelAr: `${totalAr} من ${objectDef.labelAr} شُطب منها ${takenAr} وبقي ${remainingAr}`,
-          meta: { crossOffMode },
+          meta: {
+            objectId,
+            rowId: `give-away-${objectId}-row-${rowIdx + 1}-${targetTotal}-${taken}`,
+            crossOffMode,
+          },
         });
 
         const promptAr =
