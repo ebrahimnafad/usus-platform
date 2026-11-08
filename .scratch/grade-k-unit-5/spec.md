@@ -1,6 +1,6 @@
 # Grade K Unit 5 — Word Problems to 5
 
-**Status:** open
+**Status:** done
 
 ## Problem Statement
 

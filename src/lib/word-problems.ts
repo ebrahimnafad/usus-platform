@@ -28,6 +28,7 @@ import {
   createEquationStripSpec,
   createNumberBondSpec,
   type BondMissingPosition,
+  type EquationLayout,
 } from "@/visual-models/unit-3-models";
 
 export type WordProblemSituation =
@@ -43,6 +44,8 @@ export type WordProblemRepresentation =
 
 export type WordProblemAction = "trace" | "write";
 
+export type TakeApartMode = "model-fixed" | "open-ended";
+
 export interface SolveWordProblemBlueprintParams {
   situation?: WordProblemSituation;
   problemStyle?: WordProblemStyle;
@@ -52,8 +55,10 @@ export interface SolveWordProblemBlueprintParams {
   action?: WordProblemAction;
   crossOffMode?: CrossOffMode;
   showModel?: boolean;
+  takeApartMode?: TakeApartMode;
+  equationLayout?: EquationLayout;
   clozeIncludeEquation?: boolean;
-  unknownPosition?: "total" | "part2" | "part1";
+  unknownPosition?: "total" | "part2" | "part1" | "both-parts";
   totalRange?: [number, number];
   minPart?: number;
   itemCount?: number;
@@ -76,6 +81,8 @@ export interface SolveWordProblemItem {
   partTakenAwayAr: string;
   missingPartAr: string;
   solvedAnswerAr: string;
+  takeApartMode?: TakeApartMode;
+  validPairsSummaryAr?: string;
   crossOffMode?: CrossOffMode;
   factKey: string;
   objectId: EverydayObjectId;
@@ -112,11 +119,22 @@ export interface SolveWordProblemPayload {
 export interface WordProblemStoryScene {
   id: string;
   objectId: EverydayObjectId;
-  questionLabelAr: "كم في الكلّ؟" | "كم أصبح الآن؟" | "كم بقي؟";
+  questionLabelAr:
+    "كم في الكلّ؟" | "كم أصبح الآن؟" | "كم بقي؟" | "كم في كلّ جزء؟";
   buildStoryAr: (p1Ar: string, p2Ar: string) => string;
   clozeLeadAr: string;
   clozeMiddleAr: string;
   clozeTrailAr: string;
+}
+
+export function formatValidTakeApartPairsAr(total: number): string {
+  const clamped = Math.max(2, Math.min(5, total));
+  const pairs: string[] = [];
+  for (let p1 = clamped - 1; p1 >= 1; p1--) {
+    const p2 = clamped - p1;
+    pairs.push(`${formatEasternNumber(p1)} و${formatEasternNumber(p2)}`);
+  }
+  return `تتنوّع الإجابات، مثل: ${pairs.join(" أو ")}`;
 }
 
 export type AddToStoryScene = WordProblemStoryScene;
@@ -370,6 +388,89 @@ export const TAKE_FROM_STORY_SCENES: WordProblemStoryScene[] = [
   },
 ];
 
+export const TAKE_APART_STORY_SCENES: WordProblemStoryScene[] = [
+  {
+    id: "apart-apples-basket",
+    objectId: "apple",
+    questionLabelAr: "كم في كلّ جزء؟",
+    buildStoryAr: (totalAr) =>
+      `في السلّة ${totalAr} تفّاحات حمراء وخضراء. كم تفّاحة في كلّ جزء؟`,
+    clozeLeadAr: "في السلّة",
+    clozeMiddleAr: "تفّاحات حمراء و",
+    clozeTrailAr: "تفّاحات خضراء.",
+  },
+  {
+    id: "apart-birds-tree",
+    objectId: "bird",
+    questionLabelAr: "كم في كلّ جزء؟",
+    buildStoryAr: (totalAr) =>
+      `على الشجرة ${totalAr} عصافير على الغصن الأيمن والغصن الأيسر. كم عصفوراً في كلّ جزء؟`,
+    clozeLeadAr: "على الشجرة",
+    clozeMiddleAr: "عصافير على اليمين و",
+    clozeTrailAr: "عصافير على اليسار.",
+  },
+  {
+    id: "apart-books-shelf",
+    objectId: "book",
+    questionLabelAr: "كم في كلّ جزء؟",
+    buildStoryAr: (totalAr) =>
+      `على الرفّ ${totalAr} كتب كبيرة وصغيرة. كم كتاباً في كلّ جزء؟`,
+    clozeLeadAr: "على الرفّ",
+    clozeMiddleAr: "كتب كبيرة و",
+    clozeTrailAr: "كتب صغيرة.",
+  },
+  {
+    id: "apart-cars-box",
+    objectId: "car",
+    questionLabelAr: "كم في كلّ جزء؟",
+    buildStoryAr: (totalAr) =>
+      `في الصندوق ${totalAr} سيّارات حمراء وزرقاء. كم سيّارة في كلّ جزء؟`,
+    clozeLeadAr: "في الصندوق",
+    clozeMiddleAr: "سيّارات حمراء و",
+    clozeTrailAr: "سيّارات زرقاء.",
+  },
+  {
+    id: "apart-flowers-vase",
+    objectId: "flower",
+    questionLabelAr: "كم في كلّ جزء؟",
+    buildStoryAr: (totalAr) =>
+      `في المزهرية ${totalAr} زهرات صفراء ووردية. كم زهرة في كلّ جزء؟`,
+    clozeLeadAr: "في المزهرية",
+    clozeMiddleAr: "زهرات صفراء و",
+    clozeTrailAr: "زهرات وردية.",
+  },
+  {
+    id: "apart-stars-board",
+    objectId: "star",
+    questionLabelAr: "كم في كلّ جزء؟",
+    buildStoryAr: (totalAr) =>
+      `على اللوحة ${totalAr} نجمات ذهبية وفضّية. كم نجمة في كلّ جزء؟`,
+    clozeLeadAr: "على اللوحة",
+    clozeMiddleAr: "نجمات ذهبية و",
+    clozeTrailAr: "نجمات فضّية.",
+  },
+  {
+    id: "apart-strawberries-plate",
+    objectId: "strawberry",
+    questionLabelAr: "كم في كلّ جزء؟",
+    buildStoryAr: (totalAr) =>
+      `في الطبق ${totalAr} حبّات فراولة في جزأين. كم حبّة فراولة في كلّ جزء؟`,
+    clozeLeadAr: "في الطبق",
+    clozeMiddleAr: "حبّات فراولة في الجزء الأوّل و",
+    clozeTrailAr: "حبّات في الجزء الثاني.",
+  },
+  {
+    id: "apart-pencils-cups",
+    objectId: "pencil",
+    questionLabelAr: "كم في كلّ جزء؟",
+    buildStoryAr: (totalAr) =>
+      `في الكوبين ${totalAr} أقلام موزّعة على جزأين. كم قلماً في كلّ جزء؟`,
+    clozeLeadAr: "في الكوب الأوّل",
+    clozeMiddleAr: "أقلام وفي الكوب الثاني",
+    clozeTrailAr: "أقلام.",
+  },
+];
+
 const ADD_TO_LEARNING_TEMPLATES: Array<{
   buildTextAr: (p1Ar: string, p2Ar: string) => string;
   clozeLeadAr: string;
@@ -457,11 +558,43 @@ const TAKE_FROM_LEARNING_TEMPLATES: Array<{
   },
 ];
 
+const TAKE_APART_LEARNING_TEMPLATES: Array<{
+  buildTextAr: (totalAr: string) => string;
+  clozeLeadAr: string;
+  clozeMiddleAr: string;
+  clozeTrailAr: string;
+}> = [
+  {
+    buildTextAr: (totalAr) =>
+      `في الكلّ ${totalAr} مكعّبات نفكّكها إلى جزأين. كم مكعّباً في كلّ جزء؟`,
+    clozeLeadAr: "في الجزء الأوّل",
+    clozeMiddleAr: "مكعّبات وفي الجزء الثاني",
+    clozeTrailAr: "مكعّبات.",
+  },
+  {
+    buildTextAr: (totalAr) =>
+      `لدينا ${totalAr} مكعّبات في الكلّ من لونين. كم مكعّباً في كلّ جزء؟`,
+    clozeLeadAr: "لدينا",
+    clozeMiddleAr: "مكعّبات في جزء و",
+    clozeTrailAr: "مكعّبات في الجزء الآخر.",
+  },
+  {
+    buildTextAr: (totalAr) =>
+      `معنا ${totalAr} مكعّبات نفصلها إلى جزأين. كم مكعّباً في كلّ جزء؟`,
+    clozeLeadAr: "معنا",
+    clozeMiddleAr: "مكعّبات في الجزء الأوّل و",
+    clozeTrailAr: "مكعّبات في الجزء الثاني.",
+  },
+];
+
 export function getStoryScenesForSituation(
   situation: WordProblemSituation
 ): WordProblemStoryScene[] {
   if (situation === "take-from") {
     return TAKE_FROM_STORY_SCENES;
+  }
+  if (situation === "take-apart") {
+    return TAKE_APART_STORY_SCENES;
   }
   return situation === "put-together"
     ? PUT_TOGETHER_STORY_SCENES
@@ -478,7 +611,8 @@ export function buildWordProblemText(params: {
   scene?: WordProblemStoryScene;
 }): {
   problemTextAr: string;
-  questionLabelAr: "كم في الكلّ؟" | "كم أصبح الآن؟" | "كم بقي؟";
+  questionLabelAr:
+    "كم في الكلّ؟" | "كم أصبح الآن؟" | "كم بقي؟" | "كم في كلّ جزء؟";
   clozeLeadAr: string;
   clozeMiddleAr: string;
   clozeTrailAr: string;
@@ -489,7 +623,10 @@ export function buildWordProblemText(params: {
   const totalAr = formatEasternNumber(
     params.total ?? params.part1 + params.part2
   );
-  const firstGivenAr = params.situation === "take-from" ? totalAr : p1Ar;
+  const firstGivenAr =
+    params.situation === "take-from" || params.situation === "take-apart"
+      ? totalAr
+      : p1Ar;
   const secondGivenAr = p1Ar;
 
   if (params.problemStyle === "story") {
@@ -498,19 +635,36 @@ export function buildWordProblemText(params: {
       params.scene ?? scenePool[params.templateIndex % scenePool.length];
     return {
       problemTextAr:
-        params.situation === "take-from"
+        params.situation === "take-from" || params.situation === "take-apart"
           ? scene.buildStoryAr(firstGivenAr, secondGivenAr)
           : scene.buildStoryAr(p1Ar, p2Ar),
       questionLabelAr:
         params.situation === "take-from"
           ? "كم بقي؟"
-          : params.situation === "put-together"
-            ? "كم في الكلّ؟"
-            : scene.questionLabelAr,
+          : params.situation === "take-apart"
+            ? "كم في كلّ جزء؟"
+            : params.situation === "put-together"
+              ? "كم في الكلّ؟"
+              : scene.questionLabelAr,
       clozeLeadAr: scene.clozeLeadAr,
       clozeMiddleAr: scene.clozeMiddleAr,
       clozeTrailAr: scene.clozeTrailAr,
       objectId: scene.objectId,
+    };
+  }
+
+  if (params.situation === "take-apart") {
+    const tpl =
+      TAKE_APART_LEARNING_TEMPLATES[
+        params.templateIndex % TAKE_APART_LEARNING_TEMPLATES.length
+      ];
+    return {
+      problemTextAr: tpl.buildTextAr(totalAr),
+      questionLabelAr: "كم في كلّ جزء؟",
+      clozeLeadAr: tpl.clozeLeadAr,
+      clozeMiddleAr: tpl.clozeMiddleAr,
+      clozeTrailAr: tpl.clozeTrailAr,
+      objectId: "apple",
     };
   }
 
@@ -801,10 +955,20 @@ export function buildSolveWordProblemPayload(
       : Math.max(1, Math.min(2, params.itemCount ?? 2));
 
   // Concrete → Pictorial → Abstract model withdrawal in story-and-slot / equation (§6.2)
+  const isTakeApart = situation === "take-apart";
+  const resolvedTakeApartMode: TakeApartMode | undefined = isTakeApart
+    ? (params.takeApartMode ??
+      (responseForm === "model-and-bond" || responseForm === "cloze-from-model"
+        ? "model-fixed"
+        : "open-ended"))
+    : undefined;
+
   const defaultShowModel =
     responseForm === "model-and-bond" || responseForm === "cloze-from-model"
       ? true
-      : ctx.difficultyLevel === "Easy";
+      : isTakeApart && resolvedTakeApartMode === "open-ended"
+        ? false
+        : ctx.difficultyLevel === "Easy";
   const showModel = params.showModel ?? defaultShowModel;
 
   // Only five-frame or withdrawn-model items support 0 cleanly as the change Part in Add-To / Take-From (spec §7)
@@ -821,6 +985,22 @@ export function buildSolveWordProblemPayload(
         ? 0
         : 1;
 
+  const rawTotalRange = params.totalRange;
+  const effectiveTotalRange: [number, number] | undefined =
+    isTakeApart && resolvedTakeApartMode === "open-ended"
+      ? [
+          Math.max(3, rawTotalRange ? rawTotalRange[0] : 3),
+          Math.max(
+            3,
+            rawTotalRange
+              ? rawTotalRange[1]
+              : ctx.difficultyLevel === "Easy"
+                ? 4
+                : 5
+          ),
+        ]
+      : rawTotalRange;
+
   const isTakeFrom = situation === "take-from";
 
   const normalizedFacts: Array<{
@@ -835,7 +1015,7 @@ export function buildSolveWordProblemPayload(
         ctx.rng,
         ctx.difficultyLevel,
         {
-          totalRange: params.totalRange,
+          totalRange: effectiveTotalRange,
           minPart: effectiveMinPart,
           count: itemCount,
         },
@@ -852,7 +1032,7 @@ export function buildSolveWordProblemPayload(
         ctx.rng,
         ctx.difficultyLevel,
         {
-          totalRange: params.totalRange,
+          totalRange: effectiveTotalRange,
           minPart: effectiveMinPart,
           count: itemCount,
         },
@@ -868,7 +1048,11 @@ export function buildSolveWordProblemPayload(
 
   const allowNonStandardUnknown =
     ctx.sectionId === "challenge" || ctx.difficultyLevel === "Advanced";
-  const defaultUnknown: "total" | "part2" = isTakeFrom ? "part2" : "total";
+  const defaultUnknown: BondMissingPosition = isTakeApart
+    ? "both-parts"
+    : isTakeFrom
+      ? "part2"
+      : "total";
   const requestedUnknown = params.unknownPosition ?? defaultUnknown;
   const resolvedUnknown: BondMissingPosition =
     requestedUnknown !== defaultUnknown && allowNonStandardUnknown
@@ -878,7 +1062,9 @@ export function buildSolveWordProblemPayload(
   const clozeIncludeEquation =
     params.clozeIncludeEquation !== undefined
       ? Boolean(params.clozeIncludeEquation)
-      : (situation === "put-together" || situation === "take-from") &&
+      : (situation === "put-together" ||
+          situation === "take-from" ||
+          situation === "take-apart") &&
         responseForm === "cloze-from-model";
 
   const scenePool = getStoryScenesForSituation(situation);
@@ -904,9 +1090,11 @@ export function buildSolveWordProblemPayload(
 
     const tracePositions: Array<"total" | "part1" | "part2"> =
       action === "trace"
-        ? isTakeFrom
-          ? ["total", "part1"]
-          : ["part1", "part2"]
+        ? isTakeApart
+          ? ["total"]
+          : isTakeFrom
+            ? ["total", "part1"]
+            : ["part1", "part2"]
         : [];
 
     const unknownPosition: BondMissingPosition = resolvedUnknown;
@@ -939,6 +1127,17 @@ export function buildSolveWordProblemPayload(
           })
         : undefined;
 
+    const equationLayout: EquationLayout =
+      params.equationLayout ??
+      (isTakeApart && responseForm !== "cloze-from-model"
+        ? "total-first"
+        : "standard");
+
+    const equationMissingPos: BondMissingPosition =
+      isTakeApart && responseForm === "cloze-from-model"
+        ? "total"
+        : unknownPosition;
+
     const equationModel =
       responseForm === "equation" ||
       (responseForm === "cloze-from-model" && clozeIncludeEquation)
@@ -947,8 +1146,8 @@ export function buildSolveWordProblemPayload(
             part1: fact.part1,
             part2: fact.part2,
             total: fact.total,
-            layout: "standard",
-            missingPosition: unknownPosition,
+            layout: equationLayout,
+            missingPosition: equationMissingPos,
             slotKind: "unknown",
             tracePositions:
               responseForm === "cloze-from-model" ? [] : tracePositions,
@@ -960,7 +1159,16 @@ export function buildSolveWordProblemPayload(
     const totalAr = formatEasternNumber(fact.total);
     const partTakenAwayAr = formatEasternNumber(fact.partTakenAway);
     const missingPartAr = formatEasternNumber(fact.missingPart);
-    const solvedAnswerAr = isTakeFrom ? missingPartAr : totalAr;
+    const validPairsSummaryAr = isTakeApart
+      ? formatValidTakeApartPairsAr(fact.total)
+      : undefined;
+    const solvedAnswerAr = isTakeApart
+      ? resolvedTakeApartMode === "open-ended"
+        ? `${part1Ar} و${part2Ar} (${validPairsSummaryAr})`
+        : `${part1Ar} و${part2Ar}`
+      : isTakeFrom
+        ? missingPartAr
+        : totalAr;
 
     return {
       id: `word-problem-item-${idx + 1}-${fact.key}`,
@@ -979,6 +1187,8 @@ export function buildSolveWordProblemPayload(
       partTakenAwayAr,
       missingPartAr,
       solvedAnswerAr,
+      takeApartMode: resolvedTakeApartMode,
+      validPairsSummaryAr,
       crossOffMode: isTakeFrom ? crossOffMode : undefined,
       factKey: fact.key,
       objectId: textBundle.objectId,
@@ -1011,37 +1221,55 @@ export function buildSolveWordProblemPayload(
 
   const factsSummaryAr = items
     .map((it) =>
-      isTakeFrom
-        ? `${it.totalAr} − ${it.partTakenAwayAr} = ${it.missingPartAr}`
-        : `${it.part1Ar} و${it.part2Ar} يساوي ${it.totalAr}`
+      isTakeApart
+        ? it.takeApartMode === "open-ended" && it.validPairsSummaryAr
+          ? `الكلّ ${it.totalAr}: ${it.validPairsSummaryAr}`
+          : `الكلّ ${it.totalAr} يتفكّك إلى ${it.part1Ar} و${it.part2Ar}`
+        : isTakeFrom
+          ? `${it.totalAr} − ${it.partTakenAwayAr} = ${it.missingPartAr}`
+          : `${it.part1Ar} و${it.part2Ar} يساوي ${it.totalAr}`
     )
     .join("؛ ");
 
-  const defaultPromptAr = isTakeFrom
+  const defaultPromptAr = isTakeApart
     ? responseForm === "cloze-from-model"
       ? problemStyle === "story"
-        ? "انظر إلى النموذج لكتابة المسألة القصصية، ثم اطرح لإيجاد كم بقي:"
-        : "انظر إلى النموذج لكتابة المسألة، ثم اكتب معادلة الطرح لإيجاد الجزء الناقص:"
+        ? "انظر إلى النموذج لملء المسألة القصصية، ثم اكتب معادلة الجمع:"
+        : "انظر إلى النموذج لملء المسألة التعليمية، ثم اكتب معادلة الجمع:"
       : responseForm === "model-and-bond"
         ? problemStyle === "story"
-          ? "اقرأ المسألة القصصية، ثم أكمل رابطة الأعداد واكتب كم بقي:"
-          : "اقرأ المسألة وانظر إلى النموذج، ثم أكمل رابطة الأعداد واكتب كم بقي:"
-        : "اقرأ المسألة، ثم اطرح الجزء المأخوذ من الكلّ واكتب كم بقي:"
-    : responseForm === "cloze-from-model"
-      ? problemStyle === "story"
-        ? "انظر إلى النموذج لإكمال المسألة القصصية، ثم اجمع الجزأين لإيجاد الكلّ:"
-        : "انظر إلى النموذج لكتابة المسألة، ثم اجمع الجزأين لإيجاد الكلّ:"
-      : responseForm === "model-and-bond"
+          ? "اقرأ المسألة القصصية وانظر إلى النموذج، ثم اكتب الجزأين في رابطة الأعداد والمربّعين:"
+          : "اقرأ المسألة وانظر إلى المكعّبات، ثم اكتب الجزأين في رابطة الأعداد والمربّعين:"
+        : "اقرأ المسألة لتحديد الكلّ، ثم اكتب كم يمكن أن يكون في كلّ جزء:"
+    : isTakeFrom
+      ? responseForm === "cloze-from-model"
         ? problemStyle === "story"
-          ? situation === "put-together"
-            ? "اقرأ المسألة القصصية، ثم أكمل رابطة الأعداد واكتب كم في الكلّ:"
-            : "اقرأ المسألة القصصية، ثم أكمل رابطة الأعداد واكتب كم أصبح الآن:"
-          : "اقرأ المسألة وانظر إلى المكعّبات، ثم أكمل رابطة الأعداد واكتب الكلّ:"
-        : "اقرأ المسألة، ثم اجمع الجزأين واكتب الكلّ في المربّع:";
+          ? "انظر إلى النموذج لكتابة المسألة القصصية، ثم اطرح لإيجاد كم بقي:"
+          : "انظر إلى النموذج لكتابة المسألة، ثم اكتب معادلة الطرح لإيجاد الجزء الناقص:"
+        : responseForm === "model-and-bond"
+          ? problemStyle === "story"
+            ? "اقرأ المسألة القصصية، ثم أكمل رابطة الأعداد واكتب كم بقي:"
+            : "اقرأ المسألة وانظر إلى النموذج، ثم أكمل رابطة الأعداد واكتب كم بقي:"
+          : "اقرأ المسألة، ثم اطرح الجزء المأخوذ من الكلّ واكتب كم بقي:"
+      : responseForm === "cloze-from-model"
+        ? problemStyle === "story"
+          ? "انظر إلى النموذج لإكمال المسألة القصصية، ثم اجمع الجزأين لإيجاد الكلّ:"
+          : "انظر إلى النموذج لكتابة المسألة، ثم اجمع الجزأين لإيجاد الكلّ:"
+        : responseForm === "model-and-bond"
+          ? problemStyle === "story"
+            ? situation === "put-together"
+              ? "اقرأ المسألة القصصية، ثم أكمل رابطة الأعداد واكتب كم في الكلّ:"
+              : "اقرأ المسألة القصصية، ثم أكمل رابطة الأعداد واكتب كم أصبح الآن:"
+            : "اقرأ المسألة وانظر إلى المكعّبات، ثم أكمل رابطة الأعداد واكتب الكلّ:"
+          : "اقرأ المسألة، ثم اجمع الجزأين واكتب الكلّ في المربّع:";
 
-  const defaultStrategyHintAr = isTakeFrom
-    ? `اقرأ المسألة لتحديد الكلّ والجزء المأخوذ، ثم اطرح لإيجاد الجزء الناقص الذي بقي (${factsSummaryAr}).`
-    : `اقرأ المسألة لتحديد الجزء الأوّل والجزء الثاني، ثم اجمع الجزأين لإيجاد الكلّ (${factsSummaryAr}).`;
+  const defaultStrategyHintAr = isTakeApart
+    ? resolvedTakeApartMode === "open-ended"
+      ? `اختر جزأين يساويان الكلّ (${factsSummaryAr}).`
+      : `عدّ كلّ جزء في النموذج واكتب الجزأين (${factsSummaryAr}).`
+    : isTakeFrom
+      ? `اقرأ المسألة لتحديد الكلّ والجزء المأخوذ، ثم اطرح لإيجاد الجزء الناقص الذي بقي (${factsSummaryAr}).`
+      : `اقرأ المسألة لتحديد الجزء الأوّل والجزء الثاني، ثم اجمع الجزأين لإيجاد الكلّ (${factsSummaryAr}).`;
 
   const data: SolveWordProblemData = {
     kind: "SolveWordProblem",
@@ -1053,10 +1281,18 @@ export function buildSolveWordProblemPayload(
     items,
   };
 
+  const resolvedStrategyHintAr =
+    isTakeApart &&
+    resolvedTakeApartMode === "open-ended" &&
+    ctx.spec.strategyHintAr &&
+    !ctx.spec.strategyHintAr.includes("تتنوّع الإجابات")
+      ? `${ctx.spec.strategyHintAr.replace(/\.$/, "")} (${factsSummaryAr}).`
+      : (ctx.spec.strategyHintAr ?? defaultStrategyHintAr);
+
   return {
     data,
     visualModels,
     defaultPromptAr,
-    defaultStrategyHintAr,
+    defaultStrategyHintAr: resolvedStrategyHintAr,
   };
 }

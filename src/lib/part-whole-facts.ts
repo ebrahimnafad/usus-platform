@@ -13,6 +13,7 @@ import { formatEasternNumber } from "@/lib/numerals";
 import type { SeededRandom } from "@/lib/seed";
 import {
   buildWordProblemText,
+  formatValidTakeApartPairsAr,
   getStoryScenesForSituation,
   type WordProblemSituation,
   type WordProblemStyle,
@@ -1242,6 +1243,110 @@ export function buildPartWholeMatchPairs(
   const isTakeFromMatch =
     mode === "model-to-word-problem" &&
     (operation === "subtract" || situation === "take-from");
+
+  const isTakeApartMatch =
+    mode === "model-to-word-problem" && situation === "take-apart";
+
+  if (isTakeApartMatch) {
+    const minT = Math.max(3, totalRange ? totalRange[0] : 3);
+    const maxT = Math.max(minT, totalRange ? Math.max(5, totalRange[1]) : 5);
+
+    const candidateTotals: number[] = [];
+    for (let t = minT; t <= maxT; t++) {
+      candidateTotals.push(t);
+    }
+
+    const shuffledTotals = rng.shuffle(candidateTotals);
+    const pickedTotals = shuffledTotals.slice(
+      0,
+      Math.min(pairCount, shuffledTotals.length)
+    );
+    while (pickedTotals.length < pairCount) {
+      const nextT = 2 + (pickedTotals.length % 4);
+      if (!pickedTotals.includes(nextT)) {
+        pickedTotals.push(nextT);
+      } else {
+        break;
+      }
+    }
+
+    const tracePositions: Array<"total"> =
+      difficultyLevel === "Easy" ? ["total"] : [];
+    const scenePool = getStoryScenesForSituation("take-apart");
+    const pickedScenes =
+      problemStyle === "story" ? rng.pickN(scenePool, pickedTotals.length) : [];
+    const effectiveShowProblemSlot = Boolean(showProblemSlot);
+
+    return pickedTotals.map((total, idx) => {
+      const candidateParts: number[] = [];
+      for (let p1 = 1; p1 <= total - 1; p1++) {
+        candidateParts.push(p1);
+      }
+      const part1 = candidateParts.length > 0 ? rng.pickOne(candidateParts) : 1;
+      const part2 = total - part1;
+      const factKey = `${part1}+${part2}`;
+      usedFacts?.add(factKey);
+
+      const p1Ar = formatEasternNumber(part1);
+      const p2Ar = formatEasternNumber(part2);
+      const totalAr = formatEasternNumber(total);
+      const validPairsSummaryAr = formatValidTakeApartPairsAr(total);
+      const [primaryTheme, secondaryTheme] =
+        COLOR_PAIRS[idx % COLOR_PAIRS.length];
+
+      const rightModel = createNumberBondSpec({
+        part1,
+        part2,
+        total,
+        missingPosition: "both-parts",
+        slotKind: "unknown",
+        tracePositions,
+        colorTheme: primaryTheme,
+        secondaryColorTheme: secondaryTheme,
+      });
+
+      const textBundle = buildWordProblemText({
+        situation: "take-apart",
+        problemStyle,
+        part1,
+        part2,
+        total,
+        templateIndex: idx,
+        scene: pickedScenes[idx],
+      });
+
+      const leftModel = createDigitCardSpec(total, {
+        id: `word-problem-card-take-apart-${total}-${part1}-${part2}`,
+        labelAr: textBundle.problemTextAr,
+        count: part1,
+        secondaryCount: part2,
+        meta: {
+          isWordProblemEndpoint: true,
+          situation: "take-apart",
+          problemStyle,
+          part1,
+          part2,
+          total,
+          part1Ar: p1Ar,
+          part2Ar: p2Ar,
+          totalAr,
+          solvedAnswerAr: `${p1Ar} و${p2Ar}`,
+          validPairsSummaryAr,
+          objectId: textBundle.objectId,
+          problemTextAr: textBundle.problemTextAr,
+          questionLabelAr: textBundle.questionLabelAr,
+          showProblemSlot: effectiveShowProblemSlot,
+        },
+      });
+
+      return {
+        pairId: `pair-${idx + 1}-take-apart-${total}`,
+        rightItem: rightModel,
+        leftItem: leftModel,
+        connectionReasonAr: `الكلّ ${totalAr} يتفكّك إلى ${p1Ar} و${p2Ar} (${validPairsSummaryAr})`,
+      };
+    });
+  }
 
   if (isTakeFromMatch) {
     const subFacts = selectSubtractionFacts(

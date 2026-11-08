@@ -190,7 +190,8 @@ export type ExerciseArchetypeId =
   | "JoinParts"
   | "JudgeEquality"
   | "TakeAway"
-  | "SolveWordProblem";
+  | "SolveWordProblem"
+  | "ShiftOneDecompose";
 
 export interface ConnectMatchPair {
   pairId: string;
@@ -322,6 +323,7 @@ export interface ArchetypeParamsByArchetypeId {
   JudgeEquality: Record<string, unknown>;
   TakeAway: Record<string, unknown>;
   SolveWordProblem: Record<string, unknown>;
+  ShiftOneDecompose: Record<string, unknown>;
 }
 
 export type BlueprintExerciseSpecFor<K extends ExerciseArchetypeId> = {

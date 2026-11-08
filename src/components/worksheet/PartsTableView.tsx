@@ -6,7 +6,8 @@ import {
 } from "@/components/worksheet/AnswerSlot";
 import { formatEasternNumber } from "@/lib/numerals";
 
-export type BondMissingPosition = "total" | "part1" | "part2" | "none";
+export type BondMissingPosition =
+  "total" | "part1" | "part2" | "both-parts" | "none";
 
 export function renderPartWholeValue(params: {
   pos: "total" | "part1" | "part2";
@@ -37,7 +38,9 @@ export function renderPartWholeValue(params: {
     slotClassName,
   } = params;
 
-  const missing = missingPosition === pos;
+  const missing =
+    missingPosition === pos ||
+    (missingPosition === "both-parts" && (pos === "part1" || pos === "part2"));
   const traced = tracePositions.includes(pos);
 
   if (missing) {

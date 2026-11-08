@@ -159,19 +159,33 @@ function generateConnectMatchExercise(
   }
 
   const pairCountAr = formatEasternNumber(pairs.length);
-  const defaultPromptAr =
-    ctx.difficultyLevel === "Easy"
+  const isTakeApartMatch =
+    params.matchingMode === "model-to-word-problem" &&
+    params.situation === "take-apart";
+  const takeApartMatchSummaryAr = isTakeApartMatch
+    ? pairs.map((p) => p.connectionReasonAr).join("؛ ")
+    : "";
+
+  const defaultPromptAr = isTakeApartMatch
+    ? "صِلْ كلّ رابطة أعداد بالمسألة التي تحمل الكلّ نفسه، ثم اكتب الجزأين:"
+    : ctx.difficultyLevel === "Easy"
       ? `صل بخط بين كل شكل في العمود الأيمن وما يطابقه تماماً في العمود الأيسر (${pairCountAr} عناصر):`
       : ctx.difficultyLevel === "Intermediate"
         ? `قارن بدقة ثم صل بخط بين كل صورة في العمود الأيمن والصورة المطابقة لها في العمود الأيسر (${pairCountAr} عناصر):`
         : `لاحظ التفاصيل الدقيقة للصور (${pairCountAr} عناصر)، وصل كل عنصر في العمود الأيمن بنظيره المطابق في العمود الأيسر:`;
 
-  const defaultStrategyHintAr =
-    ctx.difficultyLevel === "Easy"
+  const defaultStrategyHintAr = isTakeApartMatch
+    ? `صِلْ بالمسألة المطابقة للكلّ واكتب الجزأين (${takeApartMatchSummaryAr}).`
+    : ctx.difficultyLevel === "Easy"
       ? `ابدأ من أول صورة في العمود الأيمن، لاحظ شكلها ولونها المميّز، ثم ابحث عن توأمها في العمود الأيسر وارسم خطاً يصل بينهما (التقابل ١ إلى ١).`
       : ctx.difficultyLevel === "Intermediate"
         ? `ركّز على الصفة المميّزة لكل عنصر (الشكل الخارجي والتفاصيل الداخلية) وتحقّق من أن كل عنصر في اليمين يتصل بعنصر واحد فقط في اليسار.`
         : `قارن العناصر المتشابهة في الفئة بعناية، واستبعد الصور المختلفة في الشكل أو التفاصيل، ثم تأكّد من تساوي عدد العناصر في العمودين (${pairCountAr} مقابل ${pairCountAr}).`;
+
+  const resolvedStrategyHintAr =
+    isTakeApartMatch && ctx.spec.strategyHintAr
+      ? `${ctx.spec.strategyHintAr.replace(/\.$/, "")} (${takeApartMatchSummaryAr}).`
+      : (ctx.spec.strategyHintAr ?? defaultStrategyHintAr);
 
   const data: ConnectMatchData = {
     kind: "ConnectMatch",
@@ -194,7 +208,7 @@ function generateConnectMatchExercise(
     sourceLessonId: ctx.sourceLessonId,
     titleAr: "صل بخط (المطابقة واحداً لواحد)",
     promptAr: ctx.spec.promptAr ?? defaultPromptAr,
-    strategyHintAr: ctx.spec.strategyHintAr ?? defaultStrategyHintAr,
+    strategyHintAr: resolvedStrategyHintAr,
     visualModels: [
       ...rightItems.map((i) => i.model),
       ...leftItems.map((i) => i.model),
@@ -403,13 +417,20 @@ function renderConnectMatchExercise({
                       (() => {
                         const isTakeFromEndpoint =
                           itemMeta.situation === "take-from";
+                        const isTakeApartEndpoint =
+                          itemMeta.situation === "take-apart";
                         const solvedEndpointAnswerAr = String(
                           itemMeta.solvedAnswerAr ??
-                            (isTakeFromEndpoint
-                              ? itemMeta.missingPartAr
-                              : itemMeta.totalAr) ??
+                            (isTakeApartEndpoint
+                              ? `${itemMeta.part1Ar ?? ""} و${itemMeta.part2Ar ?? ""}`
+                              : isTakeFromEndpoint
+                                ? itemMeta.missingPartAr
+                                : itemMeta.totalAr) ??
                             ""
                         );
+                        const validPairsSummaryAr = isTakeApartEndpoint
+                          ? String(itemMeta.validPairsSummaryAr ?? "")
+                          : "";
                         const solvedEndpointAttrKey = isTakeFromEndpoint
                           ? "data-solved-match-problem-missing-part"
                           : "data-solved-match-problem-total";
@@ -418,6 +439,9 @@ function renderConnectMatchExercise({
                             dir="rtl"
                             className="flex w-full flex-col items-center justify-center gap-1 rounded-xl border border-indigo-100 bg-indigo-50/40 px-2 py-1"
                             data-word-problem-endpoint="true"
+                            data-word-problem-situation={String(
+                              itemMeta.situation ?? "add-to"
+                            )}
                           >
                             <div className="flex w-full items-center justify-between gap-1">
                               <div className="flex items-center gap-1">
@@ -436,8 +460,15 @@ function renderConnectMatchExercise({
                                 </span>
                               </div>
                               {mode === "answer-key" && (
-                                <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[13px] font-extrabold leading-none text-emerald-900">
-                                  {solvedEndpointAnswerAr}
+                                <span
+                                  className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[13px] font-extrabold leading-none text-emerald-900"
+                                  {...(isTakeApartEndpoint
+                                    ? { "data-valid-take-apart-pairs": "true" }
+                                    : {})}
+                                >
+                                  {isTakeApartEndpoint && validPairsSummaryAr
+                                    ? `${solvedEndpointAnswerAr} (${toEasternArabicNumerals(validPairsSummaryAr)})`
+                                    : solvedEndpointAnswerAr}
                                 </span>
                               )}
                             </div>
@@ -446,32 +477,61 @@ function renderConnectMatchExercise({
                                 String(itemMeta.problemTextAr ?? "")
                               )}
                             </p>
-                            {Boolean(itemMeta.showProblemSlot) && (
-                              <div className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-indigo-200 bg-white px-2 py-0.5 shadow-2xs">
-                                <span className="text-[13px] font-extrabold leading-none text-indigo-950">
-                                  {toEasternArabicNumerals(
-                                    String(
-                                      itemMeta.questionLabelAr ?? "كم في الكلّ؟"
-                                    )
-                                  )}
-                                </span>
-                                <AnswerSlot
-                                  solved={mode === "answer-key"}
-                                  answer={solvedEndpointAnswerAr}
-                                  ariaLabel={
-                                    isTakeFromEndpoint
-                                      ? "مربع كتابة الجزء الناقص في المسألة اللفظية"
-                                      : "مربع كتابة الكلّ في المسألة اللفظية"
-                                  }
-                                  kind="unknown"
-                                  tone="indigo"
-                                  solvedDataAttributes={{
-                                    [solvedEndpointAttrKey]:
-                                      solvedEndpointAnswerAr,
-                                  }}
-                                />
-                              </div>
-                            )}
+                            {Boolean(itemMeta.showProblemSlot) &&
+                              (isTakeApartEndpoint ? (
+                                <div className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-indigo-200 bg-white px-2 py-0.5 shadow-2xs">
+                                  <AnswerSlot
+                                    solved={mode === "answer-key"}
+                                    answer={String(itemMeta.part1Ar ?? "")}
+                                    ariaLabel="مربع كتابة الجزء الأوّل في المسألة اللفظية"
+                                    kind="unknown"
+                                    tone="sky"
+                                    solvedDataAttributes={{
+                                      "data-solved-match-problem-part1": String(
+                                        itemMeta.part1Ar ?? ""
+                                      ),
+                                    }}
+                                  />
+                                  <AnswerSlot
+                                    solved={mode === "answer-key"}
+                                    answer={String(itemMeta.part2Ar ?? "")}
+                                    ariaLabel="مربع كتابة الجزء الثاني في المسألة اللفظية"
+                                    kind="unknown"
+                                    tone="amber"
+                                    solvedDataAttributes={{
+                                      "data-solved-match-problem-part2": String(
+                                        itemMeta.part2Ar ?? ""
+                                      ),
+                                    }}
+                                  />
+                                </div>
+                              ) : (
+                                <div className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-indigo-200 bg-white px-2 py-0.5 shadow-2xs">
+                                  <span className="text-[13px] font-extrabold leading-none text-indigo-950">
+                                    {toEasternArabicNumerals(
+                                      String(
+                                        itemMeta.questionLabelAr ??
+                                          "كم في الكلّ؟"
+                                      )
+                                    )}
+                                  </span>
+                                  <AnswerSlot
+                                    solved={mode === "answer-key"}
+                                    answer={solvedEndpointAnswerAr}
+                                    ariaLabel={
+                                      isTakeFromEndpoint
+                                        ? "مربع كتابة الجزء الناقص في المسألة اللفظية"
+                                        : "مربع كتابة الكلّ في المسألة اللفظية"
+                                    }
+                                    kind="unknown"
+                                    tone="indigo"
+                                    solvedDataAttributes={{
+                                      [solvedEndpointAttrKey]:
+                                        solvedEndpointAnswerAr,
+                                    }}
+                                  />
+                                </div>
+                              ))}
                           </div>
                         );
                       })()

@@ -36,7 +36,7 @@ function generateSolveWordProblemExercise(
         ? "حلّ المسألة القصصية"
         : "حلّ المسألة التعليمية",
     promptAr: ctx.spec.promptAr ?? defaultPromptAr,
-    strategyHintAr: ctx.spec.strategyHintAr ?? defaultStrategyHintAr,
+    strategyHintAr: defaultStrategyHintAr,
     visualModels,
     data,
   };
@@ -232,9 +232,14 @@ function renderSolveWordProblemExercise({
       <ExerciseColumns columns={columns}>
         {data.items.map((item, idx) => {
           const isTakeFrom = item.situation === "take-from";
+          const isTakeApart = item.situation === "take-apart";
           const solvedValueAr =
             item.solvedAnswerAr ??
-            (isTakeFrom ? item.missingPartAr : item.totalAr);
+            (isTakeApart
+              ? `${item.part1Ar} و${item.part2Ar}`
+              : isTakeFrom
+                ? item.missingPartAr
+                : item.totalAr);
           const solvedSlotAttrKey = isTakeFrom
             ? "data-solved-word-problem-missing-part"
             : "data-solved-word-problem-total";
@@ -242,12 +247,55 @@ function renderSolveWordProblemExercise({
             ? `مربع كتابة الجزء الناقص (${item.questionLabelAr})`
             : `مربع كتابة الكلّ (${item.questionLabelAr})`;
 
+          const renderTakeApartPartSlots = (compact: boolean) => (
+            <div
+              dir="rtl"
+              className={`flex ${compact ? "flex-col gap-1 px-1.5 py-1" : "flex-wrap items-center gap-1.5 px-2 py-1"} items-center justify-center rounded-xl border border-indigo-200 bg-white shadow-2xs`}
+              data-word-problem-slot-box="true"
+              data-take-apart-mode={item.takeApartMode ?? "model-fixed"}
+            >
+              <div className="inline-flex items-center gap-1">
+                <span className="text-[13px] font-extrabold leading-none text-sky-950">
+                  الجزء ١:
+                </span>
+                <AnswerSlot
+                  solved={isAnswerKey}
+                  answer={item.part1Ar}
+                  ariaLabel="مربع كتابة الجزء الأوّل في المسألة"
+                  kind="unknown"
+                  tone="sky"
+                  solvedDataAttributes={{
+                    "data-solved-word-problem-part1": item.part1Ar,
+                  }}
+                />
+              </div>
+              <div className="inline-flex items-center gap-1">
+                <span className="text-[13px] font-extrabold leading-none text-amber-950">
+                  الجزء ٢:
+                </span>
+                <AnswerSlot
+                  solved={isAnswerKey}
+                  answer={item.part2Ar}
+                  ariaLabel="مربع كتابة الجزء الثاني في المسألة"
+                  kind="unknown"
+                  tone="amber"
+                  solvedDataAttributes={{
+                    "data-solved-word-problem-part2": item.part2Ar,
+                  }}
+                />
+              </div>
+            </div>
+          );
+
           return (
             <div
               key={item.id}
               className="flex flex-col items-center justify-between gap-1 rounded-xl border border-indigo-100 bg-gradient-to-b from-white to-indigo-50/25 px-2 py-1 shadow-2xs"
               data-word-problem-item-id={toEasternArabicNumerals(item.id)}
               data-fact={toEasternArabicNumerals(item.factKey)}
+              {...(item.takeApartMode
+                ? { "data-take-apart-mode": item.takeApartMode }
+                : {})}
             >
               {/* Header + Problem Statement Box */}
               <div className="flex w-full flex-col gap-0.5 rounded-lg border border-indigo-100 bg-indigo-50/50 px-2 py-1">
@@ -266,14 +314,22 @@ function renderSolveWordProblemExercise({
                     </span>
                   </div>
                   {isAnswerKey ? (
-                    <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[13px] font-extrabold leading-none text-emerald-900">
+                    <span
+                      className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[13px] font-extrabold leading-none text-emerald-900"
+                      data-solved-word-problem-badge="true"
+                      {...(isTakeApart && item.takeApartMode === "open-ended"
+                        ? { "data-valid-take-apart-pairs": "true" }
+                        : {})}
+                    >
                       {solvedValueAr}
                     </span>
                   ) : (
                     <span className="text-[13px] font-extrabold leading-none text-slate-600">
-                      {isTakeFrom
-                        ? `${item.totalAr} − ${item.part1Ar}`
-                        : `${item.part1Ar} و${item.part2Ar}`}
+                      {isTakeApart
+                        ? `الكلّ ${item.totalAr}`
+                        : isTakeFrom
+                          ? `${item.totalAr} − ${item.part1Ar}`
+                          : `${item.part1Ar} و${item.part2Ar}`}
                     </span>
                   )}
                 </div>
@@ -305,25 +361,29 @@ function renderSolveWordProblemExercise({
                       solved={isAnswerKey}
                     />
                   )}
-                  <div
-                    dir="rtl"
-                    className="flex flex-col items-center justify-center gap-1 rounded-xl border border-indigo-200 bg-white px-2 py-1.5 shadow-2xs"
-                    data-word-problem-slot-box="true"
-                  >
-                    <span className="text-[13px] font-extrabold leading-tight text-indigo-950">
-                      {toEasternArabicNumerals(item.questionLabelAr)}
-                    </span>
-                    <AnswerSlot
-                      solved={isAnswerKey}
-                      answer={solvedValueAr}
-                      ariaLabel={slotAriaLabel}
-                      kind="unknown"
-                      tone="indigo"
-                      solvedDataAttributes={{
-                        [solvedSlotAttrKey]: solvedValueAr,
-                      }}
-                    />
-                  </div>
+                  {isTakeApart ? (
+                    renderTakeApartPartSlots(true)
+                  ) : (
+                    <div
+                      dir="rtl"
+                      className="flex flex-col items-center justify-center gap-1 rounded-xl border border-indigo-200 bg-white px-2 py-1.5 shadow-2xs"
+                      data-word-problem-slot-box="true"
+                    >
+                      <span className="text-[13px] font-extrabold leading-tight text-indigo-950">
+                        {toEasternArabicNumerals(item.questionLabelAr)}
+                      </span>
+                      <AnswerSlot
+                        solved={isAnswerKey}
+                        answer={solvedValueAr}
+                        ariaLabel={slotAriaLabel}
+                        kind="unknown"
+                        tone="indigo"
+                        solvedDataAttributes={{
+                          [solvedSlotAttrKey]: solvedValueAr,
+                        }}
+                      />
+                    </div>
+                  )}
                 </div>
               ) : data.responseForm === "equation" && item.equationModel ? (
                 <div className="flex w-full items-center justify-center py-0.5">
@@ -332,6 +392,8 @@ function renderSolveWordProblemExercise({
                     solved={isAnswerKey}
                   />
                 </div>
+              ) : isTakeApart ? (
+                renderTakeApartPartSlots(false)
               ) : (
                 <div
                   dir="rtl"
