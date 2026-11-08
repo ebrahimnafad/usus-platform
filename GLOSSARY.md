@@ -104,6 +104,22 @@ _Avoid_: الجزء المفقود, Difference, الفرق, الباقي, Blank,
 Subtraction (الطرح) understood as removing a known Part from a Total to find the Missing Part that is left, written with the minus sign `−`.
 _Avoid_: Minus (as the name of the operation), deduct, difference, الفرق
 
+**Take-Apart**:
+Decomposing a known Total into two Parts (تفكيك الكلّ) to answer how many could be in each Part (`كم في كل جزء؟`); when neither Part is fixed by a model, any pair of Parts that sums to the Total is valid.
+_Avoid_: Break-apart problem, partition problem, تقسيم
+
+**Shift 1**:
+The systematic decomposition strategy (إزاحة ١) that finds every Number Bond for a Total by starting with `(Total, 0)` on the right and shifting `١` from the first Part to the second Part at each step until `(0, Total)`.
+_Avoid_: Commutative list, fact list, جدول التفكيك
+
+**Learning Problem**:
+An explicit, decontextualized word problem (المسألة التعليمية) that names the Parts, Total, or action directly with cubes, shapes, or numbers so the student practices the problem structure without interpreting a narrative context.
+_Avoid_: Bare problem, drill problem, تمرين مجرّد
+
+**Story Problem**:
+A short narrative word problem (المسألة القصصية) set in a real-world scene that the student interprets into Parts and a Total (add-to, put-together, take-from, or take-apart), while child-facing models still label only `الجزء` and `الكلّ`.
+_Avoid_: Word story, narrative problem, البداية / التغيير / النتيجة (in child-facing text)
+
 **Cross Off**:
 Marking the items of a Visual Model that are taken away with an X (اشطب), leaving them visible under the X so they can still be counted.
 _Avoid_: Strike out, erase, remove, delete
