@@ -12,6 +12,7 @@
     "test:watch": "vitest",
     "test:e2e": "node scripts/run-e2e-tests.mjs",
     "guard:layout": "node scripts/layout-guard.mjs",
+    "measure:layout": "node scripts/measure-sheet.mjs",
     "lint:numerals": "node scripts/check-numerals.cjs",
     "lint:console": "node scripts/check-console.cjs",
     "prepare": "husky"

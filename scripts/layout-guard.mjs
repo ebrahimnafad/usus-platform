@@ -7,14 +7,21 @@
 
 import { execFile, execFileSync, spawn } from "child_process";
 import fs from "fs";
-import http from "http";
 import path from "path";
-import { createRequire } from "module";
 import { fileURLToPath } from "url";
 import { promisify } from "util";
 import { chromium } from "playwright";
+import {
+  countPdfPages,
+  createPrintHarness,
+  parseLessonFilter,
+  PDF_OPTS,
+  printWidthCss,
+  RENDER_MODES as MODES,
+  RENDER_SEEDS as SEEDS,
+  RENDER_VIEWS as VIEWS,
+} from "./lib/print-measure.mjs";
 
-const require = createRequire(import.meta.url);
 const execFileAsync = promisify(execFile);
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -29,13 +36,8 @@ const PORT = 3355;
 
 const GRADES = ["K", "1", "2", "3", "4", "5"];
 const LESSONS_PER_GRADE = 135;
-const SEEDS = ["LG-A1", "LG-B2", "LG-C3", "LG-D4", "LG-E5"];
-const MODES = ["scaffolded", "Easy", "Intermediate", "Advanced"];
-const VIEWS = ["worksheet", "answer-key"];
 
-// The print stylesheet sets the sheet to `width: auto`; pinning it to the
-// page's content box reproduces the PDF's layout width on screen.
-const PRINT_WIDTH_CSS = `@media print { .a4-sheet[data-worksheet-surface="true"] { width: ${STANDARD.printableAreaMm.width}mm !important; } }`;
+const PRINT_WIDTH_CSS = printWidthCss(STANDARD.printableAreaMm);
 
 function parseArgs(argv) {
   const args = {};
@@ -62,20 +64,6 @@ function parseArgs(argv) {
     png: pngMode,
     concurrency: Math.max(1, Number(args.concurrency ?? defaultConcurrency)),
   };
-}
-
-function parseLessonFilter(filter) {
-  if (!filter) return null;
-  const lessons = [];
-  for (const part of filter.split(",")) {
-    const range = part.match(/^([K1-5])-(\d+)(?:\.\.(?:[K1-5]-)?(\d+))?$/);
-    if (!range) throw new Error(`Bad --lessons entry "${part}"`);
-    const [, grade, from, to] = range;
-    for (let n = Number(from); n <= Number(to ?? from); n++) {
-      lessons.push({ grade, lesson: n });
-    }
-  }
-  return lessons;
 }
 
 function printUrl(baseUrl, job) {
@@ -683,11 +671,6 @@ function measureSheet(std) {
   return violations;
 }
 
-function countPdfPages(buffer) {
-  const matches = buffer.toString("latin1").match(/\/Type\s*\/Page\b(?!s)/g);
-  return matches ? matches.length : 1;
-}
-
 function findPdftoppm() {
   try {
     execFileSync("pdftoppm", ["-v"], { stdio: "ignore" });
@@ -700,24 +683,14 @@ function findPdftoppm() {
 async function main() {
   const options = parseArgs(process.argv);
   let server = null;
-  let httpServer = null;
-  let viteServer = null;
+  let harness = null;
   let renderPrintMain = null;
-  let compiledCss = "";
   let baseUrl = options.baseUrl?.replace(/\/$/, "");
 
   const cleanup = () => {
-    if (httpServer) {
-      try {
-        httpServer.close();
-      } catch {
-        // ignore
-      }
-      httpServer = null;
-    }
-    if (viteServer) {
-      viteServer.close().catch(() => undefined);
-      viteServer = null;
+    if (harness) {
+      harness.close();
+      harness = null;
     }
     if (!server) return;
     try {
@@ -740,70 +713,9 @@ async function main() {
     process.stdout.write(
       "Compiling print stylesheet and loading worksheet engine...\n"
     );
-    const postcss = require("postcss");
-    const tailwind = require("@tailwindcss/postcss");
-    const globalsCssPath = path.join(ROOT, "src", "app", "globals.css");
-    const cssResult = await postcss([tailwind()]).process(
-      fs.readFileSync(globalsCssPath, "utf8"),
-      { from: globalsCssPath }
-    );
-    compiledCss = cssResult.css;
-
-    const { createServer } = await import("vite");
-    viteServer = await createServer({
-      server: { middlewareMode: true },
-      appType: "custom",
-      esbuild: { jsx: "automatic" },
-      resolve: { alias: { "@": path.join(ROOT, "src") } },
-    });
-    const { renderWorksheetSurface } = await viteServer.ssrLoadModule(
-      "/src/lib/render-worksheet-surface.ts"
-    );
-    const { resolveStudioStateFromSearchParams } =
-      await viteServer.ssrLoadModule("/src/lib/studio-state.ts");
-
-    renderPrintMain = (job) => {
-      const state = resolveStudioStateFromSearchParams({
-        grade: job.grade,
-        lesson: String(job.lesson),
-        seed: job.seed,
-        difficulty: job.mode,
-        view: job.view,
-      });
-      const viewMode =
-        state.viewMode === "answer-key" ? "answer-key" : "worksheet";
-      const surfaceHtml = renderWorksheetSurface({
-        grade: state.grade,
-        lessonNumber: state.lessonNumber,
-        seed: state.seed,
-        difficultyLevel: state.difficultyLevel,
-        viewMode,
-      });
-      return `<main class="min-h-screen bg-white p-0">${surfaceHtml}</main>`;
-    };
-
-    httpServer = http.createServer((req, res) => {
-      try {
-        const u = new URL(req.url ?? "/print", "http://localhost");
-        const mainHtml = renderPrintMain({
-          grade: u.searchParams.get("grade") ?? "K",
-          lesson: u.searchParams.get("lesson") ?? "1",
-          seed: u.searchParams.get("seed") ?? "LG-WARM",
-          mode: u.searchParams.get("difficulty") ?? "scaffolded",
-          view: u.searchParams.get("view") ?? "worksheet",
-        });
-        res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-        res.end(
-          `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"/><style>${compiledCss}</style></head><body class="min-h-screen bg-slate-100 text-slate-900 antialiased">${mainHtml}</body></html>`
-        );
-      } catch (err) {
-        res.writeHead(500, { "Content-Type": "text/plain; charset=utf-8" });
-        res.end(String(err));
-      }
-    });
-    await new Promise((resolve) => httpServer.listen(0, "127.0.0.1", resolve));
-    const addr = httpServer.address();
-    baseUrl = `http://127.0.0.1:${addr.port}`;
+    harness = await createPrintHarness();
+    baseUrl = harness.baseUrl;
+    renderPrintMain = harness.renderPrintMain;
   } else {
     await waitForUrl(`${baseUrl}/print?grade=K&lesson=1&seed=LG-WARM`, 180000);
   }
@@ -863,6 +775,7 @@ async function main() {
     const cacheKey = `${id}|${job.mode}|${job.view}`;
     const violations = [];
     let pageCount = 0;
+    let sheetHeight = null;
     try {
       if (renderPrintMain) {
         const mainHtml = renderPrintMain(job);
@@ -886,7 +799,7 @@ async function main() {
       }
       violations.push(...(await page.evaluate(measureSheet, STANDARD)));
 
-      const sheetHeight = await page.evaluate(() => {
+      sheetHeight = await page.evaluate(() => {
         const s = document.querySelector(
           '.a4-sheet[data-worksheet-surface="true"]'
         );
@@ -898,16 +811,7 @@ async function main() {
         (options.png === "all" || job.seed === seeds[0]);
 
       if (!cached || sheetHeight > cached.sheetHeight || wantPng) {
-        const pdf = Buffer.from(
-          await page.pdf({
-            format: "A4",
-            landscape: false,
-            printBackground: true,
-            preferCSSPageSize: true,
-            scale: 1,
-            margin: { top: "0mm", right: "0mm", bottom: "0mm", left: "0mm" },
-          })
-        );
+        const pdf = Buffer.from(await page.pdf(PDF_OPTS));
         pageCount = countPdfPages(pdf);
         if (!cached || sheetHeight > cached.sheetHeight) {
           pdfCache.set(cacheKey, { pageCount, sheetHeight });
@@ -923,7 +827,7 @@ async function main() {
           section: null,
           exercise: null,
           element: '<article data-worksheet-surface="true">',
-          detail: `${pageCount} pages (max ${STANDARD.pageBudget})`,
+          detail: `${pageCount} pages (max ${STANDARD.pageBudget}), sheet ${sheetHeight}px`,
         });
       }
 
@@ -944,7 +848,7 @@ async function main() {
         detail: String(error),
       });
     }
-    results.push({ ...job, id, pageCount, violations });
+    results.push({ ...job, id, pageCount, sheetHeight, violations });
     done++;
     if (done % 25 === 0 || done === jobs.length) {
       process.stdout.write(`  ${done}/${jobs.length} renders checked\n`);
@@ -991,7 +895,7 @@ async function main() {
       seenKeys.add(key);
       const exLabel = v.exercise !== null ? `ex#${v.exercise}` : "sheet";
       sampleLines.push(
-        `  [${r.id} seed=${r.seed} mode=${r.mode} view=${r.view} page=${v.page} ${exLabel}] ${v.rule}: ${v.element} — ${v.detail}`
+        `  [${r.id} seed=${r.seed} mode=${r.mode} view=${r.view} sheet=${r.sheetHeight}px page=${v.page} ${exLabel}] ${v.rule}: ${v.element} — ${v.detail}`
       );
       if (sampleLines.length >= 20) break;
     }
@@ -1008,6 +912,7 @@ async function main() {
         standard: STANDARD,
         failing,
         summary: table,
+        results: results.map(({ violations, ...rest }) => rest),
       },
       null,
       2
