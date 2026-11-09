@@ -8,7 +8,7 @@
 
 **Blocked by:** None
 
-**Status:** ready-for-agent
+**Status:** resolved
 
 - [x] `SubitizePartWhole` supports `subitizeMode: "three-parts-to-10"` with 3 categories and color themes
 - [x] `ConnectMatch` supports `matchKind: "ten-frame-to-description"` with 2 and 3 categories and optional missing totals
