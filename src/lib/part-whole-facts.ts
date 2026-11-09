@@ -235,6 +235,12 @@ export interface BuildPartWholeMatchPairsInput {
   minPart?: number;
   showMissingTotalSlot?: boolean;
   usedFacts?: Set<string>;
+  /**
+   * model-to-word-problem (add-to / put-together): per-row unknown position,
+   * cycled RTL across rows (WORD PROBLEM MATCH B alternates totals and parts).
+   * Defaults to ["total"] — WORD PROBLEM MATCH A behavior.
+   */
+  wordProblemMissingPositions?: Array<"total" | "part2" | "part1">;
 }
 
 export const COLOR_PAIRS: Array<[ColorThemeId, ColorThemeId]> = [
@@ -1333,6 +1339,7 @@ export function buildPartWholeMatchPairs(
     minPart: explicitMinPart,
     showMissingTotalSlot,
     usedFacts,
+    wordProblemMissingPositions,
   } = input;
 
   const minPart =
@@ -1654,6 +1661,10 @@ export function buildPartWholeMatchPairs(
       problemStyle === "story" ? rng.pickN(scenePool, facts.length) : [];
     const effectiveShowProblemSlot =
       showProblemSlot ?? problemStyle === "story";
+    const missingPositionPool: Array<"total" | "part2" | "part1"> =
+      wordProblemMissingPositions && wordProblemMissingPositions.length > 0
+        ? wordProblemMissingPositions
+        : ["total"];
 
     return facts.map((fact, idx) => {
       const p1Ar = formatEasternNumber(fact.part1);
@@ -1661,12 +1672,14 @@ export function buildPartWholeMatchPairs(
       const totalAr = formatEasternNumber(fact.total);
       const [primaryTheme, secondaryTheme] =
         COLOR_PAIRS[idx % COLOR_PAIRS.length];
+      const rowMissingPosition =
+        missingPositionPool[idx % missingPositionPool.length];
 
       const rightModel = createNumberBondSpec({
         part1: fact.part1,
         part2: fact.part2,
         total: fact.total,
-        missingPosition: "total",
+        missingPosition: rowMissingPosition,
         slotKind: "unknown",
         tracePositions,
         colorTheme: primaryTheme,
@@ -1701,6 +1714,12 @@ export function buildPartWholeMatchPairs(
           problemTextAr: textBundle.problemTextAr,
           questionLabelAr: textBundle.questionLabelAr,
           showProblemSlot: effectiveShowProblemSlot,
+          endpointMissingPosition: rowMissingPosition,
+          ...(rowMissingPosition === "total"
+            ? {}
+            : {
+                solvedAnswerAr: rowMissingPosition === "part2" ? p2Ar : p1Ar,
+              }),
         },
       });
 
@@ -1708,7 +1727,12 @@ export function buildPartWholeMatchPairs(
         pairId: `pair-${idx + 1}-${fact.key}`,
         rightItem: rightModel,
         leftItem: leftModel,
-        connectionReasonAr: `الجزءان ${p1Ar} و${p2Ar} يكوّنان الكلّ ${totalAr}`,
+        connectionReasonAr:
+          rowMissingPosition === "total"
+            ? `الجزءان ${p1Ar} و${p2Ar} يكوّنان الكلّ ${totalAr}`
+            : rowMissingPosition === "part2"
+              ? `الجزءان ${p1Ar} والجزء الناقص ${p2Ar} يكوّنان الكلّ ${totalAr}`
+              : `الجزء الناقص ${p1Ar} والجزءان ${p2Ar} يكوّنان الكلّ ${totalAr}`,
       };
     });
   }

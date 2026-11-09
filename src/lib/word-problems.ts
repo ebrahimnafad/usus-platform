@@ -22,6 +22,7 @@ import {
 import {
   createFiveFrameSpec,
   createSnapCubesSpec,
+  createTenFrameSpec,
   type CrossOffMode,
 } from "@/visual-models/unit-2-models";
 import {
@@ -40,7 +41,7 @@ export type WordProblemResponseForm =
   "model-and-bond" | "story-and-slot" | "equation" | "cloze-from-model";
 
 export type WordProblemRepresentation =
-  "snap-cubes" | "five-frame" | "everyday-object";
+  "snap-cubes" | "five-frame" | "ten-frame" | "everyday-object";
 
 export type WordProblemAction = "trace" | "write";
 
@@ -864,6 +865,18 @@ function buildWordProblemConcreteModel(params: {
       });
     }
 
+    if (representation === "ten-frame") {
+      return createTenFrameSpec({
+        count: total,
+        secondaryCount: 0,
+        crossedOutCount: part1,
+        crossOffMode,
+        colorTheme: primaryTheme,
+        highlightEmptySlots: true,
+        labelAr: `لوحة العشرة: الكلّ ${totalAr} شُطب منها ${p1Ar} وبقي ${p2Ar}`,
+      });
+    }
+
     if (representation === "everyday-object") {
       const objDef = getEverydayObjectById(objectId);
       return createEverydayObjectSpec(objDef, {
@@ -898,6 +911,18 @@ function buildWordProblemConcreteModel(params: {
       showPartOutline: true,
       highlightEmptySlots: true,
       labelAr: `لوحة الخمسة: ${p1Ar} و${p2Ar} يساوي ${totalAr}`,
+    });
+  }
+
+  if (representation === "ten-frame") {
+    return createTenFrameSpec({
+      count: part1,
+      secondaryCount: part2,
+      colorTheme: primaryTheme,
+      secondaryColorTheme: secondaryTheme,
+      showPartOutline: true,
+      highlightEmptySlots: true,
+      labelAr: `لوحة العشرة: ${p1Ar} و${p2Ar} يساوي ${totalAr}`,
     });
   }
 
@@ -971,9 +996,11 @@ export function buildSolveWordProblemPayload(
         : ctx.difficultyLevel === "Easy";
   const showModel = params.showModel ?? defaultShowModel;
 
-  // Only five-frame or withdrawn-model items support 0 cleanly as the change Part in Add-To / Take-From (spec §7)
+  // Only ten-frame / five-frame or withdrawn-model items support 0 cleanly as
+  // the change Part in Add-To / Take-From (spec §7)
   const usesZeroCapableRep =
-    !showModel || representationPool.every((r) => r === "five-frame");
+    !showModel ||
+    representationPool.every((r) => r === "five-frame" || r === "ten-frame");
   const allowsZeroChangePart =
     situation === "add-to" || situation === "take-from";
   const effectiveMinPart =

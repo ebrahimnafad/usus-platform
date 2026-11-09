@@ -70,7 +70,7 @@ function renderClozeFromModelItem({
   return (
     <div
       key={item.id}
-      className="flex flex-col gap-1.5 rounded-xl border border-indigo-100 bg-gradient-to-b from-white to-indigo-50/25 px-3 py-1.5 shadow-2xs"
+      className="flex flex-col gap-1.5 rounded-xl border border-indigo-100 bg-gradient-to-b from-white to-indigo-50/25 px-3 py-1 shadow-2xs"
       data-word-problem-item-id={toEasternArabicNumerals(item.id)}
       data-fact={toEasternArabicNumerals(item.factKey)}
     >
@@ -397,7 +397,7 @@ function renderSolveWordProblemExercise({
               ) : (
                 <div
                   dir="rtl"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-white px-2.5 py-1 shadow-2xs"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-white px-2.5 py-0.5 shadow-2xs"
                   data-word-problem-slot-box="true"
                 >
                   {data.action === "trace" && (

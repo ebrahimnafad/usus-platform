@@ -80,6 +80,12 @@ export interface ConnectMatchBlueprintParams {
   missingTotal?: boolean;
   /** ten-frame-to-description: pinned category sets; row i uses set (i mod list length). Defaults branch by arity. */
   descriptionCategorySets?: TenFrameCategorySet[];
+  /**
+   * model-to-word-problem (add-to / put-together): per-row unknown position,
+   * cycled across rows (WORD PROBLEM MATCH B alternates totals and parts).
+   * Defaults to ["total"] — WORD PROBLEM MATCH A behavior.
+   */
+  wordProblemMissingPositions?: Array<"total" | "part2" | "part1">;
 }
 
 const CONNECTION_STROKE_COLORS = [
@@ -440,6 +446,7 @@ function generateConnectMatchExercise(
       minPart: params.minPart,
       showMissingTotalSlot: params.showMissingTotalSlot,
       usedFacts: ctx.usedFacts,
+      wordProblemMissingPositions: params.wordProblemMissingPositions,
     });
   } else if (
     params.customCandidatePairs &&
@@ -646,6 +653,17 @@ function renderConnectMatchExercise({
           : hasPolygonPerimeter
             ? "min-h-[52px]"
             : "min-h-[46px]";
+  // Word-problem story cards (left column in model-to-word-problem) hold no canonical-
+  // size model; they can use 8 px less min-height than the bond side without violating
+  // §3.4 (which applies to the Number Bond itself, living in the right column).
+  const isWordProblemMatchLayout =
+    hasNumberBond &&
+    data.leftItems.every((i) =>
+      Boolean((i.model.meta as Record<string, unknown>)?.isWordProblemEndpoint)
+    );
+  const leftRowMinHeightClass = isWordProblemMatchLayout
+    ? "min-h-[152px]"
+    : rowMinHeightClass;
   const centerWidthPx = isWideUnit3Match ? 52 : 110;
   const gridColsClass = isWideUnit3Match
     ? "grid-cols-[1fr_52px_1fr] gap-0.5 p-0.5"
@@ -806,7 +824,7 @@ function renderConnectMatchExercise({
               return (
                 <div
                   key={item.id}
-                  className={`flex ${rowMinHeightClass} items-center justify-between rounded-xl border border-slate-200 bg-white ${rowPadClass} shadow-2xs`}
+                  className={`flex ${leftRowMinHeightClass} items-center justify-between rounded-xl border border-slate-200 bg-white ${rowPadClass} shadow-2xs`}
                   data-match-left-id={item.id}
                 >
                   <div className="flex flex-1 items-center justify-center gap-1">
@@ -847,9 +865,32 @@ function renderConnectMatchExercise({
                         const validPairsSummaryAr = isTakeApartEndpoint
                           ? String(itemMeta.validPairsSummaryAr ?? "")
                           : "";
+                        const endpointMissingPosition = isTakeApartEndpoint
+                          ? undefined
+                          : (itemMeta.endpointMissingPosition as
+                              "total" | "part2" | "part1" | undefined);
+                        const isEndpointPartMissing =
+                          endpointMissingPosition === "part2" ||
+                          endpointMissingPosition === "part1";
                         const solvedEndpointAttrKey = isTakeFromEndpoint
                           ? "data-solved-match-problem-missing-part"
-                          : "data-solved-match-problem-total";
+                          : endpointMissingPosition === "part1"
+                            ? "data-solved-match-problem-part1"
+                            : endpointMissingPosition === "part2"
+                              ? "data-solved-match-problem-part2"
+                              : "data-solved-match-problem-total";
+                        const endpointSlotLabelAr = isEndpointPartMissing
+                          ? endpointMissingPosition === "part2"
+                            ? "الجزء ٢:"
+                            : "الجزء ١:"
+                          : String(itemMeta.questionLabelAr ?? "كم في الكلّ؟");
+                        const endpointSlotAriaLabel = isEndpointPartMissing
+                          ? endpointMissingPosition === "part2"
+                            ? "مربع كتابة الجزء الثاني في المسألة اللفظية"
+                            : "مربع كتابة الجزء الأوّل في المسألة اللفظية"
+                          : isTakeFromEndpoint
+                            ? "مربع كتابة الجزء الناقص في المسألة اللفظية"
+                            : "مربع كتابة الكلّ في المسألة اللفظية";
                         return (
                           <div
                             dir="rtl"
@@ -925,20 +966,13 @@ function renderConnectMatchExercise({
                                 <div className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-indigo-200 bg-white px-2 py-0.5 shadow-2xs">
                                   <span className="text-[13px] font-extrabold leading-none text-indigo-950">
                                     {toEasternArabicNumerals(
-                                      String(
-                                        itemMeta.questionLabelAr ??
-                                          "كم في الكلّ؟"
-                                      )
+                                      endpointSlotLabelAr
                                     )}
                                   </span>
                                   <AnswerSlot
                                     solved={mode === "answer-key"}
                                     answer={solvedEndpointAnswerAr}
-                                    ariaLabel={
-                                      isTakeFromEndpoint
-                                        ? "مربع كتابة الجزء الناقص في المسألة اللفظية"
-                                        : "مربع كتابة الكلّ في المسألة اللفظية"
-                                    }
+                                    ariaLabel={endpointSlotAriaLabel}
                                     kind="unknown"
                                     tone="indigo"
                                     solvedDataAttributes={{
