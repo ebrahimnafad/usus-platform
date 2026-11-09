@@ -14,6 +14,7 @@ import type { ConnectMatchBlueprintParams } from "@/archetypes/connect-match";
 import type { JoinPartsBlueprintParams } from "@/archetypes/join-parts";
 import type { JudgeEqualityBlueprintParams } from "@/archetypes/judge-equality";
 import type { ModelCountAndTraceBlueprintParams } from "@/archetypes/model-count-and-trace";
+import type { NumtangaBlueprintParams } from "@/archetypes/numtanga";
 import type { PatternCompleteBlueprintParams } from "@/archetypes/pattern-complete";
 import type { PictureGraphReadBlueprintParams } from "@/archetypes/picture-graph-read";
 import type { SequenceAndZeroBlueprintParams } from "@/archetypes/sequence-and-zero";
@@ -34,6 +35,7 @@ export interface TypedArchetypeParamsMap extends ArchetypeParamsByArchetypeId {
   JudgeEquality: JudgeEqualityBlueprintParams & Record<string, unknown>;
   TakeAway: TakeAwayBlueprintParams & Record<string, unknown>;
   SolveWordProblem: SolveWordProblemBlueprintParams & Record<string, unknown>;
+  Numtanga: NumtangaBlueprintParams & Record<string, unknown>;
 }
 
 const blueprintRegistry = new Map<string, LessonBlueprint>();

@@ -110,6 +110,7 @@ export type VisualModelKind =
   | "balance-scale"
   | "paper-clip-bar"
   | "polygon-perimeter"
+  | "numtanga-grid"
   | "shape-description";
 
 export type EverydayObjectCategory =
@@ -204,7 +205,8 @@ export type ExerciseArchetypeId =
   | "TakeAway"
   | "SolveWordProblem"
   | "ShiftOneDecompose"
-  | "MeasureAndCompareLength";
+  | "MeasureAndCompareLength"
+  | "Numtanga";
 
 export interface ConnectMatchPair {
   pairId: string;
@@ -338,6 +340,7 @@ export interface ArchetypeParamsByArchetypeId {
   SolveWordProblem: Record<string, unknown>;
   ShiftOneDecompose: Record<string, unknown>;
   MeasureAndCompareLength: Record<string, unknown>;
+  Numtanga: Record<string, unknown>;
 }
 
 export type BlueprintExerciseSpecFor<K extends ExerciseArchetypeId> = {

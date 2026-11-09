@@ -16,7 +16,8 @@
     "shapeGraphCell": { "width": 48, "height": 48 },
     "shapeGraphTableIcon": 32,
     "paperClipBarBox": { "width": 312, "height": 56 },
-    "polygonPerimeterBox": { "width": 212, "height": 160 }
+    "polygonPerimeterBox": { "width": 212, "height": 160 },
+    "numtangaGridBox": { "width": 324, "height": 212 }
   },
   "typeScalePx": {
     "sectionTitle": 20,

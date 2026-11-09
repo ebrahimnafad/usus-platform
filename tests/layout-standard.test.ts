@@ -76,6 +76,7 @@ describe("Layout standard matches WORKSHEET_CONSTITUTION.md", () => {
       shapeGraphTableIcon: 32,
       paperClipBarBox: { width: 312, height: 56 },
       polygonPerimeterBox: { width: 212, height: 160 },
+      numtangaGridBox: { width: 324, height: 212 },
     });
   });
 
@@ -239,6 +240,7 @@ describe("Exercise layout primitives", () => {
       { lessonNumber: 40, archetype: "TakeAway" },
       { lessonNumber: 49, archetype: "SolveWordProblem" },
       { lessonNumber: 56, archetype: "ShiftOneDecompose" },
+      { lessonNumber: 81, archetype: "Numtanga" },
     ];
 
     for (const { lessonNumber, archetype } of archetypeLessons) {

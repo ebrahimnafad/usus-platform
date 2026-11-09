@@ -36,6 +36,7 @@ export const CANONICAL_SIZES_PX: {
   shapeGraphTableIcon: number;
   paperClipBarBox: PixelSize;
   polygonPerimeterBox: PixelSize;
+  numtangaGridBox: PixelSize;
 } = standard.canonicalSizesPx;
 
 export type TypeRole = keyof typeof standard.typeScalePx;

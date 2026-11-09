@@ -484,6 +484,11 @@ function measureSheet(std) {
       sizes.polygonPerimeterBox,
       "Polygon Perimeter",
     ],
+    [
+      '[data-visual-model="numtanga-grid"]',
+      sizes.numtangaGridBox,
+      "Numtanga Grid",
+    ],
   ];
   for (const [selector, size, name] of canonical) {
     for (const el of sheet.querySelectorAll(selector)) {
