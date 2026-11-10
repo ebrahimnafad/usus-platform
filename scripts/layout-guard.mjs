@@ -489,6 +489,11 @@ function measureSheet(std) {
       sizes.numtangaGridBox,
       "Numtanga Grid",
     ],
+    [
+      '[data-visual-model="digicross-grid"]',
+      sizes.digicrossGridBox,
+      "Digicross Grid",
+    ],
   ];
   for (const [selector, size, name] of canonical) {
     for (const el of sheet.querySelectorAll(selector)) {

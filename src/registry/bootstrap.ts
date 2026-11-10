@@ -18,6 +18,7 @@ import "@/visual-models/unit-3-models";
 import "@/visual-models/picture-graphs";
 import "@/visual-models/measurement-models";
 import "@/visual-models/unit-7-models";
+import "@/visual-models/unit-8-models";
 
 // --- Exercise Archetypes ---
 // Each archetype module self-registers its definition on import.
@@ -35,6 +36,7 @@ import "@/archetypes/solve-word-problem";
 import "@/archetypes/shift-one-decompose";
 import "@/archetypes/measure-and-compare-length";
 import "@/archetypes/numtanga";
+import "@/archetypes/digicross";
 
 // --- Lesson Blueprints ---
 import "@/blueprints/grade-k/lesson-k1";
@@ -63,3 +65,4 @@ import "@/blueprints/grade-k/lessons-k74-k78-to-k80";
 import "@/blueprints/grade-k/lessons-k81-to-k83";
 import "@/blueprints/grade-k/lessons-k84-to-k85";
 import "@/blueprints/grade-k/lessons-k86-to-k88";
+import "@/blueprints/grade-k/lessons-k89-to-k90";

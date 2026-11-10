@@ -59,6 +59,7 @@ Each rule names its enforcement:
 | Paper-Clip Bar      | 312 × 56 px                         |
 | Polygon Perimeter   | 212 × 160 px                        |
 | Numtanga Grid       | 324 × 212 px                        |
+| Digicross Grid      | 324 × 212 px                        |
 
 3.5 Each new Visual Model adds its canonical size to the table in 3.4, sized to fit one column of 3.2.
 

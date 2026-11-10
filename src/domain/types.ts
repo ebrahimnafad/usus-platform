@@ -111,6 +111,7 @@ export type VisualModelKind =
   | "paper-clip-bar"
   | "polygon-perimeter"
   | "numtanga-grid"
+  | "digicross-grid"
   | "shape-description";
 
 export type EverydayObjectCategory =
@@ -206,7 +207,15 @@ export type ExerciseArchetypeId =
   | "SolveWordProblem"
   | "ShiftOneDecompose"
   | "MeasureAndCompareLength"
-  | "Numtanga";
+  | "Numtanga"
+  | "Digicross";
+
+export type DigicrossArchetypeParams = {
+  /** Inclusive bounds for every grid value. */
+  numberRange?: [number, number];
+  missingCount?: number;
+  directions?: "forward" | "backward" | "mixed";
+};
 
 export interface ConnectMatchPair {
   pairId: string;
@@ -341,6 +350,7 @@ export interface ArchetypeParamsByArchetypeId {
   ShiftOneDecompose: Record<string, unknown>;
   MeasureAndCompareLength: Record<string, unknown>;
   Numtanga: Record<string, unknown>;
+  Digicross: DigicrossArchetypeParams;
 }
 
 export type BlueprintExerciseSpecFor<K extends ExerciseArchetypeId> = {
