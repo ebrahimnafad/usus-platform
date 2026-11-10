@@ -196,8 +196,10 @@ function GraphIconGlyph({
 
   if (icon.kind === "everyday-object") {
     const palette = COLOR_PALETTES[colorTheme] ?? COLOR_PALETTES.coral;
-    // EverydayObjectSvg with size="small" renders a 32×32 <svg viewBox="0 0 64 64"> with internal padding.
-    // Scaling by 24/32 = 0.75 maps the 32×32 viewport onto the full 24×24 badge centered at (12, 12).
+    // EverydayObjectSvg with size="small" renders a 32×32 <svg viewBox="0 0 64 64">.
+    // Scaling by 24/32 = 0.75 maps the 32×32 element directly to a 24×24 box.
+    // Placing circle at (12, 12) with r=10.5 and the icon at (0, 0) scale(0.75)
+    // centers both perfectly at (12, 12) within the 24×24 badge.
     return (
       <g
         transform={`translate(${cx - half}, ${cy - half}) scale(${sizePx / OBJECT_ICON_BASE_PX})`}
@@ -300,13 +302,13 @@ export function PictureGraphSvg({
 
   if (orientation === "vertical") {
     const isTenScale = safeMax > 5;
-    const colWidth = 56;
-    const cellHeight = isTenScale ? 15 : 20;
-    const topHeaderH = 22;
-    const bottomLabelH = 36;
-    const axisWidth = 28;
-    const leftPad = 6;
-    const rightPad = 6;
+    const colWidth = isTenScale ? 76 : 92;
+    const cellHeight = isTenScale ? 28 : 36;
+    const topHeaderH = 34;
+    const bottomLabelH = 44;
+    const axisWidth = 36;
+    const leftPad = 20;
+    const rightPad = 14;
 
     const gridWidth = safeCategories.length * colWidth;
     const gridHeight = safeMax * cellHeight;
@@ -331,83 +333,87 @@ export function PictureGraphSvg({
         data-direction="rtl"
         data-graph-type="picture-graph"
       >
-        <rect
-          x="3"
-          y="3"
-          width={svgWidth - 6}
-          height={svgHeight - 6}
-          rx="16"
-          fill="#F8FAFC"
-          stroke="#4F46E5"
-          strokeWidth="2.2"
-        />
-
-        <rect
-          x="8"
-          y="5"
-          width={svgWidth - 16}
-          height="18"
-          rx="6"
-          fill="#EEF2FF"
-        />
+        {/* Textbook Centered Graph Title */}
         <text
           x={svgWidth / 2}
-          y="18"
+          y={22}
           textAnchor="middle"
           fontSize="13"
-          fontWeight="900"
-          fill="#312E81"
+          fontWeight="bold"
+          fill="#1e293b"
         >
-          📊 {toEasternArabicNumerals(titleAr)}
+          {toEasternArabicNumerals(titleAr)}
         </text>
 
-        <rect
-          x={gridLeftX}
-          y={gridTopY}
-          width={gridWidth}
-          height={gridHeight}
-          rx="8"
-          fill="#FFFFFF"
-          stroke="#4338CA"
-          strokeWidth="2"
+        {/* Horizontal Milestone & Reference Guidelines */}
+        {Array.from({ length: safeMax }, (_, levelIdx) => {
+          const levelNum = levelIdx + 1;
+          const levelY = gridBottomY - levelNum * cellHeight;
+          const isMilestone =
+            levelNum === 5 || levelNum === 10 || levelNum === safeMax;
+
+          return (
+            <line
+              key={`guide-${levelNum}`}
+              x1={gridLeftX - 6}
+              y1={levelY}
+              x2={gridRightX + 4}
+              y2={levelY}
+              stroke={isMilestone ? "#94A3B8" : "#E2E8F0"}
+              strokeWidth={isMilestone ? "1.4" : "1"}
+              strokeDasharray={isMilestone ? "none" : "3 3"}
+            />
+          );
+        })}
+
+        {/* Solid Vertical Y-Axis (RTL: on the right of the columns) */}
+        <line
+          x1={gridRightX}
+          y1={gridTopY}
+          x2={gridRightX}
+          y2={gridBottomY}
+          stroke="#334155"
+          strokeWidth="2.4"
+          strokeLinecap="round"
         />
 
+        {/* Solid Horizontal Baseline (X-Axis) */}
+        <line
+          x1={gridLeftX - 10}
+          y1={gridBottomY}
+          x2={gridRightX + 6}
+          y2={gridBottomY}
+          stroke="#334155"
+          strokeWidth="2.4"
+          strokeLinecap="round"
+        />
+
+        {/* Y-Axis Scale Numerals & Ticks */}
         <g data-graph-axis="vertical">
           {Array.from({ length: safeMax }, (_, levelIdx) => {
             const levelNum = levelIdx + 1;
-            const rowTopY = gridBottomY - levelNum * cellHeight;
-            const cy = rowTopY + cellHeight / 2;
+            const levelY = gridBottomY - levelNum * cellHeight;
+            const cy = levelY + cellHeight / 2;
 
             return (
               <g key={levelNum} data-axis-tick={formatEasternNumber(levelNum)}>
-                {levelIdx > 0 && (
-                  <line
-                    x1={gridLeftX}
-                    y1={rowTopY + cellHeight}
-                    x2={gridRightX}
-                    y2={rowTopY + cellHeight}
-                    stroke={levelIdx === 5 ? "#6366F1" : "#CBD5E1"}
-                    strokeWidth={levelIdx === 5 ? "1.8" : "1.4"}
-                    strokeDasharray={levelIdx === 5 ? "none" : "4 3"}
-                  />
-                )}
-                <rect
-                  x={gridRightX + 6}
-                  y={cy - (isTenScale ? 7 : 11)}
-                  width="26"
-                  height={isTenScale ? "14" : "22"}
-                  rx={isTenScale ? "4" : "7"}
-                  fill="#E0E7FF"
-                  stroke="#4338CA"
-                  strokeWidth="1.2"
+                {/* Axis Tick Mark */}
+                <line
+                  x1={gridRightX - 3}
+                  y1={levelY}
+                  x2={gridRightX + 5}
+                  y2={levelY}
+                  stroke="#475569"
+                  strokeWidth="1.5"
                 />
+                {/* Axis Scale Numeral */}
                 <text
-                  x={gridRightX + 19}
-                  y={cy + 4}
+                  x={gridRightX + 18}
+                  y={levelY + 4}
                   textAnchor="middle"
                   fontSize="12"
-                  fontWeight="900"
-                  fill="#1E1B4B"
+                  fontWeight="bold"
+                  fill="#334155"
                 >
                   {formatEasternNumber(levelNum)}
                 </text>
@@ -416,6 +422,7 @@ export function PictureGraphSvg({
           })}
         </g>
 
+        {/* Columns & Symbols */}
         {safeCategories.map((cat, colIdx) => {
           const colX = getRtlColX(colIdx);
           const colCenterX = colX + colWidth / 2;
@@ -427,17 +434,7 @@ export function PictureGraphSvg({
               data-graph-category={toEasternArabicNumerals(cat.categoryId)}
               data-category-count={formatEasternNumber(cat.count)}
             >
-              {colIdx < safeCategories.length - 1 && (
-                <line
-                  x1={colX}
-                  y1={gridTopY}
-                  x2={colX}
-                  y2={gridBottomY}
-                  stroke="#6366F1"
-                  strokeWidth="1.8"
-                />
-              )}
-
+              {/* Stacked Symbols in Column */}
               {Array.from({ length: safeMax }, (_, levelIdx) => {
                 const levelNum = levelIdx + 1;
                 const cellTopY = gridBottomY - levelNum * cellHeight;
@@ -450,73 +447,42 @@ export function PictureGraphSvg({
                     data-graph-cell={formatEasternNumber(levelNum)}
                     data-cell-filled={isFilled ? "true" : "false"}
                   >
-                    {isFilled ? (
-                      <>
-                        <rect
-                          x={colX + 4}
-                          y={cellTopY + 1}
-                          width={colWidth - 8}
-                          height={cellHeight - 2}
-                          rx="5"
-                          fill={pal.accent}
-                          stroke={pal.fill}
-                          strokeWidth="1.2"
-                        />
-                        <GraphCellIconSvg
-                          icon={cat.icon}
-                          cx={colCenterX}
-                          cy={cellCenterY}
-                          colorTheme={cat.colorTheme}
-                          sizePx={isTenScale ? 12 : 16}
-                        />
-                      </>
-                    ) : (
-                      <circle
+                    {isFilled && (
+                      <GraphCellIconSvg
+                        icon={cat.icon}
                         cx={colCenterX}
                         cy={cellCenterY}
-                        r={isTenScale ? "4" : "6"}
-                        fill="#F8FAFC"
-                        stroke="#E2E8F0"
-                        strokeWidth="1.2"
-                        strokeDasharray="2 2"
+                        colorTheme={cat.colorTheme}
+                        sizePx={isTenScale ? 28 : 34}
                       />
                     )}
                   </g>
                 );
               })}
 
-              <rect
-                x={colX + 4}
-                y={gridBottomY + 2}
-                width={colWidth - 8}
-                height="30"
-                rx="8"
-                fill={pal.accent}
-                stroke={pal.stroke}
-                strokeWidth="1.6"
-              />
+              {/* Clean Category Label directly beneath the baseline under each column */}
               <text
                 x={colCenterX}
-                y={gridBottomY + 14}
+                y={gridBottomY + 20}
                 textAnchor="middle"
-                fontSize="12"
-                fontWeight="900"
-                fill={pal.stroke}
+                fontSize="13"
+                fontWeight="bold"
+                fill="#0f172a"
               >
-                {toEasternArabicNumerals(cat.labelAr.split(" ")[0])}
+                {toEasternArabicNumerals(cat.labelAr)}
               </text>
-              <text
-                x={colCenterX}
-                y={gridBottomY + 26}
-                textAnchor="middle"
-                fontSize="12"
-                fontWeight="900"
-                fill={solved ? "#047857" : "#475569"}
-              >
-                {solved
-                  ? `العدد: ${formatEasternNumber(cat.count)}`
-                  : `العمود ${formatEasternNumber(colIdx + 1)}`}
-              </text>
+              {solved && (
+                <text
+                  x={colCenterX}
+                  y={gridBottomY + 36}
+                  textAnchor="middle"
+                  fontSize="12"
+                  fontWeight="bold"
+                  fill="#047857"
+                >
+                  {formatEasternNumber(cat.count)}
+                </text>
+              )}
             </g>
           );
         })}
@@ -525,17 +491,14 @@ export function PictureGraphSvg({
   }
 
   const isTenHorizontal = safeMax > 5;
-  const cellWidth = isTenHorizontal ? 18 : 28;
-  const rowHeight = 24;
-  const topHeaderH = 22;
-  const bottomAxisH = 26;
-  const rightCategoryColW = isTenHorizontal ? 82 : 92;
-  // The count summary is answer-key-only. In worksheet mode the child derives
-  // the count and writes it in the dedicated response row, so a second "؟"
-  // column here would create two competing answer slots for one quantity.
+  const cellWidth = isTenHorizontal ? 38 : 50;
+  const rowHeight = isTenHorizontal ? 36 : 44;
+  const topHeaderH = 34;
+  const bottomAxisH = 36;
+  const rightCategoryColW = isTenHorizontal ? 96 : 108;
   const showSummaryColumn = solved;
-  const leftSummaryColW = showSummaryColumn ? (isTenHorizontal ? 22 : 36) : 0;
-  const padX = isTenHorizontal ? 5 : 8;
+  const leftSummaryColW = showSummaryColumn ? (isTenHorizontal ? 32 : 40) : 0;
+  const padX = isTenHorizontal ? 12 : 16;
 
   const cellsGridW = safeMax * cellWidth;
   const svgWidth = padX * 2 + leftSummaryColW + cellsGridW + rightCategoryColW;
@@ -562,69 +525,64 @@ export function PictureGraphSvg({
       data-direction="rtl"
       data-graph-type="picture-graph"
     >
-      <rect
-        x="3"
-        y="3"
-        width={svgWidth - 6}
-        height={svgHeight - 6}
-        rx="16"
-        fill="#F8FAFC"
-        stroke="#4F46E5"
-        strokeWidth="2.2"
-      />
-
-      <rect
-        x="8"
-        y="5"
-        width={svgWidth - 16}
-        height="18"
-        rx="6"
-        fill="#EEF2FF"
-      />
+      {/* Textbook Centered Graph Title */}
       <text
         x={svgWidth / 2}
-        y="18"
+        y={22}
         textAnchor="middle"
         fontSize="13"
-        fontWeight="900"
-        fill="#312E81"
+        fontWeight="bold"
+        fill="#1e293b"
       >
-        📊 {toEasternArabicNumerals(titleAr)}
+        {toEasternArabicNumerals(titleAr)}
       </text>
 
-      <rect
-        x={padX}
-        y={gridTopY}
-        width={leftSummaryColW + cellsGridW + rightCategoryColW}
-        height={gridHeight}
-        rx="10"
-        fill="#FFFFFF"
-        stroke="#4338CA"
-        strokeWidth="2"
-      />
+      {/* Vertical Reference Guidelines Across Rows */}
+      {Array.from({ length: safeMax }, (_, cellIdx) => {
+        const cellX = getRtlCellX(cellIdx);
+        const colNum = cellIdx + 1;
+        const isMilestone = colNum === 5 || colNum === 10 || colNum === safeMax;
 
+        return (
+          <line
+            key={`vguide-${colNum}`}
+            x1={cellX}
+            y1={gridTopY}
+            x2={cellX}
+            y2={gridBottomY}
+            stroke={isMilestone ? "#94A3B8" : "#E2E8F0"}
+            strokeWidth={isMilestone ? "1.4" : "1"}
+            strokeDasharray={isMilestone ? "none" : "3 3"}
+          />
+        );
+      })}
+
+      {/* Solid Vertical Axis (separates category column from grid) */}
       <line
         x1={gridRightX}
         y1={gridTopY}
         x2={gridRightX}
         y2={gridBottomY}
-        stroke="#3730A3"
-        strokeWidth="2.2"
+        stroke="#334155"
+        strokeWidth="2.4"
+        strokeLinecap="round"
       />
 
+      {/* Solid Horizontal Baseline */}
       <line
-        x1={gridLeftX}
-        y1={gridTopY}
-        x2={gridLeftX}
+        x1={gridLeftX - 6}
+        y1={gridBottomY}
+        x2={categoryColRightX}
         y2={gridBottomY}
-        stroke="#3730A3"
-        strokeWidth="2"
+        stroke="#334155"
+        strokeWidth="2.4"
+        strokeLinecap="round"
       />
 
+      {/* Rows and Symbols */}
       {safeCategories.map((cat, rowIdx) => {
         const rowY = gridTopY + rowIdx * rowHeight;
         const rowCenterY = rowY + rowHeight / 2;
-        const pal = COLOR_PALETTES[cat.colorTheme] ?? COLOR_PALETTES.coral;
 
         return (
           <g
@@ -632,38 +590,31 @@ export function PictureGraphSvg({
             data-graph-category={toEasternArabicNumerals(cat.categoryId)}
             data-category-count={formatEasternNumber(cat.count)}
           >
+            {/* Clean row divider */}
             {rowIdx > 0 && (
               <line
-                x1={padX}
+                x1={gridLeftX}
                 y1={rowY}
                 x2={categoryColRightX}
                 y2={rowY}
-                stroke="#CBD5E1"
-                strokeWidth="1.6"
+                stroke="#E2E8F0"
+                strokeWidth="1"
               />
             )}
 
-            <rect
-              x={gridRightX + 4}
-              y={rowY + 4}
-              width={rightCategoryColW - 8}
-              height={rowHeight - 8}
-              rx="8"
-              fill={pal.accent}
-              stroke={pal.stroke}
-              strokeWidth="1.5"
-            />
+            {/* Clean Category Label */}
             <text
               x={gridRightX + rightCategoryColW / 2}
               y={rowCenterY + 4}
               textAnchor="middle"
-              fontSize="12"
-              fontWeight="900"
-              fill={pal.stroke}
+              fontSize="13"
+              fontWeight="bold"
+              fill="#0f172a"
             >
               {toEasternArabicNumerals(cat.labelAr)}
             </text>
 
+            {/* Symbols along row */}
             {Array.from({ length: safeMax }, (_, cellIdx) => {
               const cellX = getRtlCellX(cellIdx);
               const cellCenterX = cellX + cellWidth / 2;
@@ -675,46 +626,13 @@ export function PictureGraphSvg({
                   data-graph-cell={formatEasternNumber(cellIdx + 1)}
                   data-cell-filled={isFilled ? "true" : "false"}
                 >
-                  {cellIdx < safeMax - 1 && (
-                    <line
-                      x1={cellX}
-                      y1={rowY}
-                      x2={cellX}
-                      y2={rowY + rowHeight}
-                      stroke="#E2E8F0"
-                      strokeWidth="1.4"
-                      strokeDasharray="3 3"
-                    />
-                  )}
-                  {isFilled ? (
-                    <>
-                      <rect
-                        x={cellX + (isTenHorizontal ? 2 : 3)}
-                        y={rowY + 2}
-                        width={cellWidth - (isTenHorizontal ? 4 : 6)}
-                        height={rowHeight - 4}
-                        rx={isTenHorizontal ? "5" : "7"}
-                        fill={pal.accent}
-                        stroke={pal.fill}
-                        strokeWidth="1.2"
-                      />
-                      <GraphCellIconSvg
-                        icon={cat.icon}
-                        cx={cellCenterX}
-                        cy={rowCenterY}
-                        colorTheme={cat.colorTheme}
-                        sizePx={isTenHorizontal ? 14 : 19}
-                      />
-                    </>
-                  ) : (
-                    <circle
+                  {isFilled && (
+                    <GraphCellIconSvg
+                      icon={cat.icon}
                       cx={cellCenterX}
                       cy={rowCenterY}
-                      r={isTenHorizontal ? "4.5" : "6.5"}
-                      fill="#F8FAFC"
-                      stroke="#E2E8F0"
-                      strokeWidth="1.2"
-                      strokeDasharray="2 2"
+                      colorTheme={cat.colorTheme}
+                      sizePx={isTenHorizontal ? 28 : 34}
                     />
                   )}
                 </g>
@@ -722,41 +640,30 @@ export function PictureGraphSvg({
             })}
 
             {showSummaryColumn && (
-              <>
-                <rect
-                  x={padX + 7}
-                  y={rowY + 6}
-                  width={leftSummaryColW - 14}
-                  height={rowHeight - 12}
-                  rx="8"
-                  fill="#ECFDF5"
-                  stroke="#059669"
-                  strokeWidth="1.8"
-                />
-                <text
-                  x={padX + leftSummaryColW / 2}
-                  y={rowCenterY + 5}
-                  textAnchor="middle"
-                  fontSize="16"
-                  fontWeight="900"
-                  fill="#047857"
-                >
-                  {formatEasternNumber(cat.count)}
-                </text>
-              </>
+              <text
+                x={padX + leftSummaryColW / 2}
+                y={rowCenterY + 5}
+                textAnchor="middle"
+                fontSize="16"
+                fontWeight="900"
+                fill="#047857"
+              >
+                {formatEasternNumber(cat.count)}
+              </text>
             )}
           </g>
         );
       })}
 
+      {/* Horizontal Axis Scale Numerals & Ticks */}
       <g data-graph-axis="horizontal">
         <text
           x={gridRightX + rightCategoryColW / 2}
-          y={gridBottomY + 19}
+          y={gridBottomY + 20}
           textAnchor="middle"
           fontSize="12"
-          fontWeight="900"
-          fill="#312E81"
+          fontWeight="bold"
+          fill="#475569"
         >
           الفئة
         </text>
@@ -766,23 +673,23 @@ export function PictureGraphSvg({
           const numAr = formatEasternNumber(cellIdx + 1);
           return (
             <g key={cellIdx} data-axis-tick={numAr}>
-              <rect
-                x={cx - (isTenHorizontal ? 8 : 11)}
-                y={gridBottomY + 4}
-                width={isTenHorizontal ? "16" : "22"}
-                height="19"
-                rx={isTenHorizontal ? "4" : "6"}
-                fill="#E0E7FF"
-                stroke="#4338CA"
-                strokeWidth="1.2"
+              {/* Tick Mark on Baseline */}
+              <line
+                x1={cx}
+                y1={gridBottomY - 2}
+                x2={cx}
+                y2={gridBottomY + 5}
+                stroke="#475569"
+                strokeWidth="1.5"
               />
+              {/* Scale Numeral */}
               <text
                 x={cx}
-                y={gridBottomY + 18}
+                y={gridBottomY + 20}
                 textAnchor="middle"
                 fontSize="12"
-                fontWeight="900"
-                fill="#1E1B4B"
+                fontWeight="bold"
+                fill="#334155"
               >
                 {numAr}
               </text>
@@ -792,11 +699,11 @@ export function PictureGraphSvg({
         {showSummaryColumn && (
           <text
             x={padX + leftSummaryColW / 2}
-            y={gridBottomY + 19}
+            y={gridBottomY + 20}
             textAnchor="middle"
             fontSize="12"
-            fontWeight="900"
-            fill="#312E81"
+            fontWeight="bold"
+            fill="#047857"
           >
             العدد
           </text>

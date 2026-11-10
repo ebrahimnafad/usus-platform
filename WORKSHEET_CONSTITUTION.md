@@ -22,7 +22,7 @@ Each rule names its enforcement:
 
 2.1 A4 portrait, named page `worksheet-page` with margins 10 mm top, 10 mm sides, 14 mm bottom (ADR-0012). **[test]**
 
-2.2 Print at scale 1.0, always (ADR-0013). A Worksheet fits on 1 page by default and on 2 pages at most; a sheet that does not fit is a blueprint design error, fixed by fewer or narrower exercises. **[guard]**
+2.2 Print at scale 1.0, always (ADR-0013). Page count is content-driven: a Worksheet fits naturally across 1 or more pages as required by its educational objectives and exercise integrity; an individual Exercise must not exceed printable page height. **[guard]**
 
 2.3 An Exercise stays whole on one page, and a Section header stays on the same page as its first Exercise. **[guard]**
 

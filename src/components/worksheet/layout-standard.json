@@ -28,6 +28,6 @@
   },
   "minTextPx": 12,
   "promptMaxLines": 2,
-  "pageBudget": 2,
+  "defaultPageBudget": 2,
   "printableAreaMm": { "width": 190, "height": 273 }
 }

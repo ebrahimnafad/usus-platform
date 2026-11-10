@@ -367,6 +367,11 @@ export interface LessonBlueprint {
   titleAr: string;
   teacherNotes: TeacherNotes;
   /**
+   * Optional planning reference for expected page count (e.g. 2, 3).
+   * Informational only; pagination remains content-driven and does not fail on mismatch.
+   */
+  expectedPageCount?: number;
+  /**
    * Declarative exercise configurations per DifficultyLevel.
    * For a given section and target DifficultyLevel, the engine selects the specs from that tier.
    */

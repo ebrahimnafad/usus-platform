@@ -44,7 +44,9 @@ export type TypeRole = keyof typeof standard.typeScalePx;
 export const TYPE_SCALE_PX: Record<TypeRole, number> = standard.typeScalePx;
 export const MIN_TEXT_PX: number = standard.minTextPx;
 export const PROMPT_MAX_LINES: number = standard.promptMaxLines;
-export const PAGE_BUDGET: number = standard.pageBudget;
+export const DEFAULT_PAGE_BUDGET: number = standard.defaultPageBudget;
+/** @deprecated Use content-driven pagination or DEFAULT_PAGE_BUDGET for informational guidance */
+export const PAGE_BUDGET: number = standard.defaultPageBudget;
 
 export const PRINTABLE_AREA_MM: { width: number; height: number } =
   standard.printableAreaMm;

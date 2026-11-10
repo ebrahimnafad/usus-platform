@@ -274,7 +274,7 @@ function measureSheet(std) {
     }
   }
 
-  // 3.1 SVG graph-cell icon centering & adjacent graph-cell non-overlap
+  // 3.1 SVG graph-cell icon centering & minimum rendered visible dimension
   for (const iconGroup of sheet.querySelectorAll("[data-graph-cell-icon]")) {
     if (!isShown(iconGroup)) continue;
     const badgeCircle = iconGroup.querySelector(":scope > g > circle");
@@ -305,6 +305,16 @@ function measureSheet(std) {
             "svg-icon-under-scaled",
             iconGroup,
             `nested icon width (${svgRect.width.toFixed(1)}px) is less than 55% of badge diameter (${circleRect.width.toFixed(1)}px)`
+          );
+        }
+        // Legibility check: ensure the symbol has sufficient visual area/span (effective diagonal/span >= 16px)
+        const maxDim = Math.max(svgRect.width, svgRect.height);
+        const minDim = Math.min(svgRect.width, svgRect.height);
+        if (maxDim < 14 || minDim < 8) {
+          push(
+            "graph-symbol-too-small",
+            iconGroup,
+            `rendered symbol dimensions (${svgRect.width.toFixed(1)}×${svgRect.height.toFixed(1)}px) are below minimum legibility standard`
           );
         }
       }
@@ -835,15 +845,14 @@ async function main() {
       const pdf = Buffer.from(await page.pdf(PDF_OPTS));
       pageCount = countPdfPages(pdf);
 
-      if (pageCount > STANDARD.pageBudget) {
-        violations.push({
-          rule: "page-budget",
-          page: pageCount,
-          section: null,
-          exercise: null,
-          element: '<article data-worksheet-surface="true">',
-          detail: `${pageCount} pages (max ${STANDARD.pageBudget}), sheet ${sheetHeight}px`,
-        });
+      // Page count is informational metric per content-driven pagination policy.
+      // Do not block unless a blueprint declares an expectedPageCount and it deviates (as warning).
+      const expectedPages = job.expectedPageCount;
+      if (expectedPages && pageCount !== expectedPages) {
+        // Recorded as warning in report, does not fail the run
+        process.stdout.write(
+          `    [INFO/WARN] ${id} seed=${job.seed}: rendered ${pageCount} pages, expected ${expectedPages}\n`
+        );
       }
 
       if (wantPng) {

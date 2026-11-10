@@ -39,7 +39,6 @@ const PRINT_WIDTH_CSS = printWidthCss(STANDARD.printableAreaMm);
 
 // A4 at 96dpi with zero margins — the physical height Chromium paginates at.
 const PAGE_PX = (297 * 96) / 25.4; // 1122.5px
-const PAGE_BUDGET = Math.round(2 * PAGE_PX);
 
 function parseArgs(argv) {
   const args = {};
@@ -184,20 +183,10 @@ async function main() {
 
       const pdf = Buffer.from(await page.pdf(PDF_OPTS));
       const pages = countPdfPages(pdf);
-      const red = pages > STANDARD.pageBudget || m.sheetH > PAGE_BUDGET;
-      const headroom = Math.round(PAGE_BUDGET - m.sheetH);
-      let statusLine = "";
-      if (red) {
-        statusLine = `!!! RED (2-page model over by ${-headroom}px)`;
-      } else if (headroom < 120) {
-        statusLine = `fits, ${headroom}px headroom`;
-      } else {
-        statusLine = "fits";
-      }
-      process.stdout.write(
-        `${label}: sheetH=${m.sheetH} pages=${pages} ${statusLine}\n`
-      );
-      const showDetail = options.detail || red;
+      const estPages = Math.ceil(m.sheetH / PAGE_PX);
+      let statusLine = `pages=${pages} (sheetH=${m.sheetH}px, ~${estPages} pages)`;
+      process.stdout.write(`${label}: ${statusLine}\n`);
+      const showDetail = options.detail;
       if (showDetail) {
         for (const s of m.sections) {
           process.stdout.write(

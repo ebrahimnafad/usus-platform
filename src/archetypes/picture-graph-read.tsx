@@ -450,124 +450,126 @@ function renderPictureGraphReadExercise({
 
   return (
     <div
-      className="space-y-1"
+      className="space-y-3"
       data-archetype="PictureGraphRead"
       data-graph-orientation={data.orientation}
     >
-      <ExerciseColumns columns={2}>
-        {/* Column 1 (Right in RTL): Picture Graph Visual Model */}
-        <div className="flex items-center justify-center rounded-xl border-2 border-indigo-100 bg-gradient-to-b from-white to-indigo-50/30 p-1 shadow-2xs">
+      <ExerciseColumns columns={1}>
+        {/* 1. Full-Width Centered Graph Visual Model */}
+        <div className="flex items-center justify-center py-1">
           <VisualModelView model={data.graphModel} solved={isAnswerKey} />
         </div>
 
-        {/* Column 2 (Left in RTL): Category Count, Digit Tracing & Writing Stack */}
+        {/* 2. Educational Counting Equations Directly Below Graph (mirrors Image 2 reference) */}
         <div
-          className="flex flex-col justify-between gap-1"
+          className="flex flex-wrap items-center justify-center gap-4 pt-1 border-t border-slate-100"
           data-graph-category-responses="true"
         >
-          {data.categories.map((cat, idx) => (
+          {data.categories.map((cat) => (
             <div
               key={cat.categoryId}
-              className="flex items-center justify-between gap-1 rounded-xl border border-slate-200 bg-white px-1.5 py-0.5 shadow-2xs"
+              className="flex items-center gap-2.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 shadow-2xs"
               data-category-response-id={toEasternArabicNumerals(
                 cat.categoryId
               )}
             >
-              <div className="flex items-center gap-1">
-                <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-xs font-extrabold leading-none text-white">
-                  {formatEasternNumber(idx + 1)}
-                </span>
+              {/* Category Icon Tile */}
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-100 bg-slate-50">
                 <PictureGraphIconSvg
                   icon={cat.icon}
                   colorTheme={cat.colorTheme}
-                  sizePx={30}
-                />
-                <div className="text-[13px] font-extrabold leading-tight text-slate-900">
-                  {toEasternArabicNumerals(cat.labelAr)}
-                </div>
-              </div>
-
-              <div className="flex items-center gap-1">
-                {data.responseMode !== "write" && (
-                  <span
-                    className="hidden"
-                    data-visual-model="numeral-trace"
-                    data-digit={cat.countAr}
-                    data-start-dot="true"
-                    data-direction-arrow="true"
-                    data-trace-stroke={isAnswerKey ? "solid" : "dotted"}
-                    {...(isAnswerKey
-                      ? { "data-solved-trace": cat.countAr }
-                      : {})}
-                  />
-                )}
-
-                <AnswerSlot
-                  solved={isAnswerKey}
-                  answer={cat.countAr}
-                  ariaLabel="مربع كتابة عدد الفئة"
-                  tone="indigo"
-                  solvedDataAttributes={{
-                    "data-solved-category-count": cat.countAr,
-                  }}
+                  sizePx={26}
                 />
               </div>
+
+              {/* Category Name */}
+              <span className="text-[13px] font-bold text-slate-800">
+                {toEasternArabicNumerals(cat.labelAr)}
+              </span>
+
+              {/* Equal Sign */}
+              <span className="text-[16px] font-black text-slate-400">=</span>
+
+              {/* Tracing support marker (if tracing mode) */}
+              {data.responseMode !== "write" && (
+                <span
+                  className="hidden"
+                  data-visual-model="numeral-trace"
+                  data-digit={cat.countAr}
+                  data-start-dot="true"
+                  data-direction-arrow="true"
+                  data-trace-stroke={isAnswerKey ? "solid" : "dotted"}
+                  {...(isAnswerKey ? { "data-solved-trace": cat.countAr } : {})}
+                />
+              )}
+
+              {/* Clean Child Writing Slot */}
+              <AnswerSlot
+                solved={isAnswerKey}
+                answer={cat.countAr}
+                ariaLabel={`عدد ${cat.labelAr}`}
+                tone="indigo"
+                solvedDataAttributes={{
+                  "data-solved-category-count": cat.countAr,
+                }}
+              />
             </div>
           ))}
         </div>
-      </ExerciseColumns>
 
-      {data.includeComparison && (
-        <div
-          className="space-y-0.5 rounded-xl border-2 border-amber-300 bg-amber-50/80 px-2 py-0.5 text-[13px] font-bold leading-tight text-amber-950"
-          data-graph-comparison="true"
-        >
-          <div className="flex flex-wrap items-center justify-between gap-1.5">
-            <span>
-              🤔 قارن بين الفئات:{" "}
-              {toEasternArabicNumerals(data.comparisonPromptAr)}
-            </span>
+        {/* 3. Comparison Activity (if included) */}
+        {data.includeComparison && (
+          <div
+            className="space-y-1.5 rounded-xl border-2 border-amber-300 bg-amber-50/80 px-3 py-2 text-[13px] font-bold leading-tight text-amber-950"
+            data-graph-comparison="true"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span>
+                🤔 قارن بين الفئات:{" "}
+                {toEasternArabicNumerals(data.comparisonPromptAr)}
+              </span>
 
-            <div className="flex flex-wrap items-center gap-1">
-              {data.comparisonChoices.map((choice) => {
-                const isSelected =
-                  isAnswerKey && choice === data.comparisonRelation;
-                return (
-                  <span
-                    key={choice}
-                    className={`rounded-xl border-2 px-2 py-0.5 text-[13px] font-extrabold transition ${
-                      isSelected
-                        ? "border-emerald-600 bg-emerald-600 text-white shadow-2xs"
-                        : "border-dashed border-amber-400 bg-white text-amber-900"
-                    }`}
-                    data-comparison-choice={toEasternArabicNumerals(choice)}
-                    {...(isSelected
-                      ? {
-                          "data-solved-comparison-relation":
-                            toEasternArabicNumerals(choice),
-                        }
-                      : {})}
-                  >
-                    {isSelected
-                      ? `✓ ${toEasternArabicNumerals(choice)}`
-                      : toEasternArabicNumerals(choice)}
-                  </span>
-                );
-              })}
+              <div className="flex flex-wrap items-center gap-1.5">
+                {data.comparisonChoices.map((choice) => {
+                  const isSelected =
+                    isAnswerKey && choice === data.comparisonRelation;
+                  return (
+                    <span
+                      key={choice}
+                      className={`rounded-xl border-2 px-3 py-0.5 text-[13px] font-extrabold transition ${
+                        isSelected
+                          ? "border-emerald-600 bg-emerald-600 text-white shadow-2xs"
+                          : "border-dashed border-amber-400 bg-white text-amber-900"
+                      }`}
+                      data-comparison-choice={toEasternArabicNumerals(choice)}
+                      {...(isSelected
+                        ? {
+                            "data-solved-comparison-relation":
+                              toEasternArabicNumerals(choice),
+                          }
+                        : {})}
+                    >
+                      {isSelected
+                        ? `✓ ${toEasternArabicNumerals(choice)}`
+                        : toEasternArabicNumerals(choice)}
+                    </span>
+                  );
+                })}
+              </div>
             </div>
+
+            {isAnswerKey && (
+              <div
+                className="rounded-lg bg-emerald-600 px-2 py-0.5 text-[13px] leading-tight text-white"
+                data-solved-comparison-answer="true"
+              >
+                الإجابة النموذجية:{" "}
+                {toEasternArabicNumerals(data.comparisonAnswerAr)}
+              </div>
+            )}
           </div>
-
-          {isAnswerKey && (
-            <div
-              className="rounded-lg bg-emerald-600 px-2 py-0.5 text-[13px] leading-tight text-white"
-              data-solved-comparison-answer="true"
-            >
-              الإجابة النموذجية:{" "}
-              {toEasternArabicNumerals(data.comparisonAnswerAr)}
-            </div>
-          )}
-        </div>
-      )}
+        )}
+      </ExerciseColumns>
     </div>
   );
 }

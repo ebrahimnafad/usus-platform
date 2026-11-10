@@ -637,37 +637,39 @@ export function EverydayObjectSvg({
           fill="none"
           aria-label="سيارة صغيرة"
         >
-          <path
-            d="M10 38 L16 24 L42 24 L50 34 L56 36 L56 46 L10 46 Z"
-            fill="#EF4444"
-            stroke="#991B1B"
-            strokeWidth="2.5"
-            strokeLinejoin="round"
-          />
-          <polygon
-            points="20,27 39,27 44,34 17,34"
-            fill="#BAE6FD"
-            stroke="#0369A1"
-            strokeWidth="1.8"
-          />
-          <circle
-            cx="21"
-            cy="46"
-            r="7"
-            fill="#334155"
-            stroke="#0F172A"
-            strokeWidth="2.2"
-          />
-          <circle cx="21" cy="46" r="3" fill="#E2E8F0" />
-          <circle
-            cx="45"
-            cy="46"
-            r="7"
-            fill="#334155"
-            stroke="#0F172A"
-            strokeWidth="2.2"
-          />
-          <circle cx="45" cy="46" r="3" fill="#E2E8F0" />
+          <g transform="translate(0, -3)">
+            <path
+              d="M10 38 L16 24 L42 24 L50 34 L56 36 L56 46 L10 46 Z"
+              fill="#EF4444"
+              stroke="#991B1B"
+              strokeWidth="2.5"
+              strokeLinejoin="round"
+            />
+            <polygon
+              points="20,27 39,27 44,34 17,34"
+              fill="#BAE6FD"
+              stroke="#0369A1"
+              strokeWidth="1.8"
+            />
+            <circle
+              cx="21"
+              cy="46"
+              r="7"
+              fill="#334155"
+              stroke="#0F172A"
+              strokeWidth="2.2"
+            />
+            <circle cx="21" cy="46" r="3" fill="#E2E8F0" />
+            <circle
+              cx="45"
+              cy="46"
+              r="7"
+              fill="#334155"
+              stroke="#0F172A"
+              strokeWidth="2.2"
+            />
+            <circle cx="45" cy="46" r="3" fill="#E2E8F0" />
+          </g>
         </svg>
       );
 
