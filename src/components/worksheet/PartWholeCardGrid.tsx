@@ -228,7 +228,15 @@ export function PartWholeCardGrid({
                 stackHeader: Boolean(item.companionDigitModel && columns !== 1),
                 isAnswerKey,
                 solvedBadgeAr: item.totalAr,
-                worksheetSummaryAr: `${item.part1Ar} و${item.part2Ar}`,
+                // §8.1: the worksheet header never prints the missing Part's
+                // numeral (it would solve the item). Total-unknown items keep
+                // the plain two-part summary.
+                worksheetSummaryAr:
+                  item.unknownPosition === "part2"
+                    ? `الكلّ ${item.totalAr} والجزء الأول ${item.part1Ar}`
+                    : item.unknownPosition === "part1"
+                      ? `الكلّ ${item.totalAr} والجزء الثاني ${item.part2Ar}`
+                      : `${item.part1Ar} و${item.part2Ar}`,
                 representationModel: item.representationModel,
                 companionDigitModel: item.companionDigitModel,
                 operatorSign: "+",

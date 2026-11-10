@@ -86,6 +86,13 @@ export interface ConnectMatchBlueprintParams {
    * Defaults to ["total"] — WORD PROBLEM MATCH A behavior.
    */
   wordProblemMissingPositions?: Array<"total" | "part2" | "part1">;
+  /**
+   * Unknown position carried by the matched Number Bond / Equation column
+   * (MATCHING - F and G fill the Missing Part instead of the Total).
+   * Defaults to `"total"`; a Part unknown is a non-standard position, so it is
+   * suppressed to `"total"` outside Advanced tiers and Challenge sections (§6.3).
+   */
+  matchMissingPosition?: "total" | "part2" | "part1";
 }
 
 const CONNECTION_STROKE_COLORS = [
@@ -192,6 +199,17 @@ function generateConnectMatchExercise(
     ctx.lesson.lessonNumber >= 17 ? Math.min(3, rawPairCount) : rawPairCount;
 
   const matchingMode = params.matchingMode ?? params.matchKind;
+  // §6.3: an unknown in a non-standard position (a Missing Part) appears only
+  // at Advanced or in Challenge & Assessment; elsewhere the match falls back
+  // to the standard missing Total.
+  const allowNonStandardMatchUnknown =
+    ctx.sectionId === "challenge" || ctx.difficultyLevel === "Advanced";
+  const resolvedMatchMissingPosition =
+    params.matchMissingPosition === undefined ||
+    params.matchMissingPosition === "total" ||
+    allowNonStandardMatchUnknown
+      ? params.matchMissingPosition
+      : "total";
   let pairs: ConnectMatchPair[] = [];
 
   if (matchingMode === "shape-to-description") {
@@ -447,6 +465,7 @@ function generateConnectMatchExercise(
       showMissingTotalSlot: params.showMissingTotalSlot,
       usedFacts: ctx.usedFacts,
       wordProblemMissingPositions: params.wordProblemMissingPositions,
+      matchMissingPosition: resolvedMatchMissingPosition,
     });
   } else if (
     params.customCandidatePairs &&
@@ -536,6 +555,10 @@ function generateConnectMatchExercise(
     ? pairs.map((p) => p.connectionReasonAr).join("؛ ")
     : "";
 
+  const isMatchMissingPart =
+    resolvedMatchMissingPosition === "part1" ||
+    resolvedMatchMissingPosition === "part2";
+
   const defaultPromptAr = isTakeApartMatch
     ? "صِلْ كلّ رابطة أعداد بالمسألة التي تحمل الكلّ نفسه، ثم اكتب الجزأين:"
     : isTenFrameDescMatch
@@ -543,9 +566,13 @@ function generateConnectMatchExercise(
         ? "صِلْ كلّ لوحة عشرة بالوصف المطابق، ثم اكتب الكلّ في المربّع:"
         : "صِلْ كلّ لوحة عشرة بالوصف المطابق:"
       : isTenFrameBondMatch
-        ? "صِلْ كلّ لوحة عشرة برابطة الأعداد المطابقة، ثم اكتب الكلّ في الدائرة:"
+        ? isMatchMissingPart
+          ? "صِلْ كلّ لوحة عشرة برابطة الأعداد المطابقة، ثم اكتب الجزء الناقص في الرابطة:"
+          : "صِلْ كلّ لوحة عشرة برابطة الأعداد المطابقة، ثم اكتب الكلّ في الدائرة:"
         : isTenFrameEqMatch
-          ? "صِلْ كلّ لوحة عشرة بالمعادلة المطابقة، ثم اكتب الكلّ في المربّع:"
+          ? isMatchMissingPart
+            ? "صِلْ كلّ لوحة عشرة بالمعادلة المطابقة، ثم اكتب العدد الناقص في المعادلة:"
+            : "صِلْ كلّ لوحة عشرة بالمعادلة المطابقة، ثم اكتب الكلّ في المربّع:"
           : ctx.difficultyLevel === "Easy"
             ? `صل بخط بين كل شكل في العمود الأيمن وما يطابقه تماماً في العمود الأيسر (${pairCountAr} عناصر):`
             : ctx.difficultyLevel === "Intermediate"

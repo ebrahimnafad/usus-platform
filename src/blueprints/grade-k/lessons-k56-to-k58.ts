@@ -39,19 +39,6 @@ export const lessonK56Blueprint: LessonBlueprint = {
             showFiveFrames: true,
           },
         },
-        {
-          archetype: "ShiftOneDecompose",
-          promptAr:
-            "انظر إلى لوحات الخمسة للكلّ ٣، ثم اكتب جميع أزواج الأجزاء بإزاحة ١:",
-          strategyHintAr:
-            "انظر إلى الزوج الأوّل (٣ و٠)، ثم نفّذ إزاحة ١ في كل خطوة لكتابة بقية الأزواج.",
-          params: {
-            mode: "all-combinations",
-            targetTotal: 3,
-            action: "trace-first",
-            showFiveFrames: true,
-          },
-        },
       ],
       challenge: [
         {
@@ -109,19 +96,6 @@ export const lessonK56Blueprint: LessonBlueprint = {
             showFiveFrames: false,
           },
         },
-        {
-          archetype: "ShiftOneDecompose",
-          promptAr:
-            "انظر إلى الكلّ ٤ في روابط الأعداد، ثم اكتب جميع أزواج الأجزاء بإزاحة ١:",
-          strategyHintAr:
-            "اكتب الزوج (٤ و٠) أولاً، ثم نفّذ إزاحة ١ في كل خطوة حتى تصل إلى (٠ و٤).",
-          params: {
-            mode: "all-combinations",
-            targetTotal: 4,
-            action: "write",
-            showFiveFrames: false,
-          },
-        },
       ],
       challenge: [
         {
@@ -175,19 +149,6 @@ export const lessonK56Blueprint: LessonBlueprint = {
           params: {
             mode: "all-combinations",
             targetTotal: 4,
-            action: "write",
-            showFiveFrames: false,
-          },
-        },
-        {
-          archetype: "ShiftOneDecompose",
-          promptAr:
-            "انظر إلى الكلّ ٥ في روابط الأعداد، ثم اكتب جميع أزواج الأجزاء بإزاحة ١:",
-          strategyHintAr:
-            "اكتب الزوج (٥ و٠) أولاً، ثم نفّذ إزاحة ١ في كل خطوة حتى تصل إلى (٠ و٥).",
-          params: {
-            mode: "all-combinations",
-            targetTotal: 5,
             action: "write",
             showFiveFrames: false,
           },
@@ -268,24 +229,6 @@ export const lessonK57Blueprint: LessonBlueprint = {
             takeApartMode: "model-fixed",
             action: "trace",
             totalRange: [2, 4],
-            minPart: 1,
-            itemCount: 2,
-          },
-        },
-        {
-          archetype: "SolveWordProblem",
-          promptAr:
-            "اقرأ المسألة التعليمية لتحديد الكلّ، ثم اكتب كم يمكن أن يكون في كلّ جزء:",
-          strategyHintAr: "اختر أيّ جزأين يساويان الكلّ واكتبهما في المربّعين.",
-          params: {
-            situation: "take-apart",
-            problemStyle: "learning",
-            responseForm: "story-and-slot",
-            representation: "snap-cubes",
-            takeApartMode: "open-ended",
-            showModel: false,
-            action: "write",
-            totalRange: [3, 4],
             minPart: 1,
             itemCount: 2,
           },
@@ -372,24 +315,6 @@ export const lessonK57Blueprint: LessonBlueprint = {
             itemCount: 2,
           },
         },
-        {
-          archetype: "SolveWordProblem",
-          promptAr:
-            "اقرأ المسألة التعليمية لتحديد الكلّ، ثم اكتب كم يمكن أن يكون في كلّ جزء:",
-          strategyHintAr: "اختر أيّ جزأين يساويان الكلّ واكتبهما في المربّعين.",
-          params: {
-            situation: "take-apart",
-            problemStyle: "learning",
-            responseForm: "story-and-slot",
-            representation: "snap-cubes",
-            takeApartMode: "open-ended",
-            showModel: false,
-            action: "write",
-            totalRange: [3, 5],
-            minPart: 1,
-            itemCount: 2,
-          },
-        },
       ],
       challenge: [
         {
@@ -471,44 +396,8 @@ export const lessonK57Blueprint: LessonBlueprint = {
             itemCount: 2,
           },
         },
-        {
-          archetype: "SolveWordProblem",
-          promptAr:
-            "اقرأ المسألة التعليمية لتحديد الكلّ، ثم اكتب كم يمكن أن يكون في كلّ جزء:",
-          strategyHintAr: "اختر أيّ جزأين يساويان الكلّ واكتبهما في المربّعين.",
-          params: {
-            situation: "take-apart",
-            problemStyle: "learning",
-            responseForm: "story-and-slot",
-            representation: "five-frame",
-            takeApartMode: "open-ended",
-            showModel: false,
-            action: "write",
-            totalRange: [3, 5],
-            minPart: 1,
-            itemCount: 2,
-          },
-        },
       ],
       challenge: [
-        {
-          archetype: "ConnectMatch",
-          promptAr:
-            "صِلْ كلّ رابطة أعداد بالمسألة التعليمية المطابقة للكلّ، ثم اكتب الجزأين:",
-          strategyHintAr:
-            "صِلْ كلّ رابطة أعداد بالمسألة التي تحمل الكلّ نفسه واكتب جزأين مناسبين.",
-          params: {
-            matchingMode: "model-to-word-problem",
-            situation: "take-apart",
-            problemStyle: "learning",
-            showProblemSlot: false,
-            rightColumnTitleAr: "رابطة الأعداد",
-            leftColumnTitleAr: "المسألة التعليمية",
-            totalRange: [3, 5],
-            minPart: 1,
-            pairCount: 3,
-          },
-        },
         {
           archetype: "SolveWordProblem",
           promptAr: "انظر إلى النموذج لملء جملة المسألة، ثم اكتب معادلة الجمع:",
@@ -526,6 +415,24 @@ export const lessonK57Blueprint: LessonBlueprint = {
             totalRange: [3, 5],
             minPart: 1,
             itemCount: 1,
+          },
+        },
+        {
+          archetype: "ConnectMatch",
+          promptAr:
+            "صِلْ كلّ رابطة أعداد بالمسألة التعليمية المطابقة للكلّ، ثم اكتب الجزأين:",
+          strategyHintAr:
+            "صِلْ كلّ رابطة أعداد بالمسألة التي تحمل الكلّ نفسه واكتب جزأين مناسبين.",
+          params: {
+            matchingMode: "model-to-word-problem",
+            situation: "take-apart",
+            problemStyle: "learning",
+            showProblemSlot: false,
+            rightColumnTitleAr: "رابطة الأعداد",
+            leftColumnTitleAr: "المسألة التعليمية",
+            totalRange: [3, 5],
+            minPart: 1,
+            pairCount: 3,
           },
         },
       ],
@@ -579,24 +486,6 @@ export const lessonK58Blueprint: LessonBlueprint = {
             takeApartMode: "model-fixed",
             action: "trace",
             totalRange: [2, 4],
-            minPart: 1,
-            itemCount: 2,
-          },
-        },
-        {
-          archetype: "SolveWordProblem",
-          promptAr:
-            "اقرأ المسألة القصصية لتحديد الكلّ، ثم اكتب كم يمكن أن يكون في كلّ جزء:",
-          strategyHintAr: "اختر أيّ جزأين يساويان الكلّ واكتبهما في المربّعين.",
-          params: {
-            situation: "take-apart",
-            problemStyle: "story",
-            responseForm: "story-and-slot",
-            representation: "everyday-object",
-            takeApartMode: "open-ended",
-            showModel: false,
-            action: "write",
-            totalRange: [3, 4],
             minPart: 1,
             itemCount: 2,
           },
@@ -683,24 +572,6 @@ export const lessonK58Blueprint: LessonBlueprint = {
             itemCount: 2,
           },
         },
-        {
-          archetype: "SolveWordProblem",
-          promptAr:
-            "اقرأ المسألة القصصية لتحديد الكلّ، ثم اكتب كم يمكن أن يكون في كلّ جزء:",
-          strategyHintAr: "اختر أيّ جزأين يساويان الكلّ واكتبهما في المربّعين.",
-          params: {
-            situation: "take-apart",
-            problemStyle: "story",
-            responseForm: "story-and-slot",
-            representation: "everyday-object",
-            takeApartMode: "open-ended",
-            showModel: false,
-            action: "write",
-            totalRange: [3, 5],
-            minPart: 1,
-            itemCount: 2,
-          },
-        },
       ],
       challenge: [
         {
@@ -776,24 +647,6 @@ export const lessonK58Blueprint: LessonBlueprint = {
             responseForm: "model-and-bond",
             allowedRepresentations: ["five-frame", "snap-cubes"],
             takeApartMode: "model-fixed",
-            action: "write",
-            totalRange: [3, 5],
-            minPart: 1,
-            itemCount: 2,
-          },
-        },
-        {
-          archetype: "SolveWordProblem",
-          promptAr:
-            "اقرأ المسألة القصصية لتحديد الكلّ، ثم اكتب كم يمكن أن يكون في كلّ جزء:",
-          strategyHintAr: "اختر أيّ جزأين يساويان الكلّ واكتبهما في المربّعين.",
-          params: {
-            situation: "take-apart",
-            problemStyle: "story",
-            responseForm: "story-and-slot",
-            representation: "five-frame",
-            takeApartMode: "open-ended",
-            showModel: false,
             action: "write",
             totalRange: [3, 5],
             minPart: 1,

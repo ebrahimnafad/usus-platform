@@ -241,6 +241,12 @@ export interface BuildPartWholeMatchPairsInput {
    * Defaults to ["total"] — WORD PROBLEM MATCH A behavior.
    */
   wordProblemMissingPositions?: Array<"total" | "part2" | "part1">;
+  /**
+   * Position of the unknown in the matched bond/equation column (MATCHING - F
+   * and G fill a Missing Part instead of the Total). Defaults to `"total"`;
+   * non-standard Part positions are gated at the ConnectMatch call site (§6.3).
+   */
+  matchMissingPosition?: "total" | "part2" | "part1";
 }
 
 export const COLOR_PAIRS: Array<[ColorThemeId, ColorThemeId]> = [
@@ -420,6 +426,8 @@ function buildJoinConcreteModel(params: {
   part1: number;
   part2: number;
   action: JoinPartsAction;
+  /** Missing value of this item's response model (frame labels never print it) */
+  unknownPosition: BondMissingPosition;
   primaryTheme: ColorThemeId;
   secondaryTheme: ColorThemeId;
   itemIdx: number;
@@ -430,6 +438,7 @@ function buildJoinConcreteModel(params: {
     part1,
     part2,
     action,
+    unknownPosition,
     primaryTheme,
     secondaryTheme,
     itemIdx,
@@ -438,6 +447,10 @@ function buildJoinConcreteModel(params: {
   const p1Ar = formatEasternNumber(part1);
   const p2Ar = formatEasternNumber(part2);
   const totalAr = formatEasternNumber(total);
+  // §8.1: a Missing Part lives in the response model's AnswerSlot, so any
+  // student-visible frame label must not print the unknown's number.
+  const missingPart2Ar = unknownPosition === "part2" ? p2Ar : "";
+  const missingPart1Ar = unknownPosition === "part1" ? p1Ar : "";
 
   if (
     representation === "ten-frame" ||
@@ -465,7 +478,9 @@ function buildJoinConcreteModel(params: {
         secondaryColorTheme: secondaryTheme,
         showPartOutline: true,
         highlightEmptySlots: true,
-        labelAr: `لوحة العشرة: ارسم ولوّن لإكمال ${p1Ar} و${p2Ar} (الكلّ ${totalAr})`,
+        labelAr: missingPart2Ar
+          ? `لوحة العشرة: ارسم ولوّن لإكمال الكلّ ${totalAr}`
+          : `لوحة العشرة: ارسم ولوّن لإكمال ${p1Ar} و${p2Ar} (الكلّ ${totalAr})`,
       });
     }
 
@@ -476,7 +491,11 @@ function buildJoinConcreteModel(params: {
       secondaryColorTheme: secondaryTheme,
       showPartOutline: true,
       highlightEmptySlots: true,
-      labelAr: `لوحة العشرة: ${p1Ar} و${p2Ar} يساوي ${totalAr}`,
+      labelAr: missingPart1Ar
+        ? `لوحة العشرة: الكلّ ${totalAr} والجزء الثاني ${p2Ar}`
+        : missingPart2Ar
+          ? `لوحة العشرة: الكلّ ${totalAr} والجزء الأول ${p1Ar}`
+          : `لوحة العشرة: ${p1Ar} و${p2Ar} يساوي ${totalAr}`,
     });
   }
 
@@ -486,12 +505,14 @@ function buildJoinConcreteModel(params: {
   ) {
     if (representation === "five-frame-and-digit") {
       return createFiveFrameSpec({
-        count: part1,
+        count: missingPart1Ar ? 0 : part1,
         secondaryCount: 0,
         colorTheme: primaryTheme,
         showPartOutline: true,
         highlightEmptySlots: true,
-        labelAr: `لوحة الخمسة: ${p1Ar} زائد الرقم ${p2Ar}`,
+        labelAr: missingPart1Ar
+          ? `لوحة الخمسة: الكلّ ${totalAr} والجزء الثاني ${p2Ar}`
+          : `لوحة الخمسة: ${p1Ar} زائد الرقم ${p2Ar}`,
       });
     }
 
@@ -506,7 +527,9 @@ function buildJoinConcreteModel(params: {
         secondaryColorTheme: secondaryTheme,
         showPartOutline: true,
         highlightEmptySlots: true,
-        labelAr: `لوحة الخمسة: ارسم ولوّن لإكمال ${p1Ar} و${p2Ar} (الكلّ ${totalAr})`,
+        labelAr: missingPart2Ar
+          ? `لوحة الخمسة: ارسم ولوّن لإكمال الكلّ ${totalAr}`
+          : `لوحة الخمسة: ارسم ولوّن لإكمال ${p1Ar} و${p2Ar} (الكلّ ${totalAr})`,
       });
     }
 
@@ -517,7 +540,11 @@ function buildJoinConcreteModel(params: {
       secondaryColorTheme: secondaryTheme,
       showPartOutline: true,
       highlightEmptySlots: true,
-      labelAr: `لوحة الخمسة: ${p1Ar} و${p2Ar} يساوي ${totalAr}`,
+      labelAr: missingPart1Ar
+        ? `لوحة الخمسة: الكلّ ${totalAr} والجزء الثاني ${p2Ar}`
+        : missingPart2Ar
+          ? `لوحة الخمسة: الكلّ ${totalAr} والجزء الأول ${p1Ar}`
+          : `لوحة الخمسة: ${p1Ar} و${p2Ar} يساوي ${totalAr}`,
     });
   }
 
@@ -909,15 +936,23 @@ export function buildJoinPartsPayload(
     return fact;
   });
 
-  const allowMissingPart =
+  // §6.3: Missing Part unknowns are the K-79+ content line. The standard
+  // missing second Part may appear anywhere from lesson 79 on; the
+  // non-standard missing first Part is an edge case reserved for Advanced or
+  // Challenge (mirroring the ConnectMatch gate).
+  const allowMissingPart2 =
     ctx.sectionId === "challenge" ||
     ctx.difficultyLevel === "Advanced" ||
     ctx.lesson.lessonNumber >= 79;
+  const allowNonStandardPart1 =
+    ctx.sectionId === "challenge" || ctx.difficultyLevel === "Advanced";
   const requestedUnknown = params.unknownPosition ?? "total";
   const resolvedUnknown: "total" | "part1" | "part2" =
-    requestedUnknown !== "total" && allowMissingPart
-      ? requestedUnknown
-      : "total";
+    requestedUnknown === "part2" && allowMissingPart2
+      ? "part2"
+      : requestedUnknown === "part1" && allowNonStandardPart1
+        ? "part1"
+        : "total";
 
   const items: JoinPartsItem[] = facts.map((fact, idx) => {
     const [primaryTheme, secondaryTheme] =
@@ -943,6 +978,7 @@ export function buildJoinPartsPayload(
       part1: fact.part1,
       part2: fact.part2,
       action,
+      unknownPosition: missingPosition,
       primaryTheme,
       secondaryTheme,
       itemIdx: idx,
@@ -1019,19 +1055,34 @@ export function buildJoinPartsPayload(
   const frameNameAr = isTenFrame ? "لوحة العشرة" : "لوحة الخمسة";
 
   const defaultPromptAr =
-    responseForm === "parts-table"
-      ? action === "trace"
-        ? `تتبّع الجزأين والكلّ على ${frameNameAr} وفي جدول الأجزاء والكلّ:`
-        : "عدّ كل جزء في النموذج واكتب الكلّ في جدول الأجزاء والكلّ:"
-      : responseForm === "number-bond"
+    resolvedUnknown !== "total"
+      ? responseForm === "number-bond"
         ? action === "draw-counters"
-          ? `ارسم ولوّن الأقراص لتمثيل الجزأين على ${frameNameAr}، ثم اكتب الكلّ في رابطة الأعداد:`
-          : "استخدم النموذج لإيجاد الكلّ واكتبه في دائرة الكلّ في رابطة الأعداد:"
-        : action === "draw-counters"
-          ? `ارسم ولوّن الأقراص لتمثيل الجزأين على ${frameNameAr}، ثم اكتب الكلّ في المعادلة:`
-          : "أكمل معادلة الجمع من اليمين إلى اليسار باستخدام النموذج:";
+          ? `ارسم الأقراص الناقصة على ${frameNameAr}، ثم اكتب الجزء الناقص في رابطة الأعداد:`
+          : "انظر إلى النموذج، ثم اكتب الجزء الناقص في رابطة الأعداد:"
+        : responseForm === "equation"
+          ? action === "draw-counters"
+            ? `ارسم الأقراص الناقصة على ${frameNameAr}، ثم اكتب الجزء الناقص في المعادلة:`
+            : "انظر إلى النموذج، ثم اكتب الجزء الناقص في المعادلة:"
+          : action === "trace"
+            ? "تتبّع الأجزاء المعطاة، ثم اكتب الجزء الناقص في جدول الأجزاء والكلّ:"
+            : "عدّ الأجزاء المعطاة، ثم اكتب الجزء الناقص في جدول الأجزاء والكلّ:"
+      : responseForm === "parts-table"
+        ? action === "trace"
+          ? `تتبّع الجزأين والكلّ على ${frameNameAr} وفي جدول الأجزاء والكلّ:`
+          : "عدّ كل جزء في النموذج واكتب الكلّ في جدول الأجزاء والكلّ:"
+        : responseForm === "number-bond"
+          ? action === "draw-counters"
+            ? `ارسم ولوّن الأقراص لتمثيل الجزأين على ${frameNameAr}، ثم اكتب الكلّ في رابطة الأعداد:`
+            : "استخدم النموذج لإيجاد الكلّ واكتبه في دائرة الكلّ في رابطة الأعداد:"
+          : action === "draw-counters"
+            ? `ارسم ولوّن الأقراص لتمثيل الجزأين على ${frameNameAr}، ثم اكتب الكلّ في المعادلة:`
+            : "أكمل معادلة الجمع من اليمين إلى اليسار باستخدام النموذج:";
 
-  const defaultStrategyHintAr = `اجمع الجزأين معاً من اليمين إلى اليسار للوصول إلى الكلّ (${factsSummaryAr}).`;
+  const defaultStrategyHintAr =
+    resolvedUnknown !== "total"
+      ? `استخدم الكلّ والجزء المعطى لإيجاد الجزء الناقص (${factsSummaryAr}).`
+      : `اجمع الجزأين معاً من اليمين إلى اليسار للوصول إلى الكلّ (${factsSummaryAr}).`;
 
   const data: JoinPartsData = {
     kind: "JoinParts",
@@ -1340,6 +1391,7 @@ export function buildPartWholeMatchPairs(
     showMissingTotalSlot,
     usedFacts,
     wordProblemMissingPositions,
+    matchMissingPosition,
   } = input;
 
   const minPart =
@@ -1350,6 +1402,22 @@ export function buildPartWholeMatchPairs(
         : difficultyLevel === "Advanced"
           ? 0
           : 1;
+
+  // Unknown position of the matched bond/equation column (§6.3 gating lives at
+  // the ConnectMatch call site): Part positions swap the Easy trace set so a
+  // traced slot never hides the unknown AnswerSlot.
+  const matchUnknown: BondMissingPosition =
+    matchMissingPosition === "part1" || matchMissingPosition === "part2"
+      ? matchMissingPosition
+      : "total";
+  const matchTracePositions: Array<"part1" | "part2"> =
+    difficultyLevel !== "Easy"
+      ? []
+      : matchUnknown === "part1"
+        ? ["part2"]
+        : matchUnknown === "part2"
+          ? ["part1"]
+          : ["part1", "part2"];
 
   const isTakeFromMatch =
     mode === "model-to-word-problem" &&
@@ -1652,8 +1720,7 @@ export function buildPartWholeMatchPairs(
     usedFacts
   );
 
-  const tracePositions: Array<"part1" | "part2"> =
-    difficultyLevel === "Easy" ? ["part1", "part2"] : [];
+  const tracePositions: Array<"part1" | "part2"> = matchTracePositions;
 
   if (mode === "model-to-word-problem") {
     const scenePool = getStoryScenesForSituation(situation);
@@ -1800,7 +1867,7 @@ export function buildPartWholeMatchPairs(
               part1: fact.part1,
               part2: fact.part2,
               total: fact.total,
-              missingPosition: "total",
+              missingPosition: matchUnknown,
               tracePositions,
             })
           : mode === "five-frame-to-equation" ||
@@ -1809,7 +1876,7 @@ export function buildPartWholeMatchPairs(
                 part1: fact.part1,
                 part2: fact.part2,
                 total: fact.total,
-                missingPosition: "total",
+                missingPosition: matchUnknown,
                 tracePositions,
               })
             : createDigitCardSpec(fact.total, {

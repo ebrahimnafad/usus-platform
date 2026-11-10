@@ -62,3 +62,4 @@ import "@/blueprints/grade-k/lessons-k75-to-k77";
 import "@/blueprints/grade-k/lessons-k74-k78-to-k80";
 import "@/blueprints/grade-k/lessons-k81-to-k83";
 import "@/blueprints/grade-k/lessons-k84-to-k85";
+import "@/blueprints/grade-k/lessons-k86-to-k88";
