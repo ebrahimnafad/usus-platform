@@ -253,6 +253,7 @@ export function FiveFrameSvg({
               height={cellHeight}
               fill="transparent"
               stroke="none"
+              data-rtl-cell-box="true"
             />
 
             {/* Vertical Cell Divider */}
@@ -991,6 +992,7 @@ export function TenFrameSvg({
               height={cellHeight}
               fill="transparent"
               stroke="none"
+              data-rtl-cell-box="true"
             />
 
             {/* Vertical Cell Divider */}

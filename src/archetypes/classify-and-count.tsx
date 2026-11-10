@@ -483,9 +483,9 @@ function renderClassifyAndCountExercise({
           return (
             <div
               key={group.groupId}
-              className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-2 py-0.5 shadow-2xs"
+              className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-0.5 py-0.5 shadow-2xs"
             >
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-0.5">
                 <VisualModelView
                   model={group.sampleModel}
                   solved={isAnswerKey}

@@ -12,6 +12,43 @@ import { fileURLToPath } from "url";
 const require = createRequire(import.meta.url);
 const LIB_DIR = path.dirname(fileURLToPath(import.meta.url));
 export const ROOT = path.resolve(LIB_DIR, "..", "..");
+const PRINT_FONTS = JSON.parse(
+  fs.readFileSync(path.join(ROOT, "src", "config", "print-fonts.json"), "utf8")
+);
+export const PRINT_FONT_STYLESHEET = PRINT_FONTS.stylesheetHref;
+export const PRINT_FONT_FAMILIES = PRINT_FONTS.families;
+
+export async function waitForPrintFonts(page) {
+  await page.waitForFunction(
+    (href) =>
+      Array.from(document.querySelectorAll('link[rel="stylesheet"]')).some(
+        (link) => link.href === href && link.sheet
+      ),
+    PRINT_FONT_STYLESHEET
+  );
+  await page.evaluate(async (families) => {
+    await Promise.all(
+      families.map((family) =>
+        document.fonts.load(
+          `400 16px "${family}"`,
+          family === "Cairo" ? "الروضة" : "Worksheet"
+        )
+      )
+    );
+    await document.fonts.ready;
+
+    const loadedFamilies = new Set(
+      Array.from(document.fonts)
+        .filter((font) => font.status === "loaded")
+        .map((font) => font.family.replaceAll('"', ""))
+    );
+    for (const family of families) {
+      if (!loadedFamilies.has(family)) {
+        throw new Error(`Required print font "${family}" did not load`);
+      }
+    }
+  }, PRINT_FONT_FAMILIES);
+}
 
 export const RENDER_SEEDS = ["LG-A1", "LG-B2", "LG-C3", "LG-D4", "LG-E5"];
 export const RENDER_MODES = ["scaffolded", "Easy", "Intermediate", "Advanced"];
@@ -117,7 +154,7 @@ export async function createPrintHarness() {
       });
       res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
       res.end(
-        `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"/><style>${compiledCss}</style></head><body class="min-h-screen bg-slate-100 text-slate-900 antialiased">${mainHtml}</body></html>`
+        `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"/><link rel="stylesheet" href="${PRINT_FONTS.stylesheetHref}"/><style>${compiledCss}</style></head><body class="min-h-screen bg-slate-100 text-slate-900 antialiased">${mainHtml}</body></html>`
       );
     } catch (err) {
       res.writeHead(500, { "Content-Type": "text/plain; charset=utf-8" });

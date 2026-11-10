@@ -1,5 +1,6 @@
 import React from "react";
 import type { Metadata } from "next";
+import printFonts from "@/config/print-fonts.json";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -22,10 +23,7 @@ export default function RootLayout({
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Readex+Pro:wght@400;600;700&display=swap"
-          rel="stylesheet"
-        />
+        <link href={printFonts.stylesheetHref} rel="stylesheet" />
       </head>
       <body className="min-h-screen bg-slate-100 text-slate-900 antialiased">
         {children}

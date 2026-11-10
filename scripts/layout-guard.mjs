@@ -3,7 +3,7 @@
 //
 // Usage: node scripts/layout-guard.mjs [--base-url=http://localhost:3000]
 //          [--lessons=K-1..K-26|K-12,K-20] [--seeds=5] [--png=all|first|none]
-//          [--concurrency=4]
+//          [--concurrency=4] [--output-dir=<new-path>]
 
 import { execFile, execFileSync, spawn } from "child_process";
 import fs from "fs";
@@ -20,6 +20,7 @@ import {
   RENDER_MODES as MODES,
   RENDER_SEEDS as SEEDS,
   RENDER_VIEWS as VIEWS,
+  waitForPrintFonts,
 } from "./lib/print-measure.mjs";
 
 const execFileAsync = promisify(execFile);
@@ -31,7 +32,7 @@ const STANDARD = JSON.parse(
     "utf8"
   )
 );
-const OUTPUT_DIR = path.join(ROOT, "layout-guard-output");
+const DEFAULT_OUTPUT_DIR = path.join(ROOT, "layout-guard-output");
 const PORT = 3355;
 
 const GRADES = ["K", "1", "2", "3", "4", "5"];
@@ -60,6 +61,7 @@ function parseArgs(argv) {
   return {
     baseUrl: args["base-url"],
     lessons: args.lessons,
+    outputDir: args["output-dir"],
     seedCount: Math.min(SEEDS.length, Math.max(1, Number(args.seeds ?? 5))),
     png: pngMode,
     concurrency: Math.max(1, Number(args.concurrency ?? defaultConcurrency)),
@@ -437,7 +439,7 @@ function measureSheet(std) {
       sizes.answerSlotLine,
       "Answer Slot line",
     ],
-    ["[data-rtl-cell]", sizes.fiveFrameCell, "five-frame cell"],
+    ["[data-rtl-cell-box]", sizes.fiveFrameCell, "five-frame cell"],
     [
       '[data-visual-model="five-frame"]',
       { width: sizes.fiveFrameWidth },
@@ -682,6 +684,9 @@ function findPdftoppm() {
 
 async function main() {
   const options = parseArgs(process.argv);
+  const OUTPUT_DIR = options.outputDir
+    ? path.resolve(options.outputDir)
+    : DEFAULT_OUTPUT_DIR;
   let server = null;
   let harness = null;
   let renderPrintMain = null;
@@ -735,15 +740,23 @@ async function main() {
     `Checking ${lessons.length} lessons × ${seeds.length} seeds × ${MODES.length} modes × ${VIEWS.length} views = ${jobs.length} renders\n`
   );
 
-  try {
-    fs.rmSync(OUTPUT_DIR, {
-      recursive: true,
-      force: true,
-      maxRetries: 3,
-      retryDelay: 200,
-    });
-  } catch {
-    // Directory may be open in Explorer on Windows; overwrite files in place
+  if (options.outputDir) {
+    if (fs.existsSync(OUTPUT_DIR)) {
+      throw new Error(
+        `Custom output directory already exists; choose a new path: ${OUTPUT_DIR}`
+      );
+    }
+  } else {
+    try {
+      fs.rmSync(OUTPUT_DIR, {
+        recursive: true,
+        force: true,
+        maxRetries: 3,
+        retryDelay: 200,
+      });
+    } catch {
+      // Directory may be open in Explorer on Windows; overwrite files in place
+    }
   }
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 
@@ -751,7 +764,16 @@ async function main() {
   const context = await browser.newContext({
     viewport: { width: 794, height: 1123 },
   });
-  await context.route("https://**", (route) => route.abort());
+  await context.route("https://**", (route) => {
+    const hostname = new URL(route.request().url()).hostname;
+    if (
+      hostname === "fonts.googleapis.com" ||
+      hostname === "fonts.gstatic.com"
+    ) {
+      return route.continue();
+    }
+    return route.abort();
+  });
   const pages = await Promise.all(
     Array.from({ length: options.concurrency }, async () => {
       const p = await context.newPage();
@@ -761,18 +783,16 @@ async function main() {
       });
       await p.emulateMedia({ media: "print" });
       await p.addStyleTag({ content: PRINT_WIDTH_CSS });
-      await p.evaluate(() => document.fonts.ready);
+      await waitForPrintFonts(p);
       return p;
     })
   );
 
   const results = [];
-  const pdfCache = new Map();
   let done = 0;
   await runPool(jobs, options.concurrency, async (job, slot) => {
     const page = pages[slot];
     const id = `${job.grade}-${job.lesson}`;
-    const cacheKey = `${id}|${job.mode}|${job.view}`;
     const violations = [];
     let pageCount = 0;
     let sheetHeight = null;
@@ -797,6 +817,7 @@ async function main() {
           }
         }, html);
       }
+      await page.evaluate(() => document.fonts.ready);
       violations.push(...(await page.evaluate(measureSheet, STANDARD)));
 
       sheetHeight = await page.evaluate(() => {
@@ -805,20 +826,14 @@ async function main() {
         );
         return s ? Math.round(s.getBoundingClientRect().height) : 0;
       });
-      const cached = pdfCache.get(cacheKey);
       const wantPng =
         options.png !== "none" &&
         (options.png === "all" || job.seed === seeds[0]);
 
-      if (!cached || sheetHeight > cached.sheetHeight || wantPng) {
-        const pdf = Buffer.from(await page.pdf(PDF_OPTS));
-        pageCount = countPdfPages(pdf);
-        if (!cached || sheetHeight > cached.sheetHeight) {
-          pdfCache.set(cacheKey, { pageCount, sheetHeight });
-        }
-      } else {
-        pageCount = cached.pageCount;
-      }
+      // Avoid caching by sheet height: fragmentation can change at an equal or
+      // smaller height when a break-inside-avoid exercise crosses a page edge.
+      const pdf = Buffer.from(await page.pdf(PDF_OPTS));
+      pageCount = countPdfPages(pdf);
 
       if (pageCount > STANDARD.pageBudget) {
         violations.push({
@@ -919,7 +934,7 @@ async function main() {
     )
   );
   process.stdout.write(
-    `\n${failing.length === 0 ? "PASS" : "FAIL"}: ${failing.length}/${results.length} renders violate the constitution. Details: layout-guard-output/report.json\n`
+    `\n${failing.length === 0 ? "PASS" : "FAIL"}: ${failing.length}/${results.length} renders violate the constitution. Details: ${path.join(OUTPUT_DIR, "report.json")}\n`
   );
   process.exit(failing.length === 0 ? 0 : 1);
 }

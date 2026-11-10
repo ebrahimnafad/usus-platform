@@ -186,6 +186,7 @@ describe("Ticket 06 — Secondary Seam: Headless Browser A4 PDF Exporter & /api/
     expect(printDoc.html).toContain("margin: 0");
     expect(printDoc.html).toContain("print-color-adjust: exact");
     expect(printDoc.html).toContain("break-inside: avoid");
+    expect(printDoc.html).toContain("fonts.googleapis.com/css2?family=Cairo");
     expect(findWesternNumeralsInRenderedHtml(printDoc.html)).toEqual([]);
 
     // 2. Headless browser PDF export for Worksheet
@@ -206,24 +207,31 @@ describe("Ticket 06 — Secondary Seam: Headless Browser A4 PDF Exporter & /api/
     expect(worksheetPdf.filename).toBe("worksheet-K-1-PDF-2026-worksheet.pdf");
 
     // 3. Headless browser PDF export for Answer Key via GET /api/pdf route handler
-    const request = new Request(
-      "http://localhost:3000/api/pdf?grade=K&lesson=1&seed=PDF-2026&difficulty=scaffolded&view=answer-key"
-    );
-    const response = await GET(request);
-    expect(response.status).toBe(200);
-    expect(response.headers.get("Content-Type")).toBe("application/pdf");
-    expect(response.headers.get("Content-Disposition")).toContain(
-      "worksheet-K-1-PDF-2026-answer-key.pdf"
-    );
+    const { createPrintHarness } =
+      await import("../scripts/lib/print-measure.mjs");
+    const harness = await createPrintHarness();
+    try {
+      const request = new Request(
+        `${harness.baseUrl}/api/pdf?grade=K&lesson=1&seed=PDF-2026&difficulty=scaffolded&view=answer-key`
+      );
+      const response = await GET(request);
+      expect(response.status).toBe(200);
+      expect(response.headers.get("Content-Type")).toBe("application/pdf");
+      expect(response.headers.get("Content-Disposition")).toContain(
+        "worksheet-K-1-PDF-2026-answer-key.pdf"
+      );
 
-    const arrayBuffer = await response.arrayBuffer();
-    const routePdfBuffer = Buffer.from(arrayBuffer);
-    expect(routePdfBuffer.subarray(0, 5).toString("ascii")).toBe("%PDF-");
-    expect(routePdfBuffer.byteLength).toBeGreaterThan(5000);
-    const pageCountHeader = Number(response.headers.get("X-PDF-Page-Count"));
-    expect(pageCountHeader).toBeGreaterThanOrEqual(1);
-    expect(response.headers.get("X-PDF-Within-Page-Budget")).toBe(
-      String(pageCountHeader <= 2)
-    );
+      const arrayBuffer = await response.arrayBuffer();
+      const routePdfBuffer = Buffer.from(arrayBuffer);
+      expect(routePdfBuffer.subarray(0, 5).toString("ascii")).toBe("%PDF-");
+      expect(routePdfBuffer.byteLength).toBeGreaterThan(5000);
+      const pageCountHeader = Number(response.headers.get("X-PDF-Page-Count"));
+      expect(pageCountHeader).toBeGreaterThanOrEqual(1);
+      expect(response.headers.get("X-PDF-Within-Page-Budget")).toBe(
+        String(pageCountHeader <= 2)
+      );
+    } finally {
+      harness.close();
+    }
   }, 120_000); // Playwright + Edge startup needs headroom; 60 s was the cliff edge
 });

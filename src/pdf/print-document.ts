@@ -5,6 +5,7 @@ import type {
 } from "@/domain/types";
 import { generateWorksheet } from "@/engine/worksheet-engine";
 import { WorksheetSurface } from "@/components/worksheet/WorksheetSurface";
+import printFonts from "@/config/print-fonts.json";
 
 export type PrintableViewMode = "worksheet" | "answer-key";
 
@@ -231,6 +232,7 @@ export async function buildPrintCleanA4Html(
 <html lang="ar">
 <head>
   <meta charset="utf-8" />
+  <link rel="stylesheet" href="${printFonts.stylesheetHref}" />
   <style>${PRINT_CLEAN_A4_CSS}</style>
   <!-- Tailwind CDN guarantees fallback path matches live /print route styling -->
   <script src="https://cdn.tailwindcss.com"></script>

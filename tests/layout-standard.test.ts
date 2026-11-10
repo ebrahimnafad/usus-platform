@@ -26,6 +26,8 @@ vi.mock("playwright", () => ({
         emulateMedia: async () => undefined,
         goto: async () => ({ ok: () => true }),
         setContent: async () => undefined,
+        waitForSelector: async () => undefined,
+        waitForFunction: async () => undefined,
         evaluate: async () => undefined,
         pdf: async () => {
           const pages = Array.from(

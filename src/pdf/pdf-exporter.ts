@@ -1,5 +1,6 @@
-import { chromium, type Browser } from "playwright";
+import { chromium, type Browser, type Page } from "playwright";
 import type { GradeId, WorksheetDifficultyMode } from "@/domain/types";
+import printFonts from "@/config/print-fonts.json";
 import {
   buildPrintCleanA4Html,
   type PrintCleanA4Document,
@@ -68,6 +69,31 @@ async function launchHeadlessBrowser(): Promise<Browser> {
   }
 }
 
+async function waitForPrintFonts(page: Page): Promise<void> {
+  await page.evaluate(async (families) => {
+    await Promise.all(
+      families.map((family) =>
+        document.fonts.load(
+          `400 16px "${family}"`,
+          family === "Cairo" ? "الروضة" : "Worksheet"
+        )
+      )
+    );
+    await document.fonts.ready;
+
+    const loadedFamilies = new Set(
+      Array.from(document.fonts)
+        .filter((font) => font.status === "loaded")
+        .map((font) => font.family.replaceAll('"', ""))
+    );
+    for (const family of families) {
+      if (!loadedFamilies.has(family)) {
+        throw new Error(`Required print font "${family}" did not load`);
+      }
+    }
+  }, printFonts.families);
+}
+
 /**
  * Secondary Seam — Renders a Worksheet or Answer Key via Playwright (headless Chromium / msedge)
  * with a named A4 portrait page (`worksheet-page`), running margin boxes, and
@@ -87,33 +113,47 @@ export async function exportWorksheetPdf(
 
     await page.emulateMedia({ media: "print" });
 
-    let loadedFromUrl = false;
     if (input.baseUrl) {
-      try {
-        const params = new URLSearchParams({
-          grade: input.grade,
-          lesson: String(input.lessonNumber),
-          seed: doc.bundle.seed,
-          difficulty: doc.bundle.difficultyMode,
-          view: doc.viewMode,
-        });
-        const printUrl = `${input.baseUrl.replace(/\/$/, "")}/print?${params.toString()}`;
-        const resp = await page.goto(printUrl, {
-          waitUntil: "networkidle",
-          timeout: 5000,
-        });
-        loadedFromUrl = Boolean(resp && resp.ok());
-      } catch {
-        loadedFromUrl = false;
-        await page.goto("about:blank").catch(() => undefined);
+      const params = new URLSearchParams({
+        grade: input.grade,
+        lesson: String(input.lessonNumber),
+        seed: doc.bundle.seed,
+        difficulty: doc.bundle.difficultyMode,
+        view: doc.viewMode,
+      });
+      const printUrl = `${input.baseUrl.replace(/\/$/, "")}/print?${params.toString()}`;
+      const response = await page.goto(printUrl, {
+        waitUntil: "domcontentloaded",
+      });
+      if (!response?.ok()) {
+        throw new Error(
+          `Printable worksheet route failed: ${response?.status() ?? "no response"} (${printUrl})`
+        );
       }
-    }
-
-    if (loadedFromUrl) {
-      await page.evaluate(() => document.fonts?.ready);
+      await page.waitForSelector('.a4-sheet[data-worksheet-surface="true"]', {
+        state: "attached",
+      });
+      await page.waitForFunction(
+        (href) =>
+          Array.from(
+            document.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]')
+          ).some((link) => link.href === href && link.sheet),
+        printFonts.stylesheetHref
+      );
+      await waitForPrintFonts(page);
     } else {
       await page.setContent(doc.html, { waitUntil: "domcontentloaded" });
-      await page.evaluate(() => document.fonts?.ready);
+      await page.waitForSelector('.a4-sheet[data-worksheet-surface="true"]', {
+        state: "attached",
+      });
+      await page.waitForFunction(
+        (href) =>
+          Array.from(
+            document.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]')
+          ).some((link) => link.href === href && link.sheet),
+        printFonts.stylesheetHref
+      );
+      await waitForPrintFonts(page);
     }
 
     // Always full scale (ADR-0013): every standardized size prints at its

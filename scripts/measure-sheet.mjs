@@ -26,6 +26,7 @@ import {
   RENDER_VIEWS,
   ROOT,
   VIEWPORT,
+  waitForPrintFonts,
 } from "./lib/print-measure.mjs";
 
 const STANDARD = JSON.parse(
@@ -92,7 +93,16 @@ async function main() {
   const harness = await createPrintHarness();
   const browser = await chromium.launch({ channel: "msedge", headless: true });
   const context = await browser.newContext({ viewport: VIEWPORT });
-  await context.route("https://**", (route) => route.abort());
+  await context.route("https://**", (route) => {
+    const hostname = new URL(route.request().url()).hostname;
+    if (
+      hostname === "fonts.googleapis.com" ||
+      hostname === "fonts.gstatic.com"
+    ) {
+      return route.continue();
+    }
+    return route.abort();
+  });
   const page = await context.newPage();
   await page.goto(`${harness.baseUrl}/print?grade=K&lesson=1&seed=LG-WARM`, {
     waitUntil: "domcontentloaded",
@@ -100,7 +110,7 @@ async function main() {
   });
   await page.emulateMedia({ media: "print" });
   await page.addStyleTag({ content: PRINT_WIDTH_CSS });
-  await page.evaluate(() => document.fonts.ready);
+  await waitForPrintFonts(page);
 
   for (const job of jobs) {
     const label = `K-${job.lesson} ${job.seed} ${job.mode} ${job.view}`;
