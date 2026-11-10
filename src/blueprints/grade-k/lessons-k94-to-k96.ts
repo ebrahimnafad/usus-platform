@@ -313,7 +313,7 @@ export const lessonK95Blueprint: LessonBlueprint = {
           params: {
             representation: "ten-frame",
             responseForm: "number-bond",
-            action: "write",
+            action: "trace",
             crossOffMode: "shown",
             totalRange: [6, 8],
             minPart: 1,
@@ -590,7 +590,7 @@ export const lessonK96Blueprint: LessonBlueprint = {
           params: {
             representation: "ten-frame",
             responseForm: "equation",
-            action: "write",
+            action: "trace",
             crossOffMode: "shown",
             totalRange: [6, 8],
             minPart: 1,

@@ -525,6 +525,8 @@ describe("Ticket 03 (Unit 8) — Slice 2: K-95 subitize subtraction number bonds
     expect(warmUpData.kind).toBe("TakeAway");
     expect(warmUpData.representation).toBe("ten-frame-and-digit");
     expect(warmUpData.responseForm).toBe("answer-slot");
+    // §6.2: the Easy warm-up (drawn from K-94's Easy tier) traces
+    expect(warmUpData.action).toBe("trace");
 
     // §5.2 anatomy: Warm-Up 1, Practice 2, Challenge 2
     expect(generated.worksheet.sections.map((s) => s.exercises.length)).toEqual(
@@ -751,6 +753,8 @@ describe("Ticket 03 (Unit 8) — Slice 3: K-96 subitize subtraction equations", 
       .data as TakeAwayData;
     expect(warmUpData.kind).toBe("TakeAway");
     expect(warmUpData.responseForm).toBe("number-bond");
+    // §6.2: the Easy warm-up (drawn from K-95's Easy tier) traces, not writes
+    expect(warmUpData.action).toBe("trace");
 
     // §5.2 anatomy: Warm-Up 1, Practice 2, Challenge 2
     expect(generated.worksheet.sections.map((s) => s.exercises.length)).toEqual(
