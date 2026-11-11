@@ -13,10 +13,21 @@
 
 **Blocked by:** None (K-89's prereq K-64 and K-90's prereq K-66 are both in Unit 6, already authored)
 
-**Status:** needs-triage
+**Status:** resolved
 
-- [ ] `Digicross` archetype created with SVG rendering, answer-key accent fills, and Strategy Hints
-- [ ] Constitution §3.4 updated with `Digicross Grid (324 × 212 px)` and amendment log entry added
-- [ ] Localized Arabic titles, Teacher Notes, and blueprints registered for K-89 and K-90
-- [ ] Domain test: every Digicross grid has exactly one solution; each line is a valid consecutive sequence
-- [ ] Layout guard passes for `--lessons=K-89,K-90 --seeds=2`
+- [x] `Digicross` archetype created with SVG rendering, answer-key accent fills, and Strategy Hints
+- [x] Constitution §3.4 updated with `Digicross Grid (324 × 212 px)` and amendment log entry added
+- [x] Localized Arabic titles, Teacher Notes, and blueprints registered for K-89 and K-90
+- [x] Domain test: every Digicross grid has exactly one solution; each line is a valid consecutive sequence
+- [x] Layout guard passes for `--lessons=K-89,K-90 --seeds=2`
+
+## Comments
+
+### 2026-11-11 — verification (agent)
+
+- `Digicross` archetype at `src/archetypes/digicross.tsx` — SVG rendering, answer-key accent fills, Strategy Hints. Domain test asserts every 3×3 grid has exactly one solution and every row/column is a valid consecutive sequence (`tests/ticket-01-unit-8-picture-graphs-count-backward-digicross-k89-k90.test.ts`, 10/10 passing).
+- Constitution §3.4 row `Digicross Grid | 324 × 212 px` landed in e0f3b85; the dated amendment-log entry required by §1.3 was missing and is added alongside this flip (commit verification pass).
+- K-89/K-90 blueprints, Arabic titles, and Teacher Notes registered (`src/blueprints/grade-k/lessons-k89-to-k90.ts`, `src/curriculum/arabic-localization.ts`); warm-ups resolve from K-64 and K-66 per the spec.
+- Full `test:fast` in this session: 49 files / 328 tests passing; typecheck and numeral linter clean.
+- Layout guard `--lessons=K-89,K-90 --seeds=2` (run in this session): PASS, 0/32 violations, max pages 4 (K-89) / 3 (K-90).
+- Commits: e0f3b85 (implementation), this commit (amendment-log fix + status flip). Per §12, the user PNG/Arabic review happens once at batch close (ticket 04).

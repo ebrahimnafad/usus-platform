@@ -173,3 +173,4 @@ A batch closes when all of these hold:
 - 2026-11-08: §12 scopes per-ticket layout guard runs to the ticket's own lessons (`--lessons=<ticket-range>`), reserving the full all-lessons guard sweep for once at batch close.
 - 2026-11-08: For Grade K Unit 6 (Numbers to 10, length measurement, and polygon perimeter): §3.4 adds Ten-frame (`240 × 108 px` with 48 px cells), Paper-Clip Bar (`312 × 56 px`), and Polygon Perimeter (`212 × 160 px`) canonical sizes; §9.4 adds the imperatives `قِسْ` and `رتّب`.
 - 2026-11-09: For Grade K Unit 7 (Add to 10): §3.4 adds Numtanga Grid (`324 × 212 px`) canonical size per §3.5 and §10.1.
+- 2026-11-11: Added Digicross Grid (`324 × 212 px`) to §3.4 canonical sizes per §3.5 and §10.1.
