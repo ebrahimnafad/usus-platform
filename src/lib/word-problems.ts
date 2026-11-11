@@ -129,9 +129,12 @@ export interface WordProblemStoryScene {
 }
 
 export function formatValidTakeApartPairsAr(total: number): string {
-  const clamped = Math.max(2, Math.min(5, total));
+  // Unit 5 pinned the full enumeration for totals ≤ 5 (mirrored pairs kept);
+  // totals 6–10 list each unordered pair once to keep the summary readable.
+  const clamped = Math.max(2, Math.min(10, total));
+  const minP1 = clamped <= 5 ? 1 : Math.ceil(clamped / 2);
   const pairs: string[] = [];
-  for (let p1 = clamped - 1; p1 >= 1; p1--) {
+  for (let p1 = clamped - 1; p1 >= minP1; p1--) {
     const p2 = clamped - p1;
     pairs.push(`${formatEasternNumber(p1)} و${formatEasternNumber(p2)}`);
   }

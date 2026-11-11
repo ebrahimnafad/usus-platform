@@ -21,7 +21,7 @@
 
 **Blocked by:** Ticket 03 (K-97's warm-up draws from K-96)
 
-**Status:** needs-triage
+**Status:** claimed
 
 - [ ] Localized Arabic titles, Teacher Notes, and blueprints registered for K-97 and K-98
 - [ ] Take-apart exercises correctly accept any valid Part pair
