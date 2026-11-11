@@ -321,7 +321,7 @@ function generateModelCountAndTraceExercise(
   const numbersListAr = items.map((i) => i.targetNumberAr).join("، ");
   const defaultPromptAr =
     ctx.difficultyLevel === "Easy"
-      ? `عدّ العناصر ومثّل العدد، ثم تتبّع الرقم المنقّط بدءاً من النقطة الخضراء باتجاه السهم (${numbersListAr}):`
+      ? `عدّ الصور ومثّل العدد، ثم تتبّع الرقم المنقّط بدءاً من النقطة الخضراء باتجاه السهم (${numbersListAr}):`
       : ctx.difficultyLevel === "Intermediate"
         ? `عدّ المجموعات ولاحظ الأجزاء التي تكوّن الكل، ثم تتبّع الأرقام واكتبها (${numbersListAr}):`
         : `مثّل الأعداد (${numbersListAr}) بالاعتماد على الأجزاء والكل، وتتبّع كل رقم واكتبه في المربع المخصّص:`;

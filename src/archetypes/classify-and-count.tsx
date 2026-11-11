@@ -319,7 +319,7 @@ function generateClassifyAndCountExercise(
         )}) أكبر من كل جزء؟`
       : variationMode === "vary-orientation"
         ? `هل يتغيّر نوع «${targetGroup.labelAr}» عندما نقوم بتدويره أو قلبه؟ وأي جزء عدده أكبر؟`
-        : `أي جزء يحتوي على عناصر أكثر؟ وأي جزء يحتوي على عناصر أقل؟ وهل الكلّ (${formatEasternNumber(
+        : `أي جزء يحتوي على أشياء أكثر؟ وأي جزء يحتوي على أشياء أقل؟ وهل الكلّ (${formatEasternNumber(
             totalCount
           )}) أكبر من كل جزء؟`;
 
@@ -362,7 +362,7 @@ function generateClassifyAndCountExercise(
           }» في كل الاتجاهات (${formatEasternNumber(
             targetGroup.count
           )}) ثم قارن الأجزاء بالكل (${formatEasternNumber(totalCount)}).`
-        : `افرز العناصر المتماثلة في النوع واللون إلى أجزاء (${groups
+        : `افرز الأشكال المتماثلة في النوع واللون إلى أجزاء (${groups
             .map((g) => `${g.labelAr}: ${formatEasternNumber(g.count)}`)
             .join(
               "، "
@@ -418,7 +418,7 @@ function renderClassifyAndCountExercise({
               </strong>
             </span>
             <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
-              إجمالي العناصر: {formatEasternNumber(data.totalCount)}
+              إجمالي الأشياء: {formatEasternNumber(data.totalCount)}
             </span>
           </div>
 
@@ -521,7 +521,7 @@ function renderClassifyAndCountExercise({
               الكلّ
             </div>
             <div className="text-[13px] font-black leading-tight text-indigo-950">
-              جميع العناصر
+              جميع الأشياء
             </div>
           </div>
 

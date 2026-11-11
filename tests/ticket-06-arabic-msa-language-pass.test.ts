@@ -55,6 +55,12 @@ const AVOIDED_FORMS: Array<{
     use: "لوحة العشرة / مشبك الورق / الضلع / المحيط",
     minLessonNumber: 59,
   },
+  {
+    pattern: /عناصر|عنصر/,
+    term: "Items (child-facing)",
+    use: "قطع / صور / أشياء / أقراص",
+    minLessonNumber: 99,
+  },
 ];
 
 /**
@@ -87,6 +93,7 @@ const APPROVED_IMPERATIVES = [
   "اجمع",
   "قِسْ",
   "رتّب",
+  "حوّط",
 ];
 
 const authoredLessons = listAuthoredLessonBlueprints()

@@ -380,8 +380,8 @@ function generatePictureGraphReadExercise(
   const defaultPromptAr = isDrawMissing
     ? "ارسم الأشكال الناقصة في كل صفّ، ثم عدّ لتتأكد أن التمثيل البياني يطابق الجدول:"
     : responseMode === "write"
-      ? `اقرأ التمثيل البياني ${orientationWordAr} بالصور، وعدّ عناصر كل فئة ثم اكتب الرقم من ذاكرتك وقارن بين الفئات:`
-      : `اقرأ التمثيل البياني ${orientationWordAr} بالصور، وعدّ عناصر كل فئة ثم تتبّع الرقم واكتبه وقارن (١ أكثر / ١ أقل / نفس العدد):`;
+      ? `اقرأ التمثيل البياني ${orientationWordAr} بالصور، وعدّ صور كل فئة ثم اكتب الرقم من ذاكرتك وقارن بين الفئات:`
+      : `اقرأ التمثيل البياني ${orientationWordAr} بالصور، وعدّ صور كل فئة ثم تتبّع الرقم واكتبه وقارن (١ أكثر / ١ أقل / نفس العدد):`;
 
   const countsBreakdownAr = categories
     .map((c) => `${c.labelAr}: ${c.countAr}`)

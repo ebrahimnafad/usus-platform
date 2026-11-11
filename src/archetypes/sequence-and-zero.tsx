@@ -172,7 +172,7 @@ function defaultStepNoteAr(
       return "لم يتبقَّ أي عنصر (صفر = ٠)";
     }
     if (stepIndex === 0) {
-      return `البداية: ${formatEasternNumber(value)} عناصر`;
+      return `البداية: ${formatEasternNumber(value)} أشياء`;
     }
     return `نأخذ ١ فيبقى ${formatEasternNumber(value)}`;
   }
@@ -356,7 +356,7 @@ function generateSequenceAndZeroExercise(
 
   const defaultPromptAr =
     sequenceMode === "zero-take-away"
-      ? `تتبّع قصة أخذ العناصر واحداً تلو الآخر على لوحة الخمسة، وتتبّع الرقم المنقّط (٠) واكتب الأعداد المتبقية:`
+      ? `تتبّع قصة أخذ الأشياء واحداً تلو الآخر على لوحة الخمسة، وتتبّع الرقم المنقّط (٠) واكتب الأعداد المتبقية:`
       : sequenceMode === "backward"
         ? `عدّ تنازلياً من اليمين إلى اليسار (١ أقل في كل خطوة)، ثم تتبّع واكتب الأعداد المفقودة في التسلسل:`
         : `عدّ تصاعدياً من اليمين إلى اليسار (١ أكثر في كل خطوة)، ثم تتبّع واكتب الأعداد المفقودة في التسلسل:`;
@@ -402,7 +402,7 @@ function generateSequenceAndZeroExercise(
     sourceLessonId: ctx.sourceLessonId,
     titleAr:
       sequenceMode === "zero-take-away"
-        ? "العدد صفر (٠) وشطب العناصر"
+        ? "العدد صفر (٠) وشطب الأشياء"
         : sequenceMode === "backward"
           ? "العدّ التنازلي من ٥ (١ أقل)"
           : "العدّ التصاعدي حتى ٥ (١ أكثر)",

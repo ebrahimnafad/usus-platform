@@ -10,6 +10,20 @@ Each rule names its enforcement:
 - **[test]**: a Vitest test fails.
 - **[review]**: checked in code review and by the user before a batch closes.
 
+## 0. Pedagogical foundation
+
+0.1 The platform's mathematical pedagogy follows three core principles (ADR-0015): **see before you count**, **group to know**, **extras tell the story**. Every Visual Model is designed for the child to perceive structure first; counting is a later, explicit step, never the default action on a perceptual model.
+
+0.2 The **perception ladder** governs how a child engages with a Visual Model, from least to most abstract. **[review]**
+
+| Rung     | Child action                                     | Prompt imperative         | Example exercises                            |
+| -------- | ------------------------------------------------ | ------------------------- | -------------------------------------------- |
+| Perceive | See, compare, spot extras without counting       | `انظر`                    | Compare-only (linear or ten-frame), subitize |
+| Group    | Anchor to 5 or 10, decompose sub-groups visually | `انظر`                    | Subitize Ten Frames, Dice Patterns           |
+| Count    | Count items and write a number                   | `عدّ` or `انظر...ثم اكتب` | Count-and-trace, quantify-and-compare        |
+
+A Perceive or Group exercise never opens with `عدّ`. A Count exercise may open with `عدّ` or `انظر...ثم اكتب`. When both looking and counting are required in one prompt, `انظر` comes first, `ثم اكتب العدد` follows.
+
 ## 1. Scope, precedence, amendments
 
 1.1 This constitution governs math Worksheets and Answer Keys for all grades. Reading worksheets are out of scope.
@@ -96,7 +110,7 @@ Each rule names its enforcement:
 
 6.1 **Difficulty Mode** is Scaffolded (Easy → Intermediate → Advanced across the three Sections) or one Difficulty Level held across all Sections. **[test]**
 
-6.2 Difficulty Levels follow concrete → pictorial → abstract: **[review]**
+6.2 Difficulty Levels follow concrete → pictorial → abstract, and within each level the perception ladder (§0.2) determines whether the child perceives, groups, or counts: **[review]**
 
 | Level        | Number range                     | Model                     | Response                       |
 | ------------ | -------------------------------- | ------------------------- | ------------------------------ |
@@ -138,11 +152,15 @@ Each rule names its enforcement:
 
 9.6 Diacritics appear only where they disambiguate a word or guide reading aloud (`الكلّ`, `صِلْ`, `تدرّب`); text is neither fully vocalized nor fully stripped. **[review]**
 
+9.7 The opening imperative of a child-facing prompt is chosen by the exercise's rung on the perception ladder (§0.2), not by the archetype name. A Perceive or Group exercise (compare-only linear comparison, subitize, identify-quantity, dice recognition) opens with `انظر`; a Count exercise (quantify-and-compare, count-and-trace, picture-graph write) opens with `عدّ` or `انظر...ثم اكتب`. Matching both steps in one prompt: `انظر` first. **[review]**
+
 ## 10. Visual Models
 
-10.1 Every new Visual Model defines: its canonical size (added to 3.4), its Worksheet and Answer Key states, how it fills or reads right to left, its grayscale cue, and every position that can hold an unknown, so later units reuse it unchanged. **[review]**
+10.1 Every new Visual Model defines: its canonical size (added to 3.4), its Worksheet and Answer Key states, how it fills or reads right to left, its grayscale cue, its **perception mode** (§10.3), and every position that can hold an unknown, so later units reuse it unchanged. **[review]**
 
 10.2 Visual Models are richly styled SVG (ADR-0006) and render the same in preview and PDF. **[review]**
+
+10.3 Every Visual Model declares its **perception mode** in its §10.1 definition: `perceive` (the child looks and compares without counting — `linear-comparison`, `dice-pattern`), `group` (the child anchors to a benchmark without counting individual cells — `ten-frame` in subitize mode, `subitize-grouping`), or `count` (the child counts items one by one — `picture-graph`, `model-count-and-trace`). The perception mode drives the imperative-selection rule in §9.7. **[review]**
 
 ## 11. Exercise Archetypes
 
@@ -178,3 +196,4 @@ A batch closes when all of these hold:
 - 2026-11-09: For Grade K Unit 7 (Add to 10): §3.4 adds Numtanga Grid (`324 × 212 px`) canonical size per §3.5 and §10.1.
 - 2026-11-11: Added Digicross Grid (`324 × 212 px`) to §3.4 canonical sizes per §3.5 and §10.1.
 - 2026-11-11: For Grade K Unit 9 (Numbers to 20): §3.4 adds Linear Comparison (660 × 120 px), Dot Array (212 × 160 px), and Ten-frame vertical (108 × 252 px) canonical sizes; §6.3 adds Difference = 0 as an Advanced edge case; §9.4 adds the imperative حوّط.
+- 2026-11-12: §0 (Pedagogical Foundation) added, adopting the See–Group–Count perception ladder from ADR-0015. §6.2 linked to the ladder. §9.7 (imperative selection by perception rung) and §10.3 (Visual Model perception mode declaration) added. §9.1 vocabulary: `عناصر` / `عنصر` added to `GLOSSARY.md` `_Avoid_` list for child-facing text; `Perception Ladder`, `Extras`, and `Items (child-facing)` terms added to `GLOSSARY.md`.

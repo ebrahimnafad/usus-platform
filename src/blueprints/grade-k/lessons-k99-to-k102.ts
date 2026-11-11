@@ -255,7 +255,7 @@ export const lessonK99Blueprint: LessonBlueprint = {
           strategyHintAr: "انظر إلى أطوال الصفوف لتحديد الفئة الأكثر أو الأقل.",
           params: {
             orientation: "horizontal",
-            titleAr: "عناصر الطبيعة حتى ١٠",
+            titleAr: "أشياء من الطبيعة حتى ١٠",
             categories: [
               { objectId: "tree", count: 8, colorTheme: "emerald" },
               { objectId: "flower", count: 10, colorTheme: "rose" },
@@ -299,9 +299,9 @@ export const lessonK100Blueprint: LessonBlueprint = {
       practice: [
         {
           archetype: "CompareGroups",
-          promptAr: "عدّ عناصر كل مجموعة، ثم اكتب العدد وحوّط الأكثر:",
+          promptAr: "انظر إلى الصفّين، ثم اكتب العدد وحوّط الأكثر:",
           strategyHintAr:
-            "عدّ عناصر كل صفّ واكتب العدد، ثم انظر إلى القطع الزائدة لتحديد الأكثر.",
+            "انظر إلى كل صفّ واكتب العدد، ثم لاحظ القطع الزائدة لتحديد الأكثر.",
           params: {
             compareMode: "quantify-and-compare",
             visualKind: "linear-comparison",
@@ -312,9 +312,9 @@ export const lessonK100Blueprint: LessonBlueprint = {
         },
         {
           archetype: "CompareGroups",
-          promptAr: "عدّ عناصر كل مجموعة، ثم اكتب العدد وحوّط الأقل:",
+          promptAr: "انظر إلى الصفّين، ثم اكتب العدد وحوّط الأقل:",
           strategyHintAr:
-            "عدّ عناصر كل صفّ واكتب العدد، ثم انظر إلى الصف الذي تنقصه قطع لتحديد الأقل.",
+            "انظر إلى كل صفّ واكتب العدد، ثم لاحظ الصف الذي تنقصه قطع لتحديد الأقل.",
           params: {
             compareMode: "quantify-and-compare",
             visualKind: "linear-comparison",
@@ -327,9 +327,9 @@ export const lessonK100Blueprint: LessonBlueprint = {
       challenge: [
         {
           archetype: "CompareGroups",
-          promptAr: "عدّ عناصر كل مجموعة، ثم اكتب العدد وحوّط الأكثر:",
+          promptAr: "انظر إلى الصفّين، ثم اكتب العدد وحوّط الأكثر:",
           strategyHintAr:
-            "انظر إلى الأجزاء المتطابقة في الصف الأول أولاً، ثم حوّط المجموعة التي تحوي عناصر إضافية.",
+            "انظر إلى الأجزاء المتطابقة في الصف الأول أولاً، ثم حوّط المجموعة التي تحوي قطعاً إضافية.",
           params: {
             compareMode: "quantify-and-compare",
             visualKind: "linear-comparison",
@@ -371,9 +371,9 @@ export const lessonK100Blueprint: LessonBlueprint = {
       practice: [
         {
           archetype: "CompareGroups",
-          promptAr: "عدّ عناصر كل مجموعة، ثم اكتب العدد وحوّط الأكثر:",
+          promptAr: "انظر إلى الصفّين، ثم اكتب العدد وحوّط الأكثر:",
           strategyHintAr:
-            "عدّ عناصر كل صفّ واكتب العدد، ثم انظر إلى القطع الزائدة لتحديد الأكثر.",
+            "انظر إلى كل صفّ واكتب العدد، ثم لاحظ القطع الزائدة لتحديد الأكثر.",
           params: {
             compareMode: "quantify-and-compare",
             visualKind: "linear-comparison",
@@ -384,9 +384,9 @@ export const lessonK100Blueprint: LessonBlueprint = {
         },
         {
           archetype: "CompareGroups",
-          promptAr: "عدّ عناصر كل مجموعة، ثم اكتب العدد وحوّط الأقل:",
+          promptAr: "انظر إلى الصفّين، ثم اكتب العدد وحوّط الأقل:",
           strategyHintAr:
-            "عدّ عناصر كل صفّ واكتب العدد، ثم انظر إلى الصف الذي تنقصه قطع لتحديد الأقل.",
+            "انظر إلى كل صفّ واكتب العدد، ثم لاحظ الصف الذي تنقصه قطع لتحديد الأقل.",
           params: {
             compareMode: "quantify-and-compare",
             visualKind: "linear-comparison",
@@ -399,9 +399,9 @@ export const lessonK100Blueprint: LessonBlueprint = {
       challenge: [
         {
           archetype: "CompareGroups",
-          promptAr: "عدّ عناصر كل مجموعة، ثم اكتب العدد وحوّط الأكثر:",
+          promptAr: "انظر إلى الصفّين، ثم اكتب العدد وحوّط الأكثر:",
           strategyHintAr:
-            "انظر إلى الأجزاء المتطابقة في الصف الأول أولاً، ثم حوّط المجموعة التي تحوي عناصر إضافية.",
+            "انظر إلى الأجزاء المتطابقة في الصف الأول أولاً، ثم حوّط المجموعة التي تحوي قطعاً إضافية.",
           params: {
             compareMode: "quantify-and-compare",
             visualKind: "linear-comparison",
@@ -443,9 +443,9 @@ export const lessonK100Blueprint: LessonBlueprint = {
       practice: [
         {
           archetype: "CompareGroups",
-          promptAr: "عدّ عناصر كل مجموعة، ثم اكتب العدد وحوّط الأكثر:",
+          promptAr: "انظر إلى الصفّين، ثم اكتب العدد وحوّط الأكثر:",
           strategyHintAr:
-            "عدّ عناصر كل صفّ واكتب العدد، ثم انظر إلى القطع الزائدة لتحديد الأكثر.",
+            "انظر إلى كل صفّ واكتب العدد، ثم لاحظ القطع الزائدة لتحديد الأكثر.",
           params: {
             compareMode: "quantify-and-compare",
             visualKind: "linear-comparison",
@@ -456,9 +456,9 @@ export const lessonK100Blueprint: LessonBlueprint = {
         },
         {
           archetype: "CompareGroups",
-          promptAr: "عدّ عناصر كل مجموعة، ثم اكتب العدد وحوّط الأقل:",
+          promptAr: "انظر إلى الصفّين، ثم اكتب العدد وحوّط الأقل:",
           strategyHintAr:
-            "عدّ عناصر كل صفّ واكتب العدد، ثم انظر إلى الصف الذي تنقصه قطع لتحديد الأقل.",
+            "انظر إلى كل صفّ واكتب العدد، ثم لاحظ الصف الذي تنقصه قطع لتحديد الأقل.",
           params: {
             compareMode: "quantify-and-compare",
             visualKind: "linear-comparison",
@@ -471,9 +471,9 @@ export const lessonK100Blueprint: LessonBlueprint = {
       challenge: [
         {
           archetype: "CompareGroups",
-          promptAr: "عدّ عناصر كل مجموعة، ثم اكتب العدد وحوّط الأكثر:",
+          promptAr: "انظر إلى الصفّين، ثم اكتب العدد وحوّط الأكثر:",
           strategyHintAr:
-            "انظر إلى الأجزاء المتطابقة في الصف الأول أولاً، ثم حوّط المجموعة التي تحوي عناصر إضافية.",
+            "انظر إلى الأجزاء المتطابقة في الصف الأول أولاً، ثم حوّط المجموعة التي تحوي قطعاً إضافية.",
           params: {
             compareMode: "quantify-and-compare",
             visualKind: "linear-comparison",
@@ -513,9 +513,9 @@ export const lessonK101Blueprint: LessonBlueprint = {
       warmUp: [
         {
           archetype: "CompareGroups",
-          promptAr: "عدّ عناصر كل مجموعة، ثم اكتب العدد وحوّط الأكثر:",
+          promptAr: "انظر إلى الصفّين، ثم اكتب العدد وحوّط الأكثر:",
           strategyHintAr:
-            "عدّ عناصر كل صفّ واكتب العدد، ثم انظر إلى القطع الزائدة لتحديد الأكثر.",
+            "انظر إلى كل صفّ واكتب العدد، ثم لاحظ القطع الزائدة لتحديد الأكثر.",
           params: {
             compareMode: "quantify-and-compare",
             visualKind: "linear-comparison",
@@ -584,9 +584,9 @@ export const lessonK101Blueprint: LessonBlueprint = {
       warmUp: [
         {
           archetype: "CompareGroups",
-          promptAr: "عدّ عناصر كل مجموعة، ثم اكتب العدد وحوّط الأكثر:",
+          promptAr: "انظر إلى الصفّين، ثم اكتب العدد وحوّط الأكثر:",
           strategyHintAr:
-            "عدّ عناصر كل صفّ واكتب العدد، ثم انظر إلى القطع الزائدة لتحديد الأكثر.",
+            "انظر إلى كل صفّ واكتب العدد، ثم لاحظ القطع الزائدة لتحديد الأكثر.",
           params: {
             compareMode: "quantify-and-compare",
             visualKind: "linear-comparison",
@@ -655,9 +655,9 @@ export const lessonK101Blueprint: LessonBlueprint = {
       warmUp: [
         {
           archetype: "CompareGroups",
-          promptAr: "عدّ عناصر كل مجموعة، ثم اكتب العدد وحوّط الأكثر:",
+          promptAr: "انظر إلى الصفّين، ثم اكتب العدد وحوّط الأكثر:",
           strategyHintAr:
-            "عدّ عناصر كل صفّ واكتب العدد، ثم انظر إلى القطع الزائدة لتحديد الأكثر.",
+            "انظر إلى كل صفّ واكتب العدد، ثم لاحظ القطع الزائدة لتحديد الأكثر.",
           params: {
             compareMode: "quantify-and-compare",
             visualKind: "linear-comparison",
@@ -754,9 +754,9 @@ export const lessonK102Blueprint: LessonBlueprint = {
       practice: [
         {
           archetype: "CompareGroups",
-          promptAr: "عدّ عناصر كل لوحة عشرة، ثم اكتب العدد وحوّط الأكثر:",
+          promptAr: "انظر إلى لوحتي العشرة، ثم اكتب العدد وحوّط الأكثر:",
           strategyHintAr:
-            "عدّ عناصر كل لوحة عشرة واكتب العدد، ثم حوّط اللوحة التي تحوي أقراصاً أكثر.",
+            "انظر إلى أقراص كل لوحة عشرة واكتب العدد، ثم حوّط اللوحة التي تحوي أقراصاً أكثر.",
           params: {
             compareMode: "quantify-and-compare",
             visualKind: "ten-frame-pair",
@@ -767,9 +767,9 @@ export const lessonK102Blueprint: LessonBlueprint = {
         },
         {
           archetype: "CompareGroups",
-          promptAr: "عدّ عناصر كل لوحة عشرة، ثم اكتب العدد وحوّط الأقل:",
+          promptAr: "انظر إلى لوحتي العشرة، ثم اكتب العدد وحوّط الأقل:",
           strategyHintAr:
-            "عدّ عناصر كل لوحة عشرة واكتب العدد، ثم حوّط اللوحة التي تحوي أقراصاً أقل.",
+            "انظر إلى أقراص كل لوحة عشرة واكتب العدد، ثم حوّط اللوحة التي تحوي أقراصاً أقل.",
           params: {
             compareMode: "quantify-and-compare",
             visualKind: "ten-frame-pair",
@@ -782,9 +782,9 @@ export const lessonK102Blueprint: LessonBlueprint = {
       challenge: [
         {
           archetype: "CompareGroups",
-          promptAr: "عدّ عناصر كل لوحة عشرة، ثم اكتب العدد وحوّط الأكثر:",
+          promptAr: "انظر إلى لوحتي العشرة، ثم اكتب العدد وحوّط الأكثر:",
           strategyHintAr:
-            "انظر إلى الأجزاء المتطابقة في الصف الأول أولاً، ثم حوّط المجموعة التي تحوي عناصر إضافية.",
+            "انظر إلى الأجزاء المتطابقة في الصف الأول أولاً، ثم حوّط المجموعة التي تحوي قطعاً إضافية.",
           params: {
             compareMode: "quantify-and-compare",
             visualKind: "ten-frame-pair",
@@ -827,9 +827,9 @@ export const lessonK102Blueprint: LessonBlueprint = {
       practice: [
         {
           archetype: "CompareGroups",
-          promptAr: "عدّ عناصر كل لوحة عشرة، ثم اكتب العدد وحوّط الأكثر:",
+          promptAr: "انظر إلى لوحتي العشرة، ثم اكتب العدد وحوّط الأكثر:",
           strategyHintAr:
-            "عدّ عناصر كل لوحة عشرة واكتب العدد، ثم حوّط اللوحة التي تحوي أقراصاً أكثر.",
+            "انظر إلى أقراص كل لوحة عشرة واكتب العدد، ثم حوّط اللوحة التي تحوي أقراصاً أكثر.",
           params: {
             compareMode: "quantify-and-compare",
             visualKind: "ten-frame-pair",
@@ -840,9 +840,9 @@ export const lessonK102Blueprint: LessonBlueprint = {
         },
         {
           archetype: "CompareGroups",
-          promptAr: "عدّ عناصر كل لوحة عشرة، ثم اكتب العدد وحوّط الأقل:",
+          promptAr: "انظر إلى لوحتي العشرة، ثم اكتب العدد وحوّط الأقل:",
           strategyHintAr:
-            "عدّ عناصر كل لوحة عشرة واكتب العدد، ثم حوّط اللوحة التي تحوي أقراصاً أقل.",
+            "انظر إلى أقراص كل لوحة عشرة واكتب العدد، ثم حوّط اللوحة التي تحوي أقراصاً أقل.",
           params: {
             compareMode: "quantify-and-compare",
             visualKind: "ten-frame-pair",
@@ -855,9 +855,9 @@ export const lessonK102Blueprint: LessonBlueprint = {
       challenge: [
         {
           archetype: "CompareGroups",
-          promptAr: "عدّ عناصر كل لوحة عشرة، ثم اكتب العدد وحوّط الأكثر:",
+          promptAr: "انظر إلى لوحتي العشرة، ثم اكتب العدد وحوّط الأكثر:",
           strategyHintAr:
-            "انظر إلى الأجزاء المتطابقة في الصف الأول أولاً، ثم حوّط المجموعة التي تحوي عناصر إضافية.",
+            "انظر إلى الأجزاء المتطابقة في الصف الأول أولاً، ثم حوّط المجموعة التي تحوي قطعاً إضافية.",
           params: {
             compareMode: "quantify-and-compare",
             visualKind: "ten-frame-pair",
@@ -900,9 +900,9 @@ export const lessonK102Blueprint: LessonBlueprint = {
       practice: [
         {
           archetype: "CompareGroups",
-          promptAr: "عدّ عناصر كل لوحة عشرة، ثم اكتب العدد وحوّط الأكثر:",
+          promptAr: "انظر إلى لوحتي العشرة، ثم اكتب العدد وحوّط الأكثر:",
           strategyHintAr:
-            "عدّ عناصر كل لوحة عشرة واكتب العدد، ثم حوّط اللوحة التي تحوي أقراصاً أكثر.",
+            "انظر إلى أقراص كل لوحة عشرة واكتب العدد، ثم حوّط اللوحة التي تحوي أقراصاً أكثر.",
           params: {
             compareMode: "quantify-and-compare",
             visualKind: "ten-frame-pair",
@@ -913,9 +913,9 @@ export const lessonK102Blueprint: LessonBlueprint = {
         },
         {
           archetype: "CompareGroups",
-          promptAr: "عدّ عناصر كل لوحة عشرة، ثم اكتب العدد وحوّط الأقل:",
+          promptAr: "انظر إلى لوحتي العشرة، ثم اكتب العدد وحوّط الأقل:",
           strategyHintAr:
-            "عدّ عناصر كل لوحة عشرة واكتب العدد، ثم حوّط اللوحة التي تحوي أقراصاً أقل.",
+            "انظر إلى أقراص كل لوحة عشرة واكتب العدد، ثم حوّط اللوحة التي تحوي أقراصاً أقل.",
           params: {
             compareMode: "quantify-and-compare",
             visualKind: "ten-frame-pair",
@@ -928,9 +928,9 @@ export const lessonK102Blueprint: LessonBlueprint = {
       challenge: [
         {
           archetype: "CompareGroups",
-          promptAr: "عدّ عناصر كل لوحة عشرة، ثم اكتب العدد وحوّط الأكثر:",
+          promptAr: "انظر إلى لوحتي العشرة، ثم اكتب العدد وحوّط الأكثر:",
           strategyHintAr:
-            "انظر إلى الأجزاء المتطابقة في الصف الأول أولاً، ثم حوّط المجموعة التي تحوي عناصر إضافية.",
+            "انظر إلى الأجزاء المتطابقة في الصف الأول أولاً، ثم حوّط المجموعة التي تحوي قطعاً إضافية.",
           params: {
             compareMode: "quantify-and-compare",
             visualKind: "ten-frame-pair",

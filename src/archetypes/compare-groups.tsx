@@ -231,16 +231,20 @@ export function generateCompareGroupsExercise(
         ? "انظر إلى المجموعتين، ثم اكتب أيّهما تحوي أقل:"
         : "انظر إلى المجموعتين، ثم اكتب أيّهما تحوي أكثر:"
       : compareMode === "quantify-and-compare"
-        ? targetComparison === "fewer"
-          ? "عدّ عناصر كل مجموعة، ثم اكتب العدد وحوّط الأقل:"
-          : "عدّ عناصر كل مجموعة، ثم اكتب العدد وحوّط الأكثر:"
+        ? visualKind === "ten-frame-pair"
+          ? targetComparison === "fewer"
+            ? "انظر إلى لوحتي العشرة، ثم اكتب العدد وحوّط الأقل:"
+            : "انظر إلى لوحتي العشرة، ثم اكتب العدد وحوّط الأكثر:"
+          : targetComparison === "fewer"
+            ? "انظر إلى الصفّين، ثم اكتب العدد وحوّط الأقل:"
+            : "انظر إلى الصفّين، ثم اكتب العدد وحوّط الأكثر:"
         : targetComparison === "fewer"
           ? "انظر إلى المجموعتين، ثم حوّط المجموعة التي تحوي أقل:"
           : "انظر إلى المجموعتين، ثم حوّط المجموعة التي تحوي أكثر:";
 
   const defaultStrategyHintAr =
     params.strategy === "compare-the-parts"
-      ? `انظر إلى الأجزاء المتطابقة في الصف الأول أولاً، ثم حوّط المجموعة التي تحوي عناصر إضافية (${factSummaries.join("؛ ")}).`
+      ? `انظر إلى الأجزاء المتطابقة في الصف الأول أولاً، ثم حوّط المجموعة التي تحوي قطعاً إضافية (${factSummaries.join("؛ ")}).`
       : visualKind === "linear-comparison"
         ? `انظر إلى التقابل بين الصفين لتحديد القطع الزائدة، ثم حوّط المجموعة (${factSummaries.join("؛ ")}).`
         : `انظر إلى الخانات الممتلئة في كل لوحة عشرة، ثم حوّط المجموعة المطلوبة (${factSummaries.join("؛ ")}).`;
@@ -369,7 +373,7 @@ export function renderCompareGroupsExercise({
                         answer={countAAr}
                         solved={isAnswerKey}
                         kind="write"
-                        ariaLabel="مربع كتابة عدد عناصر المجموعة أ"
+                        ariaLabel="مربع كتابة عدد قطع المجموعة أ"
                       />
                     </div>
                     <div className="flex items-center gap-2">
@@ -380,7 +384,7 @@ export function renderCompareGroupsExercise({
                         answer={countBAr}
                         solved={isAnswerKey}
                         kind="write"
-                        ariaLabel="مربع كتابة عدد عناصر المجموعة ب"
+                        ariaLabel="مربع كتابة عدد قطع المجموعة ب"
                       />
                     </div>
                   </div>

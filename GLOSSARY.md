@@ -2,9 +2,33 @@
 
 An Arabic-first educational platform with two domains: mathematics worksheet generation (Grades K–5) and reading comprehension training (3 proficiency levels).
 
+## Pedagogical Foundation
+
+The mathematics curriculum is built on the **See–Group–Count perception ladder** (ADR-0015, Constitution §0):
+
+| Rung     | Child action                                     | Prompt opens with         |
+| -------- | ------------------------------------------------ | ------------------------- |
+| Perceive | See, compare, spot extras without counting       | `انظر`                    |
+| Group    | Anchor to 5 or 10, decompose sub-groups visually | `انظر`                    |
+| Count    | Count items and write a number                   | `عدّ` or `انظر...ثم اكتب` |
+
+Child-facing text names items by what the child sees: **قطع** (pieces), **صور** (pictures), **أقراص** (discs). The abstract term **عناصر** (elements) is teacher-facing only.
+
 ## Language
 
 ### Mathematics Curriculum
+
+**Perception Ladder**:
+The three-rung progression of how a child engages with a Visual Model: Perceive (see and compare without counting), Group (anchor to a benchmark like 5 or 10 and read the structure), Count (count items and write a number). The rung determines the opening imperative of the child-facing prompt (Constitution §0.2 and §9.7).
+_Avoid_: cognitive ladder, thinking steps, مستويات التفكير
+
+**Extras**:
+The items in the larger group of a 1-to-1 comparison that have no match in the smaller group (القطع الإضافية). The child identifies Extras perceptually by seeing what sticks out beyond the aligned pairs, not by counting both groups.
+_Avoid_: remainder, الباقي, المتبقّي (in comparison context), عناصر إضافية
+
+**Items (child-facing)**:
+The concrete objects a child sees and manipulates in a Visual Model or Exercise (قطع، صور، أشياء، أقراص). In child-facing prompts, refer to items by their visible kind (القطع، الصور، الأقراص) or use a demonstrative (ما في كل صفّ، ما في كل لوحة).
+_Avoid_: عناصر, عنصر (in child-facing text — these are permitted in teacher-facing Teacher Notes)
 
 **Grade**:
 One of the six school grade bands from Kindergarten (K) through Grade 5.
@@ -153,7 +177,7 @@ A Visual Model recording a quantity as upright strokes grouped in fives, where t
 _Avoid_: إشارات العدّ, Hash marks, counting strokes, sticks
 
 **Dice Pattern**:
-A Visual Model showing a quantity as the fixed arrangement of pips on a die face, meant to be recognized at a glance rather than counted (نقاط النرد).
+A Visual Model showing a quantity as the fixed arrangement of pips on a die face, meant to be recognised at a glance rather than counted (نقاط النرد). Perception mode: `perceive`.
 _Avoid_: أنماط النرد, ترتيبات نقاط النرد, Dot pattern, die face, pip layout
 
 **Snap Cubes**:
@@ -161,11 +185,11 @@ A Visual Model showing a quantity as a train or tower of unit cubes joined flush
 _Avoid_: Unifix cubes, linking cubes, blocks
 
 **Subitize Grouping**:
-A visual decomposition of an object quantity into instantly recognizable sub-groups (e.g., 5 = 3 + 2) rendered with dashed-border containers, enabling students to perceive total quantity without counting one by one.
+A visual decomposition of an object quantity into instantly recognisable sub-groups (e.g., 5 = 3 + 2) rendered with dashed-border containers, enabling students to perceive total quantity without counting one by one. Perception mode: `group`.
 _Avoid_: Cluster, chunk, partition
 
 **Ten Frame**:
-A 2×5 rectangular grid of 10 equal cells (لوحة العشرة) used to model quantities 0 to 10 by anchoring at 5: filling the top row of 5 cells right to left first, then filling the bottom row right to left.
+A 2×5 rectangular grid of 10 equal cells (لوحة العشرة) used to model quantities 0 to 10 by anchoring at 5: filling the top row of 5 cells right to left first, then filling the bottom row right to left. Perception mode: `group` when used for subitizing (the child reads the full top row as 5 and adds what is below), `count` when used for count-and-trace. In comparison exercises, the child compares two Ten Frames by noticing which has more empty cells (الخانات الفارغة), not by counting filled cells one by one.
 _Avoid_: جدول العشرة, شبكة العشرة
 
 **Paper Clip Unit**:
@@ -193,7 +217,7 @@ The numeral digits `٠١٢٣٤٥٦٧٨٩` used exclusively across the user inter
 _Avoid_: Hindi numerals, Arabic-Indic digits
 
 **Linear Model**:
-A Visual Model showing two horizontal rows of objects aligned one-to-one (نموذج المقارنة الخطّي), used for visual comparison of group sizes without counting.
+A Visual Model showing two horizontal rows of objects aligned one-to-one (نموذج المقارنة الخطّي), used for visual comparison of group sizes by 1-to-1 correspondence without counting. Perception mode: `perceive`. The child identifies the group with Extras (القطع الإضافية) perceptually, following the See–Group–Count ladder (Constitution §0.2).
 _Avoid_: صفّ المقارنة, comparison chart
 
 **Difference**:
