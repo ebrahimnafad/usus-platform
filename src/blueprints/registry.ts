@@ -87,12 +87,12 @@ export interface DefineLessonBlueprintInput {
   lessonNumber: number;
   /**
    * Optional when `AUTHORED_LESSON_LOCALIZATION[lessonId]` exists; resolved
-   * automatically and synced back into `AUTHORED_LESSON_LOCALIZATION`.
+   * automatically from baseline localization.
    */
   titleAr?: string;
   /**
    * Optional or partial when `AUTHORED_LESSON_LOCALIZATION[lessonId]` exists;
-   * merged with `AUTHORED_LESSON_LOCALIZATION[lessonId].teacherNotes` and synced back.
+   * merged with `AUTHORED_LESSON_LOCALIZATION[lessonId].teacherNotes`.
    */
   teacherNotes?: Partial<TeacherNotes>;
   /** Explicit 3-tier definition (Easy, Intermediate, Advanced). */
@@ -130,7 +130,7 @@ export function compileBlueprintTiers(
   return tiers;
 }
 
-function resolveAndSyncLocalization(input: {
+export function resolveBlueprintLocalization(input: {
   lessonId: string;
   titleAr?: string;
   teacherNotes?: Partial<TeacherNotes>;
@@ -182,27 +182,19 @@ function resolveAndSyncLocalization(input: {
         }
       : undefined;
 
-  if (
-    resolvedTitleAr &&
-    resolvedTeacherNotes &&
-    resolvedTeacherNotes.summaryAr
-  ) {
-    AUTHORED_LESSON_LOCALIZATION[input.lessonId] = {
-      titleAr: resolvedTitleAr,
-      teacherNotes: resolvedTeacherNotes,
-    };
-  }
-
   return {
     titleAr: resolvedTitleAr,
-    teacherNotes: resolvedTeacherNotes as TeacherNotes,
+    teacherNotes: (resolvedTeacherNotes ?? {
+      summaryAr: "",
+      pedagogicalStepsAr: [],
+    }) as TeacherNotes,
   };
 }
 
 export function defineLessonBlueprint(
   input: DefineLessonBlueprintInput
 ): LessonBlueprint {
-  const { titleAr, teacherNotes } = resolveAndSyncLocalization({
+  const { titleAr, teacherNotes } = resolveBlueprintLocalization({
     lessonId: input.lessonId,
     titleAr: input.titleAr,
     teacherNotes: input.teacherNotes,
@@ -274,7 +266,7 @@ export function validateLessonBlueprint(blueprint: LessonBlueprint): void {
 }
 
 export function registerLessonBlueprint(blueprint: LessonBlueprint): void {
-  const { titleAr, teacherNotes } = resolveAndSyncLocalization({
+  const { titleAr, teacherNotes } = resolveBlueprintLocalization({
     lessonId: blueprint.lessonId,
     titleAr: blueprint.titleAr,
     teacherNotes: blueprint.teacherNotes,

@@ -3,7 +3,7 @@ import type { GradeId, WorksheetDifficultyMode } from "@/domain/types";
 import printFonts from "@/config/print-fonts.json";
 import {
   buildPrintCleanA4Html,
-  type PrintCleanA4Document,
+  getPrintCleanA4Metadata,
   type PrintableViewMode,
 } from "@/pdf/print-document";
 import { PAGE_BUDGET } from "@/components/worksheet/layout-standard";
@@ -20,7 +20,8 @@ export interface ExportWorksheetPdfInput {
   enforcePageBudget?: boolean;
 }
 
-export interface ExportedPdfResult extends PrintCleanA4Document {
+export interface ExportedPdfResult {
+  filename: string;
   pdfBuffer: Buffer;
   contentType: "application/pdf";
   pageCount: number;
@@ -103,7 +104,13 @@ async function waitForPrintFonts(page: Page): Promise<void> {
 export async function exportWorksheetPdf(
   input: ExportWorksheetPdfInput
 ): Promise<ExportedPdfResult> {
-  const doc = await buildPrintCleanA4Html(input);
+  const metadata = getPrintCleanA4Metadata(input);
+  const pageSource = input.baseUrl
+    ? { kind: "route" as const, baseUrl: input.baseUrl }
+    : {
+        kind: "static" as const,
+        document: await buildPrintCleanA4Html(input),
+      };
   const browser = await launchHeadlessBrowser();
 
   try {
@@ -113,15 +120,15 @@ export async function exportWorksheetPdf(
 
     await page.emulateMedia({ media: "print" });
 
-    if (input.baseUrl) {
+    if (pageSource.kind === "route") {
       const params = new URLSearchParams({
         grade: input.grade,
         lesson: String(input.lessonNumber),
-        seed: doc.bundle.seed,
-        difficulty: doc.bundle.difficultyMode,
-        view: doc.viewMode,
+        seed: metadata.seed,
+        difficulty: metadata.difficultyLevel,
+        view: metadata.viewMode,
       });
-      const printUrl = `${input.baseUrl.replace(/\/$/, "")}/print?${params.toString()}`;
+      const printUrl = `${pageSource.baseUrl.replace(/\/$/, "")}/print?${params.toString()}`;
       const response = await page.goto(printUrl, {
         waitUntil: "domcontentloaded",
       });
@@ -142,7 +149,9 @@ export async function exportWorksheetPdf(
       );
       await waitForPrintFonts(page);
     } else {
-      await page.setContent(doc.html, { waitUntil: "domcontentloaded" });
+      await page.setContent(pageSource.document.html, {
+        waitUntil: "domcontentloaded",
+      });
       await page.waitForSelector('.a4-sheet[data-worksheet-surface="true"]', {
         state: "attached",
       });
@@ -184,7 +193,7 @@ export async function exportWorksheetPdf(
     }
 
     return {
-      ...doc,
+      filename: metadata.filename,
       pdfBuffer,
       contentType: "application/pdf",
       pageCount,

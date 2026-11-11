@@ -13,7 +13,7 @@ import {
   selectSubtractionFacts,
   type AdditionFact,
   type SubtractionFact,
-} from "@/lib/part-whole-facts";
+} from "@/lib/math-facts";
 import type { SeededRandom } from "@/lib/seed";
 import {
   createEverydayObjectSpec,

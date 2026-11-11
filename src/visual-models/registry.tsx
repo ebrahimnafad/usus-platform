@@ -2,7 +2,6 @@ import React from "react";
 import { ANSWER_SLOT_SIZE_CLASS } from "@/components/worksheet/AnswerSlot";
 import type { VisualModelKind, VisualModelSpec } from "@/domain/types";
 import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
-import { renderEverydayObjectVisualModel } from "@/visual-models/everyday-objects";
 
 export interface VisualModelRenderProps {
   model: VisualModelSpec;
@@ -32,8 +31,6 @@ export function getVisualModelRenderer(
 }
 
 export function registerBuiltInVisualModels(): void {
-  registerVisualModel("everyday-object", renderEverydayObjectVisualModel);
-
   if (!visualModelRegistry.has("digit-card")) {
     registerVisualModel("digit-card", ({ model }) => {
       const digit = model.digit ?? model.count ?? 1;

@@ -8,7 +8,17 @@ const mocks = vi.hoisted(() => ({
   evaluate: vi.fn(),
   pdf: vi.fn(),
   close: vi.fn(),
+  buildPrintCleanA4Html: vi.fn(),
 }));
+
+vi.mock("@/pdf/print-document", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/pdf/print-document")>();
+
+  return {
+    ...actual,
+    buildPrintCleanA4Html: mocks.buildPrintCleanA4Html,
+  };
+});
 
 vi.mock("playwright", () => ({
   chromium: {
@@ -37,6 +47,10 @@ describe("exportWorksheetPdf printable route", () => {
     mocks.evaluate.mockReset();
     mocks.pdf.mockReset();
     mocks.close.mockReset();
+    mocks.buildPrintCleanA4Html.mockReset();
+    mocks.buildPrintCleanA4Html.mockResolvedValue({
+      html: "<!doctype html><html></html>",
+    });
     mocks.goto.mockResolvedValue({
       ok: () => true,
       status: () => 200,
@@ -49,7 +63,7 @@ describe("exportWorksheetPdf printable route", () => {
   it("uses the printable route and waits for its worksheet surface", async () => {
     const { exportWorksheetPdf } = await import("@/pdf/pdf-exporter");
 
-    await exportWorksheetPdf({
+    const result = await exportWorksheetPdf({
       grade: "K",
       lessonNumber: 57,
       seed: "K1-2026",
@@ -68,6 +82,27 @@ describe("exportWorksheetPdf printable route", () => {
     );
     expect(mocks.waitForFunction).toHaveBeenCalled();
     expect(mocks.setContent).not.toHaveBeenCalled();
+    expect(mocks.buildPrintCleanA4Html).not.toHaveBeenCalled();
+    expect(result.filename).toBe("worksheet-K-57-K1-2026-answer-key.pdf");
+  });
+
+  it("uses the static document when no printable route is available", async () => {
+    const { exportWorksheetPdf } = await import("@/pdf/pdf-exporter");
+
+    await exportWorksheetPdf({
+      grade: "K",
+      lessonNumber: 57,
+      seed: "K1-2026",
+      difficultyLevel: "scaffolded",
+      viewMode: "answer-key",
+    });
+
+    expect(mocks.goto).not.toHaveBeenCalled();
+    expect(mocks.buildPrintCleanA4Html).toHaveBeenCalledOnce();
+    expect(mocks.setContent).toHaveBeenCalledWith(
+      "<!doctype html><html></html>",
+      { waitUntil: "domcontentloaded" }
+    );
   });
 
   it("surfaces printable-route failures instead of silently switching layouts", async () => {
@@ -85,6 +120,7 @@ describe("exportWorksheetPdf printable route", () => {
       })
     ).rejects.toThrow("print route unavailable");
 
+    expect(mocks.buildPrintCleanA4Html).not.toHaveBeenCalled();
     expect(mocks.setContent).not.toHaveBeenCalled();
     expect(mocks.close).toHaveBeenCalledOnce();
   });

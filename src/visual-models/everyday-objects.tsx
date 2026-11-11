@@ -6,7 +6,10 @@ import type {
   VisualModelSpec,
 } from "@/domain/types";
 import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
-import type { VisualModelRenderer } from "@/visual-models/registry";
+import {
+  registerVisualModel,
+  type VisualModelRenderer,
+} from "@/visual-models/registry";
 
 export interface EverydayObjectDefinition {
   id: EverydayObjectId;
@@ -1384,3 +1387,9 @@ export const renderEverydayObjectVisualModel: VisualModelRenderer = ({
     </div>
   );
 };
+
+export function registerEverydayObjectVisualModel(): void {
+  registerVisualModel("everyday-object", renderEverydayObjectVisualModel);
+}
+
+registerEverydayObjectVisualModel();

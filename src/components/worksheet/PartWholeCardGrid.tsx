@@ -2,11 +2,8 @@ import React from "react";
 import { AnswerSlot } from "@/components/worksheet/AnswerSlot";
 import { ExerciseColumns } from "@/components/worksheet/ExerciseColumns";
 import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
-import {
-  resolveTakeAwaySolvedUnknownAr,
-  type JoinPartsData,
-  type TakeAwayData,
-} from "@/lib/part-whole-facts";
+import type { JoinPartsData } from "@/archetypes/join-parts";
+import type { TakeAwayData } from "@/archetypes/take-away";
 import { EverydayObjectSvg } from "@/visual-models/everyday-objects";
 import { VisualModelView } from "@/visual-models/registry";
 import { PartsTableView } from "@/components/worksheet/PartsTableView";
@@ -156,7 +153,7 @@ export function PartWholeCardGrid({
             data-more-or-less-equations="true"
           >
             {data.items.map((item, idx) => {
-              const solvedUnknownAr = resolveTakeAwaySolvedUnknownAr(item);
+              const solvedUnknownAr = item.solvedUnknownAr;
 
               return (
                 <div
@@ -306,7 +303,7 @@ export function PartWholeCardGrid({
     >
       <ExerciseColumns columns={columns}>
         {data.items.map((item, idx) => {
-          const solvedUnknownAr = resolveTakeAwaySolvedUnknownAr(item);
+          const solvedUnknownAr = item.solvedUnknownAr;
 
           const worksheetSummaryAr =
             item.unknownKind === "partTakenAway"

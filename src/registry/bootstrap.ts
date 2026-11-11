@@ -12,6 +12,7 @@
 // --- Visual Models ---
 // Each visual-models module self-registers its renderers on import.
 import "@/visual-models/registry";
+import "@/visual-models/everyday-objects";
 import "@/visual-models/shapes-solids-coins";
 import "@/visual-models/unit-2-models";
 import "@/visual-models/unit-3-models";

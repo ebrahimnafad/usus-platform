@@ -25,6 +25,13 @@ export interface PrintCleanA4Document {
   viewMode: PrintableViewMode;
 }
 
+export interface PrintCleanA4Metadata {
+  seed: string;
+  difficultyLevel: WorksheetDifficultyMode;
+  filename: string;
+  viewMode: PrintableViewMode;
+}
+
 const PRINT_CLEAN_A4_CSS = `
 /* Default page box. WorksheetSurface declares the named \`worksheet-page\`
    with its own margins + running margin boxes (ADR-0012). */
@@ -202,20 +209,33 @@ function sanitizeFilenamePart(value: string | number): string {
   return String(value).replace(/[^a-zA-Z0-9_-]/g, "-");
 }
 
-export async function buildPrintCleanA4Html(
+export function getPrintCleanA4Metadata(
   input: ExportWorksheetPdfInput
-): Promise<PrintCleanA4Document> {
+): PrintCleanA4Metadata {
   const viewMode: PrintableViewMode =
     input.viewMode === "answer-key" ? "answer-key" : "worksheet";
   const difficultyLevel: WorksheetDifficultyMode =
     input.difficultyLevel ?? "scaffolded";
   const seed = (input.seed ?? "K1-2026").trim() || "K1-2026";
+  const filename = `worksheet-${sanitizeFilenamePart(
+    input.grade
+  )}-${sanitizeFilenamePart(input.lessonNumber)}-${sanitizeFilenamePart(
+    seed
+  )}-${viewMode}.pdf`;
+
+  return { seed, difficultyLevel, filename, viewMode };
+}
+
+export async function buildPrintCleanA4Html(
+  input: ExportWorksheetPdfInput
+): Promise<PrintCleanA4Document> {
+  const metadata = getPrintCleanA4Metadata(input);
 
   const bundle = generateWorksheet({
     grade: input.grade,
     lessonNumber: input.lessonNumber,
-    seed,
-    difficultyLevel,
+    seed: metadata.seed,
+    difficultyLevel: metadata.difficultyLevel,
   });
 
   const { renderToStaticMarkup } = await import("react-dom/server");
@@ -224,7 +244,7 @@ export async function buildPrintCleanA4Html(
   const surfaceMarkup = renderToStaticMarkup(
     React.createElement(WorksheetSurface, {
       bundle,
-      viewMode,
+      viewMode: metadata.viewMode,
     })
   );
 
@@ -242,16 +262,10 @@ export async function buildPrintCleanA4Html(
 </body>
 </html>`;
 
-  const filename = `worksheet-${sanitizeFilenamePart(
-    input.grade
-  )}-${sanitizeFilenamePart(input.lessonNumber)}-${sanitizeFilenamePart(
-    seed
-  )}-${viewMode}.pdf`;
-
   return {
     html,
     bundle,
-    filename,
-    viewMode,
+    filename: metadata.filename,
+    viewMode: metadata.viewMode,
   };
 }
