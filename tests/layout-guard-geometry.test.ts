@@ -128,4 +128,41 @@ describe("layout guard geometry regressions", () => {
       expect(countPdfPages(Buffer.from(pdf))).toBeLessThanOrEqual(2);
     }
   }, 120_000);
+
+  it("keeps K-44 picture graphs inside their exercise cards and column cells (batch-close sweep regression)", async () => {
+    for (const view of ["worksheet", "answer-key"] as const) {
+      await render(44, "scaffolded", view);
+
+      // Mirrors the layout guard's §3.1 containment check for the
+      // picture-graph model: the graph must sit inside its exercise card and
+      // column cell instead of overflowing them.
+      const overflows = await page.evaluate(() => {
+        const excess = (el: Element, container: Element): number => {
+          const a = el.getBoundingClientRect();
+          const b = container.getBoundingClientRect();
+          return Math.round(
+            Math.max(
+              b.left - a.left,
+              a.right - b.right,
+              b.top - a.top,
+              a.bottom - b.bottom
+            )
+          );
+        };
+        const results: number[] = [];
+        for (const graph of document.querySelectorAll(
+          '[data-visual-model="picture-graph"], svg[data-graph-type="picture-graph"]'
+        )) {
+          const card = graph.closest("[data-exercise-id]");
+          if (card) results.push(excess(graph, card));
+          const column = graph.closest("[data-exercise-columns] > *");
+          if (column) results.push(excess(graph, column));
+        }
+        return results;
+      });
+
+      expect(overflows.length).toBeGreaterThan(0);
+      expect(overflows.every((over) => over <= 0)).toBe(true);
+    }
+  }, 120_000);
 });

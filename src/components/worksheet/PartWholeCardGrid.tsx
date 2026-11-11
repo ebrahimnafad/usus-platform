@@ -143,7 +143,10 @@ export function PartWholeCardGrid({
         data-action={data.action}
         data-representation="picture-graph"
       >
-        <ExerciseColumns columns={2}>
+        {/* The redesigned picture graph (390–430px intrinsic) cannot share a
+            324px fixed column, so the graph takes the full-width row and its
+            equations stack beneath it. */}
+        <ExerciseColumns columns={1}>
           <div className="flex flex-1 flex-col items-center justify-center rounded-xl border-2 border-indigo-100 bg-gradient-to-b from-white to-indigo-50/30 p-1 shadow-2xs">
             <VisualModelView model={data.graphModel} solved={isAnswerKey} />
           </div>
