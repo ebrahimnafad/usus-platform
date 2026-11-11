@@ -21,6 +21,7 @@ import type { SequenceAndZeroBlueprintParams } from "@/archetypes/sequence-and-z
 import type { SubitizePartWholeBlueprintParams } from "@/archetypes/subitize-part-whole";
 import type { TakeAwayBlueprintParams } from "@/archetypes/take-away";
 import type { SolveWordProblemBlueprintParams } from "@/lib/word-problems";
+import type { CompareGroupsBlueprintParams } from "@/archetypes/compare-groups";
 
 export interface TypedArchetypeParamsMap extends ArchetypeParamsByArchetypeId {
   ConnectMatch: ConnectMatchBlueprintParams & Record<string, unknown>;
@@ -36,6 +37,7 @@ export interface TypedArchetypeParamsMap extends ArchetypeParamsByArchetypeId {
   TakeAway: TakeAwayBlueprintParams & Record<string, unknown>;
   SolveWordProblem: SolveWordProblemBlueprintParams & Record<string, unknown>;
   Numtanga: NumtangaBlueprintParams & Record<string, unknown>;
+  CompareGroups: CompareGroupsBlueprintParams & Record<string, unknown>;
 }
 
 const blueprintRegistry = new Map<string, LessonBlueprint>();

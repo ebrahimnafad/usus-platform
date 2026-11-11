@@ -60,6 +60,9 @@ Each rule names its enforcement:
 | Polygon Perimeter   | 212 × 160 px                        |
 | Numtanga Grid       | 324 × 212 px                        |
 | Digicross Grid      | 324 × 212 px                        |
+| Linear Comparison   | 660 × 120 px                        |
+| Dot Array           | 212 × 160 px                        |
+| Ten-frame (vert.)   | 48 px cells in a 108 × 252 px box   |
 
 3.5 Each new Visual Model adds its canonical size to the table in 3.4, sized to fit one column of 3.2.
 
@@ -101,7 +104,7 @@ Each rule names its enforcement:
 | Intermediate | The lesson's full range          | Shown                     | Write                          |
 | Advanced     | The lesson's full range          | Partly or fully withdrawn | Write or draw, with edge cases |
 
-6.3 Edge cases (0 as a quantity outside K-56's Shift 1 decompositions, an unknown in a non-standard position such as a missing Part, reversed forms such as `٥ = ٣ + ٢` or `٣ = ٥ − ٢` outside K-35 and K-45) appear only at Advanced or in Challenge & Assessment. **[review]**
+6.3 Edge cases (0 as a quantity outside K-56's Shift 1 decompositions, an unknown in a non-standard position such as a missing Part, reversed forms such as `٥ = ٣ + ٢` or `٣ = ٥ − ٢` outside K-35 and K-45, Difference = 0 (equal groups in comparison) outside K-107 and K-108) appear only at Advanced or in Challenge & Assessment. **[review]**
 
 ## 7. Generation
 
@@ -129,7 +132,7 @@ Each rule names its enforcement:
 
 9.3 Equations, sequences, patterns, and frame fills flow right to left; the first Part is rightmost. In subtraction the Total is rightmost and the minus sign is `−` (U+2212), never a hyphen: `٥ − ٢ = ٣`. Multi-digit numbers keep positional order (`١٢`). **[review]**
 
-9.4 Child-facing and teacher-facing text are written in different voices. A child-facing prompt or Strategy Hint states what the child does, in at most two steps joined by `ثم`, opening with an approved imperative (`عدّ`، `انظر`، `صِلْ`، `لوّن`، `اختر`، `اكتب`، `ارسم`، `اشطب`، `اطرح`، `اقرأ`، `اجمع`، `قِسْ`، `رتّب`), and naming only `GLOSSARY.md` terms. Teacher-facing text may state objectives and explain reasoning, and may use a descriptive phrase such as `العدد الكلي` where the child-facing term is `الكلّ`. **[review]**
+9.4 Child-facing and teacher-facing text are written in different voices. A child-facing prompt or Strategy Hint states what the child does, in at most two steps joined by `ثم`, opening with an approved imperative (`عدّ`، `انظر`، `صِلْ`، `لوّن`، `اختر`، `اكتب`، `ارسم`، `اشطب`، `اطرح`، `اقرأ`، `اجمع`، `قِسْ`، `رتّب`، `حوّط`), and naming only `GLOSSARY.md` terms. Teacher-facing text may state objectives and explain reasoning, and may use a descriptive phrase such as `العدد الكلي` where the child-facing term is `الكلّ`. **[review]**
 
 9.5 An Exercise prompt opens with the instruction, never with a topic label naming the Section, the exercise type, or the lesson subject (`تهيئة الأشكال:`, `تحدّي المجسّمات:`, `مسألة اليوم:`). Section names belong to the Section header alone, and **Problem of the Day** (§5.4) is a structural type, not printed text. **[test]**
 
@@ -174,3 +177,4 @@ A batch closes when all of these hold:
 - 2026-11-08: For Grade K Unit 6 (Numbers to 10, length measurement, and polygon perimeter): §3.4 adds Ten-frame (`240 × 108 px` with 48 px cells), Paper-Clip Bar (`312 × 56 px`), and Polygon Perimeter (`212 × 160 px`) canonical sizes; §9.4 adds the imperatives `قِسْ` and `رتّب`.
 - 2026-11-09: For Grade K Unit 7 (Add to 10): §3.4 adds Numtanga Grid (`324 × 212 px`) canonical size per §3.5 and §10.1.
 - 2026-11-11: Added Digicross Grid (`324 × 212 px`) to §3.4 canonical sizes per §3.5 and §10.1.
+- 2026-11-11: For Grade K Unit 9 (Numbers to 20): §3.4 adds Linear Comparison (660 × 120 px), Dot Array (212 × 160 px), and Ten-frame vertical (108 × 252 px) canonical sizes; §6.3 adds Difference = 0 as an Advanced edge case; §9.4 adds the imperative حوّط.

@@ -494,6 +494,11 @@ function measureSheet(std) {
       sizes.digicrossGridBox,
       "Digicross Grid",
     ],
+    [
+      '[data-visual-model="linear-comparison"]',
+      sizes.linearComparisonBox,
+      "Linear Comparison",
+    ],
   ];
   for (const [selector, size, name] of canonical) {
     for (const el of sheet.querySelectorAll(selector)) {

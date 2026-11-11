@@ -192,6 +192,26 @@ _Avoid_: commutative pair, reversed bond, الزوج التبادلي
 The numeral digits `٠١٢٣٤٥٦٧٨٩` used exclusively across the user interface, worksheets, and answer keys (except inside standard codes).
 _Avoid_: Hindi numerals, Arabic-Indic digits
 
+**Linear Model**:
+A Visual Model showing two horizontal rows of objects aligned one-to-one (نموذج المقارنة الخطّي), used for visual comparison of group sizes without counting.
+_Avoid_: صفّ المقارنة, comparison chart
+
+**Difference**:
+The quantity by which one group exceeds another (الفرق) in a comparison, found by counting the extra objects in the larger group or the missing objects in the smaller group.
+_Avoid_: remainder, الباقي, المتبقّي
+
+**Consecutive Numbers**:
+Numbers that follow each other in counting order with no gaps (أعداد متتالية), such as ١١، ١٢، ١٣.
+_Avoid_: sequential numbers, أعداد متسلسلة
+
+**Teen Number**:
+A number from 11 to 19 understood as 10 and some more (عدد عشريني), where the "10" is one full Ten Frame and the "some more" is the ones.
+_Avoid_: أعداد المراهقين, two-digit number
+
+**Dot Array**:
+A Visual Model showing a quantity as a rectangular grid of dots arranged in rows and columns (مصفوفة النقاط), supporting both complete arrays and near arrays with one incomplete row.
+_Avoid_: نمط النقاط, dot pattern, grid
+
 ### Reading Comprehension
 
 **Reading Level**:

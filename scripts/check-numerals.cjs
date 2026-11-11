@@ -126,6 +126,7 @@ const APPROVED_IMPERATIVES = [
   "اجمع",
   "قِسْ",
   "رتّب",
+  "حوّط",
 ];
 
 const blueprintFiles = walk("src/blueprints");
@@ -183,6 +184,7 @@ const MODERN_ARCHETYPE_FILES = [
   path.join("src", "archetypes", "solve-word-problem.tsx"),
   path.join("src", "archetypes", "shift-one-decompose.tsx"),
   path.join("src", "archetypes", "measure-and-compare-length.tsx"),
+  path.join("src", "archetypes", "compare-groups.tsx"),
   path.join("src", "lib", "word-problems.ts"),
 ];
 

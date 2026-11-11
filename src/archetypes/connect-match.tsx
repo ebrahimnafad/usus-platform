@@ -49,7 +49,10 @@ import {
 } from "@/visual-models/measurement-models";
 
 export type ConnectMatchMode =
-  PartWholeMatchMode | "shape-to-description" | "ten-frame-to-description";
+  | PartWholeMatchMode
+  | "shape-to-description"
+  | "ten-frame-to-description"
+  | "ten-frame-to-comparison";
 
 export interface ConnectMatchBlueprintParams {
   pairCount?: number;
@@ -450,6 +453,65 @@ function generateConnectMatchExercise(
           : `${descriptionTextAr} على اللوحة — والكلّ ${totalAr}`,
       };
     });
+  } else if (matchingMode === "ten-frame-to-comparison") {
+    const totalCount = 10;
+    const totalAr = formatEasternNumber(totalCount);
+    const set = SQUARE_CIRCLE_SET;
+    const name0 = "المربعات";
+    const name1 = "الدوائر";
+    const candidateParts: Array<[number, number]> = [
+      [7, 3],
+      [4, 6],
+      [8, 2],
+      [3, 7],
+      [6, 4],
+      [2, 8],
+    ];
+    const pickedComps = ctx.rng.pickN(candidateParts, pairCount);
+
+    pairs = pickedComps.map(([p0, p1], idx) => {
+      const p0Ar = formatEasternNumber(p0);
+      const p1Ar = formatEasternNumber(p1);
+      const comparisonDescAr =
+        p0 > p1 ? `${name0} أكثر من ${name1}` : `${name1} أكثر من ${name0}`;
+
+      const rightModel = createTenFrameSpec({
+        count: p0,
+        secondaryCount: p1,
+        colorTheme: set.categories[0]?.colorTheme ?? "sky",
+        secondaryColorTheme: set.categories[1]?.colorTheme ?? "coral",
+        shapeId: set.categories[0]?.shapeId,
+        secondaryShapeId: set.categories[1]?.shapeId,
+        showPartOutline: true,
+        highlightEmptySlots: true,
+      });
+
+      const leftModel = createShapeDescriptionSpec({
+        id: `tc-${idx + 1}-${p0}-${p1}`,
+        textAr: comparisonDescAr,
+        meta: {
+          isTenFrameDescriptionEndpoint: true,
+          ...(params.missingTotal
+            ? {
+                missingTotal: totalCount,
+                missingTotalAr: totalAr,
+              }
+            : {}),
+        },
+      });
+
+      const factKey = `tc-${p0}-${p1}`;
+      ctx.usedFacts?.add(factKey);
+
+      return {
+        pairId: `pair-${idx + 1}-tc-${p0}-${p1}`,
+        rightItem: rightModel,
+        leftItem: leftModel,
+        connectionReasonAr: params.missingTotal
+          ? `${p0Ar} مربعات و${p1Ar} دوائر — ${comparisonDescAr}، والكلّ يساوي ${totalAr}`
+          : `${p0Ar} مربعات و${p1Ar} دوائر — ${comparisonDescAr}`,
+      };
+    });
   } else if (matchingMode) {
     pairs = buildPartWholeMatchPairs({
       rng: ctx.rng,
@@ -533,27 +595,34 @@ function generateConnectMatchExercise(
     matchingMode === "ten-frame-to-number-bond";
   const isTenFrameEqMatch = matchingMode === "ten-frame-to-equation";
   const isTenFrameDescMatch = matchingMode === "ten-frame-to-description";
+  const isTenFrameCompMatch = matchingMode === "ten-frame-to-comparison";
 
   const defaultRightTitle =
-    isTenFrameBondMatch || isTenFrameEqMatch || isTenFrameDescMatch
+    isTenFrameBondMatch ||
+    isTenFrameEqMatch ||
+    isTenFrameDescMatch ||
+    isTenFrameCompMatch
       ? "لوحة العشرة"
       : "العمود الأيمن";
-  const defaultLeftTitle = isTenFrameDescMatch
-    ? "الوصف"
-    : isTenFrameBondMatch
-      ? "رابطة الأعداد"
-      : isTenFrameEqMatch
-        ? params.operation === "subtract"
-          ? "معادلة الطرح"
-          : "معادلة الجمع"
-        : "العمود الأيسر";
+  const defaultLeftTitle = isTenFrameCompMatch
+    ? "المقارنة"
+    : isTenFrameDescMatch
+      ? "الوصف"
+      : isTenFrameBondMatch
+        ? "رابطة الأعداد"
+        : isTenFrameEqMatch
+          ? params.operation === "subtract"
+            ? "معادلة الطرح"
+            : "معادلة الجمع"
+          : "العمود الأيسر";
 
   const takeApartMatchSummaryAr = isTakeApartMatch
     ? pairs.map((p) => p.connectionReasonAr).join("؛ ")
     : "";
-  const tenFrameDescSummaryAr = isTenFrameDescMatch
-    ? pairs.map((p) => p.connectionReasonAr).join("؛ ")
-    : "";
+  const tenFrameDescSummaryAr =
+    isTenFrameDescMatch || isTenFrameCompMatch
+      ? pairs.map((p) => p.connectionReasonAr).join("؛ ")
+      : "";
 
   const isMatchMissingPart =
     resolvedMatchMissingPosition === "part1" ||
@@ -561,38 +630,46 @@ function generateConnectMatchExercise(
 
   const defaultPromptAr = isTakeApartMatch
     ? "صِلْ كلّ رابطة أعداد بالمسألة التي تحمل الكلّ نفسه، ثم اكتب الجزأين:"
-    : isTenFrameDescMatch
+    : isTenFrameCompMatch
       ? params.missingTotal
-        ? "صِلْ كلّ لوحة عشرة بالوصف المطابق، ثم اكتب الكلّ في المربّع:"
-        : "صِلْ كلّ لوحة عشرة بالوصف المطابق:"
-      : isTenFrameBondMatch
-        ? isMatchMissingPart
-          ? "صِلْ كلّ لوحة عشرة برابطة الأعداد المطابقة، ثم اكتب الجزء الناقص في الرابطة:"
-          : "صِلْ كلّ لوحة عشرة برابطة الأعداد المطابقة، ثم اكتب الكلّ في الدائرة:"
-        : isTenFrameEqMatch
+        ? "صِلْ كلّ لوحة عشرة بوصف المقارنة المطابق، ثم اكتب الكلّ في المربّع:"
+        : "صِلْ كلّ لوحة عشرة بوصف المقارنة المطابق:"
+      : isTenFrameDescMatch
+        ? params.missingTotal
+          ? "صِلْ كلّ لوحة عشرة بالوصف المطابق، ثم اكتب الكلّ في المربّع:"
+          : "صِلْ كلّ لوحة عشرة بالوصف المطابق:"
+        : isTenFrameBondMatch
           ? isMatchMissingPart
-            ? "صِلْ كلّ لوحة عشرة بالمعادلة المطابقة، ثم اكتب العدد الناقص في المعادلة:"
-            : "صِلْ كلّ لوحة عشرة بالمعادلة المطابقة، ثم اكتب الكلّ في المربّع:"
-          : ctx.difficultyLevel === "Easy"
-            ? `صل بخط بين كل شكل في العمود الأيمن وما يطابقه تماماً في العمود الأيسر (${pairCountAr} عناصر):`
-            : ctx.difficultyLevel === "Intermediate"
-              ? `قارن بدقة ثم صل بخط بين كل صورة في العمود الأيمن والصورة المطابقة لها في العمود الأيسر (${pairCountAr} عناصر):`
-              : `لاحظ التفاصيل الدقيقة للصور (${pairCountAr} عناصر)، وصل كل عنصر في العمود الأيمن بنظيره المطابق في العمود الأيسر:`;
+            ? "صِلْ كلّ لوحة عشرة برابطة الأعداد المطابقة، ثم اكتب الجزء الناقص في الرابطة:"
+            : "صِلْ كلّ لوحة عشرة برابطة الأعداد المطابقة، ثم اكتب الكلّ في الدائرة:"
+          : isTenFrameEqMatch
+            ? isMatchMissingPart
+              ? "صِلْ كلّ لوحة عشرة بالمعادلة المطابقة، ثم اكتب العدد الناقص في المعادلة:"
+              : "صِلْ كلّ لوحة عشرة بالمعادلة المطابقة، ثم اكتب الكلّ في المربّع:"
+            : ctx.difficultyLevel === "Easy"
+              ? `صل بخط بين كل شكل في العمود الأيمن وما يطابقه تماماً في العمود الأيسر (${pairCountAr} عناصر):`
+              : ctx.difficultyLevel === "Intermediate"
+                ? `قارن بدقة ثم صل بخط بين كل صورة في العمود الأيمن والصورة المطابقة لها في العمود الأيسر (${pairCountAr} عناصر):`
+                : `لاحظ التفاصيل الدقيقة للصور (${pairCountAr} عناصر)، وصل كل عنصر في العمود الأيمن بنظيره المطابق في العمود الأيسر:`;
 
-  const defaultStrategyHintAr = isTenFrameDescMatch
-    ? `عدّ أشكال كل جزء على اللوحة، ثم صِلْ اللوحة بالوصف الذي يذكر الأعداد نفسها${
-        params.missingTotal ? "، واكتب الكلّ في المربّع" : ""
+  const defaultStrategyHintAr = isTenFrameCompMatch
+    ? `عدّ أشكال كل جزء على اللوحة، ثم صِلْ بالوصف الذي يقارن بينهما${
+        params.missingTotal ? " واكتب الكلّ" : ""
       } (${tenFrameDescSummaryAr}).`
-    : isTakeApartMatch
-      ? `صِلْ بالمسألة المطابقة للكلّ واكتب الجزأين (${takeApartMatchSummaryAr}).`
-      : ctx.difficultyLevel === "Easy"
-        ? `ابدأ من أول صورة في العمود الأيمن، لاحظ شكلها ولونها المميّز، ثم ابحث عن توأمها في العمود الأيسر وارسم خطاً يصل بينهما (التقابل ١ إلى ١).`
-        : ctx.difficultyLevel === "Intermediate"
-          ? `ركّز على الصفة المميّزة لكل عنصر (الشكل الخارجي والتفاصيل الداخلية) وتحقّق من أن كل عنصر في اليمين يتصل بعنصر واحد فقط في اليسار.`
-          : `قارن العناصر المتشابهة في الفئة بعناية، واستبعد الصور المختلفة في الشكل أو التفاصيل، ثم تأكّد من تساوي عدد العناصر في العمودين (${pairCountAr} مقابل ${pairCountAr}).`;
+    : isTenFrameDescMatch
+      ? `عدّ أشكال كل جزء على اللوحة، ثم صِلْ اللوحة بالوصف الذي يذكر الأعداد نفسها${
+          params.missingTotal ? "، واكتب الكلّ في المربّع" : ""
+        } (${tenFrameDescSummaryAr}).`
+      : isTakeApartMatch
+        ? `صِلْ بالمسألة المطابقة للكلّ واكتب الجزأين (${takeApartMatchSummaryAr}).`
+        : ctx.difficultyLevel === "Easy"
+          ? `ابدأ من أول صورة في العمود الأيمن، لاحظ شكلها ولونها المميّز، ثم ابحث عن توأمها في العمود الأيسر وارسم خطاً يصل بينهما (التقابل ١ إلى ١).`
+          : ctx.difficultyLevel === "Intermediate"
+            ? `ركّز على الصفة المميّزة لكل عنصر (الشكل الخارجي والتفاصيل الداخلية) وتحقّق من أن كل عنصر في اليمين يتصل بعنصر واحد فقط في اليسار.`
+            : `قارن العناصر المتشابهة في الفئة بعناية، واستبعد الصور المختلفة في الشكل أو التفاصيل، ثم تأكّد من تساوي عدد العناصر في العمودين (${pairCountAr} مقابل ${pairCountAr}).`;
 
   const resolvedStrategyHintAr = ctx.spec.strategyHintAr
-    ? isTenFrameDescMatch
+    ? isTenFrameDescMatch || isTenFrameCompMatch
       ? `${ctx.spec.strategyHintAr.replace(/\.$/, "")} (${tenFrameDescSummaryAr}).`
       : isTakeApartMatch
         ? `${ctx.spec.strategyHintAr.replace(/\.$/, "")} (${takeApartMatchSummaryAr}).`

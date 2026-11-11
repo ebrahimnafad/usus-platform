@@ -112,6 +112,7 @@ export type VisualModelKind =
   | "polygon-perimeter"
   | "numtanga-grid"
   | "digicross-grid"
+  | "linear-comparison"
   | "shape-description";
 
 export type EverydayObjectCategory =
@@ -208,7 +209,8 @@ export type ExerciseArchetypeId =
   | "ShiftOneDecompose"
   | "MeasureAndCompareLength"
   | "Numtanga"
-  | "Digicross";
+  | "Digicross"
+  | "CompareGroups";
 
 export type DigicrossArchetypeParams = {
   /** Inclusive bounds for every grid value. */
@@ -351,6 +353,7 @@ export interface ArchetypeParamsByArchetypeId {
   MeasureAndCompareLength: Record<string, unknown>;
   Numtanga: Record<string, unknown>;
   Digicross: DigicrossArchetypeParams;
+  CompareGroups: Record<string, unknown>;
 }
 
 export type BlueprintExerciseSpecFor<K extends ExerciseArchetypeId> = {

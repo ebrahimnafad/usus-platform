@@ -5,6 +5,7 @@ import {
   type ArchetypeRenderProps,
 } from "@/archetypes/registry";
 import type {
+  ColorThemeId,
   Exercise,
   GenericArchetypeData,
   VisualModelSpec,
@@ -17,6 +18,8 @@ import {
   type EquationOperation,
 } from "@/visual-models/unit-3-models";
 import { VisualModelView } from "@/visual-models/registry";
+import { AnswerSlot } from "@/components/worksheet/AnswerSlot";
+import { EverydayObjectSvg } from "@/visual-models/everyday-objects";
 import { ExerciseColumns } from "@/components/worksheet/ExerciseColumns";
 import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
 import {
@@ -26,13 +29,31 @@ import {
   type SubtractionFact,
 } from "@/lib/part-whole-facts";
 
-export type JudgeEqualityMode = "whats-wrong" | "true-false" | "balance";
+export type JudgeEqualityMode =
+  "whats-wrong" | "true-false" | "balance" | "comparison-statement";
 export type JudgeEqualityModelKind =
   "equation" | "number-bond" | "balance-scale";
+
+export interface ComparisonCategoryItem {
+  id: string;
+  nameAr: string;
+  count: number;
+  countAr: string;
+  objectId: string;
+  colorTheme?: ColorThemeId;
+}
+
+export interface ComparisonStatementItem {
+  id: string;
+  statementAr: string;
+  isCorrect: boolean;
+  explanationAr: string;
+}
 
 export interface JudgeEqualityBlueprintParams {
   operation?: EquationOperation;
   mode?: JudgeEqualityMode;
+  judgementKind?: "equation" | "comparison-statement";
   modelKind?: JudgeEqualityModelKind;
   twoExpressionPans?: boolean;
   rowCount?: number;
@@ -74,6 +95,8 @@ export interface JudgeEqualityData extends GenericArchetypeData {
   modelKind: JudgeEqualityModelKind;
   numberBank?: number[];
   rows: JudgeEqualityRow[];
+  comparisonCategories?: ComparisonCategoryItem[];
+  comparisonStatements?: ComparisonStatementItem[];
 }
 
 function pickWrongValue(
@@ -261,7 +284,120 @@ function generateJudgeEqualityExercise(
 ): Exercise {
   const params = (ctx.spec.params ?? {}) as JudgeEqualityBlueprintParams;
   const operation: EquationOperation = params.operation ?? "add";
-  const mode: JudgeEqualityMode = params.mode ?? "whats-wrong";
+  const mode: JudgeEqualityMode =
+    params.mode ??
+    (params.judgementKind === "comparison-statement"
+      ? "comparison-statement"
+      : "whats-wrong");
+
+  if (
+    mode === "comparison-statement" ||
+    params.judgementKind === "comparison-statement"
+  ) {
+    const catDefs = [
+      {
+        id: "cat",
+        nameAr: "القطط",
+        objectId: "cat",
+        colorTheme: "coral" as ColorThemeId,
+      },
+      {
+        id: "bird",
+        nameAr: "الطيور",
+        objectId: "bird",
+        colorTheme: "sky" as ColorThemeId,
+      },
+      {
+        id: "fish",
+        nameAr: "الأسماك",
+        objectId: "fish",
+        colorTheme: "emerald" as ColorThemeId,
+      },
+    ];
+
+    const availableCounts = ctx.rng.shuffle([3, 4, 5, 6, 7, 8]).slice(0, 3);
+    const comparisonCategories: ComparisonCategoryItem[] = catDefs.map(
+      (def, idx) => {
+        const cnt = availableCounts[idx];
+        return {
+          id: def.id,
+          nameAr: def.nameAr,
+          count: cnt,
+          countAr: formatEasternNumber(cnt),
+          objectId: def.objectId,
+          colorTheme: def.colorTheme,
+        };
+      }
+    );
+
+    const c0 = comparisonCategories[0];
+    const c1 = comparisonCategories[1];
+    const c2 = comparisonCategories[2];
+
+    const stmts: ComparisonStatementItem[] = [];
+    const notes: string[] = [];
+
+    const s1IsMore = c0.count > c1.count;
+    stmts.push({
+      id: "stmt-1",
+      statementAr: `عدد ${c0.nameAr} أكثر من عدد ${c1.nameAr}`,
+      isCorrect: s1IsMore,
+      explanationAr: s1IsMore
+        ? `عدد ${c0.nameAr} (${c0.countAr}) أكثر من عدد ${c1.nameAr} (${c1.countAr})`
+        : `عدد ${c0.nameAr} (${c0.countAr}) أقل من عدد ${c1.nameAr} (${c1.countAr})`,
+    });
+    notes.push(stmts[0].explanationAr);
+
+    const s2IsMore = c1.count > c2.count;
+    stmts.push({
+      id: "stmt-2",
+      statementAr: `عدد ${c1.nameAr} أقل من عدد ${c2.nameAr}`,
+      isCorrect: !s2IsMore,
+      explanationAr: !s2IsMore
+        ? `عدد ${c1.nameAr} (${c1.countAr}) أقل من عدد ${c2.nameAr} (${c2.countAr})`
+        : `عدد ${c1.nameAr} (${c1.countAr}) أكثر من عدد ${c2.nameAr} (${c2.countAr})`,
+    });
+    notes.push(stmts[1].explanationAr);
+
+    const s3IsMore = c2.count > c0.count;
+    stmts.push({
+      id: "stmt-3",
+      statementAr: `عدد ${c2.nameAr} أكثر من عدد ${c0.nameAr}`,
+      isCorrect: s3IsMore,
+      explanationAr: s3IsMore
+        ? `عدد ${c2.nameAr} (${c2.countAr}) أكثر من عدد ${c0.nameAr} (${c0.countAr})`
+        : `عدد ${c2.nameAr} (${c2.countAr}) أقل من عدد ${c0.nameAr} (${c0.countAr})`,
+    });
+    notes.push(stmts[2].explanationAr);
+
+    const defaultPromptAr =
+      "عدّ حيوانات كل فئة واكتب العدد، ثم حوّط العبارة الصحيحة واشطب غير الصحيحة:";
+    const defaultStrategyHintAr = `عدّ كل فئة واكتب العدد في المربّع، ثم انظر إلى الأعداد للحكم على صحّة كل عبارة (${notes.join("؛ ")}).`;
+
+    const data: JudgeEqualityData = {
+      kind: "JudgeEquality",
+      operation: "add",
+      mode: "comparison-statement",
+      modelKind: "equation",
+      rows: [],
+      comparisonCategories,
+      comparisonStatements: stmts,
+    };
+
+    return {
+      id: `${ctx.lesson.id}-${ctx.sectionId}-ex-${ctx.exerciseNumber}`,
+      exerciseNumber: ctx.exerciseNumber,
+      sectionId: ctx.sectionId,
+      archetype: "JudgeEquality",
+      difficultyLevel: ctx.difficultyLevel,
+      sourceLessonId: ctx.sourceLessonId,
+      titleAr: "أكثر أم أقل (ب)",
+      promptAr: ctx.spec.promptAr ?? defaultPromptAr,
+      strategyHintAr: ctx.spec.strategyHintAr ?? defaultStrategyHintAr,
+      visualModels: [],
+      data,
+    };
+  }
   const modelKind: JudgeEqualityModelKind =
     params.modelKind ?? (mode === "balance" ? "balance-scale" : "equation");
   const rowCount = Math.max(1, Math.min(2, params.rowCount ?? 1));
@@ -582,6 +718,116 @@ function renderJudgeEqualityExercise({
 }: ArchetypeRenderProps): React.ReactElement {
   const data = exercise.data as JudgeEqualityData;
   const isAnswerKey = mode === "answer-key";
+
+  if (
+    data.mode === "comparison-statement" &&
+    data.comparisonCategories &&
+    data.comparisonStatements
+  ) {
+    return (
+      <div
+        className="space-y-2"
+        data-archetype="JudgeEquality"
+        data-judge-mode={data.mode}
+      >
+        <ExerciseColumns columns={1}>
+          <div className="flex flex-col gap-3 py-1" dir="rtl">
+            {/* Top: 3 animal count cards */}
+            <div className="flex w-full items-center justify-around gap-3">
+              {data.comparisonCategories.map((cat) => (
+                <div
+                  key={cat.id}
+                  className="flex flex-col items-center gap-1 rounded-xl border border-slate-200 bg-white p-1.5 px-3 shadow-2xs"
+                  data-category-card={cat.id}
+                >
+                  <div className="flex items-center gap-2">
+                    <EverydayObjectSvg objectId={cat.objectId} size="medium" />
+                    <span className="text-[13px] font-extrabold text-slate-800">
+                      {cat.nameAr}
+                    </span>
+                  </div>
+                  {/* Icons row */}
+                  <div className="flex min-h-[30px] max-w-[150px] flex-wrap items-center justify-center gap-1">
+                    {Array.from({ length: cat.count }, (_, i) => (
+                      <EverydayObjectSvg
+                        key={i}
+                        objectId={cat.objectId}
+                        size="tiny"
+                      />
+                    ))}
+                  </div>
+                  {/* Count AnswerSlot */}
+                  <div className="flex items-center gap-2 pt-0.5">
+                    <span className="text-[13px] font-extrabold text-slate-700">
+                      العدد:
+                    </span>
+                    <AnswerSlot
+                      answer={cat.countAr}
+                      solved={isAnswerKey}
+                      kind="write"
+                      ariaLabel={`مربع كتابة عدد ${cat.nameAr}`}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Bottom: 3 comparison statements */}
+            <div className="flex flex-col gap-2">
+              {data.comparisonStatements.map((stmt) => {
+                const chooseTrue = isAnswerKey && stmt.isCorrect;
+                const chooseFalse = isAnswerKey && !stmt.isCorrect;
+                return (
+                  <div
+                    key={stmt.id}
+                    className={`flex items-center justify-between rounded-xl border-2 px-3 py-1.5 transition-all ${
+                      isAnswerKey && !stmt.isCorrect
+                        ? "border-rose-300 bg-rose-50/60"
+                        : "border-slate-200 bg-white shadow-2xs"
+                    }`}
+                    data-statement-id={stmt.id}
+                  >
+                    <span className="text-[13px] font-extrabold text-slate-900">
+                      {toEasternArabicNumerals(stmt.statementAr)}
+                    </span>
+
+                    <div className="flex items-center gap-2">
+                      <span
+                        data-tf-choice="true"
+                        {...(chooseTrue
+                          ? { "data-circled-choice": "true" }
+                          : {})}
+                        className={`inline-flex h-7 min-w-12 items-center justify-center rounded-full px-2.5 text-[13px] font-extrabold leading-none ${
+                          chooseTrue
+                            ? "border-2 border-emerald-700 bg-emerald-100 text-emerald-950 ring-2 ring-emerald-500"
+                            : "border-2 border-dashed border-slate-300 bg-slate-50 text-slate-800"
+                        }`}
+                      >
+                        صح
+                      </span>
+                      <span
+                        data-tf-choice="false"
+                        {...(chooseFalse
+                          ? { "data-circled-choice": "false" }
+                          : {})}
+                        className={`inline-flex h-7 min-w-12 items-center justify-center rounded-full px-2.5 text-[13px] font-extrabold leading-none ${
+                          chooseFalse
+                            ? "border-2 border-rose-700 bg-rose-100 text-rose-950 ring-2 ring-rose-500"
+                            : "border-2 border-dashed border-slate-300 bg-slate-50 text-slate-800"
+                        }`}
+                      >
+                        خطأ
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </ExerciseColumns>
+      </div>
+    );
+  }
 
   return (
     <div

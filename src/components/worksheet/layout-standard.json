@@ -61,6 +61,10 @@
     "digicrossGridBox": {
       "width": 324,
       "height": 212
+    },
+    "linearComparisonBox": {
+      "width": 660,
+      "height": 120
     }
   },
   "typeScalePx": {

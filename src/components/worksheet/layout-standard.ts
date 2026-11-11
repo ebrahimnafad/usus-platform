@@ -38,6 +38,7 @@ export const CANONICAL_SIZES_PX: {
   polygonPerimeterBox: PixelSize;
   numtangaGridBox: PixelSize;
   digicrossGridBox: PixelSize;
+  linearComparisonBox: PixelSize;
 } = standard.canonicalSizesPx;
 
 export type TypeRole = keyof typeof standard.typeScalePx;

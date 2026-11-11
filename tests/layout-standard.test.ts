@@ -80,6 +80,7 @@ describe("Layout standard matches WORKSHEET_CONSTITUTION.md", () => {
       polygonPerimeterBox: { width: 212, height: 160 },
       numtangaGridBox: { width: 324, height: 212 },
       digicrossGridBox: { width: 324, height: 212 },
+      linearComparisonBox: { width: 660, height: 120 },
     });
   });
 
