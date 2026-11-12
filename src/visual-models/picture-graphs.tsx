@@ -71,7 +71,7 @@ export function createPictureGraphSpec(
   );
   const maxCount = Math.max(
     5,
-    Math.min(10, options.maxCount ?? (maxCategoryCount > 5 ? 10 : 5))
+    options.maxCount ?? (maxCategoryCount > 5 ? 10 : 5)
   );
   const categories: PictureGraphCategorySpec[] = options.categories.map(
     (cat, idx) => {
@@ -122,6 +122,8 @@ export function createPictureGraphSpec(
       mode,
       titleAr: options.titleAr ?? defaultTitleAr,
       maxCount,
+      // Counts beyond 10 wrap into sub-rows of 10 (K-104 teens to 20)
+      maxPerRow: maxCount > 10 ? 10 : maxCount,
       categories,
     },
   };
@@ -491,6 +493,9 @@ export function PictureGraphSvg({
   }
 
   const isTenHorizontal = safeMax > 5;
+  // Counts beyond 10 wrap into sub-rows of 10 (K-104 teens to 20)
+  const needsWrap = safeMax > 10;
+  const maxPerRow = needsWrap ? 10 : safeMax;
   const cellWidth = isTenHorizontal ? 38 : 50;
   const rowHeight = isTenHorizontal ? 36 : 44;
   const topHeaderH = 34;
@@ -500,9 +505,13 @@ export function PictureGraphSvg({
   const leftSummaryColW = showSummaryColumn ? (isTenHorizontal ? 32 : 40) : 0;
   const padX = isTenHorizontal ? 12 : 16;
 
-  const cellsGridW = safeMax * cellWidth;
+  const cellsGridW = maxPerRow * cellWidth;
+  // Wrapped rows (count > maxPerRow) occupy two sub-row bands
+  const rowHeights = safeCategories.map((cat) =>
+    needsWrap && cat.count > maxPerRow ? rowHeight * 2 : rowHeight
+  );
+  const gridHeight = rowHeights.reduce((sum, h) => sum + h, 0);
   const svgWidth = padX * 2 + leftSummaryColW + cellsGridW + rightCategoryColW;
-  const gridHeight = safeCategories.length * rowHeight;
   const svgHeight = topHeaderH + gridHeight + bottomAxisH;
 
   const gridLeftX = padX + leftSummaryColW;
@@ -514,6 +523,14 @@ export function PictureGraphSvg({
   const getRtlCellX = (cellIdx: number): number =>
     gridRightX - (cellIdx + 1) * cellWidth;
 
+  // Cumulative RTL row band offsets
+  const rowYOffsets: number[] = [];
+  let accY = gridTopY;
+  for (const h of rowHeights) {
+    rowYOffsets.push(accY);
+    accY += h;
+  }
+
   return (
     <svg
       width={svgWidth}
@@ -524,6 +541,7 @@ export function PictureGraphSvg({
       data-orientation="horizontal"
       data-direction="rtl"
       data-graph-type="picture-graph"
+      data-max-count={formatEasternNumber(safeMax)}
     >
       {/* Textbook Centered Graph Title */}
       <text
@@ -538,14 +556,18 @@ export function PictureGraphSvg({
       </text>
 
       {/* Vertical Reference Guidelines Across Rows */}
-      {Array.from({ length: safeMax }, (_, cellIdx) => {
+      {Array.from({ length: maxPerRow }, (_, cellIdx) => {
         const cellX = getRtlCellX(cellIdx);
         const colNum = cellIdx + 1;
-        const isMilestone = colNum === 5 || colNum === 10 || colNum === safeMax;
+        // Milestones: 5, 10, and 15/20 align on the same columns when wrapped
+        const isMilestone =
+          colNum === 5 || colNum === 10 || (!needsWrap && colNum === safeMax);
 
         return (
           <line
             key={`vguide-${colNum}`}
+            data-milestone={isMilestone ? "true" : "false"}
+            data-milestone-column={formatEasternNumber(colNum)}
             x1={cellX}
             y1={gridTopY}
             x2={cellX}
@@ -581,8 +603,13 @@ export function PictureGraphSvg({
 
       {/* Rows and Symbols */}
       {safeCategories.map((cat, rowIdx) => {
-        const rowY = gridTopY + rowIdx * rowHeight;
-        const rowCenterY = rowY + rowHeight / 2;
+        const rowY = rowYOffsets[rowIdx];
+        const rowH = rowHeights[rowIdx];
+        const wraps = needsWrap && cat.count > maxPerRow;
+        const subRowCount = wraps ? 2 : 1;
+        const subRowHeight = rowH / subRowCount;
+        // Cells per sub-row: wrapped graphs frame every sub-row at maxPerRow
+        const cellsPerSubRow = needsWrap ? maxPerRow : safeMax;
 
         return (
           <g
@@ -602,10 +629,10 @@ export function PictureGraphSvg({
               />
             )}
 
-            {/* Clean Category Label */}
+            {/* Clean Category Label (vertically centered on the row band) */}
             <text
               x={gridRightX + rightCategoryColW / 2}
-              y={rowCenterY + 4}
+              y={rowY + rowH / 2 + 4}
               textAnchor="middle"
               fontSize="13"
               fontWeight="bold"
@@ -614,35 +641,45 @@ export function PictureGraphSvg({
               {toEasternArabicNumerals(cat.labelAr)}
             </text>
 
-            {/* Symbols along row */}
-            {Array.from({ length: safeMax }, (_, cellIdx) => {
-              const cellX = getRtlCellX(cellIdx);
-              const cellCenterX = cellX + cellWidth / 2;
-              const isFilled = cellIdx < cat.count;
+            {/* Sub-rows: counts beyond maxPerRow wrap (١١–٢٠ into row ٢) */}
+            {Array.from({ length: subRowCount }, (_, subRowIdx) => (
+              <g
+                key={`subrow-${subRowIdx}`}
+                data-sub-row={formatEasternNumber(subRowIdx + 1)}
+              >
+                {Array.from({ length: cellsPerSubRow }, (_, cellIdx) => {
+                  const cellX = getRtlCellX(cellIdx);
+                  const cellCenterX = cellX + cellWidth / 2;
+                  const absoluteIdx = subRowIdx * cellsPerSubRow + cellIdx;
+                  const isFilled = absoluteIdx < cat.count;
+                  const cellCenterY =
+                    rowY + subRowIdx * subRowHeight + subRowHeight / 2;
 
-              return (
-                <g
-                  key={cellIdx}
-                  data-graph-cell={formatEasternNumber(cellIdx + 1)}
-                  data-cell-filled={isFilled ? "true" : "false"}
-                >
-                  {isFilled && (
-                    <GraphCellIconSvg
-                      icon={cat.icon}
-                      cx={cellCenterX}
-                      cy={rowCenterY}
-                      colorTheme={cat.colorTheme}
-                      sizePx={isTenHorizontal ? 28 : 34}
-                    />
-                  )}
-                </g>
-              );
-            })}
+                  return (
+                    <g
+                      key={cellIdx}
+                      data-graph-cell={formatEasternNumber(cellIdx + 1)}
+                      data-cell-filled={isFilled ? "true" : "false"}
+                    >
+                      {isFilled && (
+                        <GraphCellIconSvg
+                          icon={cat.icon}
+                          cx={cellCenterX}
+                          cy={cellCenterY}
+                          colorTheme={cat.colorTheme}
+                          sizePx={isTenHorizontal ? 28 : 34}
+                        />
+                      )}
+                    </g>
+                  );
+                })}
+              </g>
+            ))}
 
             {showSummaryColumn && (
               <text
                 x={padX + leftSummaryColW / 2}
-                y={rowCenterY + 5}
+                y={rowY + rowH / 2 + 5}
                 textAnchor="middle"
                 fontSize="16"
                 fontWeight="900"
@@ -667,7 +704,7 @@ export function PictureGraphSvg({
         >
           الفئة
         </text>
-        {Array.from({ length: safeMax }, (_, cellIdx) => {
+        {Array.from({ length: maxPerRow }, (_, cellIdx) => {
           const cellX = getRtlCellX(cellIdx);
           const cx = cellX + cellWidth / 2;
           const numAr = formatEasternNumber(cellIdx + 1);

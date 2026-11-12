@@ -9,18 +9,18 @@
 
 **Lesson details:**
 
-- **K-103** (Identify and Trace Numbers 11-20): Warm-up from K-62 (`ModelCountAndTrace`). Practice: `ModelCountAndTrace` with composite numeral trace 11–20. Challenge: PoD write parts of ten-frame decomposition. BB: `ModelCountAndTrace` TRACE and WRITE (11–20).
-- **K-104** (Picture Graphs to 20): Warm-up from K-63 (`PictureGraphRead`). Practice: `PictureGraphRead` with counts up to 20 and two-row wrapping. Challenge: PoD show total as "10 and some more" (`SubitizePartWhole` `responseKind: 'decompose-teen'`). BB: `PictureGraphRead` with `includeComparison: true` (MORE OR LESS – C).
+- **K-103** (Identify and Trace Numbers 11-20): Warm-up from K-62 (`ModelCountAndTrace`). Practice: `ModelCountAndTrace` with composite numeral trace 11–20. Challenge: PoD write the parts of the teen decomposition (`SubitizePartWhole` `subitizeMode: 'decompose-teen'`; grouped 10-and-ones everyday-object models per K-103's quantity model — the curriculum's literal white/grey split of one visual is out of reuse scope for this ticket). BB: `ModelCountAndTrace` TRACE and WRITE (11–20).
+- **K-104** (Picture Graphs to 20): Warm-up from K-63 (`PictureGraphRead`). Practice: `PictureGraphRead` with counts up to 20 and two-row wrapping. Challenge: PoD show total as "10 and some more" (`SubitizePartWhole` `subitizeMode: 'decompose-teen'` — implemented as a variant of the archetype's existing `subitizeMode` param, the spec's `responseKind` label). BB: `PictureGraphRead` with `includeComparison: true` (MORE OR LESS – C).
 - **K-105** (Measure Total Side Length of Polygons): Warm-up from K-73 (`MeasureAndCompareLength`). Practice: `MeasureAndCompareLength` (polygon perimeter with paper clips). Challenge: PoD shape names and paper-clip counts. BB: `ConnectMatch` with `shape-to-description` mode (MATCHING – C).
 - **K-106** (Model Numbers using Arrays, Near Arrays & Digits): Warm-up from K-65 (`SequenceAndZero`). Practice: `SequenceAndZero` with `dot-array` visual models, connect arrays in counting order. Challenge: PoD draw arrows counting forward/backward. BB: `SequenceAndZero` tally marks forward from 16 (COUNT & CONNECT).
 
 **Blocked by:** Ticket 01 (for clean dependency sequencing)
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] `dot-array` visual model created with full arrays, near arrays, RTL fill, and answer-key grouping containers
-- [ ] `numeral-trace` extended to composite 11–20 digits
-- [ ] `picture-graph` extended with `maxPerRow: 10` wrapping for counts up to 20
-- [ ] Blueprints, localized Arabic titles, and Teacher Notes registered for K-103 to K-106
-- [ ] Domain test: dot-array count matches dot layout; polygon perimeter matches sides × units; teen number traces valid
-- [ ] Layout guard passes for `--lessons=K-103..K-106 --seeds=2`
+- [x] `dot-array` visual model created with full arrays, near arrays, RTL fill, and answer-key grouping containers
+- [x] `numeral-trace` extended to composite 11–20 digits
+- [x] `picture-graph` extended with `maxPerRow: 10` wrapping for counts up to 20
+- [x] Blueprints, localized Arabic titles, and Teacher Notes registered for K-103 to K-106
+- [x] Domain test: dot-array count matches dot layout; polygon perimeter matches sides × units; teen number traces valid
+- [x] Layout guard passes for `--lessons=K-103..K-106 --seeds=2` (64/64 renders PASS; review PNGs under `layout-guard-output/png/K-103..K-106/`)

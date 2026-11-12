@@ -253,13 +253,7 @@ function generatePictureGraphReadExercise(
   const isDrawMissing = params.responseMode === "draw-missing";
   const maxCount = isDrawMissing
     ? 5
-    : Math.max(
-        5,
-        Math.min(
-          10,
-          params.maxCount ?? (ctx.lesson.lessonNumber >= 63 ? 10 : 5)
-        )
-      );
+    : Math.max(5, params.maxCount ?? (ctx.lesson.lessonNumber >= 63 ? 10 : 5));
 
   const defaultResponseMode: PictureGraphResponseMode =
     ctx.difficultyLevel === "Advanced" ? "write" : "trace-and-write";

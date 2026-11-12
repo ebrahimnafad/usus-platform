@@ -1605,12 +1605,12 @@ export function registerShapesSolidsCoinsVisualModels(): void {
     if (total > 1) {
       return (
         <div
-          className="inline-flex items-center gap-1"
+          className="inline-flex max-w-full items-center gap-1"
           data-visual-model="solid-3d"
           data-solid-id={model.id}
           data-count={formatEasternNumber(total)}
         >
-          <div className="flex items-center justify-center gap-0.5">
+          <div className="flex max-w-full flex-wrap items-center justify-center gap-0.5">
             <div
               className={`flex items-center gap-0.5 ${
                 secondary > 0

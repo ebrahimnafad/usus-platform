@@ -113,7 +113,8 @@ export type VisualModelKind =
   | "numtanga-grid"
   | "digicross-grid"
   | "linear-comparison"
-  | "shape-description";
+  | "shape-description"
+  | "dot-array";
 
 export type EverydayObjectCategory =
   "animals" | "fruits" | "toys" | "school" | "nature" | "treats";
@@ -169,7 +170,7 @@ export type RealWorldSolidId =
 
 export type CoinDenomination = 1 | 5 | 10 | 25 | 50;
 
-export type VisualSize = "small" | "medium" | "large";
+export type VisualSize = "tiny" | "small" | "medium" | "large";
 
 export type ColorThemeId =
   "coral" | "amber" | "emerald" | "sky" | "violet" | "rose" | "teal" | "indigo";

@@ -81,6 +81,7 @@ describe("Layout standard matches WORKSHEET_CONSTITUTION.md", () => {
       numtangaGridBox: { width: 324, height: 212 },
       digicrossGridBox: { width: 324, height: 212 },
       linearComparisonBox: { width: 660, height: 120 },
+      dotArrayBox: { width: 212, height: 160 },
     });
   });
 

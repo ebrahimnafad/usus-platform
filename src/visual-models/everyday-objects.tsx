@@ -1248,6 +1248,12 @@ export const renderEverydayObjectVisualModel: VisualModelRenderer = ({
     crossOffMode !== "none" &&
     (crossOffMode === "shown" || solved);
   const effectiveSize = model.size ?? (total >= 4 ? "tiny" : "small");
+  // Grouped items wrap at 5 per row (teen "10 and some more" groups, K-103):
+  // the 10-group renders as two rows of 5, the ones-group below it.
+  const groupedItems = meta.groupedItems === true;
+  const groupWrapClass = groupedItems
+    ? "max-w-[170px] flex-wrap content-start justify-center"
+    : "";
   const resolvedObjectId =
     (meta.objectId as string) ??
     (EVERYDAY_OBJECT_CATALOG.some((item) => item.id === model.id)
@@ -1352,7 +1358,9 @@ export const renderEverydayObjectVisualModel: VisualModelRenderer = ({
     >
       <div
         dir="rtl"
-        className="flex shrink-0 items-center justify-center gap-0.5"
+        className={`flex shrink-0 items-center justify-center gap-0.5 ${
+          groupedItems ? "flex-col" : ""
+        }`}
         data-visual-model="everyday-object-group"
         {...(secondary > 0
           ? {
@@ -1363,7 +1371,7 @@ export const renderEverydayObjectVisualModel: VisualModelRenderer = ({
           : {})}
       >
         <div
-          className={`flex shrink-0 items-center gap-0.5 ${
+          className={`flex shrink-0 items-center gap-0.5 ${groupWrapClass} ${
             secondary > 0
               ? "rounded-xl border border-dashed border-indigo-300 bg-indigo-50/40 px-1 py-0.5"
               : ""
@@ -1374,7 +1382,9 @@ export const renderEverydayObjectVisualModel: VisualModelRenderer = ({
           )}
         </div>
         {secondary > 0 && (
-          <div className="flex shrink-0 items-center gap-0.5 rounded-xl border border-dashed border-amber-300 bg-amber-50/40 px-1 py-0.5">
+          <div
+            className={`flex shrink-0 items-center gap-0.5 ${groupWrapClass} rounded-xl border border-dashed border-amber-300 bg-amber-50/40 px-1 py-0.5`}
+          >
             {Array.from({ length: secondary }, (_, idx) =>
               renderObjectItem(`s-${idx}`, primary + idx)
             )}

@@ -401,6 +401,16 @@ const ARABIC_NUMBER_WORDS: Record<number, string> = {
   8: "ثمانية",
   9: "تسعة",
   10: "عشرة",
+  11: "أحد عشر",
+  12: "اثنا عشر",
+  13: "ثلاثة عشر",
+  14: "أربعة عشر",
+  15: "خمسة عشر",
+  16: "ستة عشر",
+  17: "سبعة عشر",
+  18: "ثمانية عشر",
+  19: "تسعة عشر",
+  20: "عشرون",
 };
 
 export function getArabicNumberWord(n: number): string {
@@ -410,9 +420,25 @@ export function getArabicNumberWord(n: number): string {
 export function createNumeralTraceSpec(
   options: NumeralTraceOptions
 ): VisualModelSpec {
-  const digit = Math.max(0, Math.min(10, options.digit));
+  const digit = Math.max(0, Math.min(20, options.digit));
   const digitAr = formatEasternNumber(digit);
   const wordAr = getArabicNumberWord(digit);
+
+  // Teen numbers (11–20) trace as a composite of two side-by-side single-digit
+  // guides (positional order: tens left, ones right — §9.3 keeps ١٤ as ١ then ٤).
+  // 10 keeps its own single-card ١٠ stroke guide.
+  if (digit >= 11) {
+    return {
+      kind: "numeral-trace",
+      id: `numeral-trace-${digit}-composite`,
+      labelAr: options.labelAr ?? `تتبّع الرقم ${digitAr} (${wordAr})`,
+      digit,
+      count: digit,
+      colorTheme: options.colorTheme ?? "indigo",
+      meta: { compositeDigits: [Math.floor(digit / 10), digit % 10] },
+    };
+  }
+
   return {
     kind: "numeral-trace",
     id: `numeral-trace-${digit}`,
@@ -540,6 +566,7 @@ export function NumeralTraceSvg({
         fill={solved ? "#ECFDF5" : "#F8FAFC"}
         stroke={solved ? "#10B981" : "#CBD5E1"}
         strokeWidth="2"
+        data-trace-card="true"
       />
 
       {/* Top Ascender Line (Sky Blue) */}
@@ -1275,6 +1302,37 @@ export function registerTenFrameVisualModel(): void {
 export function registerNumeralTraceVisualModel(): void {
   registerVisualModel("numeral-trace", ({ model, solved }) => {
     const digit = model.digit ?? model.count ?? 1;
+    const meta = (model.meta ?? {}) as Record<string, unknown>;
+    const compositeDigits = meta.compositeDigits as number[] | undefined;
+
+    // Teen numbers: two side-by-side single-digit trace cards (tens left, ones
+    // right). dir="ltr" keeps positional digit order inside the RTL surface
+    // (§9.3: multi-digit numbers keep positional order, ١٢).
+    if (compositeDigits && compositeDigits.length === 2) {
+      return (
+        <div
+          dir="ltr"
+          className="inline-flex shrink-0 items-center gap-1"
+          data-visual-model="numeral-trace"
+          data-composite="true"
+          data-digit={formatEasternNumber(digit)}
+          data-direction="rtl"
+        >
+          {compositeDigits.map((d, idx) => (
+            <NumeralTraceSvg
+              key={`${model.id}-${idx}`}
+              digit={d}
+              solved={solved}
+              colorTheme={model.colorTheme ?? "indigo"}
+            />
+          ))}
+          <span className="hidden text-[13px] font-bold text-slate-700 pb-1">
+            {toEasternArabicNumerals(model.labelAr)}
+          </span>
+        </div>
+      );
+    }
+
     return (
       <div
         className="inline-flex shrink-0 items-center gap-1"
@@ -1731,7 +1789,7 @@ export interface TallyMarksOptions {
 export function createTallyMarksSpec(
   options: TallyMarksOptions
 ): VisualModelSpec {
-  const count = Math.max(1, Math.min(10, options.count));
+  const count = Math.max(1, Math.min(20, options.count));
   const secondary = Math.max(0, Math.min(5, options.secondaryCount ?? 0));
   const crossedOut = Math.max(0, Math.min(count, options.crossedOutCount ?? 0));
   const crossOffMode: CrossOffMode = options.crossOffMode ?? "shown";
@@ -1748,11 +1806,15 @@ export function createTallyMarksSpec(
         ? `تعبير علامات العدّ: ${countAr} + ${formatEasternNumber(secondary)}`
         : variant === "sticks"
           ? `أعواد عدّ ملوّنة: ${countAr}`
-          : count > 5
-            ? `علامات العدّ: حزمة خماسية و${formatEasternNumber(count - 5)} (${countAr})`
-            : count === 5
-              ? `علامات العدّ: حزمة خماسية (${countAr})`
-              : `علامات العدّ: ${countAr}`;
+          : count > 10
+            ? count % 5 === 0
+              ? `علامات العدّ: ${formatEasternNumber(count / 5)} حزم خماسية (${countAr})`
+              : `علامات العدّ: ${formatEasternNumber(Math.floor(count / 5))} حزم خماسية و${formatEasternNumber(count % 5)} (${countAr})`
+            : count > 5
+              ? `علامات العدّ: حزمة خماسية و${formatEasternNumber(count - 5)} (${countAr})`
+              : count === 5
+                ? `علامات العدّ: حزمة خماسية (${countAr})`
+                : `علامات العدّ: ${countAr}`;
 
   return {
     kind: "tally-marks",
@@ -1793,7 +1855,7 @@ export function TallyMarksSvg({
   compact?: boolean;
   solved?: boolean;
 }): React.ReactElement {
-  const safeCount = Math.max(1, Math.min(10, count));
+  const safeCount = Math.max(1, Math.min(20, count));
   const crossedOut = Math.max(0, Math.min(safeCount, crossedOutCount));
   const shouldDrawCrossOff = crossOffMode === "shown" || solved;
   const verticalCount = Math.min(4, safeCount);
@@ -1801,6 +1863,14 @@ export function TallyMarksSvg({
   const secondGroupCount = Math.max(0, safeCount - 5);
   const secondVerticalCount = Math.min(4, secondGroupCount);
   const hasTenthSlash = safeCount >= 10;
+  // Bundles 3–4 extend the tally board to 20 (K-106 COUNT & CONNECT)
+  const thirdGroupCount = Math.max(0, safeCount - 10);
+  const thirdVerticalCount = Math.min(4, thirdGroupCount);
+  const hasFifteenthSlash = safeCount >= 15;
+  const fourthGroupCount = Math.max(0, safeCount - 15);
+  const fourthVerticalCount = Math.min(4, fourthGroupCount);
+  const hasTwentiethSlash = safeCount >= 20;
+  const bundleCount = Math.ceil(safeCount / 5);
   const palette = COLOR_PALETTES[colorTheme] ?? COLOR_PALETTES.amber;
 
   const showSticks = variant === "sticks" || variant === "tally-and-sticks";
@@ -1808,25 +1878,31 @@ export function TallyMarksSvg({
   const svgWidth =
     variant === "tally-and-sticks"
       ? 186
-      : safeCount > 5
+      : bundleCount > 2
         ? compact
-          ? 144
-          : 184
-        : compact
-          ? 84
-          : 124;
+          ? 144 + 60 * (bundleCount - 2)
+          : 184 + 78 * (bundleCount - 2)
+        : safeCount > 5
+          ? compact
+            ? 144
+            : 184
+          : compact
+            ? 84
+            : 124;
 
   // RTL vertical positions for the first 4 vertical strokes (right to left)
   const tallyBaseRightX =
     variant === "tally-and-sticks"
       ? 168
-      : safeCount > 5
-        ? compact
-          ? 128
-          : 162
-        : compact
-          ? 68
-          : 98;
+      : bundleCount > 2
+        ? svgWidth - (compact ? 12 : 14)
+        : safeCount > 5
+          ? compact
+            ? 128
+            : 162
+          : compact
+            ? 68
+            : 98;
   const spacing =
     variant === "tally-and-sticks"
       ? 16
@@ -1838,6 +1914,10 @@ export function TallyMarksSvg({
           ? 13
           : 18;
   const secondGroupRightX = tallyBaseRightX - 3 * spacing - (compact ? 22 : 28);
+  const thirdGroupRightX =
+    secondGroupRightX - 3 * spacing - (compact ? 22 : 28);
+  const fourthGroupRightX =
+    thirdGroupRightX - 3 * spacing - (compact ? 22 : 28);
   const svgHeight = compact ? 40 : 68;
 
   return (
@@ -1963,6 +2043,116 @@ export function TallyMarksSvg({
                     x1={secondGroupRightX + 8}
                     y1="20"
                     x2={secondGroupRightX - 3 * spacing - 8}
+                    y2="48"
+                    stroke="#EF4444"
+                    strokeWidth="3.5"
+                    strokeLinecap="round"
+                  />
+                </g>
+              )}
+            </g>
+          )}
+
+          {/* Third RTL group of tallies (11..15) on the left of the second bundle */}
+          {thirdVerticalCount > 0 && (
+            <g data-tally-third-bundle="true">
+              {Array.from({ length: thirdVerticalCount }, (_, idx) => {
+                const x = thirdGroupRightX - idx * spacing;
+                return (
+                  <g key={`t-${idx}`}>
+                    <line
+                      x1={x}
+                      y1="14"
+                      x2={x}
+                      y2="54"
+                      stroke={palette.stroke}
+                      strokeWidth="6"
+                      strokeLinecap="round"
+                      data-tally-stroke="vertical"
+                    />
+                    <line
+                      x1={x}
+                      y1="15"
+                      x2={x}
+                      y2="53"
+                      stroke={palette.fill}
+                      strokeWidth="3.2"
+                      strokeLinecap="round"
+                    />
+                  </g>
+                );
+              })}
+              {hasFifteenthSlash && (
+                <g>
+                  <line
+                    x1={thirdGroupRightX + 8}
+                    y1="20"
+                    x2={thirdGroupRightX - 3 * spacing - 8}
+                    y2="48"
+                    stroke="#991B1B"
+                    strokeWidth="6.5"
+                    strokeLinecap="round"
+                    data-tally-stroke="fifth-slash"
+                  />
+                  <line
+                    x1={thirdGroupRightX + 8}
+                    y1="20"
+                    x2={thirdGroupRightX - 3 * spacing - 8}
+                    y2="48"
+                    stroke="#EF4444"
+                    strokeWidth="3.5"
+                    strokeLinecap="round"
+                  />
+                </g>
+              )}
+            </g>
+          )}
+
+          {/* Fourth RTL group of tallies (16..20) on the left of the third bundle */}
+          {fourthVerticalCount > 0 && (
+            <g data-tally-fourth-bundle="true">
+              {Array.from({ length: fourthVerticalCount }, (_, idx) => {
+                const x = fourthGroupRightX - idx * spacing;
+                return (
+                  <g key={`f-${idx}`}>
+                    <line
+                      x1={x}
+                      y1="14"
+                      x2={x}
+                      y2="54"
+                      stroke="#0C4A6E"
+                      strokeWidth="6"
+                      strokeLinecap="round"
+                      data-tally-stroke="vertical"
+                    />
+                    <line
+                      x1={x}
+                      y1="15"
+                      x2={x}
+                      y2="53"
+                      stroke="#0EA5E9"
+                      strokeWidth="3.2"
+                      strokeLinecap="round"
+                    />
+                  </g>
+                );
+              })}
+              {hasTwentiethSlash && (
+                <g>
+                  <line
+                    x1={fourthGroupRightX + 8}
+                    y1="20"
+                    x2={fourthGroupRightX - 3 * spacing - 8}
+                    y2="48"
+                    stroke="#991B1B"
+                    strokeWidth="6.5"
+                    strokeLinecap="round"
+                    data-tally-stroke="fifth-slash"
+                  />
+                  <line
+                    x1={fourthGroupRightX + 8}
+                    y1="20"
+                    x2={fourthGroupRightX - 3 * spacing - 8}
                     y2="48"
                     stroke="#EF4444"
                     strokeWidth="3.5"

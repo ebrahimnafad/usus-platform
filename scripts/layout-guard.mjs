@@ -499,6 +499,7 @@ function measureSheet(std) {
       sizes.linearComparisonBox,
       "Linear Comparison",
     ],
+    ['[data-visual-model="dot-array"]', sizes.dotArrayBox, "Dot Array"],
   ];
   for (const [selector, size, name] of canonical) {
     for (const el of sheet.querySelectorAll(selector)) {

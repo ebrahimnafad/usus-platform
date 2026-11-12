@@ -20,6 +20,7 @@ import {
   createTenFrameSpec,
   getArabicNumberWord,
 } from "@/visual-models/unit-2-models";
+import { createDotArraySpec } from "@/visual-models/dot-array";
 import { VisualModelView } from "@/visual-models/registry";
 import {
   type ArchetypeGeneratorContext,
@@ -36,7 +37,12 @@ import { ExerciseColumns } from "@/components/worksheet/ExerciseColumns";
 export type SequenceMode = "forward" | "backward" | "zero-take-away";
 
 export type SequenceVisualKind =
-  "snap-cubes" | "everyday-object" | "five-frame" | "ten-frame" | "tally-marks";
+  | "snap-cubes"
+  | "everyday-object"
+  | "five-frame"
+  | "ten-frame"
+  | "tally-marks"
+  | "dot-array";
 
 export interface SequenceStepInput {
   value: number;
@@ -138,6 +144,18 @@ function buildStepVisualModel(
       crossedOutCount: crossedOut,
       colorTheme,
       highlightEmptySlots: true,
+    });
+  }
+
+  // K-106: dot arrays for sequences — placed after the five-frame catch-all so
+  // value 0 still renders a five-frame (a dot array cannot display 0 dots).
+  if (visualKind === "dot-array") {
+    const teen = value > 10;
+    return createDotArraySpec({
+      rows: teen ? 2 : 1,
+      columns: 10,
+      gap: teen ? 20 - value : 10 - value,
+      colorTheme,
     });
   }
 
@@ -287,7 +305,14 @@ function generateSequenceAndZeroExercise(
         : "١ أكثر";
 
   const steps: SequenceStepItem[] = rawSteps.map((step, idx) => {
-    const val = Math.max(0, Math.min(10, step.value));
+    // K-106: dot-array and tally sequences run to 20; other visuals stay ≤ 10
+    const val = Math.max(
+      0,
+      Math.min(
+        visualKind === "dot-array" || visualKind === "tally-marks" ? 20 : 10,
+        step.value
+      )
+    );
     const valAr = formatEasternNumber(val);
     const theme =
       step.colorTheme ?? fallbackStepColors[idx % fallbackStepColors.length];
@@ -433,7 +458,8 @@ function renderSequenceAndZeroExercise({
             data.visualKind === "five-frame" ||
             data.visualKind === "ten-frame" ||
             data.visualKind === "tally-marks" ||
-            data.visualKind === "everyday-object"
+            data.visualKind === "everyday-object" ||
+            data.visualKind === "dot-array"
               ? 2
               : 3
           }
@@ -478,7 +504,7 @@ function renderSequenceAndZeroExercise({
                   </div>
 
                   {/* Visual Model + Numeral Trace + Digit Box */}
-                  <div className="flex w-full items-center justify-between gap-1">
+                  <div className="flex w-full flex-wrap items-center justify-center gap-1">
                     <VisualModelView
                       model={step.visualModel}
                       solved={isAnswerKey}

@@ -26,6 +26,11 @@ import {
 } from "@/visual-models/unit-2-models";
 import { createNumberBondSpec } from "@/visual-models/unit-3-models";
 import {
+  createEverydayObjectSpec,
+  EVERYDAY_OBJECT_CATALOG,
+  getEverydayObjectById,
+} from "@/visual-models/everyday-objects";
+import {
   CUBE_CONE_CYLINDER_SET,
   TRIANGLE_HEXAGON_CIRCLE_SET,
   TRIANGLE_SQUARE_CIRCLE_SET,
@@ -49,7 +54,8 @@ export type SubitizeMode =
   | "both-parts-to-5"
   | "both-parts-to-10"
   | "number-bond-maze"
-  | "three-parts-to-10";
+  | "three-parts-to-10"
+  | "decompose-teen";
 
 export type SubitizeVisualKind =
   | "five-frame"
@@ -115,6 +121,10 @@ export interface SubitizePartWholeBlueprintParams {
   candidateCounts?: number[];
   cardCount?: number;
   cards?: SubitizeCardInput[];
+  /** decompose-teen: optional shape shown with the ones-group companion */
+  shapeId?: Shape2DId;
+  /** decompose-teen: solid shown with the ones-group companion (K-104 PoD) */
+  solidId?: Solid3DId;
   reasoningPromptAr?: string;
   reasoningAnswerAr?: string;
   targetTotal?: number;
@@ -202,6 +212,10 @@ function buildDefaultQuickStrategyAr(
   const filledAr = formatEasternNumber(filledCount);
   const missingAr = formatEasternNumber(missingCount);
   const totalAr = formatEasternNumber(totalCount);
+
+  if (subitizeMode === "decompose-teen") {
+    return `تعرّف سريع على المجموعة الكاملة (${filledAr}) في لوحة العشرة ثم ${missingAr} أكثر يساوي ${totalAr}`;
+  }
 
   if (subitizeMode === "both-parts-to-10") {
     if (missingCount === 0) {
@@ -380,6 +394,146 @@ function generateThreePartsTo10Exercise(
   };
 }
 
+function generateDecomposeTeenExercise(
+  ctx: ArchetypeGeneratorContext,
+  params: SubitizePartWholeBlueprintParams
+): Exercise {
+  // Teen decomposition cards: the full 10-group (Ten Frame) plus a ones-group
+  // companion (10 and some more). Easy tier keeps teens 11–15; beyond that the
+  // full range 11–20 is in play.
+  const candidateCounts =
+    params.candidateCounts && params.candidateCounts.length > 0
+      ? params.candidateCounts
+      : ctx.difficultyLevel === "Easy"
+        ? [11, 12, 13, 14, 15]
+        : [11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+  const cardCount = Math.max(
+    1,
+    Math.min(candidateCounts.length, params.cardCount ?? 2)
+  );
+
+  const pickedTeens = ctx.rng.pickN(candidateCounts, cardCount);
+  const shuffledThemes = ctx.rng.shuffle(SUBITIZE_THEMES);
+
+  const cards: SubitizeCardItem[] = pickedTeens.map((teen, idx) => {
+    const filledCount = 10;
+    const missingCount = teen - 10;
+    const totalCount = teen;
+
+    const filledCountAr = formatEasternNumber(filledCount);
+    const missingCountAr = formatEasternNumber(missingCount);
+    const totalCountAr = formatEasternNumber(totalCount);
+
+    const primaryTheme = shuffledThemes[idx % shuffledThemes.length];
+    const secondaryTheme = shuffledThemes[(idx + 1) % shuffledThemes.length];
+
+    const visualModel = createTenFrameSpec({
+      count: filledCount,
+      secondaryCount: 0,
+      colorTheme: primaryTheme,
+      secondaryColorTheme: secondaryTheme,
+      highlightEmptySlots: false,
+      showPartOutline: false,
+      labelAr: `المجموعة الكاملة: ${filledCountAr}`,
+    });
+
+    let companionModel: VisualModelSpec | undefined;
+    if (params.solidId) {
+      const solidDef = getSolid3DById(params.solidId);
+      companionModel = createSolid3DSpec(solidDef.id, {
+        count: missingCount,
+        colorTheme: secondaryTheme,
+        size: "small",
+        labelAr: `${missingCountAr} (${solidDef.labelAr})`,
+      });
+    } else if (params.shapeId) {
+      const shapeDef = getShape2DById(params.shapeId);
+      companionModel = createShape2DSpec(shapeDef.id, {
+        count: missingCount,
+        colorTheme: secondaryTheme,
+        size: "small",
+        labelAr: `${missingCountAr} (${shapeDef.labelAr})`,
+      });
+    } else {
+      // Default companion: the ones-group of everyday objects (10 and some more).
+      const objDef = getEverydayObjectById(
+        EVERYDAY_OBJECT_CATALOG[idx % EVERYDAY_OBJECT_CATALOG.length].id
+      );
+      companionModel = createEverydayObjectSpec(objDef, {
+        count: missingCount,
+        size: "tiny",
+        colorTheme: secondaryTheme,
+        labelAr: `${missingCountAr} (${objDef.labelAr})`,
+        meta: { objectId: objDef.id, groupedItems: true },
+      });
+    }
+
+    const quickStrategyAr = buildDefaultQuickStrategyAr(
+      filledCount,
+      missingCount,
+      "decompose-teen",
+      totalCount
+    );
+    const equationRtlAr = `${filledCountAr} و${missingCountAr} يكوّنان ${totalCountAr}`;
+
+    return {
+      id: `subitize-teen-card-${idx + 1}-t${totalCount}`,
+      cardIndex: idx,
+      filledCount,
+      filledCountAr,
+      filledWordAr: getArabicNumberWord(filledCount),
+      missingCount,
+      missingCountAr,
+      missingWordAr: getArabicNumberWord(missingCount),
+      totalCount,
+      totalCountAr,
+      quickStrategyAr,
+      equationRtlAr,
+      visualModel,
+      companionModel,
+      shapeId: params.shapeId,
+      solidId: params.solidId,
+    };
+  });
+
+  const visualModels: VisualModelSpec[] = [];
+  for (const card of cards) {
+    visualModels.push(card.visualModel);
+    if (card.companionModel) {
+      visualModels.push(card.companionModel);
+    }
+  }
+
+  const defaultPromptAr =
+    "انظر إلى لوحة العشرة الكاملة ثم عدّ القليل الإضافي واكتب الكلّ";
+  const defaultStrategyHintAr =
+    "انظر إلى المجموعة الكاملة (١٠) وتعرّف عليها بلمحة واحدة دون عدّ فردي، ثم أضف القليل الإضافي";
+  const defaultAnswerAr = `${formatEasternNumber(10)} وأكثر يساوي الكلّ`;
+
+  const data: SubitizePartWholeData = {
+    kind: "SubitizePartWhole",
+    subitizeMode: "decompose-teen",
+    visualKind: "ten-frame",
+    cards,
+    reasoningPromptAr: params.reasoningPromptAr ?? defaultPromptAr,
+    reasoningAnswerAr: params.reasoningAnswerAr ?? defaultAnswerAr,
+  };
+
+  return {
+    id: `${ctx.lesson.id}-${ctx.sectionId}-ex-${ctx.exerciseNumber}`,
+    exerciseNumber: ctx.exerciseNumber,
+    sectionId: ctx.sectionId,
+    archetype: "SubitizePartWhole",
+    difficultyLevel: ctx.difficultyLevel,
+    sourceLessonId: ctx.sourceLessonId,
+    titleAr: "اعرف العدد بسرعة: تفكيك الأعداد المراهقة (١٠ وقليل أكثر)",
+    promptAr: ctx.spec.promptAr ?? defaultPromptAr,
+    strategyHintAr: ctx.spec.strategyHintAr ?? defaultStrategyHintAr,
+    visualModels,
+    data,
+  };
+}
+
 function generateSubitizePartWholeExercise(
   ctx: ArchetypeGeneratorContext
 ): Exercise {
@@ -395,6 +549,10 @@ function generateSubitizePartWholeExercise(
 
   if (subitizeMode === "three-parts-to-10") {
     return generateThreePartsTo10Exercise(ctx, params);
+  }
+
+  if (subitizeMode === "decompose-teen") {
+    return generateDecomposeTeenExercise(ctx, params);
   }
 
   const isTenLesson =
@@ -888,6 +1046,144 @@ function renderSubitizePartWholeExercise({
             );
           })}
         </ExerciseColumns>
+      </div>
+    );
+  }
+
+  if (data.subitizeMode === "decompose-teen") {
+    return (
+      <div
+        className="space-y-1"
+        data-archetype="SubitizePartWhole"
+        data-subitize-mode={data.subitizeMode}
+      >
+        <ExerciseColumns columns={2}>
+          {data.cards.map((card, idx) => (
+            <div
+              key={card.id}
+              className="flex flex-col justify-between gap-1 rounded-xl border-2 border-indigo-100 bg-gradient-to-l from-white via-indigo-50/20 to-emerald-50/30 p-1.5 shadow-2xs"
+              data-subitize-card-id={toEasternArabicNumerals(card.id)}
+              data-teen-total={card.totalCountAr}
+            >
+              {/* Top Header */}
+              <div className="flex flex-wrap items-center justify-between gap-1">
+                <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 text-xs font-extrabold leading-none text-white">
+                  {formatEasternNumber(idx + 1)}
+                </span>
+                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-extrabold leading-tight text-amber-950 border border-amber-300">
+                  ⚡ لمحة سريعة
+                </span>
+                {card.solidId && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-teal-50 px-2 py-0.5 text-xs font-extrabold leading-tight text-teal-950 border border-teal-300">
+                    <Solid3DSvg solidId={card.solidId} size="small" />
+                    <span>
+                      {toEasternArabicNumerals(
+                        getSolid3DById(card.solidId).labelAr
+                      )}
+                    </span>
+                  </span>
+                )}
+                {card.shapeId && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-sky-50 px-2 py-0.5 text-xs font-extrabold leading-tight text-sky-950 border border-sky-300">
+                    <Shape2DSvg shapeId={card.shapeId} size="small" />
+                    <span>
+                      {toEasternArabicNumerals(
+                        getShape2DById(card.shapeId).labelAr
+                      )}
+                    </span>
+                  </span>
+                )}
+                {isAnswerKey && (
+                  <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-extrabold leading-tight text-emerald-900">
+                    ✓ {toEasternArabicNumerals(card.equationRtlAr)}
+                  </span>
+                )}
+              </div>
+
+              {/* Visual Models: the full 10-group + the ones-group companion
+                  (CODING_STANDARDS §5: flex-1 centering wrapper keeps the
+                  models off the bottom border in taller sibling grids) */}
+              <div className="flex flex-1 flex-col items-center justify-center">
+                <div className="flex flex-wrap items-center justify-center gap-1">
+                  <VisualModelView
+                    model={card.visualModel}
+                    solved={isAnswerKey}
+                  />
+                  {card.companionModel && (
+                    <VisualModelView
+                      model={card.companionModel}
+                      solved={isAnswerKey}
+                    />
+                  )}
+                </div>
+              </div>
+
+              {/* Slot Row (RTL): ١٠ part rightmost, و, ones part, the whole */}
+              <div className="grid grid-cols-4 items-center gap-1 rounded-xl border border-indigo-200 bg-white p-0.5 shadow-2xs">
+                {/* The full 10-group (given) */}
+                <div
+                  className="flex flex-col items-center gap-0.5 rounded-lg border-2 border-sky-300 bg-sky-50/80 px-0.5 py-0.5"
+                  data-decompose-ten={card.filledCountAr}
+                  data-decompose-ten-count={card.filledCount}
+                >
+                  <span className="text-[13px] font-extrabold leading-tight text-sky-950">
+                    المجموعة الكاملة
+                  </span>
+                  <span className="inline-flex h-7 min-w-9 items-center justify-center rounded-lg bg-sky-600 px-1 text-[16px] font-black leading-none text-white shadow-2xs">
+                    {card.filledCountAr}
+                  </span>
+                </div>
+
+                {/* و separator */}
+                <span className="text-center text-[13px] font-black leading-none text-slate-500">
+                  و
+                </span>
+
+                {/* Ones part (student writes) */}
+                <AnswerSlot
+                  solved={isAnswerKey}
+                  answer={card.missingCountAr}
+                  ariaLabel="مربع كتابة عدد القليل الإضافي"
+                  kind="write"
+                  tone="amber"
+                  solvedDataAttributes={{
+                    "data-solved-decompose-ones": String(card.missingCount),
+                  }}
+                />
+
+                {/* The whole (student writes) */}
+                <div className="flex flex-col items-center gap-0.5 rounded-lg border-2 border-indigo-300 bg-indigo-50/80 px-0.5 py-0.5">
+                  <span className="text-[13px] font-extrabold leading-tight text-indigo-950">
+                    الكلّ
+                  </span>
+                  <AnswerSlot
+                    solved={isAnswerKey}
+                    answer={card.totalCountAr}
+                    ariaLabel="مربع كتابة العدد الكلّ"
+                    kind="write"
+                    tone="indigo"
+                    solvedDataAttributes={{
+                      "data-solved-decompose-total": String(card.totalCount),
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </ExerciseColumns>
+
+        {/* Reasoning Prompt */}
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-300 bg-amber-50/80 px-2.5 py-1 text-[13px] font-bold leading-tight text-amber-950">
+          <span>
+            🤔 سؤال التفكير: {toEasternArabicNumerals(data.reasoningPromptAr)}
+          </span>
+          <AnswerLine
+            solved={isAnswerKey}
+            answer={toEasternArabicNumerals(data.reasoningAnswerAr)}
+            ariaLabel="سطر كتابة إجابة سؤال التفكير"
+            solvedDataAttributes={{ "data-solved-subitize-reasoning": "true" }}
+          />
+        </div>
       </div>
     );
   }

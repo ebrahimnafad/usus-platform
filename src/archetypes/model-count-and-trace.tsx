@@ -22,6 +22,11 @@ import {
   type ArchetypeRenderProps,
 } from "@/archetypes/registry";
 import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
+import {
+  createEverydayObjectSpec,
+  EVERYDAY_OBJECT_CATALOG,
+  getEverydayObjectById,
+} from "@/visual-models/everyday-objects";
 import { AnswerLine, AnswerSlot } from "@/components/worksheet/AnswerSlot";
 import { ExerciseColumns } from "@/components/worksheet/ExerciseColumns";
 
@@ -31,7 +36,8 @@ export type Unit2ModelingKind =
   | "snap-cubes"
   | "tally-marks"
   | "dice-pattern"
-  | "circular-arrangement";
+  | "circular-arrangement"
+  | "everyday-object";
 
 export type ModelCountAndTraceResponseStyle =
   "trace-and-write" | "quantify-compare-choice";
@@ -101,7 +107,9 @@ function defaultPartWholeNote(n: number): string {
     const extra = n - 5;
     return `٥ و${formatEasternNumber(extra)} يساوي ${formatEasternNumber(n)}`;
   }
-  return `الكلّ يساوي ${formatEasternNumber(n)}`;
+  // Teen numbers: 10 and some more (المجموعة الكاملة ١٠ والباقي)
+  const ones = n - 10;
+  return `١٠ و${formatEasternNumber(ones)} يساوي ${formatEasternNumber(n)}`;
 }
 
 function buildDefaultQuantityModel(
@@ -178,6 +186,29 @@ function buildDefaultQuantityModel(
     });
   }
 
+  if (modelKind === "everyday-object") {
+    const def = getEverydayObjectById(
+      EVERYDAY_OBJECT_CATALOG[targetNumber % EVERYDAY_OBJECT_CATALOG.length].id
+    );
+    // Teen numbers model as a full group of 10 plus a ones-group (10 and some more).
+    if (targetNumber >= 11) {
+      return createEverydayObjectSpec(def, {
+        count: 10,
+        secondaryCount: targetNumber - 10,
+        size: "tiny",
+        colorTheme,
+        labelAr: `${formatEasternNumber(targetNumber)} (${def.labelAr})`,
+        meta: { objectId: def.id, groupedItems: true },
+      });
+    }
+    return createEverydayObjectSpec(def, {
+      count: Math.max(1, targetNumber),
+      size: targetNumber >= 4 ? undefined : "small",
+      colorTheme,
+      labelAr: `${formatEasternNumber(targetNumber)} (${def.labelAr})`,
+    });
+  }
+
   return {
     kind: modelKind,
     id: `${modelKind}-${targetNumber}`,
@@ -231,15 +262,20 @@ function generateModelCountAndTraceExercise(
     const candidateNumbers =
       params.targetNumbers && params.targetNumbers.length > 0
         ? params.targetNumbers
-        : modelKind === "ten-frame"
-          ? ctx.difficultyLevel === "Easy"
-            ? [6, 7, 8]
-            : [6, 7, 8, 9, 10]
-          : ctx.difficultyLevel === "Easy"
-            ? [1, 2, 3]
-            : ctx.difficultyLevel === "Intermediate"
-              ? [2, 3, 4, 5]
-              : [3, 4, 5];
+        : modelKind === "everyday-object"
+          ? // Teen number lesson (K-103): 11–15 at Easy, 11–20 beyond
+            ctx.difficultyLevel === "Easy"
+            ? [11, 12, 13, 14, 15]
+            : [11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+          : modelKind === "ten-frame"
+            ? ctx.difficultyLevel === "Easy"
+              ? [6, 7, 8]
+              : [6, 7, 8, 9, 10]
+            : ctx.difficultyLevel === "Easy"
+              ? [1, 2, 3]
+              : ctx.difficultyLevel === "Intermediate"
+                ? [2, 3, 4, 5]
+                : [3, 4, 5];
 
     const requested = params.itemCount ?? defaultItemCount;
     const countToPick = isFrameModel ? Math.min(2, requested) : requested;
@@ -389,8 +425,14 @@ function renderModelCountAndTraceExercise({
               </span>
             </div>
 
-            {/*Visual Model(s)*/}
-            <div className="flex items-center justify-between gap-1">
+            {/*Visual Model(s) — teen everyday-object groups stack above the trace row*/}
+            <div
+              className={
+                item.quantityModel.kind === "everyday-object"
+                  ? "flex flex-col gap-1"
+                  : "flex items-center justify-between gap-1"
+              }
+            >
               {item.companionModel && (
                 <span
                   className="hidden"
@@ -403,7 +445,13 @@ function renderModelCountAndTraceExercise({
                 solved={isAnswerKey}
               />
 
-              <div className="flex shrink-0 items-center gap-1">
+              <div
+                className={
+                  item.quantityModel.kind === "everyday-object"
+                    ? "flex items-center justify-end gap-1"
+                    : "flex shrink-0 items-center gap-1"
+                }
+              >
                 {item.quantityModel.kind !== "five-frame" &&
                   item.quantityModel.kind !== "ten-frame" &&
                   data.responseStyle !== "quantify-compare-choice" && (
