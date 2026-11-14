@@ -23,9 +23,9 @@
 
 **Status:** ready-for-agent
 
-- [ ] `CompareGroups` extended with `find-difference` mode and difference = 0 edge case handling
-- [ ] `PictureGraphRead` extended with `find-difference` comparison mode
-- [ ] `SubitizePartWhole` extended with stacked ten-frame pair, complement target 20, and `draw-to-make` response kind
-- [ ] Blueprints, localized Arabic titles, and Teacher Notes registered for K-107 to K-110
-- [ ] Domain test: difference equals |count₁ − count₂|; complement + count = 20; ten-frame counts within [11, 20]
-- [ ] Layout guard passes for `--lessons=K-107..K-110 --seeds=2`
+- [x] `CompareGroups` extended with `find-difference` mode and difference = 0 edge case handling
+- [x] `PictureGraphRead` extended with `find-difference` comparison mode
+- [x] `SubitizePartWhole` extended with stacked ten-frame pair, complement target 20, and `draw-to-make` response kind
+- [x] Blueprints, localized Arabic titles, and Teacher Notes registered for K-107 to K-110
+- [x] Domain test: difference equals |count₁ − count₂|; complement + count = 20; ten-frame counts within [11, 20]
+- [x] Layout guard passes for `--lessons=K-107..K-110 --seeds=2`

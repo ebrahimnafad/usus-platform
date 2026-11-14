@@ -44,6 +44,9 @@ export type PictureGraphIconSet =
 
 export type ComparisonRelationLabelAr = "١ أكثر" | "١ أقل" | "نفس العدد";
 
+/** `find-difference` (K-107 DARE to COMPARE – A): prompts ask how many more/fewer with a difference slot. */
+export type PictureGraphComparisonKind = "same-or-one" | "find-difference";
+
 export interface PictureGraphCategoryInput {
   objectId?: EverydayObjectId;
   icon?: PictureGraphIcon;
@@ -64,6 +67,7 @@ export interface PictureGraphReadBlueprintParams {
   /** `draw-missing` only: inclusive range of missing cells per category; at least 1 cell per row stays given. */
   missingPerCategory?: [number, number];
   includeComparison?: boolean;
+  comparisonKind?: PictureGraphComparisonKind;
   comparisonRelation?: ComparisonRelationLabelAr;
   comparisonPromptAr?: string;
   comparisonAnswerAr?: string;
@@ -117,9 +121,14 @@ export interface PictureGraphReadData extends GenericArchetypeData {
   responseMode: PictureGraphResponseMode;
   graphModel: VisualModelSpec;
   categories: PictureGraphCategoryItem[];
+  comparisonKind: PictureGraphComparisonKind;
   comparisonRelation: ComparisonRelationLabelAr;
   includeComparison: boolean;
   comparisonChoices: ComparisonRelationLabelAr[];
+  /** `comparisonKind: "find-difference"`: |count₁ − count₂| of the compared pair */
+  comparisonDifference: number;
+  comparisonMoreLabelAr: string;
+  comparisonFewerLabelAr: string;
   comparisonPromptAr: string;
   comparisonAnswerAr: string;
 }
@@ -241,6 +250,45 @@ function deriveComparisonFromCategories(
   return { relation, promptAr, answerAr };
 }
 
+/**
+ * `comparisonKind: "find-difference"` (K-107 DARE to COMPARE – A): the first two
+ * categories form the compared pair; the child writes |count₁ − count₂| in the
+ * difference slot (٠ when the counts are equal — Advanced edge case §6.3).
+ */
+function deriveFindDifferenceFromCategories(
+  categories: PictureGraphCategoryItem[]
+): {
+  difference: number;
+  moreLabelAr: string;
+  fewerLabelAr: string;
+  promptAr: string;
+  answerAr: string;
+} {
+  const first = categories[0];
+  const second = categories[1] ?? categories[0];
+  const moreCat = first.count >= second.count ? first : second;
+  const fewerCat = moreCat === first ? second : first;
+  const difference = moreCat.count - fewerCat.count;
+
+  const promptAr =
+    difference === 0
+      ? `انظر إلى التمثيل البياني، ثم اكتب الفرق بين «${moreCat.labelAr}» و«${fewerCat.labelAr}» في المربع:`
+      : `انظر إلى التمثيل البياني، ثم اكتب في المربع كم «${moreCat.labelAr}» أكثر من «${fewerCat.labelAr}»:`;
+
+  const answerAr =
+    difference === 0
+      ? `«${moreCat.labelAr}» (${moreCat.countAr}) و«${fewerCat.labelAr}» (${fewerCat.countAr}) لهما نفس العدد، والفرق ٠`
+      : `«${moreCat.labelAr}» (${moreCat.countAr}) أكثر من «${fewerCat.labelAr}» (${fewerCat.countAr}) بـ ${formatEasternNumber(difference)}`;
+
+  return {
+    difference,
+    moreLabelAr: moreCat.labelAr,
+    fewerLabelAr: fewerCat.labelAr,
+    promptAr,
+    answerAr,
+  };
+}
+
 function generatePictureGraphReadExercise(
   ctx: ArchetypeGeneratorContext
 ): Exercise {
@@ -359,10 +407,24 @@ function generatePictureGraphReadExercise(
     params.comparisonRelation
   );
 
+  const comparisonKind: PictureGraphComparisonKind =
+    params.comparisonKind ?? "same-or-one";
+  const findDifference =
+    comparisonKind === "find-difference"
+      ? deriveFindDifferenceFromCategories(categories)
+      : null;
+
   const includeComparison = params.includeComparison ?? !isDrawMissing;
   const comparisonRelation = derived.relation;
-  const comparisonPromptAr = params.comparisonPromptAr ?? derived.promptAr;
-  const comparisonAnswerAr = params.comparisonAnswerAr ?? derived.answerAr;
+  const comparisonDifference = findDifference?.difference ?? 0;
+  const comparisonMoreLabelAr = findDifference?.moreLabelAr ?? "";
+  const comparisonFewerLabelAr = findDifference?.fewerLabelAr ?? "";
+  const comparisonPromptAr = findDifference
+    ? (params.comparisonPromptAr ?? findDifference.promptAr)
+    : (params.comparisonPromptAr ?? derived.promptAr);
+  const comparisonAnswerAr = findDifference
+    ? (params.comparisonAnswerAr ?? findDifference.answerAr)
+    : (params.comparisonAnswerAr ?? derived.answerAr);
 
   const visualModels: VisualModelSpec[] = isDrawMissing
     ? [graphModel]
@@ -383,9 +445,11 @@ function generatePictureGraphReadExercise(
 
   const defaultStrategyHintAr = isDrawMissing
     ? `عدّ الأشكال في كل صفّ ثم ارسم ما ينقص حتى يساوي عدد الجدول (${countsBreakdownAr}).`
-    : orientation === "vertical"
-      ? `عدّ الصور في كل عمود من الأسفل إلى الأعلى أو اقرأ المحور العمودي (${countsBreakdownAr})، ثم قارن أطوال الأعمدة لتحدّد أي فئة هي (${comparisonRelation}).`
-      : `عدّ الصور في كل صفّ من اليمين إلى اليسار أو اقرأ المحور الأفقي (${countsBreakdownAr})، ثم قارن أطوال الصفوف لتحدّد أي فئة هي (${comparisonRelation}).`;
+    : comparisonKind === "find-difference"
+      ? `اقرأ العددين (${countsBreakdownAr}) ثم اكتب الفرق بينهما في المربع.`
+      : orientation === "vertical"
+        ? `عدّ الصور في كل عمود من الأسفل إلى الأعلى أو اقرأ المحور العمودي (${countsBreakdownAr})، ثم قارن أطوال الأعمدة لتحدّد أي فئة هي (${comparisonRelation}).`
+        : `عدّ الصور في كل صفّ من اليمين إلى اليسار أو اقرأ المحور الأفقي (${countsBreakdownAr})، ثم قارن أطوال الصفوف لتحدّد أي فئة هي (${comparisonRelation}).`;
 
   const data: PictureGraphReadData = {
     kind: "PictureGraphRead",
@@ -393,9 +457,14 @@ function generatePictureGraphReadExercise(
     responseMode,
     graphModel,
     categories,
+    comparisonKind,
     comparisonRelation,
     includeComparison,
-    comparisonChoices: COMPARISON_CHOICES,
+    comparisonChoices:
+      comparisonKind === "find-difference" ? [] : COMPARISON_CHOICES,
+    comparisonDifference,
+    comparisonMoreLabelAr,
+    comparisonFewerLabelAr,
     comparisonPromptAr,
     comparisonAnswerAr,
   };
@@ -524,31 +593,53 @@ function renderPictureGraphReadExercise({
               </span>
 
               <div className="flex flex-wrap items-center gap-1.5">
-                {data.comparisonChoices.map((choice) => {
-                  const isSelected =
-                    isAnswerKey && choice === data.comparisonRelation;
-                  return (
-                    <span
-                      key={choice}
-                      className={`rounded-xl border-2 px-3 py-0.5 text-[13px] font-extrabold transition ${
-                        isSelected
-                          ? "border-emerald-600 bg-emerald-600 text-white shadow-2xs"
-                          : "border-dashed border-amber-400 bg-white text-amber-900"
-                      }`}
-                      data-comparison-choice={toEasternArabicNumerals(choice)}
-                      {...(isSelected
-                        ? {
-                            "data-solved-comparison-relation":
-                              toEasternArabicNumerals(choice),
-                          }
-                        : {})}
-                    >
-                      {isSelected
-                        ? `✓ ${toEasternArabicNumerals(choice)}`
-                        : toEasternArabicNumerals(choice)}
+                {data.comparisonKind === "find-difference" ? (
+                  <div className="flex items-center gap-2">
+                    <span className="text-[13px] font-extrabold text-amber-950">
+                      {data.comparisonDifference === 0
+                        ? "المجموعتان متساويتان:"
+                        : `كم «${data.comparisonMoreLabelAr}» أكثر؟`}
                     </span>
-                  );
-                })}
+                    <AnswerSlot
+                      solved={isAnswerKey}
+                      answer={formatEasternNumber(data.comparisonDifference)}
+                      ariaLabel="مربع كتابة الفرق بين الفئتين"
+                      kind="write"
+                      tone="amber"
+                      solvedDataAttributes={{
+                        "data-solved-comparison-difference": String(
+                          data.comparisonDifference
+                        ),
+                      }}
+                    />
+                  </div>
+                ) : (
+                  data.comparisonChoices.map((choice) => {
+                    const isSelected =
+                      isAnswerKey && choice === data.comparisonRelation;
+                    return (
+                      <span
+                        key={choice}
+                        className={`rounded-xl border-2 px-3 py-0.5 text-[13px] font-extrabold transition ${
+                          isSelected
+                            ? "border-emerald-600 bg-emerald-600 text-white shadow-2xs"
+                            : "border-dashed border-amber-400 bg-white text-amber-900"
+                        }`}
+                        data-comparison-choice={toEasternArabicNumerals(choice)}
+                        {...(isSelected
+                          ? {
+                              "data-solved-comparison-relation":
+                                toEasternArabicNumerals(choice),
+                            }
+                          : {})}
+                      >
+                        {isSelected
+                          ? `✓ ${toEasternArabicNumerals(choice)}`
+                          : toEasternArabicNumerals(choice)}
+                      </span>
+                    );
+                  })
+                )}
               </div>
             </div>
 

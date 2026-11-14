@@ -3,7 +3,7 @@ import type { ColorThemeId, VisualModelSpec } from "@/domain/types";
 import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
 import { registerVisualModel } from "@/visual-models/registry";
 import { EverydayObjectSvg } from "@/visual-models/everyday-objects";
-import { Shape2DSvg } from "@/visual-models/shapes-solids-coins";
+import { Shape2DSvg, Solid3DSvg } from "@/visual-models/shapes-solids-coins";
 
 /**
  * Linear Comparison Visual Model — Grade K Unit 9 (WORKSHEET_CONSTITUTION.md §3.4).
@@ -24,9 +24,11 @@ export interface LinearComparisonGroupSpec {
   id: string;
   labelAr: string;
   count: number;
-  iconKind?: "everyday-object" | "shape-2d";
+  iconKind?: "everyday-object" | "shape-2d" | "solid-3d";
   objectId?: string;
   shapeId?: string;
+  /** `iconKind: "solid-3d"` (K-107/K-108 Problem of the Day): solid-shape icons */
+  solidId?: string;
   colorTheme?: ColorThemeId;
 }
 
@@ -96,6 +98,15 @@ function renderGroupItem(
     return (
       <Shape2DSvg
         shapeId={group.shapeId ?? "circle"}
+        colorTheme={group.colorTheme ?? "sky"}
+        size="small"
+      />
+    );
+  }
+  if (group.iconKind === "solid-3d" || group.solidId) {
+    return (
+      <Solid3DSvg
+        solidId={group.solidId ?? "cube"}
         colorTheme={group.colorTheme ?? "sky"}
         size="small"
       />

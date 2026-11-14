@@ -37,6 +37,19 @@ export interface CompareGroupsBlueprintParams {
   numberRange?: [number, number];
   itemCount?: number;
   strategy?: "extra-objects" | "compare-the-parts";
+  /**
+   * Icon catalog for the two groups (K-107/K-108 Problem of the Day use solid
+   * shapes). Defaults to `everyday-objects`.
+   */
+  iconSetKind?: "everyday-objects" | "shapes-2d" | "solids-3d";
+  /** `find-difference` only: explicit `[min, max]` cap on the difference (§6.2/§6.3 defaults by tier). */
+  differenceRange?: [number, number];
+  /** `find-difference` PoD: anchors the larger group at the range max (١٠) so the missing counters equal the difference. */
+  anchorFullFrame?: boolean;
+  /** `find-difference` ten-frame PoD: the smaller frame shows ghost counters for the missing shapes (solid on the Answer Key). */
+  showMissingAsGhost?: boolean;
+  /** `find-difference` Brain Builder: counts are given as data, only the difference slot is answered. */
+  showCounts?: boolean;
 }
 
 export interface CompareGroupsItem {
@@ -63,6 +76,8 @@ export interface CompareGroupsData extends GenericArchetypeData {
   responseKind: CompareGroupsResponseKind;
   targetComparison: "more" | "fewer";
   strategy?: "extra-objects" | "compare-the-parts";
+  iconSetKind: "everyday-objects" | "shapes-2d" | "solids-3d";
+  showCounts: boolean;
   items: CompareGroupsItem[];
 }
 
@@ -79,6 +94,13 @@ const DEFAULT_SHAPE_PAIRS: Array<[string, string]> = [
   ["circle", "triangle"],
   ["square", "circle"],
   ["triangle", "square"],
+];
+
+const DEFAULT_SOLID_PAIRS: Array<[string, string]> = [
+  ["cube", "cone"],
+  ["cylinder", "sphere"],
+  ["cube", "cylinder"],
+  ["pyramid", "cube"],
 ];
 
 export function generateCompareGroupsExercise(
@@ -101,27 +123,66 @@ export function generateCompareGroupsExercise(
   const items: CompareGroupsItem[] = [];
   const factSummaries: string[] = [];
 
+  const iconSetKind = params.iconSetKind ?? "everyday-objects";
+
   for (let idx = 0; idx < itemCount; idx++) {
-    // Generate distinct counts (or equal only at Advanced difficulty per §6.3)
-    let cA = ctx.rng.int(minVal, maxVal);
-    let cB = ctx.rng.int(minVal, maxVal);
+    let cA: number;
+    let cB: number;
 
-    if (!isAdvanced && cA === cB) {
-      if (cA < maxVal) cA += 1;
-      else cB -= 1;
-    }
+    if (compareMode === "find-difference") {
+      // §6.2/§6.3: Easy difference ≤ 2, Intermediate/Advanced ≤ 5, with
+      // equal groups (difference = ٠) as an Advanced-only edge case.
+      const tierDiffCap = ctx.difficultyLevel === "Easy" ? 2 : 5;
+      const diffCap = Math.max(
+        0,
+        Math.min(params.differenceRange?.[1] ?? tierDiffCap, maxVal - minVal)
+      );
+      const isEqualCase = isAdvanced && ctx.rng.int(0, 3) === 0;
+      if (isEqualCase) {
+        cA = ctx.rng.int(minVal, maxVal);
+        cB = cA;
+      } else {
+        const difference = ctx.rng.int(1, Math.max(1, diffCap));
+        const larger = ctx.rng.int(minVal + difference, maxVal);
+        if (ctx.rng.next() < 0.5) {
+          cA = larger;
+          cB = larger - difference;
+        } else {
+          cA = larger - difference;
+          cB = larger;
+        }
+      }
+      if (params.anchorFullFrame) {
+        // K-108 Problem of the Day: anchor the larger group at ١٠ so the
+        // missing ghost counters equal the difference, still within the
+        // tier difference cap (§6.2). The anchored PoD always leaves some
+        // missing shapes, so the equal case does not apply here.
+        const anchoredDifference = ctx.rng.int(1, Math.max(1, diffCap));
+        cA = maxVal;
+        cB = maxVal - anchoredDifference;
+      }
+    } else {
+      // Generate distinct counts (or equal only at Advanced difficulty per §6.3)
+      cA = ctx.rng.int(minVal, maxVal);
+      cB = ctx.rng.int(minVal, maxVal);
 
-    // In compare-the-parts mode (K-100/K-102 PoD): make top rows both full (≥5)
-    // to highlight the strategy of balancing the top row and comparing remaining ones
-    if (
-      params.strategy === "compare-the-parts" &&
-      visualKind === "ten-frame-pair"
-    ) {
-      cA = Math.max(5, cA);
-      cB = Math.max(5, cB);
-      if (cA === cB && !isAdvanced) {
+      if (!isAdvanced && cA === cB) {
         if (cA < maxVal) cA += 1;
         else cB -= 1;
+      }
+
+      // In compare-the-parts mode (K-100/K-102 PoD): make top rows both full (≥5)
+      // to highlight the strategy of balancing the top row and comparing remaining ones
+      if (
+        params.strategy === "compare-the-parts" &&
+        visualKind === "ten-frame-pair"
+      ) {
+        cA = Math.max(5, cA);
+        cB = Math.max(5, cB);
+        if (cA === cB && !isAdvanced) {
+          if (cA < maxVal) cA += 1;
+          else cB -= 1;
+        }
       }
     }
 
@@ -136,6 +197,10 @@ export function generateCompareGroupsExercise(
       DEFAULT_SHAPE_PAIRS[
         (ctx.exerciseIndex + idx) % DEFAULT_SHAPE_PAIRS.length
       ];
+    const solidPair =
+      DEFAULT_SOLID_PAIRS[
+        (ctx.exerciseIndex + idx) % DEFAULT_SOLID_PAIRS.length
+      ];
 
     const labelAAr = "المجموعة (أ)";
     const labelBAr = "المجموعة (ب)";
@@ -148,16 +213,30 @@ export function generateCompareGroupsExercise(
         id: `group-a-${idx}`,
         labelAr: "(أ)",
         count: cA,
-        iconKind: "everyday-object",
-        objectId: objA,
+        iconKind:
+          iconSetKind === "everyday-objects"
+            ? "everyday-object"
+            : iconSetKind === "shapes-2d"
+              ? "shape-2d"
+              : "solid-3d",
+        ...(iconSetKind === "everyday-objects" ? { objectId: objA } : {}),
+        ...(iconSetKind === "shapes-2d" ? { shapeId: shapePair[0] } : {}),
+        ...(iconSetKind === "solids-3d" ? { solidId: solidPair[0] } : {}),
         colorTheme: "coral",
       };
       const groupBSpec: LinearComparisonGroupSpec = {
         id: `group-b-${idx}`,
         labelAr: "(ب)",
         count: cB,
-        iconKind: "everyday-object",
-        objectId: objB,
+        iconKind:
+          iconSetKind === "everyday-objects"
+            ? "everyday-object"
+            : iconSetKind === "shapes-2d"
+              ? "shape-2d"
+              : "solid-3d",
+        ...(iconSetKind === "everyday-objects" ? { objectId: objB } : {}),
+        ...(iconSetKind === "shapes-2d" ? { shapeId: shapePair[1] } : {}),
+        ...(iconSetKind === "solids-3d" ? { solidId: solidPair[1] } : {}),
         colorTheme: "sky",
       };
 
@@ -170,17 +249,29 @@ export function generateCompareGroupsExercise(
       });
     } else {
       // ten-frame-pair
+      // K-108 PoD: the smaller frame carries ghost counters for the missing
+      // shapes; they become solid on the Answer Key (§8.2).
+      const missingGhostCount =
+        params.showMissingAsGhost && moreGroup !== "equal" ? difference : 0;
+      const smallerIsA = cA < cB;
+      const ghostOnA = missingGhostCount > 0 && smallerIsA;
+      const ghostOnB = missingGhostCount > 0 && !smallerIsA;
+
       visualModel = createTenFrameSpec({
         count: cA,
         colorTheme: "coral",
-        shapeId: shapePair[0],
+        shapeId: iconSetKind === "solids-3d" ? undefined : shapePair[0],
+        solidId: iconSetKind === "solids-3d" ? solidPair[0] : undefined,
         highlightEmptySlots: true,
+        ghostTargetCount: ghostOnA ? missingGhostCount : 0,
       });
       secondaryVisualModel = createTenFrameSpec({
         count: cB,
         colorTheme: "sky",
-        shapeId: shapePair[1],
+        shapeId: iconSetKind === "solids-3d" ? undefined : shapePair[1],
+        solidId: iconSetKind === "solids-3d" ? solidPair[1] : undefined,
         highlightEmptySlots: true,
+        ghostTargetCount: ghostOnB ? missingGhostCount : 0,
       });
     }
 
@@ -218,10 +309,12 @@ export function generateCompareGroupsExercise(
           : "المجموعتان";
     factSummaries.push(
       winningGroup === "equal"
-        ? `(أ) = ${cAAr} و(ب) = ${cBAr} متساويتان`
-        : targetComparison === "fewer"
-          ? `(أ) = ${cAAr} و(ب) = ${cBAr}، والمجموعة الأقل هي ${winAr}`
-          : `(أ) = ${cAAr} و(ب) = ${cBAr}، والمجموعة الأكثر هي ${winAr}`
+        ? `(أ) = ${cAAr} و(ب) = ${cBAr} متساويتان، الفرق ٠`
+        : compareMode === "find-difference"
+          ? `(أ) = ${cAAr} و(ب) = ${cBAr}، والفرق ${formatEasternNumber(difference)}`
+          : targetComparison === "fewer"
+            ? `(أ) = ${cAAr} و(ب) = ${cBAr}، والمجموعة الأقل هي ${winAr}`
+            : `(أ) = ${cAAr} و(ب) = ${cBAr}، والمجموعة الأكثر هي ${winAr}`
     );
   }
 
@@ -230,24 +323,39 @@ export function generateCompareGroupsExercise(
       ? targetComparison === "fewer"
         ? "انظر إلى المجموعتين، ثم اكتب أيّهما تحوي أقل:"
         : "انظر إلى المجموعتين، ثم اكتب أيّهما تحوي أكثر:"
-      : compareMode === "quantify-and-compare"
-        ? visualKind === "ten-frame-pair"
-          ? targetComparison === "fewer"
-            ? "انظر إلى لوحتي العشرة، ثم اكتب العدد وحوّط الأقل:"
-            : "انظر إلى لوحتي العشرة، ثم اكتب العدد وحوّط الأكثر:"
+      : compareMode === "find-difference"
+        ? params.showCounts
+          ? "انظر إلى العددين المعطى، ثم اكتب الفرق بينهما في المربع:"
+          : visualKind === "ten-frame-pair"
+            ? "انظر إلى لوحتي العشرة، ثم عدّ الأقراص واكتب العددين والفرق بينهما:"
+            : "انظر إلى الصفّين، ثم عدّ قطع كلّ صفّ واكتب العددين والفرق بينهما:"
+        : compareMode === "quantify-and-compare"
+          ? visualKind === "ten-frame-pair"
+            ? targetComparison === "fewer"
+              ? "انظر إلى لوحتي العشرة، ثم اكتب العدد وحوّط الأقل:"
+              : "انظر إلى لوحتي العشرة، ثم اكتب العدد وحوّط الأكثر:"
+            : targetComparison === "fewer"
+              ? "انظر إلى الصفّين، ثم اكتب العدد وحوّط الأقل:"
+              : "انظر إلى الصفّين، ثم اكتب العدد وحوّط الأكثر:"
           : targetComparison === "fewer"
-            ? "انظر إلى الصفّين، ثم اكتب العدد وحوّط الأقل:"
-            : "انظر إلى الصفّين، ثم اكتب العدد وحوّط الأكثر:"
-        : targetComparison === "fewer"
-          ? "انظر إلى المجموعتين، ثم حوّط المجموعة التي تحوي أقل:"
-          : "انظر إلى المجموعتين، ثم حوّط المجموعة التي تحوي أكثر:";
+            ? "انظر إلى المجموعتين، ثم حوّط المجموعة التي تحوي أقل:"
+            : "انظر إلى المجموعتين، ثم حوّط المجموعة التي تحوي أكثر:";
 
+  const hasEqualPair = items.some((item) => item.difference === 0);
   const defaultStrategyHintAr =
-    params.strategy === "compare-the-parts"
-      ? `انظر إلى الأجزاء المتطابقة في الصف الأول أولاً، ثم حوّط المجموعة التي تحوي قطعاً إضافية (${factSummaries.join("؛ ")}).`
-      : visualKind === "linear-comparison"
-        ? `انظر إلى التقابل بين الصفين لتحديد القطع الزائدة، ثم حوّط المجموعة (${factSummaries.join("؛ ")}).`
-        : `انظر إلى الخانات الممتلئة في كل لوحة عشرة، ثم حوّط المجموعة المطلوبة (${factSummaries.join("؛ ")}).`;
+    compareMode === "find-difference"
+      ? hasEqualPair
+        ? `انظر إلى المجموعتين المتساويتين — الفرق ٠ (${factSummaries.join("؛ ")}).`
+        : params.showMissingAsGhost
+          ? `انظر إلى الأشكال الناقصة في اللوحة الأقل ثم اكتب عددها (${factSummaries.join("؛ ")}).`
+          : visualKind === "linear-comparison"
+            ? `انظر إلى القطع الزائدة في الصفّ الأطول ثم اكتب عددها (${factSummaries.join("؛ ")}).`
+            : `انظر إلى الأقراص الزائدة في اللوحة الأكثر ثم اكتب الفرق (${factSummaries.join("؛ ")}).`
+      : params.strategy === "compare-the-parts"
+        ? `انظر إلى الأجزاء المتطابقة في الصف الأول أولاً، ثم حوّط المجموعة التي تحوي قطعاً إضافية (${factSummaries.join("؛ ")}).`
+        : visualKind === "linear-comparison"
+          ? `انظر إلى التقابل بين الصفين لتحديد القطع الزائدة، ثم حوّط المجموعة (${factSummaries.join("؛ ")}).`
+          : `انظر إلى الخانات الممتلئة في كل لوحة عشرة، ثم حوّط المجموعة المطلوبة (${factSummaries.join("؛ ")}).`;
 
   const data: CompareGroupsData = {
     kind: "CompareGroups",
@@ -256,6 +364,8 @@ export function generateCompareGroupsExercise(
     responseKind,
     targetComparison,
     strategy: params.strategy,
+    iconSetKind,
+    showCounts: params.showCounts ?? false,
     items,
   };
 
@@ -275,9 +385,11 @@ export function generateCompareGroupsExercise(
     difficultyLevel: ctx.difficultyLevel,
     sourceLessonId: ctx.sourceLessonId,
     titleAr:
-      compareMode === "quantify-and-compare"
-        ? "مقارنة المجموعات وعدّها"
-        : "مقارنة المجموعات",
+      compareMode === "find-difference"
+        ? "مقارنة المجموعات: كم أكثر أو كم أقل"
+        : compareMode === "quantify-and-compare"
+          ? "مقارنة المجموعات وعدّها"
+          : "مقارنة المجموعات",
     promptAr: ctx.spec.promptAr ?? defaultPromptAr,
     strategyHintAr: ctx.spec.strategyHintAr ?? defaultStrategyHintAr,
     visualModels: allModels,
@@ -362,6 +474,80 @@ export function renderCompareGroupsExercise({
 
               {/* Response controls */}
               <div className="flex w-full flex-wrap items-center justify-around gap-4 pt-1">
+                {/* Find-difference mode (K-107/K-108): count slots + difference slot */}
+                {data.compareMode === "find-difference" && (
+                  <div
+                    className="flex flex-wrap items-center justify-center gap-4"
+                    data-find-difference="true"
+                  >
+                    {data.showCounts ? (
+                      // Brain Builder: the counts are given as data
+                      <>
+                        <span className="text-[13px] font-extrabold text-slate-700">
+                          (أ) = {countAAr}
+                        </span>
+                        <span className="text-[13px] font-extrabold text-slate-700">
+                          (ب) = {countBAr}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[13px] font-extrabold text-slate-700">
+                            عدد (أ):
+                          </span>
+                          <AnswerSlot
+                            answer={countAAr}
+                            solved={isAnswerKey}
+                            kind="write"
+                            tone="coral"
+                            ariaLabel="مربع كتابة عدد قطع المجموعة أ"
+                            solvedDataAttributes={{
+                              "data-solved-compare-count": countAAr,
+                            }}
+                          />
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[13px] font-extrabold text-slate-700">
+                            عدد (ب):
+                          </span>
+                          <AnswerSlot
+                            answer={countBAr}
+                            solved={isAnswerKey}
+                            kind="write"
+                            tone="sky"
+                            ariaLabel="مربع كتابة عدد قطع المجموعة ب"
+                            solvedDataAttributes={{
+                              "data-solved-compare-count": countBAr,
+                            }}
+                          />
+                        </div>
+                      </>
+                    )}
+                    <div className="flex items-center gap-2">
+                      <span className="text-[13px] font-extrabold text-slate-700">
+                        {item.difference === 0
+                          ? "المجموعتان متساويتان:"
+                          : item.targetComparison === "fewer"
+                            ? "كم أقل؟"
+                            : "كم أكثر؟"}
+                      </span>
+                      <AnswerSlot
+                        answer={formatEasternNumber(item.difference)}
+                        solved={isAnswerKey}
+                        kind="write"
+                        tone="emerald"
+                        ariaLabel="مربع كتابة الفرق بين المجموعتين"
+                        solvedDataAttributes={{
+                          "data-solved-compare-difference": String(
+                            item.difference
+                          ),
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+
                 {/* Quantify slots: show count boxes for A and B */}
                 {data.compareMode === "quantify-and-compare" && (
                   <div className="flex items-center gap-4">
@@ -390,52 +576,53 @@ export function renderCompareGroupsExercise({
                   </div>
                 )}
 
-                {/* Response choice: Circle group A or B */}
-                {data.responseKind === "circle" ? (
-                  <div className="flex items-center gap-3">
-                    <span className="text-[13px] font-extrabold text-slate-700">
-                      {item.targetComparison === "fewer"
-                        ? "المجموعة الأقل:"
-                        : "المجموعة الأكثر:"}
-                    </span>
-                    <span
-                      data-choice="A"
-                      {...(isWinA ? { "data-circled-choice": "true" } : {})}
-                      className={`inline-flex h-8 min-w-16 items-center justify-center rounded-full px-3 text-[13px] font-extrabold leading-none transition-all ${
-                        isWinA
-                          ? "border-2 border-emerald-600 bg-emerald-100 text-emerald-950 ring-2 ring-emerald-500"
-                          : "border-2 border-dashed border-slate-300 bg-slate-50 text-slate-800"
-                      }`}
-                    >
-                      المجموعة (أ)
-                    </span>
-                    <span
-                      data-choice="B"
-                      {...(isWinB ? { "data-circled-choice": "true" } : {})}
-                      className={`inline-flex h-8 min-w-16 items-center justify-center rounded-full px-3 text-[13px] font-extrabold leading-none transition-all ${
-                        isWinB
-                          ? "border-2 border-emerald-600 bg-emerald-100 text-emerald-950 ring-2 ring-emerald-500"
-                          : "border-2 border-dashed border-slate-300 bg-slate-50 text-slate-800"
-                      }`}
-                    >
-                      المجموعة (ب)
-                    </span>
-                  </div>
-                ) : (
-                  /* fill-keyword mode (PoD) */
-                  <div className="flex items-center gap-2">
-                    <span className="text-[13px] font-extrabold text-slate-700">
-                      {item.targetComparison === "fewer"
-                        ? "المجموعة التي تحوي أقل هي:"
-                        : "المجموعة التي تحوي أكثر هي:"}
-                    </span>
-                    <AnswerLine
-                      answer={item.winningGroup === "A" ? "(أ)" : "(ب)"}
-                      solved={isAnswerKey}
-                      ariaLabel="سطر كتابة المجموعة التي تحوي أكثر أو أقل"
-                    />
-                  </div>
-                )}
+                {/* Response choice: Circle group A or B (not used by find-difference) */}
+                {data.compareMode !== "find-difference" &&
+                  (data.responseKind === "circle" ? (
+                    <div className="flex items-center gap-3">
+                      <span className="text-[13px] font-extrabold text-slate-700">
+                        {item.targetComparison === "fewer"
+                          ? "المجموعة الأقل:"
+                          : "المجموعة الأكثر:"}
+                      </span>
+                      <span
+                        data-choice="A"
+                        {...(isWinA ? { "data-circled-choice": "true" } : {})}
+                        className={`inline-flex h-8 min-w-16 items-center justify-center rounded-full px-3 text-[13px] font-extrabold leading-none transition-all ${
+                          isWinA
+                            ? "border-2 border-emerald-600 bg-emerald-100 text-emerald-950 ring-2 ring-emerald-500"
+                            : "border-2 border-dashed border-slate-300 bg-slate-50 text-slate-800"
+                        }`}
+                      >
+                        المجموعة (أ)
+                      </span>
+                      <span
+                        data-choice="B"
+                        {...(isWinB ? { "data-circled-choice": "true" } : {})}
+                        className={`inline-flex h-8 min-w-16 items-center justify-center rounded-full px-3 text-[13px] font-extrabold leading-none transition-all ${
+                          isWinB
+                            ? "border-2 border-emerald-600 bg-emerald-100 text-emerald-950 ring-2 ring-emerald-500"
+                            : "border-2 border-dashed border-slate-300 bg-slate-50 text-slate-800"
+                        }`}
+                      >
+                        المجموعة (ب)
+                      </span>
+                    </div>
+                  ) : (
+                    /* fill-keyword mode (PoD) */
+                    <div className="flex items-center gap-2">
+                      <span className="text-[13px] font-extrabold text-slate-700">
+                        {item.targetComparison === "fewer"
+                          ? "المجموعة التي تحوي أقل هي:"
+                          : "المجموعة التي تحوي أكثر هي:"}
+                      </span>
+                      <AnswerLine
+                        answer={item.winningGroup === "A" ? "(أ)" : "(ب)"}
+                        solved={isAnswerKey}
+                        ariaLabel="سطر كتابة المجموعة التي تحوي أكثر أو أقل"
+                      />
+                    </div>
+                  ))}
               </div>
             </div>
           );

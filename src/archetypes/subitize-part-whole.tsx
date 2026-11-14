@@ -65,6 +65,10 @@ export type SubitizeVisualKind =
   | "ten-frame-and-shapes"
   | "ten-frame-ghost";
 
+export type SubitizeTeenResponseKind = "count" | "draw-to-make";
+
+export type SubitizeTeenAskKind = "total" | "complement" | "both";
+
 export interface SubitizeCardInput {
   filledCount: number;
   secondaryFilledCount?: number;
@@ -131,6 +135,16 @@ export interface SubitizePartWholeBlueprintParams {
   mazeBonds?: SubitizeMazeBondInput[];
   /** three-parts-to-10: category trios (blue → red → green) that fill each card's Ten Frame */
   threePartCategorySets?: SubitizeThreePartCategorySet[];
+  /** K-109/K-110: `2` → stacked ten-frame pair (top full ١٠ + bottom ones), teens 11–20 */
+  frameCount?: 1 | 2;
+  /** K-109/K-110: when set (20), the card carries a "how many more make ٢٠" complement slot */
+  complementTarget?: number;
+  /** K-109/K-110: which parts the student writes on the stacked pair */
+  askKind?: SubitizeTeenAskKind;
+  /** K-109/K-110 Brain Builder: the student draws circles in empty frames to make the given number */
+  responseKind?: SubitizeTeenResponseKind;
+  /** K-109/K-110 PoD: the bottom frame shows ghost counters the child imagines (solid on the Answer Key) */
+  imaginedParts?: boolean;
 }
 
 export interface SubitizeCardItem {
@@ -162,6 +176,54 @@ export interface SubitizePartWholeData extends GenericArchetypeData {
   targetTotal?: number;
   mazeBonds?: SubitizeMazeBondItem[];
   threePartCards?: SubitizeThreePartCardItem[];
+  /** K-109/K-110: `2` = stacked ten-frame pair (top full ١٠ + bottom ones) */
+  frameCount?: 1 | 2;
+  /** K-109/K-110: stacked-pair cards (WB/PoD) */
+  teenPairCards?: SubitizeTeenPairCardItem[];
+  /** K-109/K-110: "how many more make ٢٠" complement target */
+  complementTarget?: number;
+  askKind?: SubitizeTeenAskKind;
+  imaginedParts?: boolean;
+  /** K-109/K-110 Brain Builder: draw circles in the empty frames */
+  responseKind?: SubitizeTeenResponseKind;
+  drawToMakeCards?: SubitizeDrawToMakeCardItem[];
+}
+
+export interface SubitizeTeenPairCardItem {
+  id: string;
+  cardIndex: number;
+  /** the teen total (١١–٢٠) = ١٠ + ones */
+  teenTotal: number;
+  teenTotalAr: string;
+  /** the ones part shown on the bottom frame (teen − 10) */
+  onesCount: number;
+  onesCountAr: string;
+  /** complementTarget − teen (when complementTarget is declared) */
+  complementCount: number;
+  complementCountAr: string;
+  complementTargetAr: string;
+  topModel: VisualModelSpec;
+  bottomModel: VisualModelSpec;
+  bottomIsGhost: boolean;
+  quickStrategyAr: string;
+  equationRtlAr: string;
+}
+
+export interface SubitizeDrawToMakeCardItem {
+  id: string;
+  cardIndex: number;
+  teenTotal: number;
+  teenTotalAr: string;
+  onesCount: number;
+  onesCountAr: string;
+  complementCount: number;
+  complementCountAr: string;
+  complementTargetAr: string;
+  blankTopModel: VisualModelSpec;
+  blankBottomModel: VisualModelSpec;
+  solvedTopModel: VisualModelSpec;
+  solvedBottomModel: VisualModelSpec;
+  quickStrategyAr: string;
 }
 
 const SUBITIZE_THEMES: ColorThemeId[] = [
@@ -534,6 +596,276 @@ function generateDecomposeTeenExercise(
   };
 }
 
+/**
+ * K-109/K-110 — stacked ten-frame pair cards (frameCount: 2): the top frame is
+ * the instantly-recognized full ١٠ group, the bottom frame carries the ones
+ * (teen − 10). WB asks "how many" and/or "how many more make 20" (complement);
+ * the PoD withdraws the bottom counters as ghosts the child imagines.
+ */
+function generateTeenFramePairExercise(
+  ctx: ArchetypeGeneratorContext,
+  params: SubitizePartWholeBlueprintParams
+): Exercise {
+  const complementTarget = params.complementTarget;
+  const askKind: SubitizeTeenAskKind =
+    params.askKind ?? (complementTarget ? "both" : "total");
+  const imaginedParts = params.imaginedParts ?? false;
+
+  const candidateCounts =
+    params.candidateCounts && params.candidateCounts.length > 0
+      ? params.candidateCounts
+      : ctx.difficultyLevel === "Easy"
+        ? [11, 12, 13, 14, 15]
+        : [11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+  const cardCount = Math.max(
+    1,
+    Math.min(candidateCounts.length, params.cardCount ?? 2)
+  );
+
+  const pickedTeens = ctx.rng.pickN(candidateCounts, cardCount);
+  const shuffledThemes = ctx.rng.shuffle(SUBITIZE_THEMES);
+
+  const cards: SubitizeTeenPairCardItem[] = pickedTeens.map((teen, idx) => {
+    const onesCount = teen - 10;
+    const complementCount = complementTarget ? complementTarget - teen : 0;
+    const teenTotalAr = formatEasternNumber(teen);
+    const onesCountAr = formatEasternNumber(onesCount);
+    const complementCountAr = formatEasternNumber(complementCount);
+    const complementTargetAr = formatEasternNumber(complementTarget ?? 20);
+
+    const primaryTheme = shuffledThemes[idx % shuffledThemes.length];
+    const secondaryTheme = shuffledThemes[(idx + 1) % shuffledThemes.length];
+
+    const topModel = createTenFrameSpec({
+      count: 10,
+      colorTheme: primaryTheme,
+      highlightEmptySlots: false,
+      labelAr: "المجموعة الكاملة: ١٠",
+    });
+    const bottomModel = createTenFrameSpec({
+      count: imaginedParts ? 0 : onesCount,
+      colorTheme: secondaryTheme,
+      highlightEmptySlots: true,
+      // PoD: the ones counters are withdrawn as ghosts the child imagines;
+      // they become solid on the Answer Key (§8.2).
+      ghostTargetCount: imaginedParts ? onesCount : 0,
+      labelAr: imaginedParts
+        ? "لوحة العشرة: القرصات التي تخيّلها في اللوحة الثانية"
+        : `لوحة العشرة: ${onesCountAr}`,
+    });
+
+    const equationRtlAr = `١٠ و${onesCountAr} يساوي ${teenTotalAr}`;
+    const quickStrategyAr =
+      askKind === "complement"
+        ? `انظر إلى الكلّ (${teenTotalAr}) ثم اكتب كم ينقصه حتى ${complementTargetAr}: ينقصه ${complementCountAr}.`
+        : imaginedParts
+          ? `انظر إلى المجموعة الكاملة (١٠) بلمحة واحدة ثم تخيّل قرصات اللوحة الثانية: ١٠ و${onesCountAr} يساوي ${teenTotalAr}.`
+          : `انظر إلى المجموعة الكاملة (١٠) بلمحة واحدة ثم أضف قرصات اللوحة الثانية: ١٠ و${onesCountAr} يساوي ${teenTotalAr}.`;
+
+    return {
+      id: `teen-pair-card-${idx + 1}-t${teen}`,
+      cardIndex: idx,
+      teenTotal: teen,
+      teenTotalAr,
+      onesCount,
+      onesCountAr,
+      complementCount,
+      complementCountAr,
+      complementTargetAr,
+      topModel,
+      bottomModel,
+      bottomIsGhost: imaginedParts,
+      quickStrategyAr,
+      equationRtlAr,
+    };
+  });
+
+  const factsBreakdownAr = cards
+    .map((c) => `١٠ و${c.onesCountAr} يساوي ${c.teenTotalAr}`)
+    .join("؛ ");
+
+  const defaultPromptAr =
+    askKind === "complement"
+      ? `انظر إلى لوحتي العشرة، ثم اكتب كم ينقص حتى ${formatEasternNumber(complementTarget ?? 20)}:`
+      : imaginedParts
+        ? askKind === "both"
+          ? `انظر إلى اللوحة الكاملة، ثم تخيّل قرصات اللوحة الثانية واكتب الكلّ وكم ينقصه حتى ${formatEasternNumber(complementTarget ?? 20)}:`
+          : "انظر إلى اللوحة الكاملة، ثم تخيّل قرصات اللوحة الثانية واكتب الكلّ:"
+        : askKind === "both"
+          ? `انظر إلى لوحتي العشرة، ثم اكتب الكلّ وكم ينقصه حتى ${formatEasternNumber(complementTarget ?? 20)}:`
+          : "انظر إلى لوحتي العشرة، ثم اكتب الكلّ:";
+
+  const defaultStrategyHintAr =
+    askKind === "complement"
+      ? `انظر إلى الكلّ أولاً (${factsBreakdownAr})، ثم اكتب كم ينقصه حتى ${formatEasternNumber(complementTarget ?? 20)}.`
+      : imaginedParts
+        ? `انظر إلى المجموعة الكاملة (١٠) بلمحة واحدة دون عدّ فردي، ثم تخيّل اللوحة الثانية (${factsBreakdownAr}).`
+        : `انظر إلى المجموعة الكاملة (١٠) بلمحة واحدة دون عدّ فردي، ثم أضف قرصات اللوحة الثانية (${factsBreakdownAr}).`;
+
+  const firstCard = cards[0];
+  const defaultReasoningPromptAr =
+    askKind === "complement"
+      ? `كم ينقص البطاقة الأولى (${firstCard.teenTotalAr}) حتى ${firstCard.complementTargetAr}؟ وكيف عرفت ذلك دون عدّ فردي؟`
+      : `كيف تعرف الكلّ (${firstCard.teenTotalAr}) بلمحة واحدة دون عدّ الأقراص واحداً واحداً؟`;
+  const defaultReasoningAnswerAr =
+    askKind === "complement"
+      ? `ينقصها (${firstCard.complementCountAr}) لأن ${firstCard.teenTotalAr} و${firstCard.complementCountAr} يكوّنان معاً ${firstCard.complementTargetAr}`
+      : `اللوحة الأولى كاملة (١٠) والثانية عليها (${firstCard.onesCountAr})، فالكلّ ١٠ و${firstCard.onesCountAr} يساوي ${firstCard.teenTotalAr}`;
+
+  const visualModels: VisualModelSpec[] = [];
+  for (const card of cards) {
+    visualModels.push(card.topModel, card.bottomModel);
+  }
+
+  const data: SubitizePartWholeData = {
+    kind: "SubitizePartWhole",
+    subitizeMode: params.subitizeMode ?? "identify-quantity",
+    visualKind: "ten-frame",
+    cards: [],
+    teenPairCards: cards,
+    frameCount: 2,
+    complementTarget,
+    askKind,
+    imaginedParts,
+    reasoningPromptAr: params.reasoningPromptAr ?? defaultReasoningPromptAr,
+    reasoningAnswerAr: params.reasoningAnswerAr ?? defaultReasoningAnswerAr,
+  };
+
+  return {
+    id: `${ctx.lesson.id}-${ctx.sectionId}-ex-${ctx.exerciseNumber}`,
+    exerciseNumber: ctx.exerciseNumber,
+    sectionId: ctx.sectionId,
+    archetype: "SubitizePartWhole",
+    difficultyLevel: ctx.difficultyLevel,
+    sourceLessonId: ctx.sourceLessonId,
+    titleAr: "اعرف العدد بسرعة: لوحتا العشرة (١٠ وقليل أكثر)",
+    promptAr: ctx.spec.promptAr ?? defaultPromptAr,
+    strategyHintAr: ctx.spec.strategyHintAr ?? defaultStrategyHintAr,
+    visualModels,
+    data,
+  };
+}
+
+/**
+ * K-109/K-110 Brain Builder (HOW MANY? A & B, responseKind: "draw-to-make"):
+ * the child draws circles in two empty ten-frames to make the given teen
+ * number; K-110 also writes how many more make ٢٠. The Answer Key shows the
+ * drawn counters in the accent style (§8.2).
+ */
+function generateDrawToMakeTeenExercise(
+  ctx: ArchetypeGeneratorContext,
+  params: SubitizePartWholeBlueprintParams
+): Exercise {
+  const complementTarget = params.complementTarget;
+  const candidateCounts =
+    params.candidateCounts && params.candidateCounts.length > 0
+      ? params.candidateCounts
+      : ctx.difficultyLevel === "Easy"
+        ? [11, 12, 13, 14, 15]
+        : [11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+  const cardCount = Math.max(
+    1,
+    Math.min(candidateCounts.length, params.cardCount ?? 2)
+  );
+
+  const pickedTeens = ctx.rng.pickN(candidateCounts, cardCount);
+  const shuffledThemes = ctx.rng.shuffle(SUBITIZE_THEMES);
+
+  const cards: SubitizeDrawToMakeCardItem[] = pickedTeens.map((teen, idx) => {
+    const onesCount = teen - 10;
+    const complementCount = complementTarget ? complementTarget - teen : 0;
+    const teenTotalAr = formatEasternNumber(teen);
+    const onesCountAr = formatEasternNumber(onesCount);
+    const complementCountAr = formatEasternNumber(complementCount);
+    const complementTargetAr = formatEasternNumber(complementTarget ?? 20);
+
+    const primaryTheme = shuffledThemes[idx % shuffledThemes.length];
+    const secondaryTheme = shuffledThemes[(idx + 1) % shuffledThemes.length];
+
+    const blankTopModel = createTenFrameSpec({
+      count: 0,
+      colorTheme: primaryTheme,
+      highlightEmptySlots: true,
+      labelAr: "ارسم الأقراص في اللوحة الكاملة (١٠)",
+    });
+    const blankBottomModel = createTenFrameSpec({
+      count: 0,
+      colorTheme: secondaryTheme,
+      highlightEmptySlots: true,
+      labelAr: "ارسم القرصات الناقصة في اللوحة الثانية",
+    });
+    const solvedTopModel = createTenFrameSpec({
+      count: 10,
+      colorTheme: primaryTheme,
+      highlightEmptySlots: false,
+      labelAr: "المجموعة الكاملة: ١٠",
+    });
+    const solvedBottomModel = createTenFrameSpec({
+      count: onesCount,
+      colorTheme: secondaryTheme,
+      highlightEmptySlots: true,
+      labelAr: `لوحة العشرة: ${onesCountAr}`,
+    });
+
+    const quickStrategyAr = complementTarget
+      ? `ارسم ١٠ أقراص في اللوحة الكاملة ثم ${onesCountAr} في الثانية (١٠ و${onesCountAr} يساوي ${teenTotalAr})، ثم اكتب كم ينقصه حتى ${complementTargetAr} (${complementCountAr}).`
+      : `ارسم ١٠ أقراص في اللوحة الكاملة ثم ${onesCountAr} في الثانية: ١٠ و${onesCountAr} يساوي ${teenTotalAr}.`;
+
+    return {
+      id: `draw-to-make-card-${idx + 1}-t${teen}`,
+      cardIndex: idx,
+      teenTotal: teen,
+      teenTotalAr,
+      onesCount,
+      onesCountAr,
+      complementCount,
+      complementCountAr,
+      complementTargetAr,
+      blankTopModel,
+      blankBottomModel,
+      solvedTopModel,
+      solvedBottomModel,
+      quickStrategyAr,
+    };
+  });
+
+  const defaultPromptAr = complementTarget
+    ? `انظر إلى العدد، ثم ارسم الأقراص في اللوحتين لتكوّنه واكتب كم ينقصه حتى ${formatEasternNumber(complementTarget)}:`
+    : "انظر إلى العدد، ثم ارسم الأقراص في اللوحتين لتكوّنه:";
+  const defaultStrategyHintAr = cards.map((c) => c.quickStrategyAr).join("؛ ");
+
+  const data: SubitizePartWholeData = {
+    kind: "SubitizePartWhole",
+    subitizeMode: params.subitizeMode ?? "identify-quantity",
+    visualKind: "ten-frame",
+    cards: [],
+    drawToMakeCards: cards,
+    frameCount: 2,
+    complementTarget,
+    responseKind: "draw-to-make",
+    reasoningPromptAr:
+      params.reasoningPromptAr ??
+      "كيف تساعدك اللوحة الكاملة على الرسم دون عدّ فردي؟",
+    reasoningAnswerAr:
+      params.reasoningAnswerAr ??
+      "أرسم ١٠ أقراص في اللوحة الكاملة بلمحة واحدة ثم أكمل القرصات في اللوحة الثانية",
+  };
+
+  return {
+    id: `${ctx.lesson.id}-${ctx.sectionId}-ex-${ctx.exerciseNumber}`,
+    exerciseNumber: ctx.exerciseNumber,
+    sectionId: ctx.sectionId,
+    archetype: "SubitizePartWhole",
+    difficultyLevel: ctx.difficultyLevel,
+    sourceLessonId: ctx.sourceLessonId,
+    titleAr: "ارسم الأقراص في لوحتَي العشرة (١٠ وقليل أكثر)",
+    promptAr: ctx.spec.promptAr ?? defaultPromptAr,
+    strategyHintAr: ctx.spec.strategyHintAr ?? defaultStrategyHintAr,
+    visualModels: cards.flatMap((c) => [c.blankTopModel, c.blankBottomModel]),
+    data,
+  };
+}
+
 function generateSubitizePartWholeExercise(
   ctx: ArchetypeGeneratorContext
 ): Exercise {
@@ -553,6 +885,14 @@ function generateSubitizePartWholeExercise(
 
   if (subitizeMode === "decompose-teen") {
     return generateDecomposeTeenExercise(ctx, params);
+  }
+
+  // K-109/K-110: stacked ten-frame pair (frameCount: 2) with WB count slots or
+  // the draw-to-make Brain Builder response.
+  if (params.frameCount === 2) {
+    return params.responseKind === "draw-to-make"
+      ? generateDrawToMakeTeenExercise(ctx, params)
+      : generateTeenFramePairExercise(ctx, params);
   }
 
   const isTenLesson =
@@ -887,6 +1227,243 @@ function renderSubitizePartWholeExercise({
 }: ArchetypeRenderProps): React.ReactElement {
   const data = exercise.data as SubitizePartWholeData;
   const isAnswerKey = mode === "answer-key";
+
+  if (data.drawToMakeCards) {
+    return (
+      <div
+        className="space-y-1"
+        data-archetype="SubitizePartWhole"
+        data-subitize-mode="draw-to-make"
+        data-response-kind={data.responseKind}
+      >
+        <ExerciseColumns columns={2}>
+          {data.drawToMakeCards.map((card, idx) => (
+            <div
+              key={card.id}
+              className="flex flex-col justify-between gap-1 rounded-xl border-2 border-indigo-100 bg-gradient-to-l from-white via-indigo-50/20 to-emerald-50/30 p-1.5 shadow-2xs"
+              data-draw-to-make-card={card.id}
+              data-teen-total={card.teenTotal}
+              data-complement-target={card.complementTargetAr}
+            >
+              {/* Top Header */}
+              <div className="flex flex-wrap items-center justify-between gap-1">
+                <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 text-xs font-extrabold leading-none text-white">
+                  {formatEasternNumber(idx + 1)}
+                </span>
+                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-extrabold leading-tight text-amber-950 border border-amber-300">
+                  ✏️ ارسم
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-extrabold leading-tight text-indigo-950 border border-indigo-300">
+                  العدد المطلوب: {card.teenTotalAr}
+                </span>
+              </div>
+
+              {/* Empty ten-frames the child draws into; the Answer Key shows
+                  the drawn counters in the accent style (§8.2) */}
+              <div className="flex flex-1 flex-col items-center justify-center gap-1">
+                <div data-draw-area="true" data-frame-index="1">
+                  <VisualModelView
+                    model={
+                      isAnswerKey ? card.solvedTopModel : card.blankTopModel
+                    }
+                    solved={isAnswerKey}
+                  />
+                </div>
+                <div data-draw-area="true" data-frame-index="2">
+                  <VisualModelView
+                    model={
+                      isAnswerKey
+                        ? card.solvedBottomModel
+                        : card.blankBottomModel
+                    }
+                    solved={isAnswerKey}
+                  />
+                </div>
+              </div>
+
+              {/* Complement slot (K-110 HOW MANY? – B): كم ينقصه حتى ٢٠ */}
+              {data.complementTarget ? (
+                <div className="grid grid-cols-3 items-center gap-1 rounded-xl border border-indigo-200 bg-white p-0.5 shadow-2xs">
+                  <div className="flex flex-col items-center gap-0.5 rounded-lg border-2 border-sky-300 bg-sky-50/80 px-0.5 py-0.5">
+                    <span className="text-[13px] font-extrabold leading-tight text-sky-950">
+                      الكلّ المرسوم
+                    </span>
+                    <span className="inline-flex h-7 min-w-9 items-center justify-center rounded-lg bg-sky-600 px-1 text-[16px] font-black leading-none text-white shadow-2xs">
+                      {card.teenTotalAr}
+                    </span>
+                  </div>
+                  <span className="text-center text-[13px] font-black leading-none text-slate-500">
+                    و
+                  </span>
+                  <div className="flex flex-col items-center gap-0.5 rounded-lg border-2 border-amber-300 bg-amber-50/80 px-0.5 py-0.5">
+                    <span className="text-[13px] font-extrabold leading-tight text-amber-950">
+                      كم ينقصه حتى {card.complementTargetAr}؟
+                    </span>
+                    <AnswerSlot
+                      solved={isAnswerKey}
+                      answer={card.complementCountAr}
+                      ariaLabel={`مربع كتابة كم ينقص الكلّ حتى ${card.complementTargetAr}`}
+                      kind="write"
+                      tone="amber"
+                      solvedDataAttributes={{
+                        "data-solved-teen-complement": String(
+                          card.complementCount
+                        ),
+                      }}
+                    />
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          ))}
+        </ExerciseColumns>
+
+        {/* Reasoning Prompt */}
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-300 bg-amber-50/80 px-2.5 py-1 text-[13px] font-bold leading-tight text-amber-950">
+          <span>
+            🤔 سؤال التفكير: {toEasternArabicNumerals(data.reasoningPromptAr)}
+          </span>
+          <AnswerLine
+            solved={isAnswerKey}
+            answer={toEasternArabicNumerals(data.reasoningAnswerAr)}
+            ariaLabel="سطر كتابة إجابة سؤال التفكير"
+            solvedDataAttributes={{ "data-solved-subitize-reasoning": "true" }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (data.teenPairCards) {
+    return (
+      <div
+        className="space-y-1"
+        data-archetype="SubitizePartWhole"
+        data-subitize-mode="teen-frame-pair"
+        data-frame-count={data.frameCount ?? 1}
+        data-ask-kind={data.askKind ?? "total"}
+      >
+        <ExerciseColumns columns={2}>
+          {data.teenPairCards.map((card, idx) => (
+            <div
+              key={card.id}
+              className="flex flex-col justify-between gap-1 rounded-xl border-2 border-indigo-100 bg-gradient-to-l from-white via-indigo-50/20 to-amber-50/30 p-1.5 shadow-2xs"
+              data-teen-pair-card={card.id}
+              data-teen-total={card.teenTotal}
+              data-teen-ones={card.onesCount}
+              data-bottom-ghost={card.bottomIsGhost ? "true" : "false"}
+            >
+              {/* Top Header */}
+              <div className="flex flex-wrap items-center justify-between gap-1">
+                <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 text-xs font-extrabold leading-none text-white">
+                  {formatEasternNumber(idx + 1)}
+                </span>
+                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-extrabold leading-tight text-amber-950 border border-amber-300">
+                  ⚡ لمحة سريعة
+                </span>
+                {isAnswerKey && (
+                  <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-extrabold leading-tight text-emerald-900">
+                    ✓ {toEasternArabicNumerals(card.equationRtlAr)}
+                  </span>
+                )}
+              </div>
+
+              {/* Stacked ten-frame pair: full ١٠ group on top, ones below */}
+              <div className="flex flex-1 flex-col items-center justify-center gap-1">
+                <VisualModelView model={card.topModel} solved={isAnswerKey} />
+                <VisualModelView
+                  model={card.bottomModel}
+                  solved={isAnswerKey}
+                />
+              </div>
+
+              {/* Slot Row (RTL): ١٠ part rightmost, و, then the asked parts */}
+              <div className="flex flex-wrap items-center justify-center gap-1 rounded-xl border border-indigo-200 bg-white p-0.5 shadow-2xs">
+                {/* The full 10-group (given) */}
+                <div
+                  className="flex flex-col items-center gap-0.5 rounded-lg border-2 border-sky-300 bg-sky-50/80 px-1 py-0.5"
+                  data-teen-ten-given="١٠"
+                >
+                  <span className="text-[13px] font-extrabold leading-tight text-sky-950">
+                    المجموعة الكاملة
+                  </span>
+                  <span className="inline-flex h-7 min-w-9 items-center justify-center rounded-lg bg-sky-600 px-1 text-[16px] font-black leading-none text-white shadow-2xs">
+                    ١٠
+                  </span>
+                </div>
+
+                {/* و separator */}
+                <span className="text-center text-[13px] font-black leading-none text-slate-500">
+                  و
+                </span>
+
+                {/* Whole (student writes) */}
+                <div className="flex flex-col items-center gap-0.5 rounded-lg border-2 border-indigo-300 bg-indigo-50/80 px-1 py-0.5">
+                  <span className="text-[13px] font-extrabold leading-tight text-indigo-950">
+                    الكلّ
+                  </span>
+                  {data.askKind === "complement" ? (
+                    <span
+                      className="inline-flex h-7 min-w-9 items-center justify-center rounded-lg bg-indigo-600 px-1 text-[16px] font-black leading-none text-white shadow-2xs"
+                      data-teen-total-given={card.teenTotalAr}
+                    >
+                      {card.teenTotalAr}
+                    </span>
+                  ) : (
+                    <AnswerSlot
+                      solved={isAnswerKey}
+                      answer={card.teenTotalAr}
+                      ariaLabel="مربع كتابة العدد الكلّ"
+                      kind="write"
+                      tone="indigo"
+                      solvedDataAttributes={{
+                        "data-solved-teen-total": String(card.teenTotal),
+                      }}
+                    />
+                  )}
+                </div>
+
+                {/* Complement to ٢٠ (student writes) */}
+                {data.complementTarget ? (
+                  <div className="flex flex-col items-center gap-0.5 rounded-lg border-2 border-amber-300 bg-amber-50/80 px-1 py-0.5">
+                    <span className="text-[13px] font-extrabold leading-tight text-amber-950">
+                      كم ينقصه حتى {card.complementTargetAr}؟
+                    </span>
+                    <AnswerSlot
+                      solved={isAnswerKey}
+                      answer={card.complementCountAr}
+                      ariaLabel={`مربع كتابة كم ينقص الكلّ حتى ${card.complementTargetAr}`}
+                      kind="write"
+                      tone="amber"
+                      solvedDataAttributes={{
+                        "data-solved-teen-complement": String(
+                          card.complementCount
+                        ),
+                      }}
+                    />
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          ))}
+        </ExerciseColumns>
+
+        {/* Reasoning Prompt */}
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-300 bg-amber-50/80 px-2.5 py-1 text-[13px] font-bold leading-tight text-amber-950">
+          <span>
+            🤔 سؤال التعرّف السريع (الأجزاء والكل):{" "}
+            {toEasternArabicNumerals(data.reasoningPromptAr)}
+          </span>
+          <AnswerLine
+            solved={isAnswerKey}
+            answer={toEasternArabicNumerals(data.reasoningAnswerAr)}
+            ariaLabel="سطر كتابة إجابة سؤال التفكير"
+            solvedDataAttributes={{ "data-solved-subitize-reasoning": "true" }}
+          />
+        </div>
+      </div>
+    );
+  }
 
   if (data.subitizeMode === "three-parts-to-10" && data.threePartCards) {
     return (
