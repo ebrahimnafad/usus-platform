@@ -455,7 +455,16 @@ function measureSheet(std) {
       { width: sizes.fiveFrameWidth },
       "five-frame",
     ],
-    ['[data-visual-model="ten-frame"]', sizes.tenFrameBox, "Ten Frame"],
+    [
+      '[data-visual-model="ten-frame"]:not([data-orientation="vertical"])',
+      sizes.tenFrameBox,
+      "Ten Frame",
+    ],
+    [
+      '[data-visual-model="ten-frame"][data-orientation="vertical"]',
+      sizes.tenFrameVerticalBox,
+      "Vertical Ten Frame",
+    ],
     ['[data-visual-model="number-bond"]', sizes.numberBondBox, "Number Bond"],
     ["[data-number-bond-circle]", sizes.numberBondCircle, "Number Bond circle"],
     [

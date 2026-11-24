@@ -22,6 +22,7 @@ import type { SubitizePartWholeBlueprintParams } from "@/archetypes/subitize-par
 import type { TakeAwayBlueprintParams } from "@/archetypes/take-away";
 import type { SolveWordProblemBlueprintParams } from "@/lib/word-problems";
 import type { CompareGroupsBlueprintParams } from "@/archetypes/compare-groups";
+import type { DigicrossBlueprintParams } from "@/archetypes/digicross";
 
 export interface TypedArchetypeParamsMap extends ArchetypeParamsByArchetypeId {
   ConnectMatch: ConnectMatchBlueprintParams & Record<string, unknown>;
@@ -38,6 +39,7 @@ export interface TypedArchetypeParamsMap extends ArchetypeParamsByArchetypeId {
   SolveWordProblem: SolveWordProblemBlueprintParams & Record<string, unknown>;
   Numtanga: NumtangaBlueprintParams & Record<string, unknown>;
   CompareGroups: CompareGroupsBlueprintParams & Record<string, unknown>;
+  Digicross: DigicrossBlueprintParams & Record<string, unknown>;
 }
 
 const blueprintRegistry = new Map<string, LessonBlueprint>();

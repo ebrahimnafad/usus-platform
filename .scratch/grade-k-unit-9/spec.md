@@ -1,6 +1,6 @@
 # Grade K Unit 9 — Numbers to 20 (K-99 to K-112)
 
-**Status:** ready-for-agent
+**Status:** ready-for-human
 
 ## Problem Statement
 

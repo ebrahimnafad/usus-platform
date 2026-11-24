@@ -76,3 +76,4 @@ import "@/blueprints/grade-k/lessons-k97-to-k98";
 import "@/blueprints/grade-k/lessons-k99-to-k102";
 import "@/blueprints/grade-k/lessons-k103-to-k106";
 import "@/blueprints/grade-k/lessons-k107-to-k110";
+import "@/blueprints/grade-k/lessons-k111-to-k112";

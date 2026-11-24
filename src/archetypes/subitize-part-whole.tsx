@@ -129,6 +129,8 @@ export interface SubitizePartWholeBlueprintParams {
   shapeId?: Shape2DId;
   /** decompose-teen: solid shown with the ones-group companion (K-104 PoD) */
   solidId?: Solid3DId;
+  /** decompose-teen: optional vertical-ten-frame pair instead of horizontal/everyday (K-112 WB) */
+  drawModel?: "horizontal-ten-frame" | "vertical-ten-frame";
   reasoningPromptAr?: string;
   reasoningAnswerAr?: string;
   targetTotal?: number;
@@ -171,6 +173,7 @@ export interface SubitizePartWholeData extends GenericArchetypeData {
   subitizeMode: SubitizeMode;
   visualKind: SubitizeVisualKind;
   cards: SubitizeCardItem[];
+  drawModel?: "horizontal-ten-frame" | "vertical-ten-frame";
   reasoningPromptAr: string;
   reasoningAnswerAr: string;
   targetTotal?: number;
@@ -489,18 +492,32 @@ function generateDecomposeTeenExercise(
     const primaryTheme = shuffledThemes[idx % shuffledThemes.length];
     const secondaryTheme = shuffledThemes[(idx + 1) % shuffledThemes.length];
 
+    const isVerticalModel = params.drawModel === "vertical-ten-frame";
+
     const visualModel = createTenFrameSpec({
       count: filledCount,
       secondaryCount: 0,
+      orientation: isVerticalModel ? "vertical" : "horizontal",
       colorTheme: primaryTheme,
       secondaryColorTheme: secondaryTheme,
-      highlightEmptySlots: false,
+      highlightEmptySlots: isVerticalModel,
       showPartOutline: false,
       labelAr: `المجموعة الكاملة: ${filledCountAr}`,
     });
 
     let companionModel: VisualModelSpec | undefined;
-    if (params.solidId) {
+    if (isVerticalModel) {
+      companionModel = createTenFrameSpec({
+        count: missingCount,
+        secondaryCount: 0,
+        orientation: "vertical",
+        colorTheme: secondaryTheme,
+        secondaryColorTheme: primaryTheme,
+        highlightEmptySlots: true,
+        showPartOutline: false,
+        labelAr: `${missingCountAr} إضافي في لوحة العشرة`,
+      });
+    } else if (params.solidId) {
       const solidDef = getSolid3DById(params.solidId);
       companionModel = createSolid3DSpec(solidDef.id, {
         count: missingCount,
@@ -576,6 +593,7 @@ function generateDecomposeTeenExercise(
     kind: "SubitizePartWhole",
     subitizeMode: "decompose-teen",
     visualKind: "ten-frame",
+    drawModel: params.drawModel,
     cards,
     reasoningPromptAr: params.reasoningPromptAr ?? defaultPromptAr,
     reasoningAnswerAr: params.reasoningAnswerAr ?? defaultAnswerAr,
@@ -1633,6 +1651,7 @@ function renderSubitizePartWholeExercise({
         className="space-y-1"
         data-archetype="SubitizePartWhole"
         data-subitize-mode={data.subitizeMode}
+        data-draw-model={data.drawModel ?? "horizontal-ten-frame"}
       >
         <ExerciseColumns columns={2}>
           {data.cards.map((card, idx) => (
@@ -1640,6 +1659,7 @@ function renderSubitizePartWholeExercise({
               key={card.id}
               className="flex flex-col justify-between gap-1 rounded-xl border-2 border-indigo-100 bg-gradient-to-l from-white via-indigo-50/20 to-emerald-50/30 p-1.5 shadow-2xs"
               data-subitize-card-id={toEasternArabicNumerals(card.id)}
+              data-decompose-teen="true"
               data-teen-total={card.totalCountAr}
             >
               {/* Top Header */}

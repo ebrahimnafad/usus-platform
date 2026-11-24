@@ -218,6 +218,7 @@ export type DigicrossArchetypeParams = {
   numberRange?: [number, number];
   missingCount?: number;
   directions?: "forward" | "backward" | "mixed";
+  gridCount?: number;
 };
 
 export interface ConnectMatchPair {

@@ -715,7 +715,10 @@ export interface TenFrameOptions {
   secondarySolidId?: string;
   tertiaryShapeId?: string;
   tertiarySolidId?: string;
+  orientation?: TenFrameOrientation;
 }
+
+export type TenFrameOrientation = "horizontal" | "vertical";
 
 export function createTenFrameSpec(options: TenFrameOptions): VisualModelSpec {
   const hasExplicitRows =
@@ -762,7 +765,7 @@ export function createTenFrameSpec(options: TenFrameOptions): VisualModelSpec {
             )} يساوي ${formatEasternNumber(total)}`
           : `لوحة العشرة: ${formatEasternNumber(total)} من ١٠`;
 
-  const baseId = `ten-frame-${primary}-${secondary}-${crossedOut}-${crossOffMode}`;
+  const baseId = `ten-frame-${options.orientation ?? "horizontal"}-${primary}-${secondary}-${crossedOut}-${crossOffMode}`;
 
   return {
     kind: "ten-frame",
@@ -773,6 +776,7 @@ export function createTenFrameSpec(options: TenFrameOptions): VisualModelSpec {
     secondaryCount: secondary,
     crossedOutCount: crossedOut,
     meta: {
+      orientation: options.orientation ?? "horizontal",
       crossOffMode,
       secondaryColorTheme: options.secondaryColorTheme ?? "sky",
       tertiaryColorTheme: options.tertiaryColorTheme,
@@ -793,6 +797,7 @@ export function createTenFrameSpec(options: TenFrameOptions): VisualModelSpec {
 }
 
 export function TenFrameSvg({
+  orientation = "horizontal",
   count = 6,
   secondaryCount = 0,
   tertiaryCount = 0,
@@ -814,6 +819,7 @@ export function TenFrameSvg({
   tertiarySolidId,
   solved = false,
 }: {
+  orientation?: TenFrameOrientation;
   count?: number;
   secondaryCount?: number;
   tertiaryCount?: number;
@@ -835,6 +841,7 @@ export function TenFrameSvg({
   tertiarySolidId?: string;
   solved?: boolean;
 }): React.ReactElement {
+  const isVertical = orientation === "vertical";
   const hasExplicitRows =
     topRowCount !== undefined && bottomRowCount !== undefined;
   const primary = hasExplicitRows
@@ -865,29 +872,34 @@ export function TenFrameSvg({
 
   const cellWidth = 48;
   const cellHeight = 48;
-  const frameX = 0;
+  const frameX = isVertical ? 6 : 0;
   const frameY = 6;
-  const totalWidth = cellWidth * 5;
-  const totalHeight = cellHeight * 2;
+  const totalWidth = isVertical ? cellWidth * 2 : cellWidth * 5;
+  const totalHeight = isVertical ? cellHeight * 5 : cellHeight * 2;
+  const svgWidth = isVertical ? 108 : 240;
+  const svgHeight = isVertical ? 252 : 108;
 
   const getRtlColX = (colIdx: number): number =>
-    frameX + (4 - colIdx) * cellWidth;
+    isVertical
+      ? frameX + (1 - colIdx) * cellWidth
+      : frameX + (4 - colIdx) * cellWidth;
 
   return (
     <svg
-      width="240"
-      height="108"
-      viewBox="0 0 240 108"
+      width={svgWidth}
+      height={svgHeight}
+      viewBox={`0 0 ${svgWidth} ${svgHeight}`}
       fill="none"
       aria-label={`لوحة العشرة: ${formatEasternNumber(totalShownOrDrawn)}`}
       data-direction="rtl"
+      data-orientation={orientation}
       data-primary-count={formatEasternNumber(primary)}
       data-secondary-count={formatEasternNumber(secondary)}
       data-tertiary-count={formatEasternNumber(tertiary)}
       data-crossed-out={formatEasternNumber(crossedOut)}
       data-cross-off-mode={crossOffMode}
     >
-      {/* Outer Frame Background (240 × 96 inside 240 × 108 viewport) */}
+      {/* Outer Frame Background */}
       <rect
         x={frameX + 1}
         y={frameY}
@@ -899,36 +911,69 @@ export function TenFrameSvg({
         strokeWidth="2"
       />
 
-      {/* Horizontal row divider between top row (1..5) and bottom row (6..10) */}
-      <line
-        x1={frameX + 1}
-        y1={frameY + cellHeight}
-        x2={totalWidth - 1}
-        y2={frameY + cellHeight}
-        stroke="#4338CA"
-        strokeWidth="2"
-      />
-
-      {/* Optional Part-Grouping Outlines */}
-      {(showPartOutline || secondary > 0 || ghostCount > 0) && primary > 0 && (
-        <rect
-          x={getRtlColX(Math.min(5, primary) - 1) + 2}
-          y={frameY - 3}
-          width={Math.min(5, primary) * cellWidth - 4}
-          height={primary > 5 ? totalHeight + 6 : cellHeight + 3}
-          rx="8"
-          fill="none"
-          stroke={primaryPalette.stroke}
-          strokeWidth="1.8"
-          strokeDasharray="4 3"
-          data-part-outline="primary"
+      {/* Main Divider: horizontal row divider for horizontal frame; vertical column divider for vertical frame */}
+      {isVertical ? (
+        <line
+          x1={frameX + cellWidth}
+          y1={frameY}
+          x2={frameX + cellWidth}
+          y2={frameY + totalHeight}
+          stroke="#4338CA"
+          strokeWidth="2"
+        />
+      ) : (
+        <line
+          x1={frameX + 1}
+          y1={frameY + cellHeight}
+          x2={totalWidth - 1}
+          y2={frameY + cellHeight}
+          stroke="#4338CA"
+          strokeWidth="2"
         />
       )}
 
-      {/* 10 RTL Cells: 0..4 in top row (RTL), 5..9 in bottom row (RTL) */}
+      {/* Optional Part-Grouping Outlines */}
+      {(showPartOutline || secondary > 0 || ghostCount > 0) &&
+        primary > 0 &&
+        (isVertical ? (
+          <rect
+            x={getRtlColX(0) + 2}
+            y={frameY + 2}
+            width={cellWidth - 4}
+            height={Math.min(5, primary) * cellHeight - 4}
+            rx="8"
+            fill="none"
+            stroke={primaryPalette.stroke}
+            strokeWidth="1.8"
+            strokeDasharray="4 3"
+            data-part-outline="primary"
+          />
+        ) : (
+          <rect
+            x={getRtlColX(Math.min(5, primary) - 1) + 2}
+            y={frameY - 3}
+            width={Math.min(5, primary) * cellWidth - 4}
+            height={primary > 5 ? totalHeight + 6 : cellHeight + 3}
+            rx="8"
+            fill="none"
+            stroke={primaryPalette.stroke}
+            strokeWidth="1.8"
+            strokeDasharray="4 3"
+            data-part-outline="primary"
+          />
+        ))}
+
+      {/* 10 RTL Cells */}
       {Array.from({ length: 10 }, (_, rtlIdx) => {
-        const rowIdx = Math.floor(rtlIdx / 5);
-        const colIdx = rtlIdx % 5;
+        let rowIdx: number;
+        let colIdx: number;
+        if (isVertical) {
+          colIdx = Math.floor(rtlIdx / 5);
+          rowIdx = rtlIdx % 5;
+        } else {
+          rowIdx = Math.floor(rtlIdx / 5);
+          colIdx = rtlIdx % 5;
+        }
         const cellX = getRtlColX(colIdx);
         const cellY = frameY + rowIdx * cellHeight;
         const cx = cellX + cellWidth / 2;
@@ -1022,17 +1067,28 @@ export function TenFrameSvg({
               data-rtl-cell-box="true"
             />
 
-            {/* Vertical Cell Divider */}
-            {colIdx < 4 && (
-              <line
-                x1={cellX}
-                y1={cellY}
-                x2={cellX}
-                y2={cellY + cellHeight}
-                stroke="#4338CA"
-                strokeWidth="1.8"
-              />
-            )}
+            {/* Cell Divider */}
+            {isVertical
+              ? rowIdx < 4 && (
+                  <line
+                    x1={cellX}
+                    y1={cellY + cellHeight}
+                    x2={cellX + cellWidth}
+                    y2={cellY + cellHeight}
+                    stroke="#4338CA"
+                    strokeWidth="1.8"
+                  />
+                )
+              : colIdx < 4 && (
+                  <line
+                    x1={cellX}
+                    y1={cellY}
+                    x2={cellX}
+                    y2={cellY + cellHeight}
+                    stroke="#4338CA"
+                    strokeWidth="1.8"
+                  />
+                )}
 
             {/* Small RTL cell index label in top-right corner */}
             <text
@@ -1243,6 +1299,9 @@ export function TenFrameSvg({
 export function registerTenFrameVisualModel(): void {
   registerVisualModel("ten-frame", ({ model, solved }) => {
     const meta = (model.meta ?? {}) as Record<string, unknown>;
+    const orientation =
+      (meta.orientation as TenFrameOrientation | undefined) ?? "horizontal";
+    const isVertical = orientation === "vertical";
     const primary = model.count ?? 6;
     const secondary = model.secondaryCount ?? 0;
     const tertiary = (meta.tertiaryCount as number | undefined) ?? 0;
@@ -1260,13 +1319,18 @@ export function registerTenFrameVisualModel(): void {
     return (
       <div
         className="inline-flex shrink-0 items-center"
-        style={{ width: "240px", height: "108px" }}
+        style={{
+          width: isVertical ? "108px" : "240px",
+          height: isVertical ? "252px" : "108px",
+        }}
         data-visual-model="ten-frame"
+        data-orientation={orientation}
         data-direction="rtl"
         data-count={formatEasternNumber(total)}
         data-cross-off-mode={crossOffMode}
       >
         <TenFrameSvg
+          orientation={orientation}
           count={primary}
           secondaryCount={secondary}
           tertiaryCount={tertiary}

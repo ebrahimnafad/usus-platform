@@ -40,6 +40,7 @@ export const CANONICAL_SIZES_PX: {
   digicrossGridBox: PixelSize;
   linearComparisonBox: PixelSize;
   dotArrayBox: PixelSize;
+  tenFrameVerticalBox: PixelSize;
 } = standard.canonicalSizesPx;
 
 export type TypeRole = keyof typeof standard.typeScalePx;

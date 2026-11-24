@@ -69,6 +69,10 @@
     "dotArrayBox": {
       "width": 212,
       "height": 160
+    },
+    "tenFrameVerticalBox": {
+      "width": 108,
+      "height": 252
     }
   },
   "typeScalePx": {

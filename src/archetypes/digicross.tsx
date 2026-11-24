@@ -165,7 +165,7 @@ function sampleGridValues(
   rangeMax: number
 ): GridSampling {
   let minV = Math.max(1, rangeMin);
-  let maxV = Math.min(10, rangeMax);
+  let maxV = Math.min(20, rangeMax);
 
   const signer =
     directions === "mixed"
@@ -290,14 +290,14 @@ export function buildDigicrossData(
   const params = rawParams ?? {};
   const gridCount = Math.max(1, Math.min(2, params.gridCount ?? 1));
   const [rangeMinRaw, rangeMaxRaw] = params.numberRange ?? [1, 10];
-  const rangeMin = Math.max(1, Math.min(9, Math.min(rangeMinRaw, rangeMaxRaw)));
-  const rangeMax =
-    rangeMin === 9
-      ? 10
-      : Math.max(
-          rangeMin + 4,
-          Math.min(10, Math.max(rangeMinRaw, rangeMaxRaw))
-        );
+  const rangeMin = Math.max(
+    1,
+    Math.min(16, Math.min(rangeMinRaw, rangeMaxRaw))
+  );
+  const rangeMax = Math.max(
+    rangeMin + 4,
+    Math.min(20, Math.max(rangeMinRaw, rangeMaxRaw))
+  );
 
   const defaultMissing =
     ctx.difficultyLevel === "Easy"

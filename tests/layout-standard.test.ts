@@ -82,6 +82,7 @@ describe("Layout standard matches WORKSHEET_CONSTITUTION.md", () => {
       digicrossGridBox: { width: 324, height: 212 },
       linearComparisonBox: { width: 660, height: 120 },
       dotArrayBox: { width: 212, height: 160 },
+      tenFrameVerticalBox: { width: 108, height: 252 },
     });
   });
 

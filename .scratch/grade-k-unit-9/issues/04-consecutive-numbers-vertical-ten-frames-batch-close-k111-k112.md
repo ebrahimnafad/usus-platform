@@ -18,13 +18,13 @@
 
 **Blocked by:** Tickets 01, 02, and 03
 
-**Status:** ready-for-agent
+**Status:** ready-for-human
 
-- [ ] `SequenceAndZero` extended with `fill-missing` mode for consecutive numbers
-- [ ] `ten-frame` extended with `orientation: 'vertical'` parameter
-- [ ] `SubitizePartWhole` extended with `decompose-teen` mode
-- [ ] Blueprints, localized Arabic titles, and Teacher Notes registered for K-111 and K-112
-- [ ] Domain test: consecutive sequences are gapless; teen decompositions satisfy 10 + ones = total
-- [ ] Layout guard passes for `--lessons=K-111,K-112 --seeds=2`
-- [ ] Unit 9 full-suite validation passes: `--lessons=K-99..K-112 --seeds=5`
-- [ ] Batch-close all-lessons sweep passes: `--seeds=5 --png=none` per constitution §12
+- [x] `SequenceAndZero` extended with `fill-missing` mode for consecutive numbers
+- [x] `ten-frame` extended with `orientation: 'vertical'` parameter
+- [x] `SubitizePartWhole` extended with `decompose-teen` mode
+- [x] Blueprints, localized Arabic titles, and Teacher Notes registered for K-111 and K-112
+- [x] Domain test: consecutive sequences are gapless; teen decompositions satisfy 10 + ones = total
+- [x] Layout guard passes for `--lessons=K-111,K-112 --seeds=2`
+- [x] Unit 9 full-suite validation passes: `--lessons=K-99..K-112 --seeds=5`
+- [x] Batch-close all-lessons sweep passes: `--seeds=5 --png=none` per constitution §12

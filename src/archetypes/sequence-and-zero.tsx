@@ -36,13 +36,16 @@ import { ExerciseColumns } from "@/components/worksheet/ExerciseColumns";
 
 export type SequenceMode = "forward" | "backward" | "zero-take-away";
 
+export type SequenceResponseKind = "trace" | "fill-missing";
+
 export type SequenceVisualKind =
   | "snap-cubes"
   | "everyday-object"
   | "five-frame"
   | "ten-frame"
   | "tally-marks"
-  | "dot-array";
+  | "dot-array"
+  | "none";
 
 export interface SequenceStepInput {
   value: number;
@@ -56,6 +59,7 @@ export interface SequenceStepInput {
 export interface SequenceAndZeroBlueprintParams {
   sequenceMode?: SequenceMode;
   visualKind?: SequenceVisualKind;
+  responseKind?: SequenceResponseKind;
   numbers?: number[];
   missingValues?: number[];
   missingCount?: number;
@@ -83,6 +87,7 @@ export interface SequenceAndZeroData extends GenericArchetypeData {
   kind: "SequenceAndZero";
   sequenceMode: SequenceMode;
   visualKind: SequenceVisualKind;
+  responseKind: SequenceResponseKind;
   stepRuleBadgeAr: string;
   steps: SequenceStepItem[];
   zeroTraceModel?: VisualModelSpec;
@@ -107,6 +112,13 @@ function buildStepVisualModel(
   objectId: EverydayObjectId,
   crossedOutFrom?: number
 ): VisualModelSpec {
+  if (visualKind === "none") {
+    return createNumeralTraceSpec({
+      digit: Math.max(0, Math.min(20, value)),
+      colorTheme,
+    });
+  }
+
   if (visualKind === "ten-frame") {
     const primary = Math.min(5, value);
     const secondary = Math.max(0, value - 5);
@@ -225,9 +237,14 @@ function generateSequenceAndZeroExercise(
         : "forward";
 
   const sequenceMode: SequenceMode = params.sequenceMode ?? defaultMode;
+  const responseKind: SequenceResponseKind = params.responseKind ?? "trace";
 
   const defaultVisualKind: SequenceVisualKind =
-    sequenceMode === "zero-take-away" ? "five-frame" : "snap-cubes";
+    responseKind === "fill-missing"
+      ? "none"
+      : sequenceMode === "zero-take-away"
+        ? "five-frame"
+        : "snap-cubes";
   const visualKind: SequenceVisualKind = params.visualKind ?? defaultVisualKind;
 
   const pickedObject =
@@ -238,19 +255,27 @@ function generateSequenceAndZeroExercise(
   if (params.steps && params.steps.length > 0) {
     rawSteps = params.steps;
   } else {
+    const isTeenLesson =
+      ctx.lesson.lessonNumber >= 106 || responseKind === "fill-missing";
     const isTenLesson = ctx.lesson.lessonNumber >= 65;
     const defaultNumbers =
       params.numbers && params.numbers.length > 0
         ? params.numbers
-        : sequenceMode === "zero-take-away"
-          ? [3, 2, 1, 0]
-          : sequenceMode === "backward"
-            ? isTenLesson
-              ? [10, 9, 8, 7, 6]
-              : [5, 4, 3, 2, 1]
-            : isTenLesson
-              ? [6, 7, 8, 9, 10]
-              : [1, 2, 3, 4, 5];
+        : responseKind === "fill-missing"
+          ? ctx.difficultyLevel === "Easy"
+            ? [11, 12, 13, 14, 15]
+            : ctx.difficultyLevel === "Intermediate"
+              ? [11, 12, 13, 14, 15]
+              : [16, 17, 18, 19, 20]
+          : sequenceMode === "zero-take-away"
+            ? [3, 2, 1, 0]
+            : sequenceMode === "backward"
+              ? isTenLesson
+                ? [10, 9, 8, 7, 6]
+                : [5, 4, 3, 2, 1]
+              : isTenLesson
+                ? [6, 7, 8, 9, 10]
+                : [1, 2, 3, 4, 5];
 
     const defaultMissingCount =
       ctx.difficultyLevel === "Easy"
@@ -305,11 +330,16 @@ function generateSequenceAndZeroExercise(
         : "١ أكثر";
 
   const steps: SequenceStepItem[] = rawSteps.map((step, idx) => {
-    // K-106: dot-array and tally sequences run to 20; other visuals stay ≤ 10
+    // K-106 & K-111: dot-array, tally, and fill-missing sequences run to 20; other visuals stay ≤ 10
     const val = Math.max(
       0,
       Math.min(
-        visualKind === "dot-array" || visualKind === "tally-marks" ? 20 : 10,
+        visualKind === "dot-array" ||
+          visualKind === "tally-marks" ||
+          visualKind === "none" ||
+          responseKind === "fill-missing"
+          ? 20
+          : 10,
         step.value
       )
     );
@@ -380,37 +410,46 @@ function generateSequenceAndZeroExercise(
   const sequenceTextAr = steps.map((s) => s.valueAr).join(" ← ");
 
   const defaultPromptAr =
-    sequenceMode === "zero-take-away"
-      ? `تتبّع قصة أخذ الأشياء واحداً تلو الآخر على لوحة الخمسة، وتتبّع الرقم المنقّط (٠) واكتب الأعداد المتبقية:`
-      : sequenceMode === "backward"
-        ? `عدّ تنازلياً من اليمين إلى اليسار (١ أقل في كل خطوة)، ثم تتبّع واكتب الأعداد المفقودة في التسلسل:`
-        : `عدّ تصاعدياً من اليمين إلى اليسار (١ أكثر في كل خطوة)، ثم تتبّع واكتب الأعداد المفقودة في التسلسل:`;
+    responseKind === "fill-missing"
+      ? "انظر إلى خط الأعداد المتتالية، ثم اكتب الأعداد الناقصة في المربعات:"
+      : sequenceMode === "zero-take-away"
+        ? `تتبّع قصة أخذ الأشياء واحداً تلو الآخر على لوحة الخمسة، وتتبّع الرقم المنقّط (٠) واكتب الأعداد المتبقية:`
+        : sequenceMode === "backward"
+          ? `عدّ تنازلياً من اليمين إلى اليسار (١ أقل في كل خطوة)، ثم تتبّع واكتب الأعداد المفقودة في التسلسل:`
+          : `عدّ تصاعدياً من اليمين إلى اليسار (١ أكثر في كل خطوة)، ثم تتبّع واكتب الأعداد المفقودة في التسلسل:`;
 
   const defaultStrategyHintAr =
-    sequenceMode === "zero-take-away"
-      ? `ابدأ بعدد الأقراص الكلي على لوحة الخمسة واشطب قرصاً واحداً في كل مرة (${sequenceTextAr})؛ عندما تُشطب جميع الأقراص لا يبقى شيء ونكتبه بالرقم (٠).`
-      : sequenceMode === "backward"
-        ? `في العدّ التنازلي (${sequenceTextAr}) ينقص كل عدد بمقدار (١ أقل) عن العدد الذي يسبقه؛ فمثلاً ٤ هو ١ أقل من ٥، و٣ هو ١ أقل من ٤.`
-        : `في العدّ التصاعدي (${sequenceTextAr}) يزيد كل عدد بمقدار (١ أكثر) على العدد الذي يسبقه؛ فمثلاً ٢ هو ١ أكثر من ١، و٣ هو ١ أكثر من ٢.`;
+    responseKind === "fill-missing"
+      ? `الأعداد المتتالية (${sequenceTextAr}) تأتي بالترتيب دون فجوات؛ اكتب في كل مربع ناقص العدد الذي يكمل العدّ بانتظام.`
+      : sequenceMode === "zero-take-away"
+        ? `ابدأ بعدد الأقراص الكلي على لوحة الخمسة واشطب قرصاً واحداً في كل مرة (${sequenceTextAr})؛ عندما تُشطب جميع الأقراص لا يبقى شيء ونكتبه بالرقم (٠).`
+        : sequenceMode === "backward"
+          ? `في العدّ التنازلي (${sequenceTextAr}) ينقص كل عدد بمقدار (١ أقل) عن العدد الذي يسبقه؛ فمثلاً ٤ هو ١ أقل من ٥، و٣ هو ١ أقل من ٤.`
+          : `في العدّ التصاعدي (${sequenceTextAr}) يزيد كل عدد بمقدار (١ أكثر) على العدد الذي يسبقه؛ فمثلاً ٢ هو ١ أكثر من ١، و٣ هو ١ أكثر من ٢.`;
 
   const defaultReasoningPromptAr =
-    sequenceMode === "zero-take-away"
-      ? `إذا كان لدينا ٣ أقراص على لوحة الخمسة وشطبناها واحداً بعد الآخر (٣ ← ٢ ← ١ ← ٠)، فكم قرصاً يتبقّى في النهاية؟`
-      : sequenceMode === "backward"
-        ? `ما العدد الذي يمثّل (١ أقل) من ٥ ويأتي قبله عند العدّ التنازلي؟ وما العدد الذي يمثّل (١ أقل) من ٤؟`
-        : `لماذا يزيد ارتفاع كل برج مكعبات في التسلسل التصاعدي؟ وما العدد الذي يمثّل (١ أكثر) من ٣ و(١ أكثر) من ٤؟`;
+    responseKind === "fill-missing"
+      ? `ما هو العدد الذي يأتي مباشرة بعد ${formatEasternNumber(firstVal ?? 11)} في هذا التسلسل المتتالي؟`
+      : sequenceMode === "zero-take-away"
+        ? `إذا كان لدينا ٣ أقراص على لوحة الخمسة وشطبناها واحداً بعد الآخر (٣ ← ٢ ← ١ ← ٠)، فكم قرصاً يتبقّى في النهاية؟`
+        : sequenceMode === "backward"
+          ? `ما العدد الذي يمثّل (١ أقل) من ٥ ويأتي قبله عند العدّ التنازلي؟ وما العدد الذي يمثّل (١ أقل) من ٤؟`
+          : `لماذا يزيد ارتفاع كل برج مكعبات في التسلسل التصاعدي؟ وما العدد الذي يمثّل (١ أكثر) من ٣ و(١ أكثر) من ٤؟`;
 
   const defaultReasoningAnswerAr =
-    sequenceMode === "zero-take-away"
-      ? `لا يتبقّى أي قرص، ونعبّر عن هذه الكمية بالعدد صفر (٠)`
-      : sequenceMode === "backward"
-        ? `العدد ٤ هو (١ أقل) من ٥، والعدد ٣ هو (١ أقل) من ٤`
-        : `لأن كل عدد يزيد بمقدار (١ أكثر)؛ فالعدد ٤ هو ١ أكثر من ٣، والعدد ٥ هو ١ أكثر من ٤`;
+    responseKind === "fill-missing"
+      ? `العدد التالي هو ${formatEasternNumber((firstVal ?? 11) + 1)} لأنه يزيد عليه بمقدار (١ أكثر)`
+      : sequenceMode === "zero-take-away"
+        ? `لا يتبقّى أي قرص، ونعبّر عن هذه الكمية بالعدد صفر (٠)`
+        : sequenceMode === "backward"
+          ? `العدد ٤ هو (١ أقل) من ٥، والعدد ٣ هو (١ أقل) من ٤`
+          : `لأن كل عدد يزيد بمقدار (١ أكثر)؛ فالعدد ٤ هو ١ أكثر من ٣، والعدد ٥ هو ١ أكثر من ٤`;
 
   const data: SequenceAndZeroData = {
     kind: "SequenceAndZero",
     sequenceMode,
     visualKind,
+    responseKind,
     stepRuleBadgeAr,
     steps,
     zeroTraceModel,
@@ -426,11 +465,13 @@ function generateSequenceAndZeroExercise(
     difficultyLevel: ctx.difficultyLevel,
     sourceLessonId: ctx.sourceLessonId,
     titleAr:
-      sequenceMode === "zero-take-away"
-        ? "العدد صفر (٠) وشطب الأشياء"
-        : sequenceMode === "backward"
-          ? "العدّ التنازلي من ٥ (١ أقل)"
-          : "العدّ التصاعدي حتى ٥ (١ أكثر)",
+      responseKind === "fill-missing"
+        ? "الأعداد المتتالية: ملء الأعداد الناقصة"
+        : sequenceMode === "zero-take-away"
+          ? "العدد صفر (٠) وشطب الأشياء"
+          : sequenceMode === "backward"
+            ? "العدّ التنازلي من ٥ (١ أقل)"
+            : "العدّ التصاعدي حتى ٥ (١ أكثر)",
     promptAr: ctx.spec.promptAr ?? defaultPromptAr,
     strategyHintAr: ctx.spec.strategyHintAr ?? defaultStrategyHintAr,
     visualModels,
@@ -444,6 +485,104 @@ function renderSequenceAndZeroExercise({
 }: ArchetypeRenderProps): React.ReactElement {
   const data = exercise.data as SequenceAndZeroData;
   const isAnswerKey = mode === "answer-key";
+
+  if (data.responseKind === "fill-missing") {
+    return (
+      <div
+        className="space-y-1.5"
+        data-archetype="SequenceAndZero"
+        data-sequence-mode={data.sequenceMode}
+        data-response-kind="fill-missing"
+      >
+        {/* Horizontal Sequence Line Container */}
+        <div
+          dir="rtl"
+          data-sequence-strip="rtl"
+          data-sequence-line="true"
+          className="relative flex w-full items-center justify-between gap-1 rounded-2xl border-2 border-indigo-200 bg-gradient-to-l from-indigo-50/40 via-white to-indigo-50/40 p-3 shadow-2xs"
+        >
+          {data.steps.map((step, idx) => {
+            const isSolved = isAnswerKey && step.isMissing;
+            return (
+              <React.Fragment key={step.id}>
+                {/* Node */}
+                <div
+                  className="flex flex-col items-center gap-1.5"
+                  data-sequence-step={formatEasternNumber(idx + 1)}
+                  data-step-value={step.valueAr}
+                  data-step-missing={step.isMissing ? "true" : "false"}
+                  {...(isSolved
+                    ? {
+                        "data-solved-sequence-step": step.valueAr,
+                        "data-solved-missing-number": step.valueAr,
+                      }
+                    : {})}
+                >
+                  {/* Step Pill */}
+                  <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-extrabold text-indigo-950">
+                    خطوة {formatEasternNumber(idx + 1)}
+                  </span>
+
+                  {/* Value Box or AnswerSlot */}
+                  {step.isMissing ? (
+                    <AnswerSlot
+                      solved={isAnswerKey}
+                      answer={step.valueAr}
+                      ariaLabel="مربع كتابة العدد المتتالي المفقود"
+                      tone="amber"
+                      solvedDataAttributes={{
+                        "data-solved-missing-number": step.valueAr,
+                      }}
+                    />
+                  ) : (
+                    <span
+                      className={`inline-flex ${ANSWER_SLOT_SIZE_CLASS} shrink-0 items-center justify-center rounded-2xl border-2 border-indigo-500 bg-indigo-50 text-[28px] font-black leading-none text-indigo-950 shadow-2xs`}
+                      data-sequence-node="given"
+                      data-step-value={step.valueAr}
+                      {...(isAnswerKey
+                        ? { "data-solved-sequence-step": step.valueAr }
+                        : {})}
+                    >
+                      {step.valueAr}
+                    </span>
+                  )}
+                </div>
+
+                {/* Directional Connector Arrow between consecutive nodes (RTL) */}
+                {idx < data.steps.length - 1 && (
+                  <div className="flex flex-1 flex-col items-center justify-center gap-0.5">
+                    <span className="text-xs font-extrabold text-indigo-700">
+                      {toEasternArabicNumerals(step.stepDeltaLabelAr)}
+                    </span>
+                    <div className="flex w-full items-center">
+                      <div className="h-0.5 flex-1 bg-indigo-300" />
+                      <span className="text-base font-black text-indigo-500">
+                        ←
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </React.Fragment>
+            );
+          })}
+        </div>
+
+        {/* Reasoning Prompt */}
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-300 bg-amber-50/80 px-2.5 py-1 text-[13px] font-bold leading-tight text-amber-950">
+          <span>
+            🤔 سؤال التفكير العددي:{" "}
+            {toEasternArabicNumerals(data.reasoningPromptAr)}
+          </span>
+          <AnswerLine
+            solved={isAnswerKey}
+            answer={toEasternArabicNumerals(data.reasoningAnswerAr)}
+            ariaLabel="سطر كتابة إجابة سؤال التفكير العددي"
+            solvedDataAttributes={{ "data-solved-reasoning-answer": "true" }}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
