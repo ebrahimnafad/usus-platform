@@ -938,7 +938,7 @@ export function TenFrameSvg({
         (isVertical ? (
           <rect
             x={getRtlColX(0) + 2}
-            y={frameY + 2}
+            y={frameY + totalHeight - Math.min(5, primary) * cellHeight + 2}
             width={cellWidth - 4}
             height={Math.min(5, primary) * cellHeight - 4}
             rx="8"
@@ -969,7 +969,7 @@ export function TenFrameSvg({
         let colIdx: number;
         if (isVertical) {
           colIdx = Math.floor(rtlIdx / 5);
-          rowIdx = rtlIdx % 5;
+          rowIdx = 4 - (rtlIdx % 5);
         } else {
           rowIdx = Math.floor(rtlIdx / 5);
           colIdx = rtlIdx % 5;

@@ -60,6 +60,7 @@ export interface SequenceAndZeroBlueprintParams {
   sequenceMode?: SequenceMode;
   visualKind?: SequenceVisualKind;
   responseKind?: SequenceResponseKind;
+  layoutStyle?: "strip" | "snake-grid";
   numbers?: number[];
   missingValues?: number[];
   missingCount?: number;
@@ -88,6 +89,7 @@ export interface SequenceAndZeroData extends GenericArchetypeData {
   sequenceMode: SequenceMode;
   visualKind: SequenceVisualKind;
   responseKind: SequenceResponseKind;
+  layoutStyle?: "strip" | "snake-grid";
   stepRuleBadgeAr: string;
   steps: SequenceStepItem[];
   zeroTraceModel?: VisualModelSpec;
@@ -445,11 +447,18 @@ function generateSequenceAndZeroExercise(
           ? `العدد ٤ هو (١ أقل) من ٥، والعدد ٣ هو (١ أقل) من ٤`
           : `لأن كل عدد يزيد بمقدار (١ أكثر)؛ فالعدد ٤ هو ١ أكثر من ٣، والعدد ٥ هو ١ أكثر من ٤`;
 
+  const layoutStyle =
+    params.layoutStyle ??
+    (responseKind === "fill-missing" && (params.numbers?.length ?? 0) > 5
+      ? "snake-grid"
+      : "strip");
+
   const data: SequenceAndZeroData = {
     kind: "SequenceAndZero",
     sequenceMode,
     visualKind,
     responseKind,
+    layoutStyle,
     stepRuleBadgeAr,
     steps,
     zeroTraceModel,
@@ -487,6 +496,8 @@ function renderSequenceAndZeroExercise({
   const isAnswerKey = mode === "answer-key";
 
   if (data.responseKind === "fill-missing") {
+    const isSnakeGrid = data.layoutStyle === "snake-grid";
+
     return (
       <div
         className="space-y-1.5"
@@ -494,78 +505,179 @@ function renderSequenceAndZeroExercise({
         data-sequence-mode={data.sequenceMode}
         data-response-kind="fill-missing"
       >
-        {/* Horizontal Sequence Line Container */}
-        <div
-          dir="rtl"
-          data-sequence-strip="rtl"
-          data-sequence-line="true"
-          className="relative flex w-full items-center justify-between gap-1 rounded-2xl border-2 border-indigo-200 bg-gradient-to-l from-indigo-50/40 via-white to-indigo-50/40 p-3 shadow-2xs"
-        >
-          {data.steps.map((step, idx) => {
-            const isSolved = isAnswerKey && step.isMissing;
-            return (
-              <React.Fragment key={step.id}>
-                {/* Node */}
-                <div
-                  className="flex flex-col items-center gap-1.5"
-                  data-sequence-step={formatEasternNumber(idx + 1)}
-                  data-step-value={step.valueAr}
-                  data-step-missing={step.isMissing ? "true" : "false"}
-                  {...(isSolved
-                    ? {
-                        "data-solved-sequence-step": step.valueAr,
-                        "data-solved-missing-number": step.valueAr,
-                      }
-                    : {})}
-                >
-                  {/* Step Pill */}
-                  <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-extrabold text-indigo-950">
-                    خطوة {formatEasternNumber(idx + 1)}
-                  </span>
+        {isSnakeGrid ? (
+          /* Authentic 3x3 Snake / S-Curve Grid (Tang Math pp. 551-553) */
+          <div
+            dir="rtl"
+            data-sequence-strip="rtl"
+            data-sequence-line="true"
+            data-layout-style="snake-grid"
+            className="flex flex-col items-center gap-2 rounded-2xl border-2 border-indigo-200 bg-gradient-to-l from-indigo-50/40 via-white to-indigo-50/40 p-3 shadow-2xs"
+          >
+            {(() => {
+              const rows: SequenceStepItem[][] = [];
+              for (let i = 0; i < data.steps.length; i += 3) {
+                rows.push(data.steps.slice(i, i + 3));
+              }
+              return rows.map((rowSteps, rowIdx) => (
+                <React.Fragment key={`row-${rowIdx}`}>
+                  {/* Row of 3 consecutive boxes */}
+                  <div className="flex w-full items-center justify-between px-3">
+                    {rowSteps.map((step, colIdx) => {
+                      const overallIdx = rowIdx * 3 + colIdx;
+                      const isSolved = isAnswerKey && step.isMissing;
+                      return (
+                        <React.Fragment key={step.id}>
+                          <div
+                            className="flex flex-col items-center gap-1"
+                            data-sequence-step={formatEasternNumber(
+                              overallIdx + 1
+                            )}
+                            data-step-value={step.valueAr}
+                            data-step-missing={
+                              step.isMissing ? "true" : "false"
+                            }
+                            {...(isSolved
+                              ? {
+                                  "data-solved-sequence-step": step.valueAr,
+                                  "data-solved-missing-number": step.valueAr,
+                                }
+                              : {})}
+                          >
+                            {step.isMissing ? (
+                              <AnswerSlot
+                                solved={isAnswerKey}
+                                answer={step.valueAr}
+                                ariaLabel="مربع كتابة العدد المتتالي المفقود"
+                                tone="amber"
+                                solvedDataAttributes={{
+                                  "data-solved-missing-number": step.valueAr,
+                                }}
+                              />
+                            ) : (
+                              <span
+                                className={`inline-flex ${ANSWER_SLOT_SIZE_CLASS} shrink-0 items-center justify-center rounded-2xl border-2 border-indigo-500 bg-indigo-50 text-[28px] font-black leading-none text-indigo-950 shadow-2xs`}
+                                data-sequence-node="given"
+                                data-step-value={step.valueAr}
+                                {...(isAnswerKey
+                                  ? {
+                                      "data-solved-sequence-step": step.valueAr,
+                                    }
+                                  : {})}
+                              >
+                                {step.valueAr}
+                              </span>
+                            )}
+                          </div>
 
-                  {/* Value Box or AnswerSlot */}
-                  {step.isMissing ? (
-                    <AnswerSlot
-                      solved={isAnswerKey}
-                      answer={step.valueAr}
-                      ariaLabel="مربع كتابة العدد المتتالي المفقود"
-                      tone="amber"
-                      solvedDataAttributes={{
-                        "data-solved-missing-number": step.valueAr,
-                      }}
-                    />
-                  ) : (
-                    <span
-                      className={`inline-flex ${ANSWER_SLOT_SIZE_CLASS} shrink-0 items-center justify-center rounded-2xl border-2 border-indigo-500 bg-indigo-50 text-[28px] font-black leading-none text-indigo-950 shadow-2xs`}
-                      data-sequence-node="given"
-                      data-step-value={step.valueAr}
-                      {...(isAnswerKey
-                        ? { "data-solved-sequence-step": step.valueAr }
-                        : {})}
-                    >
-                      {step.valueAr}
-                    </span>
-                  )}
-                </div>
-
-                {/* Directional Connector Arrow between consecutive nodes (RTL) */}
-                {idx < data.steps.length - 1 && (
-                  <div className="flex flex-1 flex-col items-center justify-center gap-0.5">
-                    <span className="text-xs font-extrabold text-indigo-700">
-                      {toEasternArabicNumerals(step.stepDeltaLabelAr)}
-                    </span>
-                    <div className="flex w-full items-center">
-                      <div className="h-0.5 flex-1 bg-indigo-300" />
-                      <span className="text-base font-black text-indigo-500">
-                        ←
-                      </span>
-                    </div>
+                          {/* Horizontal connector line within row (RTL) */}
+                          {colIdx < rowSteps.length - 1 && (
+                            <div className="flex flex-1 items-center justify-center px-1">
+                              <div className="h-0.5 w-full bg-indigo-300" />
+                            </div>
+                          )}
+                        </React.Fragment>
+                      );
+                    })}
                   </div>
-                )}
-              </React.Fragment>
-            );
-          })}
-        </div>
+
+                  {/* Snake return sweep track between rows (RTL: left end of row -> right end of next row) */}
+                  {rowIdx < rows.length - 1 && (
+                    <div className="relative h-4 w-full px-8">
+                      <svg
+                        className="h-full w-full"
+                        viewBox="0 0 280 16"
+                        preserveAspectRatio="none"
+                        fill="none"
+                      >
+                        <path
+                          d="M 14 0 V 8 H 266 V 16"
+                          stroke="#818CF8"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </div>
+                  )}
+                </React.Fragment>
+              ));
+            })()}
+          </div>
+        ) : (
+          /* Horizontal Sequence Line Container */
+          <div
+            dir="rtl"
+            data-sequence-strip="rtl"
+            data-sequence-line="true"
+            className="relative flex w-full items-center justify-between gap-1 rounded-2xl border-2 border-indigo-200 bg-gradient-to-l from-indigo-50/40 via-white to-indigo-50/40 p-3 shadow-2xs"
+          >
+            {data.steps.map((step, idx) => {
+              const isSolved = isAnswerKey && step.isMissing;
+              return (
+                <React.Fragment key={step.id}>
+                  {/* Node */}
+                  <div
+                    className="flex flex-col items-center gap-1.5"
+                    data-sequence-step={formatEasternNumber(idx + 1)}
+                    data-step-value={step.valueAr}
+                    data-step-missing={step.isMissing ? "true" : "false"}
+                    {...(isSolved
+                      ? {
+                          "data-solved-sequence-step": step.valueAr,
+                          "data-solved-missing-number": step.valueAr,
+                        }
+                      : {})}
+                  >
+                    {/* Step Pill */}
+                    <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-extrabold text-indigo-950">
+                      خطوة {formatEasternNumber(idx + 1)}
+                    </span>
+
+                    {/* Value Box or AnswerSlot */}
+                    {step.isMissing ? (
+                      <AnswerSlot
+                        solved={isAnswerKey}
+                        answer={step.valueAr}
+                        ariaLabel="مربع كتابة العدد المتتالي المفقود"
+                        tone="amber"
+                        solvedDataAttributes={{
+                          "data-solved-missing-number": step.valueAr,
+                        }}
+                      />
+                    ) : (
+                      <span
+                        className={`inline-flex ${ANSWER_SLOT_SIZE_CLASS} shrink-0 items-center justify-center rounded-2xl border-2 border-indigo-500 bg-indigo-50 text-[28px] font-black leading-none text-indigo-950 shadow-2xs`}
+                        data-sequence-node="given"
+                        data-step-value={step.valueAr}
+                        {...(isAnswerKey
+                          ? { "data-solved-sequence-step": step.valueAr }
+                          : {})}
+                      >
+                        {step.valueAr}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Directional Connector Arrow between consecutive nodes (RTL) */}
+                  {idx < data.steps.length - 1 && (
+                    <div className="flex flex-1 flex-col items-center justify-center gap-0.5">
+                      <span className="text-xs font-extrabold text-indigo-700">
+                        {toEasternArabicNumerals(step.stepDeltaLabelAr)}
+                      </span>
+                      <div className="flex w-full items-center">
+                        <div className="h-0.5 flex-1 bg-indigo-300" />
+                        <span className="text-base font-black text-indigo-500">
+                          ←
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </React.Fragment>
+              );
+            })}
+          </div>
+        )}
 
         {/* Reasoning Prompt */}
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-300 bg-amber-50/80 px-2.5 py-1 text-[13px] font-bold leading-tight text-amber-950">
