@@ -6,6 +6,7 @@ import type {
   ViewMode,
 } from "@/domain/types";
 import { getExerciseArchetype } from "@/archetypes/registry";
+import { WorksheetHeaderQrCode } from "@/components/worksheet/WorksheetHeaderQrCodes";
 import "@/registry/bootstrap";
 import {
   EXERCISE_BODY_WIDTH_PX,
@@ -59,12 +60,14 @@ function escapeCssString(value: string): string {
 export interface WorksheetSurfaceProps {
   bundle: GeneratedWorksheetBundle;
   viewMode: ViewMode;
+  qrOrigin?: string;
   onSelectPrerequisite?: (grade: string, lessonNumber: number) => void;
 }
 
 export function WorksheetSurface({
   bundle,
   viewMode,
+  qrOrigin,
   onSelectPrerequisite,
 }: WorksheetSurfaceProps): React.ReactElement {
   const { worksheet, lesson, teacherNotes } = bundle;
@@ -76,7 +79,7 @@ export function WorksheetSurface({
       <article
         dir="rtl"
         lang="ar"
-        className="mx-auto w-full max-w-[210mm] rounded-3xl border-2 border-indigo-200 bg-white p-8 text-slate-900 shadow-lg"
+        className="mx-auto w-full max-w-[210mm] rounded-3xl border-2 border-indigo-200 bg-white p-4 text-slate-900 shadow-lg sm:p-8"
         data-view-mode="teacher-notes"
       >
         {!isAuthoredBlueprint && (
@@ -361,54 +364,80 @@ export function WorksheetSurface({
         )}
         {/* Illustrated Workbook Header */}
         <header className="rounded-2xl border-2 border-indigo-200 bg-gradient-to-l from-indigo-50 via-sky-50 to-amber-50 px-3 py-1 shadow-2xs">
-          <div className="flex items-start justify-between gap-2">
-            <div className="space-y-0.5">
-              <div className="flex flex-wrap items-center gap-1">
-                <span className="inline-flex items-center gap-1 rounded-full bg-indigo-600 px-2 py-0.5 text-xs font-extrabold leading-tight text-white">
-                  {header.gradeLabelAr}
-                </span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-sky-600 px-2 py-0.5 text-xs font-extrabold leading-tight text-white">
-                  الوحدة {header.unitNumberAr}:{" "}
-                  {toEasternArabicNumerals(header.unitTitleAr)}
-                </span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-bold leading-tight text-amber-900 border border-amber-300">
-                  المستوى: {toEasternArabicNumerals(header.difficultyLabelAr)}
-                </span>
-                {isAnswerKey && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-600 px-2 py-0.5 text-xs font-extrabold leading-tight text-white shadow-2xs">
-                    ✓ مفتاح الإجابة النموذجي
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex min-w-0 flex-1 items-start gap-2.5">
+              {!isAnswerKey && (
+                <WorksheetHeaderQrCode
+                  view="teacher-notes"
+                  grade={bundle.grade.id}
+                  lessonNumber={lesson.lessonNumber}
+                  seed={bundle.seed}
+                  difficultyLevel={bundle.difficultyMode}
+                  qrOrigin={qrOrigin}
+                />
+              )}
+
+              <div className="min-w-0 flex-1 space-y-0.5">
+                <div className="flex flex-wrap items-center gap-1">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-indigo-600 px-2 py-0.5 text-xs font-extrabold leading-tight text-white">
+                    {header.gradeLabelAr}
+                  </span>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-sky-600 px-2 py-0.5 text-xs font-extrabold leading-tight text-white">
+                    الوحدة {header.unitNumberAr}:{" "}
+                    {toEasternArabicNumerals(header.unitTitleAr)}
+                  </span>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-bold leading-tight text-amber-900 border border-amber-300">
+                    المستوى: {toEasternArabicNumerals(header.difficultyLabelAr)}
+                  </span>
+                  {isAnswerKey && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-600 px-2 py-0.5 text-xs font-extrabold leading-tight text-white shadow-2xs">
+                      ✓ مفتاح الإجابة النموذجي
+                    </span>
+                  )}
+                </div>
+
+                <h1 className="text-[20px] font-extrabold leading-tight text-slate-900">
+                  الدرس {header.lessonNumberAr}:{" "}
+                  {toEasternArabicNumerals(header.lessonTitleAr)}
+                </h1>
+              </div>
+            </div>
+
+            {/* Standard Pills & Answer Key QR Code */}
+            <div className="flex shrink-0 items-start gap-2.5">
+              <div className="flex flex-col items-end gap-0.5">
+                <div className="flex flex-wrap justify-end gap-1">
+                  {header.standards.map((std) => (
+                    <span
+                      key={std}
+                      data-standard-code="true"
+                      className="rounded-lg border border-indigo-300 bg-white px-2 py-0.5 font-mono text-xs font-extrabold leading-tight text-indigo-900 shadow-2xs"
+                    >
+                      {std}
+                    </span>
+                  ))}
+                </div>
+                {lesson.isCoPresented && (
+                  <span className="rounded-full bg-teal-100 px-2 py-0.5 text-xs font-bold leading-tight text-teal-900">
+                    تقديم مشترك
+                  </span>
+                )}
+                {lesson.isEnrichment && (
+                  <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-bold leading-tight text-amber-900">
+                    إثرائي *
                   </span>
                 )}
               </div>
 
-              <h1 className="text-[20px] font-extrabold leading-tight text-slate-900">
-                الدرس {header.lessonNumberAr}:{" "}
-                {toEasternArabicNumerals(header.lessonTitleAr)}
-              </h1>
-            </div>
-
-            {/* Standard Pills */}
-            <div className="flex flex-col items-end gap-0.5">
-              <div className="flex flex-wrap justify-end gap-1">
-                {header.standards.map((std) => (
-                  <span
-                    key={std}
-                    data-standard-code="true"
-                    className="rounded-lg border border-indigo-300 bg-white px-2 py-0.5 font-mono text-xs font-extrabold leading-tight text-indigo-900 shadow-2xs"
-                  >
-                    {std}
-                  </span>
-                ))}
-              </div>
-              {lesson.isCoPresented && (
-                <span className="rounded-full bg-teal-100 px-2 py-0.5 text-xs font-bold leading-tight text-teal-900">
-                  تقديم مشترك
-                </span>
-              )}
-              {lesson.isEnrichment && (
-                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-bold leading-tight text-amber-900">
-                  إثرائي *
-                </span>
+              {!isAnswerKey && (
+                <WorksheetHeaderQrCode
+                  view="answer-key"
+                  grade={bundle.grade.id}
+                  lessonNumber={lesson.lessonNumber}
+                  seed={bundle.seed}
+                  difficultyLevel={bundle.difficultyMode}
+                  qrOrigin={qrOrigin}
+                />
               )}
             </div>
           </div>

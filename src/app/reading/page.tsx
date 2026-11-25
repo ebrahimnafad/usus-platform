@@ -2,7 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { toEasternArabicNumerals } from "@/lib/numerals";
-import { READING_LEVEL_1 } from "@/curriculum/reading-catalog";
+import { READING_LEVEL_1, READING_LEVEL_2 } from "@/curriculum/reading-catalog";
 
 export const metadata = {
   title: "أُسُس — نادي القراءة والفهم القرائي",
@@ -143,36 +143,63 @@ export default function ReadingHubPage() {
             </Link>
           </div>
 
-          {/* Level 2: Preview */}
-          <div className="rounded-2xl bg-white border border-slate-200 p-6 opacity-85 flex flex-col justify-between">
+          {/* Level 2: Active */}
+          <div className="rounded-2xl bg-white border-2 border-emerald-500 p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between relative overflow-hidden">
+            <div className="absolute top-0 right-0 left-0 h-2 bg-emerald-500" />
             <div>
               <div className="flex items-center justify-between mb-4">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-bold">
-                  <span>⏳</span>
-                  <span>قريباً</span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold">
+                  <span>📖</span>
+                  <span>المستوى النشط</span>
                 </span>
                 <span className="text-xs font-bold text-slate-400">
-                  {`${toEasternArabicNumerals(12)} دورة قصة`}
+                  {`${toEasternArabicNumerals(READING_LEVEL_2.stories.length)} دورة قصة`}
                 </span>
               </div>
-              <h3 className="text-xl font-extrabold text-slate-800 mb-1">
-                المستوى الثاني
+              <h3 className="text-xl font-extrabold text-slate-900 mb-1">
+                {READING_LEVEL_2.titleAr}
               </h3>
-              <p className="text-sm font-bold text-slate-500 mb-3">
-                التوسع والضمائر والتنويع
+              <p className="text-sm font-bold text-emerald-700 mb-3">
+                {READING_LEVEL_2.subtitleAr}
               </p>
-              <p className="text-xs text-slate-500 leading-relaxed mb-6">
-                توسيع الجمل بالضمائر المتصلة والمستترة والظروف، ونصوص أطول (
-                {toEasternArabicNumerals(75)}–{toEasternArabicNumerals(100)}{" "}
-                كلمة) مع تعميق الأسئلة الاستنتاجية.
+              <p className="text-xs text-slate-600 leading-relaxed mb-6">
+                {READING_LEVEL_2.descriptionAr}
               </p>
+
+              <div className="space-y-2 border-t border-slate-100 pt-4 mb-6">
+                <div className="flex items-center justify-between text-xs font-bold text-slate-600">
+                  <span>طول النصوص:</span>
+                  <span className="text-slate-800">
+                    {toEasternArabicNumerals(
+                      READING_LEVEL_2.targetWordCount.min
+                    )}
+                    –
+                    {toEasternArabicNumerals(
+                      READING_LEVEL_2.targetWordCount.max
+                    )}{" "}
+                    كلمة
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-xs font-bold text-slate-600">
+                  <span>التركيز النحوي:</span>
+                  <span className="text-slate-800">
+                    الضمائر والظروف والعطف والنفي
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-xs font-bold text-slate-600">
+                  <span>التشكيل الافتراضي:</span>
+                  <span className="text-slate-800">تشكيل جزئي متدرج</span>
+                </div>
+              </div>
             </div>
-            <button
-              disabled
-              className="w-full py-3 px-4 rounded-xl bg-slate-100 text-slate-400 font-extrabold text-xs cursor-not-allowed"
+
+            <Link
+              href="/reading/level/level-2"
+              className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-emerald-600 text-white font-extrabold text-sm hover:bg-emerald-700 transition shadow-sm"
             >
-              قيد الإعداد المنهجي
-            </button>
+              <span>دخول قصص المستوى</span>
+              <span>←</span>
+            </Link>
           </div>
 
           {/* Level 3: Preview */}

@@ -2,7 +2,15 @@
  * Core domain types for Reading Comprehension Club (نادي القراءة والفهم القرائي).
  */
 
-export type ReadingLevelId = "level-1" | "read_l1" | "1" | "level-2" | "level-0";
+export type ReadingLevelId =
+  | "level-1"
+  | "read_l1"
+  | "1"
+  | "level-2"
+  | "read_l2"
+  | "2"
+  | "level-3"
+  | "level-0";
 
 export type ReadingStoryType = "standard" | "free_reading" | "transfer_test";
 
@@ -51,7 +59,7 @@ export interface ReadingStory {
 }
 
 export interface ReadingLevel {
-  id: string; // e.g. "level-1"
+  id: ReadingLevelId; // e.g. "level-1"
   levelNumber: number; // 1
   titleAr: string; // "المستوى الأول"
   subtitleAr: string; // "الانطلاق وبناء المعنى"

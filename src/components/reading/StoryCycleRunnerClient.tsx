@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import type { ReadingLevel, ReadingStory } from "@/domain/reading-types";
 import {
   transformTashkeel,
+  getDefaultTashkeelMode,
   type TashkeelMode,
   highlightTextSnippet,
   highlightSightWords,
@@ -13,6 +14,7 @@ import {
 import { toEasternArabicNumerals } from "@/lib/numerals";
 import TeacherShieldDrawer from "./TeacherShieldDrawer";
 import PrintableReadingSheet from "./PrintableReadingSheet";
+import { ReadingPrintModal } from "./ReadingPrintModal";
 import FreeReadingNook from "./stations/FreeReadingNook";
 import PinnedStorySnippet from "./stations/PinnedStorySnippet";
 import StationFirstRead from "./stations/StationFirstRead";
@@ -66,7 +68,9 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
   const isTransferTest = story.type === "transfer_test";
 
   const [activeStation, setActiveStation] = useState<number>(1);
-  const [tashkeelMode, setTashkeelMode] = useState<TashkeelMode>("full");
+  const [tashkeelMode, setTashkeelMode] = useState<TashkeelMode>(() =>
+    getDefaultTashkeelMode(level.levelNumber)
+  );
   const [sightWordMode, setSightWordMode] = useState<
     "colored" | "underlined" | "off"
   >(isTransferTest ? "off" : "colored");
@@ -81,6 +85,12 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
   >({});
   const [shieldOpen, setShieldOpen] = useState<boolean>(false);
   const [includeStoryText, setIncludeStoryText] = useState<boolean>(true);
+  const [printModalOpen, setPrintModalOpen] = useState<boolean>(false);
+  const [qrOrigin, setQrOrigin] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    setQrOrigin(window.location.origin);
+  }, []);
 
   // Compute story text based on active Tashkeel mode
   const displayedStoryText = useMemo(() => {
@@ -125,13 +135,26 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
   // RENDER VARIANT 1: FREE READING NOOK (Stories 4 & 10)
   if (isFreeReading) {
     return (
-      <FreeReadingNook
-        level={level}
-        story={story}
-        nextStoryNumber={nextStoryNumber}
-        shieldOpen={shieldOpen}
-        onSetShieldOpen={setShieldOpen}
-      />
+      <>
+        <FreeReadingNook
+          level={level}
+          story={story}
+          nextStoryNumber={nextStoryNumber}
+          shieldOpen={shieldOpen}
+          onSetShieldOpen={setShieldOpen}
+          onOpenPrintModal={() => setPrintModalOpen(true)}
+        />
+        <ReadingPrintModal
+          isOpen={printModalOpen}
+          onClose={() => setPrintModalOpen(false)}
+          level={level}
+          story={story}
+          tashkeelMode={tashkeelMode}
+          includeStoryText={includeStoryText}
+          onTashkeelChange={setTashkeelMode}
+          onIncludeStoryTextChange={setIncludeStoryText}
+        />
+      </>
     );
   }
 
@@ -188,18 +211,11 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
               <span>👩‍🏫</span>
               <span>درع المعلم</span>
             </button>
-            <label className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={includeStoryText}
-                onChange={(e) => setIncludeStoryText(e.target.checked)}
-                className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 w-3.5 h-3.5 cursor-pointer"
-              />
-              <span>مع نص القصة</span>
-            </label>
             <button
-              onClick={() => window.print()}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-xs transition"
+              type="button"
+              data-reading-print-trigger="true"
+              onClick={() => setPrintModalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs transition shadow-xs"
               title="طباعة ورقة العمل"
             >
               <span>🖨️</span>
@@ -383,6 +399,18 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
         story={story}
         tashkeelMode={tashkeelMode}
         includeStoryText={includeStoryText}
+        qrOrigin={qrOrigin}
+      />
+
+      <ReadingPrintModal
+        isOpen={printModalOpen}
+        onClose={() => setPrintModalOpen(false)}
+        level={level}
+        story={story}
+        tashkeelMode={tashkeelMode}
+        includeStoryText={includeStoryText}
+        onTashkeelChange={setTashkeelMode}
+        onIncludeStoryTextChange={setIncludeStoryText}
       />
     </div>
   );

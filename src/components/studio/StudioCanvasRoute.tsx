@@ -94,6 +94,24 @@ export function StudioCanvasRoute({
     });
   };
 
+  const onDifficultyChange = (
+    difficultyLevel: import("@/domain/types").WorksheetDifficultyMode
+  ) => {
+    beginTuning();
+    dispatchCanvasNavigation({
+      type: "select-difficulty",
+      difficultyLevel,
+    });
+  };
+
+  const onSeedChange = (seed: string) => {
+    beginTuning();
+    dispatchCanvasNavigation({
+      type: "regenerate-seed",
+      seed,
+    });
+  };
+
   return (
     <StudioCanvas
       bundle={bundle}
@@ -103,6 +121,8 @@ export function StudioCanvasRoute({
       onViewModeChange={onViewModeChange}
       onZoomStep={onZoomStep}
       onSelectPrerequisite={onSelectPrerequisite}
+      onDifficultyChange={onDifficultyChange}
+      onSeedChange={onSeedChange}
     />
   );
 }

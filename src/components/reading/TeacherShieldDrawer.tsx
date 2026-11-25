@@ -12,7 +12,7 @@ interface Props {
   isTransferTest?: boolean;
 }
 
-const BLIND_SPOTS = [
+export const BLIND_SPOTS = [
   {
     title: "الفصحى والعامية",
     desc: "اقبل إجابة الطفل بالعامية لتثبيت الفهم، ثم نمذجها بلطف: «أحسنت! معناها كذا، وبالفصحى نصوغها هكذا...».",

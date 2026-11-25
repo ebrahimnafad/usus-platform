@@ -402,13 +402,13 @@ describe("Ticket 06 — Zero-Overflow Printable A4 Reading Worksheets", () => {
     });
 
     it("scales story text typography based on Reading Level (22px for L1, 19px for L2, 16px for L3)", () => {
-      const level2 = {
+      const level2: typeof level1 = {
         ...level1,
         id: "level-2",
         levelNumber: 2,
         titleAr: "المستوى الثاني",
       };
-      const level3 = {
+      const level3: typeof level1 = {
         ...level1,
         id: "level-3",
         levelNumber: 3,
@@ -447,14 +447,27 @@ describe("Ticket 06 — Zero-Overflow Printable A4 Reading Worksheets", () => {
       expect(findWesternNumeralsInRenderedHtml(htmlL3)).toEqual([]);
     });
 
-    it("renders 'مع نص القصة' checkbox inline next to the print button in StoryCycleRunnerPage", async () => {
+    it("renders print modal trigger in StoryCycleRunnerPage and story-text toggle in ReadingPrintModal", async () => {
+      const { ReadingPrintModal } =
+        await import("@/components/reading/ReadingPrintModal");
       const pageComponent = await StoryCycleRunnerPage({
         params: Promise.resolve({ levelId: "level-1", storyId: "1" }),
       });
-      const html = renderToString(pageComponent);
+      const pageHtml = renderToString(pageComponent);
+      expect(pageHtml).toContain('data-reading-print-trigger="true"');
 
-      expect(html).toContain("مع نص القصة");
-      expect(html).toMatch(/<input[^>]*type="checkbox"[^>]*checked[^>]*>/);
+      const modalHtml = renderToString(
+        React.createElement(ReadingPrintModal, {
+          isOpen: true,
+          onClose: () => {},
+          level: level1,
+          story: standardStory,
+          tashkeelMode: "full",
+          includeStoryText: true,
+        })
+      );
+      expect(modalHtml).toContain("تضمين نص القصة في ورقة الطالب");
+      expect(modalHtml).toMatch(/<input[^>]*type="checkbox"[^>]*checked[^>]*>/);
     });
   });
 

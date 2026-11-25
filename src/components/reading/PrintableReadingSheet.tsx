@@ -5,7 +5,12 @@ import type {
   ReadingStory,
 } from "@/domain/reading-types";
 import { toEasternArabicNumerals } from "@/lib/numerals";
-import { transformTashkeel, type TashkeelMode } from "@/lib/reading-scaffold";
+import {
+  transformTashkeel,
+  getDefaultTashkeelMode,
+  type TashkeelMode,
+} from "@/lib/reading-scaffold";
+import { ReadingHeaderQrCode } from "@/components/worksheet/WorksheetHeaderQrCodes";
 
 const QAR_TIER_CONFIG: Record<QARTier, { label: string; lines: number }> = {
   direct: { label: "مباشر", lines: 1 },
@@ -29,27 +34,42 @@ function getStoryTypographyClass(levelNumber?: number): string {
   return (levelNumber && LEVEL_TYPOGRAPHY[levelNumber]) || LEVEL_TYPOGRAPHY[2];
 }
 
+export type ReadingPrintViewMode = "student" | "answer-key";
+
 interface Props {
   level: ReadingLevel;
   story: ReadingStory;
   tashkeelMode?: TashkeelMode;
   includeStoryText?: boolean;
+  viewMode?: ReadingPrintViewMode;
+  qrOrigin?: string;
+  alwaysVisible?: boolean;
 }
 
 export default function PrintableReadingSheet({
   level,
   story,
-  tashkeelMode = "full",
+  tashkeelMode,
   includeStoryText = true,
+  viewMode = "student",
+  qrOrigin,
+  alwaysVisible = false,
 }: Props) {
+  const effectiveTashkeel =
+    tashkeelMode ?? getDefaultTashkeelMode(level.levelNumber);
   const isFreeReading = story.type === "free_reading";
   const isTransferTest = story.type === "transfer_test";
-  const renderedStoryText = transformTashkeel(story.text, tashkeelMode);
+  const isAnswerKey = viewMode === "answer-key";
+  const renderedStoryText = transformTashkeel(story.text, effectiveTashkeel);
   const typographyClass = getStoryTypographyClass(level.levelNumber);
 
   return (
     <article
-      className="a4-sheet reading-a4-sheet bg-white text-slate-900 mx-auto box-border px-6 py-4 hidden print:block"
+      data-reading-sheet="true"
+      data-reading-view={viewMode}
+      className={`a4-sheet reading-a4-sheet bg-white text-slate-900 mx-auto box-border px-6 py-3 ${
+        alwaysVisible ? "block" : "hidden print:block"
+      }`}
       style={{
         width: "210mm",
       }}
@@ -59,7 +79,7 @@ export default function PrintableReadingSheet({
       <style>{`
         @page reading-page {
           size: A4 portrait;
-          margin: 0;
+          margin: 10mm 0 6mm 0;
           @top-center {
             content: "أُسُس | ${level.titleAr} | «${story.titleAr ?? story.title}» | الاسم: __________ | صفحة " counter(page, arabic-indic);
             font-family: "Cairo", "Readex Pro", "Segoe UI", Tahoma, sans-serif;
@@ -67,9 +87,12 @@ export default function PrintableReadingSheet({
             font-weight: 700;
             color: #334155;
             direction: rtl;
+            white-space: nowrap;
+            vertical-align: middle;
           }
         }
         @page reading-page:first {
+          margin: 0;
           @top-center {
             content: none !important;
           }
@@ -96,9 +119,19 @@ export default function PrintableReadingSheet({
       </div>
 
       {/* A4 Header */}
-      <header className="border-b-2 border-slate-800 pb-2 mb-3 flex flex-col gap-1.5">
-        <div className="flex items-center justify-between text-xs font-black">
-          <div className="flex items-center gap-2">
+      <header className="border-b-2 border-slate-800 pb-1.5 mb-2 flex flex-col gap-1">
+        <div className="flex items-center justify-between gap-3 text-xs font-black">
+          {!isAnswerKey && (
+            <ReadingHeaderQrCode
+              view="teacher-notes"
+              levelId={level.id}
+              storyNumber={story.storyNumber}
+              tashkeelMode={tashkeelMode}
+              qrOrigin={qrOrigin}
+            />
+          )}
+
+          <div className="flex flex-1 flex-wrap items-center justify-center gap-2 text-center">
             <span className="w-6 h-6 rounded-md bg-slate-900 text-white flex items-center justify-center text-xs font-black">
               أُ
             </span>
@@ -106,8 +139,13 @@ export default function PrintableReadingSheet({
               أُسُس — نادي القراءة والفهم القرائي — {level.titleAr}
             </span>
             <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px] font-black border border-slate-200">
-              {TASHKEEL_BADGE_LABELS[tashkeelMode]}
+              {TASHKEEL_BADGE_LABELS[effectiveTashkeel]}
             </span>
+            {isAnswerKey && (
+              <span className="px-2 py-0.5 rounded bg-emerald-700 text-white text-[10px] font-black">
+                نموذج الإجابة
+              </span>
+            )}
             {isTransferTest && (
               <span className="px-2 py-0.5 rounded bg-slate-800 text-white text-[10px] font-black">
                 🎯 اختبار النقل
@@ -119,6 +157,19 @@ export default function PrintableReadingSheet({
               </span>
             )}
           </div>
+
+          {!isAnswerKey && !isFreeReading && (
+            <ReadingHeaderQrCode
+              view="answer-key"
+              levelId={level.id}
+              storyNumber={story.storyNumber}
+              tashkeelMode={tashkeelMode}
+              qrOrigin={qrOrigin}
+            />
+          )}
+          {!isAnswerKey && isFreeReading && (
+            <span className="w-[50px] shrink-0" aria-hidden="true" />
+          )}
         </div>
 
         {/* Student metadata row */}
@@ -144,8 +195,103 @@ export default function PrintableReadingSheet({
         </div>
       </header>
 
-      {/* Free Reading Printable Layout */}
-      {isFreeReading ? (
+      {/* Answer Key Printable Layout */}
+      {isAnswerKey ? (
+        isFreeReading ? (
+          <div className="border border-amber-300 rounded-2xl p-6 bg-amber-50/30 text-center text-sm font-bold text-amber-950">
+            جلسة قراءة حرة للمتعة الأدبية الخالصة — لا توجد أسئلة أو نموذج إجابة
+            لهذه القصة.
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {/* QAR Sample Answers & Evidence */}
+            <section className="border border-emerald-300 border-l-4 border-l-emerald-500 rounded-xl p-3.5 bg-emerald-50/30 break-inside-avoid">
+              <div className="flex items-center justify-between mb-2 border-b border-emerald-200 pb-1">
+                <span className="text-xs font-black text-emerald-950">
+                  ✅ نموذج إجابات الفهم القرائي (QAR):
+                </span>
+                <span className="text-[10px] font-bold text-emerald-800">
+                  الإجابة النموذجية + الدليل النصي
+                </span>
+              </div>
+
+              <div className="space-y-2.5">
+                {story.qarQuestions.map((q, idx) => {
+                  const tierConfig = QAR_TIER_CONFIG[q.tier] ?? {
+                    label: "مباشر",
+                    lines: 1,
+                  };
+                  return (
+                    <div
+                      key={q.id}
+                      data-tier={q.tier}
+                      className="rounded-lg border border-emerald-200 bg-white p-2.5 text-xs space-y-1"
+                    >
+                      <div className="flex items-start gap-1.5">
+                        <span className="font-black text-slate-800">
+                          {toEasternArabicNumerals(idx + 1)}.
+                        </span>
+                        <span className="font-black text-slate-500 text-[10px]">
+                          [{tierConfig.label}]
+                        </span>
+                        <span className="font-bold text-slate-900">
+                          {q.prompt ?? q.question}
+                        </span>
+                      </div>
+                      <div className="mr-4 text-emerald-900 font-bold">
+                        <span className="text-emerald-700">الإجابة: </span>
+                        {q.sampleAnswer}
+                      </div>
+                      {q.textEvidenceSnippet && (
+                        <div className="mr-4 text-[11px] text-slate-600">
+                          <span className="font-bold text-slate-700">
+                            الدليل من النص:{" "}
+                          </span>
+                          «{q.textEvidenceSnippet}»
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+
+            {/* Grammar Discovery Answer Key */}
+            {story.grammarDiscovery && (
+              <section className="border border-violet-300 border-l-4 border-l-violet-500 rounded-xl p-3 bg-violet-50/30 break-inside-avoid">
+                <div className="flex items-center justify-between mb-1.5 border-b border-violet-200 pb-1">
+                  <span className="text-xs font-black text-violet-950">
+                    🧩 إجابة معمل اللغة:
+                  </span>
+                  <span className="text-[11px] font-black text-violet-800">
+                    {story.grammarDiscovery.targetRule}
+                  </span>
+                </div>
+                <div className="space-y-1 text-xs text-slate-800">
+                  <div>
+                    <span className="font-bold text-violet-900">
+                      الملاحظة:{" "}
+                    </span>
+                    {story.grammarDiscovery.observation}
+                  </div>
+                  <div>
+                    <span className="font-bold text-violet-900">
+                      القاعدة المستخلصة:{" "}
+                    </span>
+                    <span className="font-black">
+                      {story.grammarDiscovery.label}
+                    </span>
+                  </div>
+                </div>
+              </section>
+            )}
+
+            <footer className="text-center text-[10px] text-slate-400 font-bold pt-0.5">
+              منصة أُسُس التعليمية — نموذج إجابة المعلم لدورة القصة
+            </footer>
+          </div>
+        )
+      ) : isFreeReading ? (
         <div className="flex flex-col justify-between h-[245mm]">
           {includeStoryText && (
             <div className="border border-amber-300 rounded-2xl p-8 bg-amber-50/20 text-center my-auto">
@@ -168,11 +314,11 @@ export default function PrintableReadingSheet({
         </div>
       ) : (
         /* Standard & Transfer Test Printable Layout (Story + QAR + Grammar Lab) */
-        <div className="space-y-3">
+        <div className="space-y-2">
           {/* 1. Story Text Box */}
           {includeStoryText && (
-            <section className="border border-emerald-200 border-l-4 border-l-emerald-400 rounded-xl p-3.5 bg-emerald-50/40 break-inside-avoid">
-              <div className="flex items-center justify-between mb-1.5">
+            <section className="border border-emerald-200 border-l-4 border-l-emerald-400 rounded-xl p-2.5 bg-emerald-50/40 break-inside-avoid">
+              <div className="flex items-center justify-between mb-1">
                 <span className="text-xs font-black text-slate-800">
                   📖 نص القصة: «{story.titleAr ?? story.title}»
                 </span>
@@ -189,8 +335,8 @@ export default function PrintableReadingSheet({
           )}
 
           {/* 2. QAR Comprehension Questions */}
-          <section className="border border-sky-200 border-l-4 border-l-sky-400 rounded-xl p-3.5 bg-sky-50/40 break-inside-avoid">
-            <div className="flex items-center justify-between mb-2 border-b border-sky-200 pb-1">
+          <section className="border border-sky-200 border-l-4 border-l-sky-400 rounded-xl p-2.5 bg-sky-50/40 break-inside-avoid">
+            <div className="flex items-center justify-between mb-1.5 border-b border-sky-200 pb-1">
               <span className="text-xs font-black text-slate-900">
                 🔍 أسئلة الفهم (أين تعيش الإجابة؟):
               </span>
@@ -199,7 +345,7 @@ export default function PrintableReadingSheet({
               </span>
             </div>
 
-            <div className="space-y-2.5">
+            <div className="space-y-1.5">
               {story.qarQuestions.map((q, idx) => {
                 const tierConfig = QAR_TIER_CONFIG[q.tier] ?? {
                   label: "مباشر",
@@ -243,8 +389,8 @@ export default function PrintableReadingSheet({
 
           {/* 3. Inductive Language Lab */}
           {story.grammarDiscovery && (
-            <section className="border border-violet-200 border-l-4 border-l-violet-400 rounded-xl p-3 bg-violet-50/40 break-inside-avoid">
-              <div className="flex items-center justify-between mb-1.5 border-b border-violet-200 pb-1">
+            <section className="border border-violet-200 border-l-4 border-l-violet-400 rounded-xl p-2.5 bg-violet-50/40 break-inside-avoid">
+              <div className="flex items-center justify-between mb-1 border-b border-violet-200 pb-1">
                 <span className="text-xs font-black text-slate-900">
                   🧩 معمل اللغة (اكتشف القاعدة):
                 </span>
@@ -286,7 +432,7 @@ export default function PrintableReadingSheet({
           )}
 
           {/* 4. Self-Assessment Strip */}
-          <section className="flex items-center justify-between px-4 py-1.5 border border-dashed border-slate-200 rounded-lg bg-slate-50/50 text-xs text-slate-600 break-inside-avoid">
+          <section className="flex items-center justify-between px-4 py-1 border border-dashed border-slate-200 rounded-lg bg-slate-50/50 text-xs text-slate-600 break-inside-avoid">
             <span className="font-bold">كيف أحسست بأدائي؟</span>
             <span className="text-base tracking-widest text-slate-400 select-none">
               ☆ ☆ ☆

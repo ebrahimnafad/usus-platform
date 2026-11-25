@@ -40,7 +40,7 @@ A Perceive or Group exercise never opens with `عدّ`. A Count exercise may ope
 
 2.3 An Exercise stays whole on one page, and a Section header stays on the same page as its first Exercise. **[guard]**
 
-2.4 Print and Download produce the same PDF through the same pipeline (ADR-0011). **[test]**
+2.4 Printing uses the client-side clean print iframe (`PRINT_CLEAN_A4_CSS`, ADR-0017), superseding the legacy Download PDF button and Playwright-per-print flow (ADR-0011). **[test]**
 
 2.5 Full color with `print-color-adjust: exact`, and every color cue paired with a shape, pattern, or silhouette cue so the page reads in grayscale (ADR-0006). **[review]**
 
@@ -98,7 +98,7 @@ A Perceive or Group exercise never opens with `عدّ`. A Count exercise may ope
 
 ## 5. Worksheet anatomy
 
-5.1 Every Worksheet has the illustrated header (Grade, Unit, Lesson number and Arabic title, Standard pills, الاسم, التاريخ, كيف كان أدائي؟), the three Sections in order (تهيئة, تدرّب, تحدٍّ وتقييم), and a footer carrying the Seed. **[test]**
+5.1 Every Worksheet has the illustrated header (Grade, Unit, Lesson number and Arabic title, Standard pills, الاسم, التاريخ, كيف كان أدائي؟, plus two compact header QR codes linking to the Answer Key and Teacher Notes), the three Sections in order (تهيئة, تدرّب, تحدٍّ وتقييم), and a footer carrying the Seed. **[test]**
 
 5.2 Section sizes: Warm-Up 1–2, Practice 2–4, Challenge & Assessment 1–2 Exercises. **[test]**
 
@@ -201,3 +201,4 @@ A batch closes when all of these hold:
 - 2026-11-12: §0 (Pedagogical Foundation) added, adopting the See–Group–Count perception ladder from ADR-0015. §6.2 linked to the ladder. §9.7 (imperative selection by perception rung) and §10.3 (Visual Model perception mode declaration) added. §9.1 vocabulary: `عناصر` / `عنصر` added to `GLOSSARY.md` `_Avoid_` list for child-facing text; `Perception Ladder`, `Extras`, and `Items (child-facing)` terms added to `GLOSSARY.md`.
 - 2026-11-25: For Grade K Unit 10 (Numbers to 50 & 100): §3.4 adds Ten-Frame Grid (`660 × 160 px`) canonical size per §3.5 and §10.1.
 - 2026-11-25: For Grade K Unit 10 (Egyptian Money): §3.4 adds Money Card (`212 × 160 px`) canonical size per §3.5 and §10.1.
+- 2026-11-25: §2.4 amended to use client-side clean print iframe (`PRINT_CLEAN_A4_CSS`) and remove the Download PDF button (ADR-0017, superseding ADR-0011); §5.1 updated to include the two compact Worksheet header QR codes (Answer Key and Teacher Notes).

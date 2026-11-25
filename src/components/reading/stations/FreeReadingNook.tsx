@@ -11,6 +11,7 @@ interface FreeReadingNookProps {
   nextStoryNumber: number | null;
   shieldOpen: boolean;
   onSetShieldOpen: (open: boolean) => void;
+  onOpenPrintModal?: () => void;
 }
 
 export default function FreeReadingNook({
@@ -19,6 +20,7 @@ export default function FreeReadingNook({
   nextStoryNumber,
   shieldOpen,
   onSetShieldOpen,
+  onOpenPrintModal,
 }: FreeReadingNookProps) {
   return (
     <div className="min-h-screen bg-[#fcf9f2] text-slate-900 pb-24" dir="rtl">
@@ -61,8 +63,12 @@ export default function FreeReadingNook({
               <span>درع المعلم</span>
             </button>
             <button
-              onClick={() => window.print()}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white hover:bg-amber-50 text-amber-900 font-extrabold text-xs transition border border-amber-200"
+              type="button"
+              data-reading-print-trigger="true"
+              onClick={() =>
+                onOpenPrintModal ? onOpenPrintModal() : window.print()
+              }
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs transition shadow-xs"
               title="طباعة ورقة العمل"
             >
               <span>🖨️</span>

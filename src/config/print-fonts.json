@@ -1,4 +1,10 @@
 {
-  "stylesheetHref": "https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Readex+Pro:wght@400;600;700&display=swap",
-  "families": ["Cairo", "Readex Pro"]
+  "stylesheetHref": "https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Aref+Ruqaa:wght@400;700&family=Cairo:wght@400;600;700;800;900&family=Noto+Naskh+Arabic:wght@400;600;700&family=Readex+Pro:wght@400;600;700&display=swap",
+  "families": [
+    "Cairo",
+    "Amiri",
+    "Noto Naskh Arabic",
+    "Aref Ruqaa",
+    "Readex Pro"
+  ]
 }

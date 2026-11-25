@@ -27,6 +27,16 @@ export function toPartialTashkeel(text: string): string {
 export type TashkeelMode = "full" | "partial" | "none";
 
 /**
+ * Returns the default Tashkeel scaffolding mode for a given reading level.
+ * Level 1 starts with full vocalization; Level 2 transitions to partial vocalization.
+ */
+export function getDefaultTashkeelMode(levelNumber?: number): TashkeelMode {
+  if (levelNumber === 2) return "partial";
+  if (levelNumber && levelNumber >= 3) return "none";
+  return "full";
+}
+
+/**
  * Transforms Arabic text according to the active Tashkeel mode.
  */
 export function transformTashkeel(

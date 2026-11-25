@@ -160,6 +160,18 @@ export function TeacherStudio({
               lessonNumber,
             })
           }
+          onDifficultyChange={(difficultyLevel) =>
+            navigateWithAction({
+              type: "select-difficulty",
+              difficultyLevel,
+            })
+          }
+          onSeedChange={(seed) =>
+            navigateWithAction({
+              type: "regenerate-seed",
+              seed,
+            })
+          }
         />
       )}
     </StudioShell>

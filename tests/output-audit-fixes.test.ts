@@ -128,16 +128,16 @@ describe("Output Audit Fixes — Download PDF & Print Parity Seam Tests", () => 
     expect(src).not.toMatch(/scale:\s*scale\b/);
   });
 
-  it("Seam 8: StudioCanvas delegates print to printPdfViaIframe (no inline iframe logic)", () => {
+  it("Seam 8: StudioCanvas delegates print to PrintModal (no inline iframe logic or PDF download link)", () => {
     const srcPath = path.resolve(
       __dirname,
       "../src/components/studio/StudioCanvas.tsx"
     );
     const src = fs.readFileSync(srcPath, "utf8");
-    // The helper should be imported
-    expect(src).toContain("printPdfViaIframe");
-    // The vague Q4 comment should be gone
-    expect(src).not.toContain("per Q4");
+    // The PrintModal should be imported and Download PDF link eradicated (ADR-0017)
+    expect(src).toContain("PrintModal");
+    expect(src).not.toContain("data-pdf-download");
+    expect(src).not.toContain("تحميل PDF");
     // No inline iframe creation in StudioCanvas itself
     expect(src).not.toContain('createElement("iframe")');
     expect(src).not.toContain("createElement('iframe')");

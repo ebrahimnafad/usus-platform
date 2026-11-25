@@ -1,23 +1,22 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import type {
   GeneratedWorksheetBundle,
   GradeId,
   ViewMode,
+  WorksheetDifficultyMode,
 } from "@/domain/types";
 import { WorksheetSurface } from "@/components/worksheet/WorksheetSurface";
-import { buildPdfExportUrl } from "@/lib/studio-state";
+import { PrintModal } from "@/components/studio/PrintModal";
 import { formatEasternNumber } from "@/lib/numerals";
 import { getGradeAccents, getGradeConfig } from "@/config/grades";
 import {
   AnswerKeyIcon,
-  DownloadIcon,
   NotesIcon,
   PrinterIcon,
   WorksheetIcon,
 } from "@/components/studio/icons";
-import { printPdfViaIframe } from "@/lib/print-pdf-iframe";
 
 const VIEW_TABS = [
   { id: "worksheet", labelAr: "ورقة العمل", Icon: WorksheetIcon },
@@ -33,6 +32,8 @@ export interface StudioCanvasProps {
   onViewModeChange?: (viewMode: ViewMode) => void;
   onZoomStep?: (delta: -1 | 1) => void;
   onSelectPrerequisite?: (grade: GradeId, lessonNumber: number) => void;
+  onDifficultyChange?: (mode: WorksheetDifficultyMode) => void;
+  onSeedChange?: (seed: string) => void;
 }
 
 /**
@@ -47,41 +48,18 @@ export function StudioCanvas({
   onViewModeChange,
   onZoomStep,
   onSelectPrerequisite,
+  onDifficultyChange,
+  onSeedChange,
 }: StudioCanvasProps): React.ReactElement {
   const gradeConfig = getGradeConfig(bundle.grade.id);
   const accents = getGradeAccents(gradeConfig?.color);
 
-  const pdfExportUrl = buildPdfExportUrl({
-    grade: bundle.grade.id,
-    lessonNumber: bundle.lesson.lessonNumber,
-    seed: bundle.seed,
-    difficultyLevel: bundle.difficultyMode,
-    viewMode,
-  });
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
+  const [qrOrigin, setQrOrigin] = useState<string | undefined>(undefined);
 
-  const [isPrinting, setIsPrinting] = useState(false);
-
-  const handlePrint = async () => {
-    if (typeof window === "undefined" || isPrinting) return;
-    setIsPrinting(true);
-    const lessonAr = formatEasternNumber(bundle.lesson.lessonNumber);
-    const viewLabel =
-      viewMode === "answer-key"
-        ? "مفتاح الإجابة"
-        : viewMode === "teacher-notes"
-          ? "ملاحظات المعلم"
-          : "ورقة عمل";
-    const title = `${viewLabel} – ${bundle.grade.labelAr} – الدرس ${lessonAr} – ${bundle.seed}`;
-    try {
-      // Delegate full iframe-print lifecycle to the dedicated helper (ADR-0011).
-      await printPdfViaIframe(pdfExportUrl, title);
-    } catch {
-      // Fallback to native browser print on any failure.
-      window.print();
-    } finally {
-      setIsPrinting(false);
-    }
-  };
+  useEffect(() => {
+    setQrOrigin(window.location.origin);
+  }, []);
 
   return (
     <main
@@ -169,25 +147,14 @@ export function StudioCanvas({
             </button>
           </div>
 
-          <a
-            href={pdfExportUrl}
-            data-pdf-download="true"
-            className="flex min-h-8 items-center gap-1.5 rounded-xl px-3 py-1 text-[11px] font-extrabold text-white shadow-xs transition-colors duration-150"
-            style={{ backgroundColor: accents.accentHex }}
-          >
-            <DownloadIcon size={14} />
-            تحميل PDF
-          </a>
-
           <button
             type="button"
             data-print-trigger="true"
-            disabled={isPrinting}
-            onClick={handlePrint}
-            className="flex min-h-8 items-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-1 text-[11px] font-extrabold text-white shadow-xs transition-colors duration-150 hover:bg-emerald-700 disabled:opacity-50"
+            onClick={() => setIsPrintModalOpen(true)}
+            className="flex min-h-8 items-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-1 text-[11px] font-extrabold text-white shadow-xs transition-colors duration-150 hover:bg-emerald-700"
           >
             <PrinterIcon size={14} />
-            {isPrinting ? "جاري التجهيز..." : "طباعة"}
+            طباعة
           </button>
         </div>
       </div>
@@ -206,12 +173,23 @@ export function StudioCanvas({
           <WorksheetSurface
             bundle={bundle}
             viewMode={viewMode}
+            qrOrigin={qrOrigin}
             onSelectPrerequisite={(grade, lessonNumber) =>
               onSelectPrerequisite?.(grade as GradeId, lessonNumber)
             }
           />
         </div>
       </div>
+
+      <PrintModal
+        isOpen={isPrintModalOpen}
+        onClose={() => setIsPrintModalOpen(false)}
+        bundle={bundle}
+        activeViewMode={viewMode}
+        accentHex={accents.accentHex}
+        onDifficultyChange={onDifficultyChange}
+        onSeedChange={onSeedChange}
+      />
     </main>
   );
 }
