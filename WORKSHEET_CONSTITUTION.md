@@ -77,6 +77,7 @@ A Perceive or Group exercise never opens with `عدّ`. A Count exercise may ope
 | Linear Comparison   | 660 × 120 px                        |
 | Dot Array           | 212 × 160 px                        |
 | Ten-frame (vert.)   | 48 px cells in a 108 × 252 px box   |
+| Ten-Frame Grid      | 660 × 160 px (2×5 macro grid)       |
 
 3.5 Each new Visual Model adds its canonical size to the table in 3.4, sized to fit one column of 3.2.
 
@@ -197,3 +198,4 @@ A batch closes when all of these hold:
 - 2026-11-11: Added Digicross Grid (`324 × 212 px`) to §3.4 canonical sizes per §3.5 and §10.1.
 - 2026-11-11: For Grade K Unit 9 (Numbers to 20): §3.4 adds Linear Comparison (660 × 120 px), Dot Array (212 × 160 px), and Ten-frame vertical (108 × 252 px) canonical sizes; §6.3 adds Difference = 0 as an Advanced edge case; §9.4 adds the imperative حوّط.
 - 2026-11-12: §0 (Pedagogical Foundation) added, adopting the See–Group–Count perception ladder from ADR-0015. §6.2 linked to the ladder. §9.7 (imperative selection by perception rung) and §10.3 (Visual Model perception mode declaration) added. §9.1 vocabulary: `عناصر` / `عنصر` added to `GLOSSARY.md` `_Avoid_` list for child-facing text; `Perception Ladder`, `Extras`, and `Items (child-facing)` terms added to `GLOSSARY.md`.
+- 2026-11-25: For Grade K Unit 10 (Numbers to 50 & 100): §3.4 adds Ten-Frame Grid (`660 × 160 px`) canonical size per §3.5 and §10.1.

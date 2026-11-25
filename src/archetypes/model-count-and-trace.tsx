@@ -27,12 +27,14 @@ import {
   EVERYDAY_OBJECT_CATALOG,
   getEverydayObjectById,
 } from "@/visual-models/everyday-objects";
+import { createTenFrameGridSpec } from "@/visual-models/ten-frame-grid";
 import { AnswerLine, AnswerSlot } from "@/components/worksheet/AnswerSlot";
 import { ExerciseColumns } from "@/components/worksheet/ExerciseColumns";
 
 export type Unit2ModelingKind =
   | "five-frame"
   | "ten-frame"
+  | "ten-frame-grid"
   | "snap-cubes"
   | "tally-marks"
   | "dice-pattern"
@@ -107,9 +109,16 @@ function defaultPartWholeNote(n: number): string {
     const extra = n - 5;
     return `٥ و${formatEasternNumber(extra)} يساوي ${formatEasternNumber(n)}`;
   }
-  // Teen numbers: 10 and some more (المجموعة الكاملة ١٠ والباقي)
-  const ones = n - 10;
-  return `١٠ و${formatEasternNumber(ones)} يساوي ${formatEasternNumber(n)}`;
+  if (n <= 20) {
+    // Teen numbers: 10 and some more (المجموعة الكاملة ١٠ والباقي)
+    const ones = n - 10;
+    return `١٠ و${formatEasternNumber(ones)} يساوي ${formatEasternNumber(n)}`;
+  }
+  const tens = Math.floor(n / 10);
+  const ones = n % 10;
+  return ones === 0
+    ? `${formatEasternNumber(tens)} عشرات يساوي ${formatEasternNumber(n)}`
+    : `${formatEasternNumber(tens)} عشرات و${formatEasternNumber(ones)} آحاد يساوي ${formatEasternNumber(n)}`;
 }
 
 function buildDefaultQuantityModel(
@@ -122,6 +131,13 @@ function buildDefaultQuantityModel(
   bottomRowCount?: number
 ): VisualModelSpec {
   const primary = Math.max(0, targetNumber - secondaryCount - ghostTargetCount);
+  if (modelKind === "ten-frame-grid") {
+    return createTenFrameGridSpec({
+      count: targetNumber,
+      colorTheme,
+    });
+  }
+
   if (modelKind === "ten-frame") {
     return createTenFrameSpec({
       count: primary,
@@ -234,7 +250,10 @@ function generateModelCountAndTraceExercise(
   const modelKind: Unit2ModelingKind = params.modelKind ?? "five-frame";
   const responseStyle: ModelCountAndTraceResponseStyle =
     params.responseStyle ?? "trace-and-write";
-  const isFrameModel = modelKind === "five-frame" || modelKind === "ten-frame";
+  const isFrameModel =
+    modelKind === "five-frame" ||
+    modelKind === "ten-frame" ||
+    modelKind === "ten-frame-grid";
 
   const defaultItemCount =
     ctx.difficultyLevel === "Easy"
@@ -267,15 +286,19 @@ function generateModelCountAndTraceExercise(
             ctx.difficultyLevel === "Easy"
             ? [11, 12, 13, 14, 15]
             : [11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
-          : modelKind === "ten-frame"
+          : modelKind === "ten-frame-grid"
             ? ctx.difficultyLevel === "Easy"
-              ? [6, 7, 8]
-              : [6, 7, 8, 9, 10]
-            : ctx.difficultyLevel === "Easy"
-              ? [1, 2, 3]
-              : ctx.difficultyLevel === "Intermediate"
-                ? [2, 3, 4, 5]
-                : [3, 4, 5];
+              ? [10, 20, 30]
+              : [10, 20, 30, 40, 50]
+            : modelKind === "ten-frame"
+              ? ctx.difficultyLevel === "Easy"
+                ? [6, 7, 8]
+                : [6, 7, 8, 9, 10]
+              : ctx.difficultyLevel === "Easy"
+                ? [1, 2, 3]
+                : ctx.difficultyLevel === "Intermediate"
+                  ? [2, 3, 4, 5]
+                  : [3, 4, 5];
 
     const requested = params.itemCount ?? defaultItemCount;
     const countToPick = isFrameModel ? Math.min(2, requested) : requested;
@@ -284,6 +307,7 @@ function generateModelCountAndTraceExercise(
     itemSpecs = pickedNumbers.map((num, idx) => {
       const theme = COLOR_CYCLE[(idx + num) % COLOR_CYCLE.length];
       const useParts =
+        modelKind !== "ten-frame-grid" &&
         (params.showPartWholeBreakdown || ctx.difficultyLevel !== "Easy") &&
         num >= 3;
       const secondaryCount = useParts
@@ -402,7 +426,7 @@ function renderModelCountAndTraceExercise({
 
   return (
     <div className="space-y-1" data-archetype="ModelCountAndTrace">
-      <ExerciseColumns columns={2}>
+      <ExerciseColumns columns={data.modelKind === "ten-frame-grid" ? 1 : 2}>
         {data.items.map((item, idx) => (
           <div
             key={item.id}
@@ -425,11 +449,12 @@ function renderModelCountAndTraceExercise({
               </span>
             </div>
 
-            {/*Visual Model(s) — teen everyday-object groups stack above the trace row*/}
+            {/*Visual Model(s) — teen everyday-object groups and ten-frame-grid stack above the trace row*/}
             <div
               className={
-                item.quantityModel.kind === "everyday-object"
-                  ? "flex flex-col gap-1"
+                item.quantityModel.kind === "everyday-object" ||
+                item.quantityModel.kind === "ten-frame-grid"
+                  ? "flex flex-col items-center gap-1"
                   : "flex items-center justify-between gap-1"
               }
             >
@@ -447,13 +472,15 @@ function renderModelCountAndTraceExercise({
 
               <div
                 className={
-                  item.quantityModel.kind === "everyday-object"
-                    ? "flex items-center justify-end gap-1"
+                  item.quantityModel.kind === "everyday-object" ||
+                  item.quantityModel.kind === "ten-frame-grid"
+                    ? "flex w-full items-center justify-end gap-1"
                     : "flex shrink-0 items-center gap-1"
                 }
               >
                 {item.quantityModel.kind !== "five-frame" &&
                   item.quantityModel.kind !== "ten-frame" &&
+                  item.quantityModel.kind !== "ten-frame-grid" &&
                   data.responseStyle !== "quantify-compare-choice" && (
                     <VisualModelView
                       model={item.traceModel}
@@ -499,13 +526,15 @@ function renderModelCountAndTraceExercise({
                       "data-solved-model-count": item.targetNumberAr,
                       "data-solved-written-digit": item.targetNumberAr,
                       ...(item.quantityModel.kind === "five-frame" ||
-                      item.quantityModel.kind === "ten-frame"
+                      item.quantityModel.kind === "ten-frame" ||
+                      item.quantityModel.kind === "ten-frame-grid"
                         ? { "data-solved-trace": item.targetNumberAr }
                         : {}),
                     }}
                   />
                   {(item.quantityModel.kind === "five-frame" ||
-                    item.quantityModel.kind === "ten-frame") && (
+                    item.quantityModel.kind === "ten-frame" ||
+                    item.quantityModel.kind === "ten-frame-grid") && (
                     <span
                       className="hidden"
                       data-visual-model="numeral-trace"

@@ -22,6 +22,7 @@ import "@/visual-models/unit-7-models";
 import "@/visual-models/unit-8-models";
 import "@/visual-models/linear-comparison";
 import "@/visual-models/dot-array";
+import "@/visual-models/ten-frame-grid";
 
 // --- Exercise Archetypes ---
 // Each archetype module self-registers its definition on import.
@@ -41,6 +42,7 @@ import "@/archetypes/measure-and-compare-length";
 import "@/archetypes/numtanga";
 import "@/archetypes/digicross";
 import "@/archetypes/compare-groups";
+import "@/archetypes/count-grid-items";
 
 // --- Lesson Blueprints ---
 import "@/blueprints/grade-k/lesson-k1";
@@ -77,3 +79,4 @@ import "@/blueprints/grade-k/lessons-k99-to-k102";
 import "@/blueprints/grade-k/lessons-k103-to-k106";
 import "@/blueprints/grade-k/lessons-k107-to-k110";
 import "@/blueprints/grade-k/lessons-k111-to-k112";
+import "@/blueprints/grade-k/lessons-k113-to-k115";

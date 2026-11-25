@@ -24,6 +24,7 @@ import {
   createTenFrameSpec,
   getArabicNumberWord,
 } from "@/visual-models/unit-2-models";
+import { createTenFrameGridSpec } from "@/visual-models/ten-frame-grid";
 import { createNumberBondSpec } from "@/visual-models/unit-3-models";
 import {
   createEverydayObjectSpec,
@@ -55,7 +56,8 @@ export type SubitizeMode =
   | "both-parts-to-10"
   | "number-bond-maze"
   | "three-parts-to-10"
-  | "decompose-teen";
+  | "decompose-teen"
+  | "decade-subitize";
 
 export type SubitizeVisualKind =
   | "five-frame"
@@ -139,14 +141,16 @@ export interface SubitizePartWholeBlueprintParams {
   threePartCategorySets?: SubitizeThreePartCategorySet[];
   /** K-109/K-110: `2` → stacked ten-frame pair (top full ١٠ + bottom ones), teens 11–20 */
   frameCount?: 1 | 2;
-  /** K-109/K-110: when set (20), the card carries a "how many more make ٢٠" complement slot */
-  complementTarget?: number;
+  /** K-109/K-110/K-115: when set (20 or "next-decade"), the card carries a complement slot */
+  complementTarget?: number | "next-decade";
   /** K-109/K-110: which parts the student writes on the stacked pair */
   askKind?: SubitizeTeenAskKind;
-  /** K-109/K-110 Brain Builder: the student draws circles in empty frames to make the given number */
+  /** K-109/K-110/K-115 Brain Builder: the student draws circles in empty frames to make the given number */
   responseKind?: SubitizeTeenResponseKind;
   /** K-109/K-110 PoD: the bottom frame shows ghost counters the child imagines (solid on the Answer Key) */
   imaginedParts?: boolean;
+  /** K-115 PoD: the student writes the Base-10 Nickname (e.g. ٣ عشرات و٤ آحاد) */
+  writeNickname?: boolean;
 }
 
 export interface SubitizeCardItem {
@@ -183,13 +187,34 @@ export interface SubitizePartWholeData extends GenericArchetypeData {
   frameCount?: 1 | 2;
   /** K-109/K-110: stacked-pair cards (WB/PoD) */
   teenPairCards?: SubitizeTeenPairCardItem[];
-  /** K-109/K-110: "how many more make ٢٠" complement target */
-  complementTarget?: number;
+  /** K-109/K-110/K-115: complement target */
+  complementTarget?: number | "next-decade";
   askKind?: SubitizeTeenAskKind;
   imaginedParts?: boolean;
   /** K-109/K-110 Brain Builder: draw circles in the empty frames */
   responseKind?: SubitizeTeenResponseKind;
   drawToMakeCards?: SubitizeDrawToMakeCardItem[];
+  /** K-115/K-118: decade-subitize cards using ten-frame-grid */
+  decadeCards?: SubitizeDecadeCardItem[];
+  writeNickname?: boolean;
+}
+
+export interface SubitizeDecadeCardItem {
+  id: string;
+  cardIndex: number;
+  total: number;
+  totalAr: string;
+  tensCount: number;
+  tensCountAr: string;
+  onesCount: number;
+  onesCountAr: string;
+  complementTarget: number;
+  complementTargetAr: string;
+  complementCount: number;
+  complementCountAr: string;
+  nicknameAr: string;
+  visualModel: VisualModelSpec;
+  quickStrategyAr: string;
 }
 
 export interface SubitizeTeenPairCardItem {
@@ -624,7 +649,10 @@ function generateTeenFramePairExercise(
   ctx: ArchetypeGeneratorContext,
   params: SubitizePartWholeBlueprintParams
 ): Exercise {
-  const complementTarget = params.complementTarget;
+  const complementTarget =
+    typeof params.complementTarget === "number"
+      ? params.complementTarget
+      : undefined;
   const askKind: SubitizeTeenAskKind =
     params.askKind ?? (complementTarget ? "both" : "total");
   const imaginedParts = params.imaginedParts ?? false;
@@ -774,7 +802,10 @@ function generateDrawToMakeTeenExercise(
   ctx: ArchetypeGeneratorContext,
   params: SubitizePartWholeBlueprintParams
 ): Exercise {
-  const complementTarget = params.complementTarget;
+  const complementTarget =
+    typeof params.complementTarget === "number"
+      ? params.complementTarget
+      : undefined;
   const candidateCounts =
     params.candidateCounts && params.candidateCounts.length > 0
       ? params.candidateCounts
@@ -884,6 +915,156 @@ function generateDrawToMakeTeenExercise(
   };
 }
 
+/**
+ * K-115 / K-118 — Decade Subitize using the 2×5 Ten-Frame Grid:
+ * - Standard WB: subitize tens + ones on ten-frame-grid, write total and/or complement to next decade.
+ * - BB (`responseKind: "draw-to-make"`): draw dots to make the given number, write total and complement.
+ * - PoD (`writeNickname: true`): write total and its Base-10 Nickname (e.g. ٣ عشرات و٤ آحاد).
+ */
+function generateDecadeSubitizeExercise(
+  ctx: ArchetypeGeneratorContext,
+  params: SubitizePartWholeBlueprintParams
+): Exercise {
+  const isDrawToMake = params.responseKind === "draw-to-make";
+  const writeNickname = params.writeNickname ?? false;
+  const askKind: SubitizeTeenAskKind =
+    params.askKind ?? (params.complementTarget ? "both" : "total");
+
+  const defaultPool =
+    ctx.difficultyLevel === "Easy"
+      ? [10, 20, 30]
+      : [
+          21, 22, 23, 24, 25, 26, 27, 28, 29, 31, 32, 33, 34, 35, 36, 37, 38,
+          39, 41, 42, 43, 44, 45, 46, 47, 48, 49,
+        ];
+
+  const candidateCounts =
+    params.candidateCounts && params.candidateCounts.length > 0
+      ? params.candidateCounts
+      : defaultPool;
+
+  const cardCount = Math.max(
+    1,
+    Math.min(
+      candidateCounts.length,
+      params.cardCount ?? (writeNickname ? 1 : 2)
+    )
+  );
+  const pickedCounts = ctx.rng.pickN(candidateCounts, cardCount);
+  const shuffledThemes = ctx.rng.shuffle(SUBITIZE_THEMES);
+
+  const decadeCards: SubitizeDecadeCardItem[] = pickedCounts.map(
+    (total, idx) => {
+      const tensCount = Math.floor(total / 10);
+      const onesCount = total % 10;
+      const computedNextDecade = Math.ceil(total / 10) * 10;
+      const complementTarget =
+        typeof params.complementTarget === "number"
+          ? params.complementTarget
+          : computedNextDecade;
+      const complementCount = Math.max(0, complementTarget - total);
+
+      const totalAr = formatEasternNumber(total);
+      const tensCountAr = formatEasternNumber(tensCount);
+      const onesCountAr = formatEasternNumber(onesCount);
+      const complementTargetAr = formatEasternNumber(complementTarget);
+      const complementCountAr = formatEasternNumber(complementCount);
+      const nicknameAr =
+        onesCount === 0
+          ? `${tensCountAr} عشرات`
+          : `${tensCountAr} عشرات و${onesCountAr} آحاد`;
+
+      const theme = shuffledThemes[idx % shuffledThemes.length];
+      const visualModel = isDrawToMake
+        ? createTenFrameGridSpec({
+            count: tensCount * 10,
+            ghostTargetCount: onesCount,
+            colorTheme: theme,
+            secondaryColorTheme: "emerald",
+            labelAr: `ارسم ${onesCountAr} أقراص إضافية لتكوين ${totalAr}`,
+          })
+        : createTenFrameGridSpec({
+            count: total,
+            colorTheme: theme,
+          });
+
+      const quickStrategyAr = writeNickname
+        ? `${tensCountAr} لوحات كاملة (${formatEasternNumber(tensCount * 10)}) و${onesCountAr} آحاد = ${totalAr}، واللقب العشري: ${nicknameAr}.`
+        : params.complementTarget
+          ? `${totalAr} (${nicknameAr})، وينقصه ${complementCountAr} للوصول إلى ${complementTargetAr}.`
+          : `${tensCountAr} عشرات و${onesCountAr} آحاد = ${totalAr}.`;
+
+      return {
+        id: `decade-card-${idx + 1}-n${total}`,
+        cardIndex: idx,
+        total,
+        totalAr,
+        tensCount,
+        tensCountAr,
+        onesCount,
+        onesCountAr,
+        complementTarget,
+        complementTargetAr,
+        complementCount,
+        complementCountAr,
+        nicknameAr,
+        visualModel,
+        quickStrategyAr,
+      };
+    }
+  );
+
+  const defaultPromptAr = isDrawToMake
+    ? "ارسم الأقراص الناقصة في الشبكة لتكوين العدد، ثم اكتب الكلّ وكم ينقصه حتى عدد العقد التالي:"
+    : writeNickname
+      ? "انظر إلى شبكة لوحات العشرة، ثم اكتب الكلّ واللقب العشري لكل عدد:"
+      : askKind === "complement"
+        ? "انظر إلى شبكة لوحات العشرة، ثم اكتب كم ينقصه حتى عدد العقد التالي:"
+        : askKind === "both" && params.complementTarget
+          ? "انظر إلى شبكة لوحات العشرة، ثم اكتب الكلّ وكم ينقصه حتى عدد العقد التالي:"
+          : "انظر إلى شبكة لوحات العشرة، ثم اكتب الكلّ:";
+
+  const defaultStrategyHintAr = decadeCards
+    .map((c) => c.quickStrategyAr)
+    .join("؛ ");
+
+  const firstCard = decadeCards[0];
+  const defaultReasoningPromptAr = writeNickname
+    ? `ما اللقب العشري للعدد (${firstCard.totalAr})؟`
+    : `كيف تعرف كم ينقص (${firstCard.totalAr}) حتى (${firstCard.complementTargetAr}) دون عدّ واحدًا واحدًا؟`;
+  const defaultReasoningAnswerAr = writeNickname
+    ? firstCard.nicknameAr
+    : `في اللوحة الناقصة (${firstCard.onesCountAr})، لذا ينقصها (${firstCard.complementCountAr}) لتكتمل ${firstCard.complementTargetAr}`;
+
+  const data: SubitizePartWholeData = {
+    kind: "SubitizePartWhole",
+    subitizeMode: "decade-subitize",
+    visualKind: "ten-frame",
+    cards: [],
+    decadeCards,
+    complementTarget: params.complementTarget,
+    askKind,
+    responseKind: params.responseKind ?? "count",
+    writeNickname,
+    reasoningPromptAr: params.reasoningPromptAr ?? defaultReasoningPromptAr,
+    reasoningAnswerAr: params.reasoningAnswerAr ?? defaultReasoningAnswerAr,
+  };
+
+  return {
+    id: `${ctx.lesson.id}-${ctx.sectionId}-ex-${ctx.exerciseNumber}`,
+    exerciseNumber: ctx.exerciseNumber,
+    sectionId: ctx.sectionId,
+    archetype: "SubitizePartWhole",
+    difficultyLevel: ctx.difficultyLevel,
+    sourceLessonId: ctx.sourceLessonId,
+    titleAr: "التعرّف السريع بلوحات العشرة",
+    promptAr: ctx.spec.promptAr ?? defaultPromptAr,
+    strategyHintAr: ctx.spec.strategyHintAr ?? defaultStrategyHintAr,
+    visualModels: decadeCards.map((c) => c.visualModel),
+    data,
+  };
+}
+
 function generateSubitizePartWholeExercise(
   ctx: ArchetypeGeneratorContext
 ): Exercise {
@@ -903,6 +1084,10 @@ function generateSubitizePartWholeExercise(
 
   if (subitizeMode === "decompose-teen") {
     return generateDecomposeTeenExercise(ctx, params);
+  }
+
+  if (subitizeMode === "decade-subitize") {
+    return generateDecadeSubitizeExercise(ctx, params);
   }
 
   // K-109/K-110: stacked ten-frame pair (frameCount: 2) with WB count slots or
@@ -1245,6 +1430,130 @@ function renderSubitizePartWholeExercise({
 }: ArchetypeRenderProps): React.ReactElement {
   const data = exercise.data as SubitizePartWholeData;
   const isAnswerKey = mode === "answer-key";
+
+  if (data.decadeCards) {
+    const isDrawToMake = data.responseKind === "draw-to-make";
+    return (
+      <div
+        className="space-y-1"
+        data-archetype="SubitizePartWhole"
+        data-subitize-mode="decade-subitize"
+        data-response-kind={data.responseKind ?? "count"}
+      >
+        <ExerciseColumns columns={1}>
+          {data.decadeCards.map((card, idx) => (
+            <div
+              key={card.id}
+              className="flex flex-col justify-between gap-1 rounded-xl border-2 border-indigo-100 bg-gradient-to-l from-white via-indigo-50/20 to-amber-50/30 py-1.5 shadow-2xs"
+              data-decade-card={card.id}
+              data-decade-total={card.total}
+              data-complement-target={card.complementTargetAr}
+            >
+              {/* Top Header */}
+              <div className="flex flex-wrap items-center justify-between gap-1 px-2">
+                <div className="flex items-center gap-1">
+                  <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 text-xs font-extrabold leading-none text-white">
+                    {formatEasternNumber(idx + 1)}
+                  </span>
+                  <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-extrabold leading-tight text-amber-950 border border-amber-300">
+                    {isDrawToMake ? "✏️ ارسم واكتب" : "⚡ لمحة سريعة"}
+                  </span>
+                  {isDrawToMake && (
+                    <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-extrabold leading-tight text-indigo-950 border border-indigo-300">
+                      العدد المطلوب: {card.totalAr}
+                    </span>
+                  )}
+                </div>
+                {isAnswerKey && (
+                  <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-extrabold leading-tight text-emerald-900">
+                    ✓ {toEasternArabicNumerals(card.nicknameAr)}
+                  </span>
+                )}
+              </div>
+
+              {/* 660 × 160 px Ten-Frame Grid */}
+              <div className="flex flex-1 flex-col items-center justify-center">
+                <VisualModelView
+                  model={card.visualModel}
+                  solved={isAnswerKey}
+                />
+              </div>
+
+              {/* Answer Row */}
+              <div className="flex flex-wrap items-center justify-center gap-2 px-2">
+                {data.askKind !== "complement" && (
+                  <div className="flex items-center gap-1.5 rounded-lg border-2 border-indigo-300 bg-indigo-50/80 px-2 py-0.5">
+                    <span className="text-[13px] font-extrabold leading-tight text-indigo-950">
+                      الكلّ:
+                    </span>
+                    <AnswerSlot
+                      solved={isAnswerKey}
+                      answer={card.totalAr}
+                      ariaLabel="مربع كتابة الكلّ"
+                      kind="write"
+                      tone="indigo"
+                      solvedDataAttributes={{
+                        "data-solved-decade-total": String(card.total),
+                      }}
+                    />
+                  </div>
+                )}
+
+                {data.complementTarget && (
+                  <div className="flex items-center gap-1.5 rounded-lg border-2 border-amber-300 bg-amber-50/80 px-2 py-0.5">
+                    <span className="text-[13px] font-extrabold leading-tight text-amber-950">
+                      كم ينقصه حتى {card.complementTargetAr}؟
+                    </span>
+                    <AnswerSlot
+                      solved={isAnswerKey}
+                      answer={card.complementCountAr}
+                      ariaLabel={`مربع كتابة كم ينقصه حتى ${card.complementTargetAr}`}
+                      kind="write"
+                      tone="amber"
+                      solvedDataAttributes={{
+                        "data-solved-decade-complement": String(
+                          card.complementCount
+                        ),
+                      }}
+                    />
+                  </div>
+                )}
+
+                {data.writeNickname && (
+                  <div className="flex items-center gap-1.5 rounded-lg border-2 border-emerald-300 bg-emerald-50/80 px-2 py-0.5">
+                    <span className="text-[13px] font-extrabold leading-tight text-emerald-950">
+                      اللقب العشري:
+                    </span>
+                    <AnswerLine
+                      solved={isAnswerKey}
+                      answer={toEasternArabicNumerals(card.nicknameAr)}
+                      ariaLabel="سطر كتابة اللقب العشري"
+                      solvedDataAttributes={{
+                        "data-solved-base10-nickname": card.nicknameAr,
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </ExerciseColumns>
+
+        {/* Reasoning Prompt */}
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-300 bg-amber-50/80 px-2.5 py-1 text-[13px] font-bold leading-tight text-amber-950">
+          <span>
+            🤔 سؤال التفكير: {toEasternArabicNumerals(data.reasoningPromptAr)}
+          </span>
+          <AnswerLine
+            solved={isAnswerKey}
+            answer={toEasternArabicNumerals(data.reasoningAnswerAr)}
+            ariaLabel="سطر كتابة إجابة سؤال التفكير"
+            solvedDataAttributes={{ "data-solved-subitize-reasoning": "true" }}
+          />
+        </div>
+      </div>
+    );
+  }
 
   if (data.drawToMakeCards) {
     return (

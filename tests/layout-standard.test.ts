@@ -83,6 +83,7 @@ describe("Layout standard matches WORKSHEET_CONSTITUTION.md", () => {
       linearComparisonBox: { width: 660, height: 120 },
       dotArrayBox: { width: 212, height: 160 },
       tenFrameVerticalBox: { width: 108, height: 252 },
+      tenFrameGridBox: { width: 660, height: 160 },
     });
   });
 

@@ -465,6 +465,11 @@ function measureSheet(std) {
       sizes.tenFrameVerticalBox,
       "Vertical Ten Frame",
     ],
+    [
+      '[data-visual-model="ten-frame-grid"]',
+      sizes.tenFrameGridBox,
+      "Ten-Frame Grid",
+    ],
     ['[data-visual-model="number-bond"]', sizes.numberBondBox, "Number Bond"],
     ["[data-number-bond-circle]", sizes.numberBondCircle, "Number Bond circle"],
     [

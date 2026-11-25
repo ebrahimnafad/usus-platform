@@ -114,7 +114,8 @@ export type VisualModelKind =
   | "digicross-grid"
   | "linear-comparison"
   | "shape-description"
-  | "dot-array";
+  | "dot-array"
+  | "ten-frame-grid";
 
 export type EverydayObjectCategory =
   "animals" | "fruits" | "toys" | "school" | "nature" | "treats";
@@ -211,7 +212,8 @@ export type ExerciseArchetypeId =
   | "MeasureAndCompareLength"
   | "Numtanga"
   | "Digicross"
-  | "CompareGroups";
+  | "CompareGroups"
+  | "CountGridItems";
 
 export type DigicrossArchetypeParams = {
   /** Inclusive bounds for every grid value. */
@@ -356,6 +358,7 @@ export interface ArchetypeParamsByArchetypeId {
   Numtanga: Record<string, unknown>;
   Digicross: DigicrossArchetypeParams;
   CompareGroups: Record<string, unknown>;
+  CountGridItems: Record<string, unknown>;
 }
 
 export type BlueprintExerciseSpecFor<K extends ExerciseArchetypeId> = {

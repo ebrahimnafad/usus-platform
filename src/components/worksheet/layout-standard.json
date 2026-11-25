@@ -73,6 +73,10 @@
     "tenFrameVerticalBox": {
       "width": 108,
       "height": 252
+    },
+    "tenFrameGridBox": {
+      "width": 660,
+      "height": 160
     }
   },
   "typeScalePx": {
