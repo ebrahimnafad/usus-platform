@@ -1,6 +1,6 @@
 # Grade K Unit 10 — Numbers to 100 (K-113 to K-120)
 
-**Status:** ready-for-agent
+**Status:** done
 
 ## Problem Statement
 

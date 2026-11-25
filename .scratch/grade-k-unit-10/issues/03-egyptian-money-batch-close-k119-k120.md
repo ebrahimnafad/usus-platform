@@ -10,24 +10,24 @@ Arabic titles: K-119 النقود المصرية — أسماء العملات, 
 
 **Blocked by:** 02 (Numbers to 100 — Extending to the Full Range).
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] `COIN_CATALOG` revised to 5 Egyptian denominations with correct Arabic names, values, visual descriptions, and size/color metadata
-- [ ] K-4 (Match Coins) still generates and renders correctly with the revised catalog
-- [ ] `money-card` Visual Model renders Egyptian coin faces (copper/silver/bimetallic circles with denomination numeral) and bill rectangles at 212 × 160 px
-- [ ] `IdentifyAndLabel` `mode: 'name'` generates K-119 WB exercises: coin/bill image + AnswerLine for Arabic name
-- [ ] `IdentifyAndLabel` `mode: 'value'` generates K-120 WB exercises: coin/bill image + AnswerLine for mixed-unit value
-- [ ] `ConnectMatch` `name-to-coin` mode generates K-119 BB (MONEY MATCH – A) exercises
-- [ ] `ConnectMatch` `value-to-coin` mode generates K-120 BB (MONEY MATCH – B) exercises
-- [ ] `JudgeEquality` `money-statement` mode generates K-120 PoD with curated true/false statements about Egyptian coin attributes
-- [ ] No duplicate coin within one `IdentifyAndLabel` exercise
-- [ ] Domain test: every `IdentifyAndLabel` exercise shows name/value matching the catalog entry
-- [ ] Domain test: every money statement in the curated pool is factually correct
-- [ ] K-119, K-120 Warm-Up exercises draw from the correct prerequisite at Easy
-- [ ] Every Answer Key exercise carries a non-empty Strategy Hint
-- [ ] No Western digits in any student-facing rendered HTML
-- [ ] Layout guard green for K-119, K-120 (`--lessons=K-119..K-120 --seeds=2`)
-- [ ] **Batch close**: full unit layout guard green (`--lessons=K-113..K-120 --seeds=5`)
-- [ ] **Batch close**: all-lessons sweep green (`--seeds=5 --png=none`)
-- [ ] Constitution §3.4 updated with Ten-Frame Grid and Money Card canonical sizes
-- [ ] Glossary terms committed: Base-10 Nickname, Skip Count, Decade Number
+- [x] `COIN_CATALOG` revised to 5 Egyptian denominations with correct Arabic names, values, visual descriptions, and size/color metadata
+- [x] K-4 (Match Coins) still generates and renders correctly with the revised catalog
+- [x] `money-card` Visual Model renders Egyptian coin faces (copper/silver/bimetallic circles with denomination numeral) and bill rectangles at 212 × 160 px
+- [x] `IdentifyAndLabel` `mode: 'name'` generates K-119 WB exercises: coin/bill image + AnswerLine for Arabic name
+- [x] `IdentifyAndLabel` `mode: 'value'` generates K-120 WB exercises: coin/bill image + AnswerLine for mixed-unit value
+- [x] `ConnectMatch` `name-to-coin` mode generates K-119 BB (MONEY MATCH – A) exercises
+- [x] `ConnectMatch` `value-to-coin` mode generates K-120 BB (MONEY MATCH – B) exercises
+- [x] `JudgeEquality` `money-statement` mode generates K-120 PoD with curated true/false statements about Egyptian coin attributes
+- [x] No duplicate coin within one `IdentifyAndLabel` exercise
+- [x] Domain test: every `IdentifyAndLabel` exercise shows name/value matching the catalog entry
+- [x] Domain test: every money statement in the curated pool is factually correct
+- [x] K-119, K-120 Warm-Up exercises draw from the correct prerequisite at Easy
+- [x] Every Answer Key exercise carries a non-empty Strategy Hint
+- [x] No Western digits in any student-facing rendered HTML
+- [x] Layout guard green for K-119, K-120 (`--lessons=K-119..K-120 --seeds=2`)
+- [x] **Batch close**: full unit layout guard green (`--lessons=K-113..K-120 --seeds=5`)
+- [x] **Batch close**: all-lessons sweep green (`--seeds=5 --png=none`)
+- [x] Constitution §3.4 updated with Ten-Frame Grid and Money Card canonical sizes
+- [x] Glossary terms committed: Base-10 Nickname, Skip Count, Decade Number
