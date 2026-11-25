@@ -189,8 +189,8 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
             <span className="text-slate-300 font-bold">/</span>
             <Breadcrumbs
               segments={[
-                { label: "الرئيسية", href: "/" },
-                { label: "القراءة", href: "/reading" },
+                { label: "الرئيسية", href: "/", hideOnMobile: true },
+                { label: "القراءة", href: "/reading", hideOnMobile: true },
                 { label: level.titleAr, href: `/reading/level/${level.id}` },
                 { label: story.titleAr ?? story.title },
               ]}
@@ -239,7 +239,7 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
               <span className="px-2 py-0.5 rounded bg-indigo-700 text-indigo-100 font-black">
                 🎯 اختبار النقل
               </span>
-              <span>
+              <span className="hidden sm:inline">
                 قياس الأداء المستقل: يُقرأ النص دون مساعدات أو تلوين لقياس
                 الاستيعاب الحقيقي
               </span>

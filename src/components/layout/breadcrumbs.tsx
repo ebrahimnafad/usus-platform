@@ -8,6 +8,7 @@ import { useReducedMotion } from "@/hooks/use-reduced-motion";
 export interface BreadcrumbSegment {
   label: string;
   href?: string;
+  hideOnMobile?: boolean;
 }
 
 export interface BreadcrumbsProps {
@@ -50,6 +51,25 @@ export function Breadcrumbs({
         {segments.map((segment, index) => {
           const isLast = index === segments.length - 1;
           const showSeparator = index > 0;
+          const hideLeadingSeparatorOnMobile =
+            showSeparator &&
+            !segment.hideOnMobile &&
+            segments.slice(0, index).every((s) => s.hideOnMobile);
+          const liClassName = segment.hideOnMobile
+            ? /\binline-flex\b/.test(itemClassName)
+              ? itemClassName.replace(
+                  /\binline-flex\b/,
+                  "hidden sm:inline-flex"
+                )
+              : `hidden sm:inline-flex ${itemClassName}`
+            : itemClassName;
+          const renderedSeparator = showSeparator ? (
+            hideLeadingSeparatorOnMobile ? (
+              <span className="hidden sm:inline">{activeSeparator}</span>
+            ) : (
+              activeSeparator
+            )
+          ) : null;
 
           const content = isLast ? (
             <span aria-current="page" className={activeItemClassName}>
@@ -65,8 +85,8 @@ export function Breadcrumbs({
 
           if (!shouldAnimate) {
             return (
-              <li key={`${index}-${segment.label}`} className={itemClassName}>
-                {showSeparator && activeSeparator}
+              <li key={`${index}-${segment.label}`} className={liClassName}>
+                {renderedSeparator}
                 {content}
               </li>
             );
@@ -75,12 +95,12 @@ export function Breadcrumbs({
           return (
             <motion.li
               key={`${index}-${segment.label}`}
-              className={itemClassName}
+              className={liClassName}
               initial={{ opacity: 0, x: 4 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.15, delay: index * 0.03 }}
             >
-              {showSeparator && activeSeparator}
+              {renderedSeparator}
               {content}
             </motion.li>
           );
