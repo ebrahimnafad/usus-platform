@@ -22,7 +22,7 @@ export const lessonK113Blueprint: LessonBlueprint = {
         {
           archetype: "SubitizePartWhole",
           promptAr:
-            "انظر إلى لوحتَي العشرة الرأسيتين، ثم اكتب العدد الكلّي في رابط العدد:",
+            "انظر إلى لوحتَي العشرة الرأسيتين، ثم اكتب الكلّ في رابط العدد:",
           strategyHintAr:
             "انظر إلى اللوحة اليمنى الكاملة (١٠) واللوحة اليسرى التي تحمل الآحاد، ثم اكتب الكلّ في دائرة الكلّ.",
           params: {
@@ -36,8 +36,7 @@ export const lessonK113Blueprint: LessonBlueprint = {
       practice: [
         {
           archetype: "ModelCountAndTrace",
-          promptAr:
-            "عدّ مجموعات العشرة في شبكة لوحات العشرة، ثم اكتب العدد الكلّي:",
+          promptAr: "عدّ مجموعات العشرة في شبكة لوحات العشرة، ثم اكتب الكلّ:",
           strategyHintAr:
             "عدّ اللوحات الكاملة بالعشرات من اليمين إلى اليسار (١٠، ٢٠، ٣٠) ثم اكتب العدد.",
           params: {
@@ -48,8 +47,7 @@ export const lessonK113Blueprint: LessonBlueprint = {
         },
         {
           archetype: "ModelCountAndTrace",
-          promptAr:
-            "انظر إلى اللوحات الكاملة، ثم عدّ بالعشرات واكتب العدد الكلّي:",
+          promptAr: "انظر إلى اللوحات الكاملة، ثم عدّ بالعشرات واكتب الكلّ:",
           strategyHintAr:
             "انظر إلى اللوحات الكاملة (كل لوحة تساوي ١٠)، ثم انطق اللقب العشري واكتب العدد.",
           params: {
@@ -62,8 +60,7 @@ export const lessonK113Blueprint: LessonBlueprint = {
       challenge: [
         {
           archetype: "CountGridItems",
-          promptAr:
-            "انظر إلى شبكة الفواكه، ثم عدّ بالعشرات واكتب العدد الكلّي:",
+          promptAr: "انظر إلى شبكة الفواكه، ثم عدّ بالعشرات واكتب الكلّ:",
           strategyHintAr:
             "انظر إلى الصفوف الكاملة (كل صفّ يحتوي على ١٠ فواكه)، ثم عدّ الصفوف بالعشرات (١٠، ٢٠، ٣٠).",
           params: {
@@ -97,7 +94,7 @@ export const lessonK113Blueprint: LessonBlueprint = {
         {
           archetype: "SubitizePartWhole",
           promptAr:
-            "انظر إلى لوحتَي العشرة الرأسيتين، ثم اكتب العدد الكلّي في رابط العدد:",
+            "انظر إلى لوحتَي العشرة الرأسيتين، ثم اكتب الكلّ في رابط العدد:",
           strategyHintAr:
             "انظر إلى اللوحة اليمنى الكاملة (١٠) واللوحة اليسرى التي تحمل الآحاد، ثم اكتب الكلّ في دائرة الكلّ.",
           params: {
@@ -111,8 +108,7 @@ export const lessonK113Blueprint: LessonBlueprint = {
       practice: [
         {
           archetype: "ModelCountAndTrace",
-          promptAr:
-            "عدّ مجموعات العشرة في شبكة لوحات العشرة، ثم اكتب العدد الكلّي:",
+          promptAr: "عدّ مجموعات العشرة في شبكة لوحات العشرة، ثم اكتب الكلّ:",
           strategyHintAr:
             "عدّ اللوحات الكاملة بالعشرات من اليمين إلى اليسار (١٠، ٢٠، ٣٠، ٤٠، ٥٠).",
           params: {
@@ -123,8 +119,7 @@ export const lessonK113Blueprint: LessonBlueprint = {
         },
         {
           archetype: "ModelCountAndTrace",
-          promptAr:
-            "انظر إلى اللوحات الكاملة، ثم عدّ بالعشرات واكتب العدد الكلّي:",
+          promptAr: "انظر إلى اللوحات الكاملة، ثم عدّ بالعشرات واكتب الكلّ:",
           strategyHintAr:
             "عدّ بالعدّ القفزي بالعشرات (عشرة، عشرون، ثلاثون، أربعون، خمسون).",
           params: {
@@ -137,8 +132,7 @@ export const lessonK113Blueprint: LessonBlueprint = {
       challenge: [
         {
           archetype: "CountGridItems",
-          promptAr:
-            "انظر إلى شبكة الفواكه، ثم عدّ بالعشرات واكتب العدد الكلّي:",
+          promptAr: "انظر إلى شبكة الفواكه، ثم عدّ بالعشرات واكتب الكلّ:",
           strategyHintAr:
             "عدّ الصفوف الكاملة بالعشرات من الأعلى إلى الأسفل (١٠، ٢٠، ٣٠، ٤٠، ٥٠).",
           params: {
@@ -172,7 +166,7 @@ export const lessonK113Blueprint: LessonBlueprint = {
         {
           archetype: "SubitizePartWhole",
           promptAr:
-            "انظر إلى لوحتَي العشرة الرأسيتين، ثم اكتب العدد الكلّي في رابط العدد:",
+            "انظر إلى لوحتَي العشرة الرأسيتين، ثم اكتب الكلّ في رابط العدد:",
           strategyHintAr:
             "انظر إلى اللوحة اليمنى الكاملة (١٠) واللوحة اليسرى التي تحمل الآحاد، ثم اكتب الكلّ في دائرة الكلّ.",
           params: {
@@ -186,8 +180,7 @@ export const lessonK113Blueprint: LessonBlueprint = {
       practice: [
         {
           archetype: "ModelCountAndTrace",
-          promptAr:
-            "عدّ مجموعات العشرة في شبكة لوحات العشرة، ثم اكتب العدد الكلّي:",
+          promptAr: "عدّ مجموعات العشرة في شبكة لوحات العشرة، ثم اكتب الكلّ:",
           strategyHintAr:
             "عدّ اللوحات الكاملة بالعشرات من اليمين إلى اليسار حتى ٥٠.",
           params: {
@@ -198,10 +191,9 @@ export const lessonK113Blueprint: LessonBlueprint = {
         },
         {
           archetype: "ModelCountAndTrace",
-          promptAr:
-            "انظر إلى اللوحات الكاملة، ثم عدّ بالعشرات واكتب العدد الكلّي:",
+          promptAr: "انظر إلى اللوحات الكاملة، ثم عدّ بالعشرات واكتب الكلّ:",
           strategyHintAr:
-            "انظر إلى اللوحات الكاملة واربط عددها باللقب العشري، ثم اكتب العدد الكلّي.",
+            "انظر إلى اللوحات الكاملة واربط عددها باللقب العشري، ثم اكتب الكلّ.",
           params: {
             modelKind: "ten-frame-grid",
             targetNumbers: [10, 30, 40, 50],
@@ -212,8 +204,7 @@ export const lessonK113Blueprint: LessonBlueprint = {
       challenge: [
         {
           archetype: "CountGridItems",
-          promptAr:
-            "انظر إلى شبكة الفواكه، ثم عدّ بالعشرات واكتب العدد الكلّي:",
+          promptAr: "انظر إلى شبكة الفواكه، ثم عدّ بالعشرات واكتب الكلّ:",
           strategyHintAr: "عدّ الصفوف الكاملة بالعشرات لتحديد الكلّ بسرعة.",
           params: {
             iconType: "fruit",
@@ -258,8 +249,7 @@ export const lessonK114Blueprint: LessonBlueprint = {
       warmUp: [
         {
           archetype: "ModelCountAndTrace",
-          promptAr:
-            "عدّ مجموعات العشرة في شبكة لوحات العشرة، ثم اكتب العدد الكلّي:",
+          promptAr: "عدّ مجموعات العشرة في شبكة لوحات العشرة، ثم اكتب الكلّ:",
           strategyHintAr: "عدّ اللوحات الكاملة بالعشرات (١٠، ٢٠، ٣٠).",
           params: {
             modelKind: "ten-frame-grid",
@@ -271,7 +261,7 @@ export const lessonK114Blueprint: LessonBlueprint = {
       practice: [
         {
           archetype: "ModelCountAndTrace",
-          promptAr: "عدّ اللوحات الكاملة بالعشرات، ثم اكتب العدد الكلّي:",
+          promptAr: "عدّ اللوحات الكاملة بالعشرات، ثم اكتب الكلّ:",
           strategyHintAr:
             "انظر إلى اللوحات الكاملة (كل لوحة تساوي ١٠)، ثم عدّ بالعشرات واكتب العدد.",
           params: {
@@ -282,7 +272,7 @@ export const lessonK114Blueprint: LessonBlueprint = {
         },
         {
           archetype: "ModelCountAndTrace",
-          promptAr: "انظر إلى شبكة لوحات العشرة، ثم عدّ واكتب العدد الكلّي:",
+          promptAr: "انظر إلى شبكة لوحات العشرة، ثم عدّ واكتب الكلّ:",
           strategyHintAr:
             "انظر إلى اللوحات الكاملة التي تمثّل العشرات واللوحة الأخيرة التي تمثّل الآحاد، ثم اكتب العدد.",
           params: {
@@ -295,8 +285,7 @@ export const lessonK114Blueprint: LessonBlueprint = {
       challenge: [
         {
           archetype: "CountGridItems",
-          promptAr:
-            "انظر إلى شبكة أقلام الرصاص، ثم عدّ بالعشرات واكتب العدد الكلّي:",
+          promptAr: "انظر إلى شبكة أقلام الرصاص، ثم عدّ بالعشرات واكتب الكلّ:",
           strategyHintAr:
             "انظر إلى الصفوف الكاملة (كل صفّ يحتوي على ١٠ أقلام)، ثم عدّ الصفوف بالعشرات.",
           params: {
@@ -311,8 +300,7 @@ export const lessonK114Blueprint: LessonBlueprint = {
           archetype: "ModelCountAndTrace",
           promptAr:
             "عدّ جميع الأقراص في الشبكة، ثم تحقّق بالعدّ القفزي بالعشرات:",
-          strategyHintAr:
-            "عدّ اللوحات الكاملة بالعشرات لتتأكّد من العدد الكلّي.",
+          strategyHintAr: "عدّ اللوحات الكاملة بالعشرات لتتأكّد من الكلّ.",
           params: {
             modelKind: "ten-frame-grid",
             targetNumbers: [20, 30],
@@ -327,8 +315,7 @@ export const lessonK114Blueprint: LessonBlueprint = {
       warmUp: [
         {
           archetype: "ModelCountAndTrace",
-          promptAr:
-            "عدّ مجموعات العشرة في شبكة لوحات العشرة، ثم اكتب العدد الكلّي:",
+          promptAr: "عدّ مجموعات العشرة في شبكة لوحات العشرة، ثم اكتب الكلّ:",
           strategyHintAr: "عدّ اللوحات الكاملة بالعشرات (١٠، ٢٠، ٣٠).",
           params: {
             modelKind: "ten-frame-grid",
@@ -341,7 +328,7 @@ export const lessonK114Blueprint: LessonBlueprint = {
         {
           archetype: "ModelCountAndTrace",
           promptAr:
-            "عدّ اللوحات الكاملة بالعشرات ثم أكمل بالآحاد، واكتب العدد الكلّي:",
+            "عدّ اللوحات الكاملة بالعشرات ثم أكمل بالآحاد، واكتب الكلّ:",
           strategyHintAr:
             "عدّ اللوحات الكاملة بالعشرات أولاً، ثم عدّ الأقراص الإضافية بالآحاد.",
           params: {
@@ -352,8 +339,7 @@ export const lessonK114Blueprint: LessonBlueprint = {
         },
         {
           archetype: "ModelCountAndTrace",
-          promptAr:
-            "انظر إلى اللوحات الكاملة والآحاد الإضافية، ثم اكتب العدد الكلّي:",
+          promptAr: "انظر إلى اللوحات الكاملة والآحاد الإضافية، ثم اكتب الكلّ:",
           strategyHintAr:
             "اكتب عدد العشرات في خانة العشرات وعدد الآحاد المتبقية في خانة الآحاد.",
           params: {
@@ -367,7 +353,7 @@ export const lessonK114Blueprint: LessonBlueprint = {
         {
           archetype: "CountGridItems",
           promptAr:
-            "انظر إلى شبكة أقلام الرصاص، ثم عدّ بالعشرات والآحاد واكتب العدد الكلّي:",
+            "انظر إلى شبكة أقلام الرصاص، ثم عدّ بالعشرات والآحاد واكتب الكلّ:",
           strategyHintAr:
             "عدّ الصفوف الكاملة بالعشرات ثم أكمل عدّ الأقلام المتبقية بالآحاد.",
           params: {
@@ -398,8 +384,7 @@ export const lessonK114Blueprint: LessonBlueprint = {
       warmUp: [
         {
           archetype: "ModelCountAndTrace",
-          promptAr:
-            "عدّ مجموعات العشرة في شبكة لوحات العشرة، ثم اكتب العدد الكلّي:",
+          promptAr: "عدّ مجموعات العشرة في شبكة لوحات العشرة، ثم اكتب الكلّ:",
           strategyHintAr: "عدّ اللوحات الكاملة بالعشرات (١٠، ٢٠، ٣٠).",
           params: {
             modelKind: "ten-frame-grid",
@@ -412,7 +397,7 @@ export const lessonK114Blueprint: LessonBlueprint = {
         {
           archetype: "ModelCountAndTrace",
           promptAr:
-            "عدّ اللوحات الكاملة بالعشرات ثم أكمل بالآحاد، واكتب العدد الكلّي:",
+            "عدّ اللوحات الكاملة بالعشرات ثم أكمل بالآحاد، واكتب الكلّ:",
           strategyHintAr:
             "انظر إلى العشرات الكاملة بلمحة واحدة ثم أضف الآحاد دون عدّ اللوحات الكاملة واحداً واحداً.",
           params: {
@@ -423,8 +408,7 @@ export const lessonK114Blueprint: LessonBlueprint = {
         },
         {
           archetype: "ModelCountAndTrace",
-          promptAr:
-            "انظر إلى اللوحات الكاملة والآحاد الإضافية، ثم اكتب العدد الكلّي:",
+          promptAr: "انظر إلى اللوحات الكاملة والآحاد الإضافية، ثم اكتب الكلّ:",
           strategyHintAr:
             "انظر إلى اللوحات الكاملة واربط عددها باللقب العشري، ثم اكتب العدد الصحيح.",
           params: {
@@ -438,7 +422,7 @@ export const lessonK114Blueprint: LessonBlueprint = {
         {
           archetype: "CountGridItems",
           promptAr:
-            "انظر إلى شبكة أقلام الرصاص، ثم عدّ بالعشرات والآحاد واكتب العدد الكلّي:",
+            "انظر إلى شبكة أقلام الرصاص، ثم عدّ بالعشرات والآحاد واكتب الكلّ:",
           strategyHintAr:
             "عدّ الصفوف الكاملة بالعشرات ثم أكمل عدّ الأقلام في الصفّ الأخير.",
           params: {
@@ -482,7 +466,7 @@ export const lessonK115Blueprint: LessonBlueprint = {
       warmUp: [
         {
           archetype: "ModelCountAndTrace",
-          promptAr: "عدّ اللوحات الكاملة بالعشرات، ثم اكتب العدد الكلّي:",
+          promptAr: "عدّ اللوحات الكاملة بالعشرات، ثم اكتب الكلّ:",
           strategyHintAr: "عدّ اللوحات الكاملة بالعشرات (١٠، ٢٠، ٣٠).",
           params: {
             modelKind: "ten-frame-grid",
@@ -551,7 +535,7 @@ export const lessonK115Blueprint: LessonBlueprint = {
       warmUp: [
         {
           archetype: "ModelCountAndTrace",
-          promptAr: "عدّ اللوحات الكاملة بالعشرات، ثم اكتب العدد الكلّي:",
+          promptAr: "عدّ اللوحات الكاملة بالعشرات، ثم اكتب الكلّ:",
           strategyHintAr: "عدّ اللوحات الكاملة بالعشرات (١٠، ٢٠، ٣٠).",
           params: {
             modelKind: "ten-frame-grid",
@@ -624,7 +608,7 @@ export const lessonK115Blueprint: LessonBlueprint = {
       warmUp: [
         {
           archetype: "ModelCountAndTrace",
-          promptAr: "عدّ اللوحات الكاملة بالعشرات، ثم اكتب العدد الكلّي:",
+          promptAr: "عدّ اللوحات الكاملة بالعشرات، ثم اكتب الكلّ:",
           strategyHintAr: "عدّ اللوحات الكاملة بالعشرات (١٠، ٢٠، ٣٠).",
           params: {
             modelKind: "ten-frame-grid",

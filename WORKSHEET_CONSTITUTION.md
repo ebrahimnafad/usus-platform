@@ -60,24 +60,24 @@ A Perceive or Group exercise never opens with `عدّ`. A Count exercise may ope
 
 3.4 Canonical sizes. Every instance of these renders at exactly this size: **[test]** **[guard]**
 
-| Element             | Size                                |
-| ------------------- | ----------------------------------- |
-| Answer Slot (digit) | 48 × 48 px                          |
-| Answer Slot (line)  | 32 × 160 px                         |
-| Five-frame cell     | 48 px (frame 240 px wide)           |
-| Ten-frame           | 48 px cells in a 240 × 108 px box   |
-| Number Bond         | 56 px circles in a 212 × 160 px box |
-| Equation Strip      | 48 px tall                          |
-| Balance Scale       | 212 × 136 px                        |
-| SHAPE GRAPH         | 48 px cells in a 428 × 284 px box   |
-| Paper-Clip Bar      | 312 × 56 px                         |
-| Polygon Perimeter   | 212 × 160 px                        |
-| Numtanga Grid       | 324 × 212 px                        |
-| Digicross Grid      | 324 × 212 px                        |
-| Linear Comparison   | 660 × 120 px                        |
-| Dot Array           | 212 × 160 px                        |
-| Ten-frame (vert.)   | 48 px cells in a 108 × 252 px box   |
-| Ten-Frame Grid      | 660 × 160 px (2×5 macro grid)       |
+| Element             | Size                                                  |
+| ------------------- | ----------------------------------------------------- |
+| Answer Slot (digit) | 48 × 48 px                                            |
+| Answer Slot (line)  | 32 × 160 px                                           |
+| Five-frame cell     | 48 px (frame 240 px wide)                             |
+| Ten-frame           | 48 px cells in a 240 × 108 px box                     |
+| Number Bond         | 56 px circles in a 212 × 160 px box                   |
+| Equation Strip      | 48 px tall                                            |
+| Balance Scale       | 212 × 136 px                                          |
+| SHAPE GRAPH         | 48 px cells in a 428 × 284 px box                     |
+| Paper-Clip Bar      | 312 × 56 px                                           |
+| Polygon Perimeter   | 212 × 160 px                                          |
+| Numtanga Grid       | 324 × 212 px                                          |
+| Digicross Grid      | 324 × 212 px                                          |
+| Linear Comparison   | 660 × 120 px                                          |
+| Dot Array           | 212 × 160 px                                          |
+| Ten-frame (vert.)   | 48 px cells in a 108 × 252 px box                     |
+| Ten-Frame Grid      | 660 × 160 px (2×5 macro grid, 24 × 26 px micro cells) |
 
 3.5 Each new Visual Model adds its canonical size to the table in 3.4, sized to fit one column of 3.2.
 

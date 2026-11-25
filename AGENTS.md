@@ -22,3 +22,5 @@ Read `WORKSHEET_CONSTITUTION.md` before designing, authoring, or reviewing any m
 
 - Headless browser testing uses Playwright with `channel: 'msedge'` — Microsoft Edge is installed; Chromium is not.
 - Windows PowerShell 5.1: chain dependent commands with `; if ($LASTEXITCODE -eq 0) { ... }` (never `&&`).
+- Use `Select-String` for repo search (`rg` is not installed).
+- Run `npm run lint:numerals` after authoring blueprints or archetypes, before running `npm run test:fast`.

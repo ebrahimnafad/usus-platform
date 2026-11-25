@@ -112,6 +112,15 @@ const LABEL_OPENERS = [
   "بناء التفكير",
 ];
 
+const AVOIDED_CHILD_TERMS = [
+  "المجموع",
+  "الفرق",
+  "عناصر",
+  "عنصر",
+  "العدد الكلي",
+  "العدد الكلّي",
+];
+
 const APPROVED_IMPERATIVES = [
   "عدّ",
   "انظر",
@@ -175,6 +184,21 @@ for (const file of blueprintFiles) {
         );
         violations++;
       }
+
+      if (currentLessonNum >= 113) {
+        const avoidedTerm = AVOIDED_CHILD_TERMS.find((term) => {
+          const boundaryRe = new RegExp(
+            `(?<![\\u0621-\\u064A\\u064B-\\u0652])${term}(?![\\u0621-\\u064A\\u064B-\\u0652])`
+          );
+          return boundaryRe.test(text);
+        });
+        if (avoidedTerm) {
+          console.error(
+            `❌ ${file}:${i + 1} (K-${currentLessonNum}): ${fieldName} contains avoided term "${avoidedTerm}" (§9.1/§9.4): "${text}"`
+          );
+          violations++;
+        }
+      }
     }
   }
 }
@@ -185,6 +209,7 @@ const MODERN_ARCHETYPE_FILES = [
   path.join("src", "archetypes", "shift-one-decompose.tsx"),
   path.join("src", "archetypes", "measure-and-compare-length.tsx"),
   path.join("src", "archetypes", "compare-groups.tsx"),
+  path.join("src", "archetypes", "count-grid-items.tsx"),
   path.join("src", "lib", "word-problems.ts"),
 ];
 
