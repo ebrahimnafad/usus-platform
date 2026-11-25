@@ -132,6 +132,26 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
 
   const nextStoryNumber = story.storyNumber < 12 ? story.storyNumber + 1 : null;
 
+  const getStationToneClass = (
+    isActive: boolean,
+    isPast: boolean,
+    variant: "mobile" | "desktop"
+  ) => {
+    if (isActive) {
+      return isTransferTest
+        ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
+        : "bg-emerald-600 text-white border-emerald-600 shadow-sm";
+    }
+    if (isPast) {
+      return variant === "desktop"
+        ? "bg-emerald-50 text-emerald-900 border-emerald-200 hover:bg-emerald-100"
+        : "bg-emerald-50 border-emerald-200 hover:bg-emerald-100";
+    }
+    return variant === "desktop"
+      ? "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+      : "bg-slate-100 border-slate-200 hover:bg-slate-200";
+  };
+
   // RENDER VARIANT 1: FREE READING NOOK (Stories 4 & 10)
   if (isFreeReading) {
     return (
@@ -251,8 +271,35 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
         </section>
       )}
 
-      {/* 6-Station Stepper */}
-      <section className="bg-white border-b border-slate-200 py-3 px-4 sm:px-8 no-print shadow-2xs">
+      {/* 6-Station Stepper (Mobile Compact Emoji) */}
+      <section className="sm:hidden bg-white border-b border-slate-200 py-2.5 px-4 no-print shadow-2xs">
+        <div className="flex items-center justify-between max-w-md mx-auto gap-2">
+          {STATIONS.map((station) => {
+            const isActive = activeStation === station.id;
+            const isPast = activeStation > station.id;
+
+            return (
+              <button
+                key={station.id}
+                type="button"
+                onClick={() => setActiveStation(station.id)}
+                aria-label={station.name}
+                title={station.name}
+                className={`w-10 h-10 rounded-full flex items-center justify-center text-lg transition border shrink-0 ${getStationToneClass(
+                  isActive,
+                  isPast,
+                  "mobile"
+                )}`}
+              >
+                {station.icon}
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* 6-Station Stepper (Desktop) */}
+      <section className="hidden sm:block bg-white border-b border-slate-200 py-3 px-4 sm:px-8 no-print shadow-2xs">
         <div className="max-w-6xl mx-auto overflow-x-auto">
           <div className="flex items-center justify-between min-w-[620px] gap-2">
             {STATIONS.map((station) => {
@@ -263,15 +310,11 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
                 <button
                   key={station.id}
                   onClick={() => setActiveStation(station.id)}
-                  className={`flex-1 flex items-center gap-2 px-3 py-2 rounded-xl text-right transition border ${
-                    isActive
-                      ? isTransferTest
-                        ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
-                        : "bg-emerald-600 text-white border-emerald-600 shadow-sm"
-                      : isPast
-                        ? "bg-emerald-50 text-emerald-900 border-emerald-200 hover:bg-emerald-100"
-                        : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
-                  }`}
+                  className={`flex-1 flex items-center gap-2 px-3 py-2 rounded-xl text-right transition border ${getStationToneClass(
+                    isActive,
+                    isPast,
+                    "desktop"
+                  )}`}
                 >
                   <span
                     className={`w-6 h-6 rounded-lg text-xs font-black flex items-center justify-center shrink-0 ${
