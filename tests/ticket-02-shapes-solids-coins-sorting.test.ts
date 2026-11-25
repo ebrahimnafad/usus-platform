@@ -52,14 +52,14 @@ describe("Ticket 02 — Lessons K-2, K-3, K-4: 2D Shapes, 3D Solids & Localized 
     expect(k3CoreModels.some((m) => m.kind === "solid-3d")).toBe(true);
     expect(k3CoreModels.some((m) => m.kind === "real-world-solid")).toBe(true);
 
-    // K-4 Practice & Challenge use "coin" visual models with denominations in {1, 5, 10, 25, 50}
+    // K-4 Practice & Challenge use "coin" visual models with Egyptian denominations in {25, 50, 100, 500, 1000} (ADR-0016)
     const k4CoreModels = k4.worksheet.sections
       .slice(1)
       .flatMap((s) => s.exercises)
       .flatMap((e) => e.visualModels);
     expect(k4CoreModels.some((m) => m.kind === "coin")).toBe(true);
     for (const model of k4CoreModels.filter((m) => m.kind === "coin")) {
-      expect([1, 5, 10, 25, 50]).toContain(model.denomination);
+      expect([25, 50, 100, 500, 1000]).toContain(model.denomination);
     }
 
     // Rendered HTML/SVG surface checks for K-2, K-3, K-4

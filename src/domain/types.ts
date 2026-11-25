@@ -115,7 +115,8 @@ export type VisualModelKind =
   | "linear-comparison"
   | "shape-description"
   | "dot-array"
-  | "ten-frame-grid";
+  | "ten-frame-grid"
+  | "money-card";
 
 export type EverydayObjectCategory =
   "animals" | "fruits" | "toys" | "school" | "nature" | "treats";
@@ -169,7 +170,7 @@ export type RealWorldSolidId =
   | "juice-box"
   | "tent";
 
-export type CoinDenomination = 1 | 5 | 10 | 25 | 50;
+export type CoinDenomination = 25 | 50 | 100 | 500 | 1000;
 
 export type VisualSize = "tiny" | "small" | "medium" | "large";
 
@@ -213,7 +214,8 @@ export type ExerciseArchetypeId =
   | "Numtanga"
   | "Digicross"
   | "CompareGroups"
-  | "CountGridItems";
+  | "CountGridItems"
+  | "IdentifyAndLabel";
 
 export type DigicrossArchetypeParams = {
   /** Inclusive bounds for every grid value. */
@@ -359,6 +361,7 @@ export interface ArchetypeParamsByArchetypeId {
   Digicross: DigicrossArchetypeParams;
   CompareGroups: Record<string, unknown>;
   CountGridItems: Record<string, unknown>;
+  IdentifyAndLabel: Record<string, unknown>;
 }
 
 export type BlueprintExerciseSpecFor<K extends ExerciseArchetypeId> = {

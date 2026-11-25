@@ -2785,30 +2785,30 @@ export const lessonK18Blueprint: LessonBlueprint = {
 const K19_COIN_COUNTER_PAIRS = [
   {
     id: "coin-qty-1",
-    right: createCoinSpec(1, {
+    right: createCoinSpec(25, {
       count: 1,
       size: "small",
-      labelAr: "عملة نحاسية واحدة: ١ قطعة عدّ",
+      labelAr: "عملة فضية واحدة (٢٥ قرشاً): ١ قطعة عدّ",
     }),
     left: createDigitCardSpec(1),
     reasonAr: "عملة واحدة كقطعة عدّ (١) تطابق الرقم ١",
   },
   {
     id: "coin-qty-2",
-    right: createCoinSpec(5, {
+    right: createCoinSpec(50, {
       count: 2,
       size: "small",
-      labelAr: "عملتان فضيتان: ١ و١ = ٢ قطع عدّ",
+      labelAr: "عملتان فضيتان (٥٠ قرشاً): ١ و١ = ٢ قطع عدّ",
     }),
     left: createDigitCardSpec(2),
     reasonAr: "عملتان (٢ كقطع عدّ قيمة كل منها ١ في العدّ) تطابقان الرقم ٢",
   },
   {
     id: "coin-qty-3",
-    right: createCoinSpec(10, {
+    right: createCoinSpec(100, {
       count: 3,
       size: "small",
-      labelAr: "٣ عملات فضية (٢ و١ = ٣ قطع عدّ)",
+      labelAr: "٣ عملات (١ جنيه): ٢ و١ = ٣ قطع عدّ",
     }),
     left: createDigitCardSpec(3),
     reasonAr: "٣ عملات (٢ و١ كقطع عدّ) تطابق الرقم ٣",
@@ -2818,17 +2818,17 @@ const K19_COIN_COUNTER_PAIRS = [
     right: createCoinSpec(25, {
       count: 4,
       size: "small",
-      labelAr: "٤ عملات ذهبية (٢ و٢ = ٤ قطع عدّ)",
+      labelAr: "٤ عملات فضية (٢ و٢ = ٤ قطع عدّ)",
     }),
     left: createDigitCardSpec(4),
     reasonAr: "٤ عملات (مجموعتان من ٢ كقطع عدّ) تطابق الرقم ٤",
   },
   {
     id: "coin-qty-5",
-    right: createCoinSpec(1, {
+    right: createCoinSpec(100, {
       count: 5,
       size: "small",
-      labelAr: "٥ عملات نحاسية (٣ و٢ = ٥ قطع عدّ)",
+      labelAr: "٥ عملات (٣ و٢ = ٥ قطع عدّ)",
     }),
     left: createDigitCardSpec(5),
     reasonAr: "٥ عملات (٣ و٢ كقطع عدّ) تطابق الرقم ٥",
@@ -2838,42 +2838,42 @@ const K19_COIN_COUNTER_PAIRS = [
 const K19_COIN_TRACE_PAIRS = [
   {
     id: "coin-trace-1",
-    right: createCoinSpec(50, {
+    right: createCoinSpec(100, {
       count: 1,
       size: "small",
-      labelAr: "عملة ذهبية واحدة (١ قطعة عدّ)",
+      labelAr: "عملة واحدة (١ قطعة عدّ)",
     }),
     left: createNumeralTraceSpec({ digit: 1, colorTheme: "amber" }),
     reasonAr: "عملة واحدة تطابق الرقم ١",
   },
   {
     id: "coin-trace-2",
-    right: createCoinSpec(1, {
+    right: createCoinSpec(25, {
       count: 2,
       size: "small",
-      labelAr: "عملتان نحاسيتان (٢ قطعتا عدّ)",
+      labelAr: "عملتان فضيتان (٢ قطعتا عدّ)",
     }),
-    left: createNumeralTraceSpec({ digit: 2, colorTheme: "coral" }),
+    left: createNumeralTraceSpec({ digit: 2, colorTheme: "sky" }),
     reasonAr: "عملتان تطابقان الرقم ٢",
   },
   {
     id: "coin-trace-3",
-    right: createCoinSpec(5, {
+    right: createCoinSpec(50, {
       count: 3,
       size: "small",
       labelAr: "٣ عملات فضية (٢ و١ = ٣ قطع عدّ)",
     }),
-    left: createNumeralTraceSpec({ digit: 3, colorTheme: "sky" }),
+    left: createNumeralTraceSpec({ digit: 3, colorTheme: "teal" }),
     reasonAr: "٣ عملات تطابق الرقم ٣",
   },
   {
     id: "coin-trace-4",
-    right: createCoinSpec(10, {
+    right: createCoinSpec(100, {
       count: 4,
       size: "small",
-      labelAr: "٤ عملات فضية (٢ و٢ = ٤ قطع عدّ)",
+      labelAr: "٤ عملات (٢ و٢ = ٤ قطع عدّ)",
     }),
-    left: createNumeralTraceSpec({ digit: 4, colorTheme: "teal" }),
+    left: createNumeralTraceSpec({ digit: 4, colorTheme: "amber" }),
     reasonAr: "٤ عملات تطابق الرقم ٤",
   },
   {
@@ -2881,9 +2881,9 @@ const K19_COIN_TRACE_PAIRS = [
     right: createCoinSpec(25, {
       count: 5,
       size: "small",
-      labelAr: "٥ عملات ذهبية (٤ و١ = ٥ قطع عدّ)",
+      labelAr: "٥ عملات فضية (٤ و١ = ٥ قطع عدّ)",
     }),
-    left: createNumeralTraceSpec({ digit: 5, colorTheme: "amber" }),
+    left: createNumeralTraceSpec({ digit: 5, colorTheme: "sky" }),
     reasonAr: "٥ عملات تطابق الرقم ٥",
   },
 ];

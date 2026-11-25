@@ -236,6 +236,18 @@ _Avoid_: أعداد المراهقين, two-digit number
 A Visual Model showing a quantity as a rectangular grid of dots arranged in rows and columns (مصفوفة النقاط), supporting both complete arrays and near arrays with one incomplete row.
 _Avoid_: نمط النقاط, dot pattern, grid
 
+**Base-10 Nickname**:
+An explicit place-value reading of a number as groups of ten and leftover ones (اللقب العشري), e.g., ٢٣ is "٢ عشرات و٣ آحاد." Used to build unitizing fluency before formal place-value notation.
+_Avoid_: expanded form, الصيغة التحليلية, place-value sentence
+
+**Skip Count**:
+Counting forward or backward by a fixed interval such as 2s, 5s, or 10s (العدّ القفزي), e.g., ١٠، ٢٠، ٣٠. Each skip lands on the next multiple of that interval.
+_Avoid_: العدّ بالقفز, jump counting, interval counting
+
+**Decade Number**:
+A multiple of 10 from 10 to 100 (عدد العقد), e.g., ١٠، ٢٠، ٣٠، … ١٠٠. The targets when skip-counting by 10s and the complement anchors for "how many more make the next 10."
+_Avoid_: round number, عدد مدوّر, tens number
+
 ### Reading Comprehension
 
 **Reading Level**:

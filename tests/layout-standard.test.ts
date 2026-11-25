@@ -84,6 +84,7 @@ describe("Layout standard matches WORKSHEET_CONSTITUTION.md", () => {
       dotArrayBox: { width: 212, height: 160 },
       tenFrameVerticalBox: { width: 108, height: 252 },
       tenFrameGridBox: { width: 660, height: 160 },
+      moneyCardBox: { width: 212, height: 160 },
     });
   });
 

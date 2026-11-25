@@ -282,10 +282,19 @@ export const REAL_WORLD_SOLID_CATALOG: RealWorldSolidDefinition[] = [
   },
 ];
 
+export type CurrencyKind = "coin" | "bill";
+
 export interface CoinDefinition {
   denomination: CoinDenomination;
+  currencyKind: CurrencyKind;
+  nameAr: string;
+  valueAr: string;
+  valueInPiasters: number;
+  faceNumeralAr: string;
+  faceUnitAr: string;
   labelAr: string;
-  metalNameAr: "نحاسي" | "فضي" | "ذهبي";
+  metalNameAr:
+    "فضي" | "ثنائي المعدن (ذهبي وفضي)" | "ورقة خضراء" | "ورقة بنية ذهبية";
   relativeSizeRank: number; // 1 smallest .. 5 largest
   colorTheme: ColorThemeId;
   descriptionAr: string;
@@ -293,44 +302,75 @@ export interface CoinDefinition {
 
 export const COIN_CATALOG: CoinDefinition[] = [
   {
-    denomination: 1,
-    labelAr: "عملة ١ (قرش نحاسي)",
-    metalNameAr: "نحاسي",
-    relativeSizeRank: 1,
-    colorTheme: "coral",
-    descriptionAr: "عملة نحاسية صغيرة مكتوب عليها ١",
-  },
-  {
-    denomination: 5,
-    labelAr: "عملة ٥ (فضية)",
-    metalNameAr: "فضي",
-    relativeSizeRank: 2,
-    colorTheme: "sky",
-    descriptionAr: "عملة فضية بحافة مسنّنة مكتوب عليها ٥",
-  },
-  {
-    denomination: 10,
-    labelAr: "عملة ١٠ (فضية)",
-    metalNameAr: "فضي",
-    relativeSizeRank: 3,
-    colorTheme: "teal",
-    descriptionAr: "عملة فضية متوسطة مكتوب عليها ١٠",
-  },
-  {
     denomination: 25,
-    labelAr: "عملة ٢٥ (ذهبية بإطار)",
-    metalNameAr: "ذهبي",
-    relativeSizeRank: 4,
-    colorTheme: "amber",
-    descriptionAr: "عملة ذهبية كبيرة مكتوب عليها ٢٥",
+    currencyKind: "coin",
+    nameAr: "ربع جنيه",
+    valueAr: "٢٥ قرشاً",
+    valueInPiasters: 25,
+    faceNumeralAr: "٢٥",
+    faceUnitAr: "قرشاً",
+    labelAr: "٢٥ قرشاً (ربع جنيه)",
+    metalNameAr: "فضي",
+    relativeSizeRank: 1,
+    colorTheme: "sky",
+    descriptionAr: "عملة معدنية فضية صغيرة مكتوب عليها ٢٥ قرشاً",
   },
   {
     denomination: 50,
-    labelAr: "عملة ٥٠ (ذهبية كبرى)",
-    metalNameAr: "ذهبي",
+    currencyKind: "coin",
+    nameAr: "نصف جنيه",
+    valueAr: "٥٠ قرشاً",
+    valueInPiasters: 50,
+    faceNumeralAr: "٥٠",
+    faceUnitAr: "قرشاً",
+    labelAr: "٥٠ قرشاً (نصف جنيه)",
+    metalNameAr: "فضي",
+    relativeSizeRank: 2,
+    colorTheme: "teal",
+    descriptionAr: "عملة معدنية فضية متوسطة مكتوب عليها ٥٠ قرشاً",
+  },
+  {
+    denomination: 100,
+    currencyKind: "coin",
+    nameAr: "جنيه واحد",
+    valueAr: "١ جنيه",
+    valueInPiasters: 100,
+    faceNumeralAr: "١",
+    faceUnitAr: "جنيه",
+    labelAr: "١ جنيه (عملة)",
+    metalNameAr: "ثنائي المعدن (ذهبي وفضي)",
+    relativeSizeRank: 3,
+    colorTheme: "amber",
+    descriptionAr:
+      "عملة معدنية ثنائية اللون (إطار ذهبي ووسط فضي) مكتوب عليها ١ جنيه",
+  },
+  {
+    denomination: 500,
+    currencyKind: "bill",
+    nameAr: "خمسة جنيهات",
+    valueAr: "٥ جنيهات",
+    valueInPiasters: 500,
+    faceNumeralAr: "٥",
+    faceUnitAr: "جنيهات",
+    labelAr: "٥ جنيهات (ورقة)",
+    metalNameAr: "ورقة خضراء",
+    relativeSizeRank: 4,
+    colorTheme: "emerald",
+    descriptionAr: "ورقة نقدية خضراء مكتوب عليها ٥ جنيهات",
+  },
+  {
+    denomination: 1000,
+    currencyKind: "bill",
+    nameAr: "عشرة جنيهات",
+    valueAr: "١٠ جنيهات",
+    valueInPiasters: 1000,
+    faceNumeralAr: "١٠",
+    faceUnitAr: "جنيهات",
+    labelAr: "١٠ جنيهات (ورقة)",
+    metalNameAr: "ورقة بنية ذهبية",
     relativeSizeRank: 5,
     colorTheme: "amber",
-    descriptionAr: "أكبر عملة ذهبية مزخرفة مكتوب عليها ٥٠",
+    descriptionAr: "ورقة نقدية بنية ذهبية مكتوب عليها ١٠ جنيهات",
   },
 ];
 
@@ -1383,31 +1423,86 @@ export function RealWorldSolidSvg({
 }
 
 export function LocalizedCoinSvg({
-  denomination = 1,
+  denomination = 25,
   size = "medium",
 }: {
   denomination?: CoinDenomination;
   size?: VisualSize;
 }): React.ReactElement {
   const def = getCoinByDenomination(denomination);
-
-  // Distinct radius per denomination so size comparisons in K-4 are visually unmistakable
-  const baseRadiusMap: Record<CoinDenomination, number> = {
-    1: 18,
-    5: 20,
-    10: 21,
-    25: 24,
-    50: 26,
-  };
-  const r = baseRadiusMap[denomination] ?? 20;
   const px = size === "small" ? 32 : size === "large" ? 48 : 40;
   // Exact 12px on-screen text size inside the 64x64 viewBox (since 32 = 64/2, 40 = 64*5/8, 48 = 64*3/4)
   const svgFontSize = size === "small" ? 24 : size === "large" ? 16 : 19.2;
-  const denomAr = formatEasternNumber(denomination);
+  const denomAr = def.faceNumeralAr;
 
-  // Metal palette per coin
+  if (def.currencyKind === "bill") {
+    const isFive = denomination === 500;
+    const fill = isFive ? "#D1FAE5" : "#FEF3C7";
+    const innerFill = isFive ? "#ECFDF5" : "#FFFBEB";
+    const stroke = isFive ? "#065F46" : "#78350F";
+    const text = isFive ? "#064E3B" : "#451A03";
+    const rectX = isFive ? 6 : 4;
+    const rectW = isFive ? 52 : 56;
+    const rectY = isFive ? 16 : 14;
+    const rectH = isFive ? 32 : 36;
+
+    return (
+      <svg
+        width={px}
+        height={px}
+        viewBox="0 0 64 64"
+        fill="none"
+        className="shrink-0"
+        aria-label={toEasternArabicNumerals(def.labelAr)}
+        data-coin-denomination={denomAr}
+        data-coin-metal={def.metalNameAr}
+      >
+        <rect
+          x={rectX}
+          y={rectY}
+          width={rectW}
+          height={rectH}
+          rx="4"
+          fill={fill}
+          stroke={stroke}
+          strokeWidth="2.4"
+        />
+        <rect
+          x={rectX + 4}
+          y={rectY + 4}
+          width={rectW - 8}
+          height={rectH - 8}
+          rx="2"
+          fill={innerFill}
+          stroke={stroke}
+          strokeWidth="1.2"
+          strokeDasharray={isFive ? "none" : "3 2"}
+        />
+        <text
+          x="32"
+          y="32"
+          textAnchor="middle"
+          dominantBaseline="central"
+          fill={text}
+          fontSize={svgFontSize}
+          fontWeight="900"
+        >
+          {denomAr}
+        </text>
+      </svg>
+    );
+  }
+
+  // Distinct radius per coin denomination so size comparisons in K-4 are unmistakable
+  const baseRadiusMap: Record<25 | 50 | 100, number> = {
+    25: 19,
+    50: 22,
+    100: 25,
+  };
+  const r = baseRadiusMap[denomination as 25 | 50 | 100] ?? 20;
+
   const metalColors: Record<
-    CoinDenomination,
+    25 | 50 | 100,
     {
       outer: string;
       inner: string;
@@ -1416,44 +1511,30 @@ export function LocalizedCoinSvg({
       shine: string;
     }
   > = {
-    1: {
-      outer: "#D97706", // Copper/bronze
-      inner: "#F59E0B",
-      stroke: "#78350F",
-      text: "#451A03",
-      shine: "#FDE68A",
-    },
-    5: {
-      outer: "#94A3B8", // Silver
+    25: {
+      outer: "#94A3B8", // Small silver coin
       inner: "#E2E8F0",
       stroke: "#334155",
       text: "#0F172A",
       shine: "#F8FAFC",
     },
-    10: {
-      outer: "#64748B", // Silver with brushed rim
+    50: {
+      outer: "#64748B", // Medium silver coin
       inner: "#CBD5E1",
       stroke: "#1E293B",
       text: "#0F172A",
       shine: "#F1F5F9",
     },
-    25: {
-      outer: "#F59E0B", // Bimetallic gold rim + silver center
-      inner: "#FEF3C7",
-      stroke: "#92400E",
-      text: "#78350F",
-      shine: "#FFFBEB",
-    },
-    50: {
-      outer: "#EAB308", // Rich Gold largest coin
-      inner: "#FEF08A",
-      stroke: "#854D0E",
-      text: "#713F12",
-      shine: "#FEF9C3",
+    100: {
+      outer: "#D97706", // Bimetallic gold rim + silver center
+      inner: "#E2E8F0",
+      stroke: "#78350F",
+      text: "#0F172A",
+      shine: "#FEF3C7",
     },
   };
 
-  const style = metalColors[denomination] ?? metalColors[1];
+  const style = metalColors[denomination as 25 | 50 | 100] ?? metalColors[25];
 
   return (
     <svg
@@ -1461,6 +1542,7 @@ export function LocalizedCoinSvg({
       height={px}
       viewBox="0 0 64 64"
       fill="none"
+      className="shrink-0"
       aria-label={toEasternArabicNumerals(def.labelAr)}
       data-coin-denomination={denomAr}
       data-coin-metal={def.metalNameAr}
@@ -1478,18 +1560,12 @@ export function LocalizedCoinSvg({
       <circle
         cx="32"
         cy="32"
-        r={Math.max(r - 4, 10)}
+        r={Math.max(r - 5, 10)}
         fill={style.inner}
         stroke={style.stroke}
         strokeWidth="1.6"
         strokeDasharray={
-          denomination === 1
-            ? "2 2"
-            : denomination === 5
-              ? "4 2"
-              : denomination === 10
-                ? "none"
-                : "5 2"
+          denomination === 25 ? "2 2" : denomination === 50 ? "none" : "5 2"
         }
       />
       {/* Specular metallic shine */}
@@ -1686,7 +1762,7 @@ export function registerShapesSolidsCoinsVisualModels(): void {
 
   // Register "coin"
   registerVisualModel("coin", ({ model }) => {
-    const denomination = (model.denomination ?? 1) as CoinDenomination;
+    const denomination = (model.denomination ?? 25) as CoinDenomination;
     const count = model.count ?? 1;
     if (count > 1) {
       return (

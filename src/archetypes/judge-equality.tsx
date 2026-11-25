@@ -29,8 +29,18 @@ import {
   type SubtractionFact,
 } from "@/lib/part-whole-facts";
 
+import {
+  COIN_CATALOG,
+  LocalizedCoinSvg,
+} from "@/visual-models/shapes-solids-coins";
+import type { CoinDenomination } from "@/domain/types";
+
 export type JudgeEqualityMode =
-  "whats-wrong" | "true-false" | "balance" | "comparison-statement";
+  | "whats-wrong"
+  | "true-false"
+  | "balance"
+  | "comparison-statement"
+  | "money-statement";
 export type JudgeEqualityModelKind =
   "equation" | "number-bond" | "balance-scale";
 
@@ -50,14 +60,189 @@ export interface ComparisonStatementItem {
   explanationAr: string;
 }
 
+export interface MoneyStatementItem {
+  id: string;
+  statementAr: string;
+  isCorrect: boolean;
+  explanationAr: string;
+}
+
+export const MONEY_STATEMENT_POOLS: Record<
+  "Easy" | "Intermediate" | "Advanced",
+  MoneyStatementItem[]
+> = {
+  Easy: [
+    {
+      id: "money-e-1",
+      statementAr: "عملة ٢٥ قرشاً لونها فضي وتُسمّى ربع جنيه",
+      isCorrect: true,
+      explanationAr: "صحيح: عملة ٢٥ قرشاً فضية صغيرة واسمها ربع جنيه.",
+    },
+    {
+      id: "money-e-2",
+      statementAr: "عملة ٥٠ قرشاً لونها فضي وتُسمّى نصف جنيه",
+      isCorrect: true,
+      explanationAr: "صحيح: عملة ٥٠ قرشاً فضية متوسطة واسمها نصف جنيه.",
+    },
+    {
+      id: "money-e-3",
+      statementAr: "عملة ٥٠ قرشاً أكبر حجماً من عملة ٢٥ قرشاً",
+      isCorrect: true,
+      explanationAr: "صحيح: قرص عملة ٥٠ قرشاً أكبر من قرص عملة ٢٥ قرشاً.",
+    },
+    {
+      id: "money-e-4",
+      statementAr: "قيمة عملة ٥٠ قرشاً أكبر من قيمة عملة ٢٥ قرشاً",
+      isCorrect: true,
+      explanationAr: "صحيح: ٥٠ قرشاً أكبر قيمة من ٢٥ قرشاً.",
+    },
+    {
+      id: "money-e-5",
+      statementAr: "عملة ٢٥ قرشاً تُسمّى نصف جنيه",
+      isCorrect: false,
+      explanationAr:
+        "خطأ: عملة ٢٥ قرشاً تُسمّى ربع جنيه، أمّا نصف الجنيه فهو ٥٠ قرشاً.",
+    },
+    {
+      id: "money-e-6",
+      statementAr: "عملة ٥٠ قرشاً لونها أخضر",
+      isCorrect: false,
+      explanationAr: "خطأ: عملة ٥٠ قرشاً لونها فضي.",
+    },
+    {
+      id: "money-e-7",
+      statementAr: "قيمة عملة ٢٥ قرشاً أكبر من قيمة عملة ٥٠ قرشاً",
+      isCorrect: false,
+      explanationAr: "خطأ: ٢٥ قرشاً أقل قيمة من ٥٠ قرشاً.",
+    },
+    {
+      id: "money-e-8",
+      statementAr: "عملة ٢٥ قرشاً أكبر حجماً من عملة ٥٠ قرشاً",
+      isCorrect: false,
+      explanationAr: "خطأ: عملة ٢٥ قرشاً أصغر حجماً من عملة ٥٠ قرشاً.",
+    },
+  ],
+  Intermediate: [
+    {
+      id: "money-m-1",
+      statementAr: "عملة ١ جنيه معدنية وثنائية اللون (ذهبي وفضي)",
+      isCorrect: true,
+      explanationAr: "صحيح: عملة الجنيه الواحد لها إطار ذهبي ووسط فضي.",
+    },
+    {
+      id: "money-m-2",
+      statementAr: "ورقة ٥ جنيهات لونها أخضر وتُسمّى خمسة جنيهات",
+      isCorrect: true,
+      explanationAr: "صحيح: ورقة ٥ جنيهات خضراء واسمها خمسة جنيهات.",
+    },
+    {
+      id: "money-m-3",
+      statementAr: "ورقة ١٠ جنيهات قيمتها أكبر من ورقة ٥ جنيهات",
+      isCorrect: true,
+      explanationAr: "صحيح: ١٠ جنيهات أكبر قيمة من ٥ جنيهات.",
+    },
+    {
+      id: "money-m-4",
+      statementAr: "عملة ٥٠ قرشاً تُسمّى نصف جنيه وقيمتها ٥٠ قرشاً",
+      isCorrect: true,
+      explanationAr: "صحيح: نصف الجنيه يساوي ٥٠ قرشاً.",
+    },
+    {
+      id: "money-m-5",
+      statementAr: "ورقة ٥ جنيهات هي عملة معدنية فضية",
+      isCorrect: false,
+      explanationAr: "خطأ: فئة ٥ جنيهات ورقة نقدية خضراء وليست عملة معدنية.",
+    },
+    {
+      id: "money-m-6",
+      statementAr: "عملة ١ جنيه قيمتها أكبر من ورقة ٥ جنيهات",
+      isCorrect: false,
+      explanationAr: "خطأ: ورقة ٥ جنيهات قيمتها أكبر من عملة ١ جنيه.",
+    },
+    {
+      id: "money-m-7",
+      statementAr: "ورقة ١٠ جنيهات لونها فضي",
+      isCorrect: false,
+      explanationAr: "خطأ: ورقة ١٠ جنيهات لونها بني ذهبي.",
+    },
+    {
+      id: "money-m-8",
+      statementAr: "عملة ٢٥ قرشاً قيمتها تساوي جنيه واحد",
+      isCorrect: false,
+      explanationAr: "خطأ: ٢٥ قرشاً هي ربع جنيه وليست جنيهاً كاملاً.",
+    },
+  ],
+  Advanced: [
+    {
+      id: "money-a-1",
+      statementAr: "الورقة النقدية ذات اللون الأخضر قيمتها ٥ جنيهات",
+      isCorrect: true,
+      explanationAr: "صحيح: الورقة الخضراء هي فئة ٥ جنيهات.",
+    },
+    {
+      id: "money-a-2",
+      statementAr:
+        "الجنيه الواحد يساوي ١٠٠ قرش، وهي أكبر قيمة بين العملات المعدنية الثلاث",
+      isCorrect: true,
+      explanationAr: "صحيح: ١ جنيه = ١٠٠ قرش، وهي أكبر من ٢٥ قرشاً و٥٠ قرشاً.",
+    },
+    {
+      id: "money-a-3",
+      statementAr:
+        "ليس دائماً العملة الأكبر حجماً هي الأكبر قيمة؛ فالمهم هو الفئة المكتوبة عليها",
+      isCorrect: true,
+      explanationAr:
+        "صحيح: نعتمد على الفئة والوحدة المكتوبة على العملة وليس الحجم وحده.",
+    },
+    {
+      id: "money-a-4",
+      statementAr:
+        "ترتيب القيم من الأصغر إلى الأكبر هو: ٢٥ قرشاً، ٥٠ قرشاً، ١ جنيه، ٥ جنيهات، ١٠ جنيهات",
+      isCorrect: true,
+      explanationAr: "صحيح: هذا هو الترتيب التصاعدي الصحيح لقيم العملات.",
+    },
+    {
+      id: "money-a-5",
+      statementAr: "ورقة ٥ جنيهات أصغر قيمة من عملة ١ جنيه",
+      isCorrect: false,
+      explanationAr: "خطأ: ٥ جنيهات أكبر قيمة من ١ جنيه.",
+    },
+    {
+      id: "money-a-6",
+      statementAr: "عملة ٥٠ قرشاً قيمتها أكبر من قيمة ١ جنيه لأن ٥٠ أكبر من ١",
+      isCorrect: false,
+      explanationAr:
+        "خطأ: الوحدة مختلفة؛ ١ جنيه يساوي ١٠٠ قرش، وهي أكبر من ٥٠ قرشاً.",
+    },
+    {
+      id: "money-a-7",
+      statementAr:
+        "العملة المعدنية ذات الإطار الذهبي والوسط الفضي تُسمّى عشرة جنيهات",
+      isCorrect: false,
+      explanationAr:
+        "خطأ: العملة المعدنية ثنائية اللون هي جنيه واحد، أمّا عشرة جنيهات فهي ورقة.",
+    },
+    {
+      id: "money-a-8",
+      statementAr:
+        "عملة ٢٥ قرشاً قيمتها أكبر من ورقة ١٠ جنيهات لأن ٢٥ أكبر من ١٠",
+      isCorrect: false,
+      explanationAr:
+        "خطأ: ١٠ جنيهات تساوي ١٠٠٠ قرش، وهي أكبر بكثير من ٢٥ قرشاً.",
+    },
+  ],
+};
+
 export interface JudgeEqualityBlueprintParams {
   operation?: EquationOperation;
   mode?: JudgeEqualityMode;
-  judgementKind?: "equation" | "comparison-statement";
+  judgementKind?: "equation" | "comparison-statement" | "money-statement";
   modelKind?: JudgeEqualityModelKind;
   twoExpressionPans?: boolean;
   rowCount?: number;
   itemCount?: number;
+  statementCount?: number;
+  denominations?: CoinDenomination[];
   totalRange?: [number, number];
   minPart?: number;
 }
@@ -97,6 +282,7 @@ export interface JudgeEqualityData extends GenericArchetypeData {
   rows: JudgeEqualityRow[];
   comparisonCategories?: ComparisonCategoryItem[];
   comparisonStatements?: ComparisonStatementItem[];
+  moneyDenominations?: CoinDenomination[];
 }
 
 function pickWrongValue(
@@ -288,7 +474,65 @@ function generateJudgeEqualityExercise(
     params.mode ??
     (params.judgementKind === "comparison-statement"
       ? "comparison-statement"
-      : "whats-wrong");
+      : params.judgementKind === "money-statement"
+        ? "money-statement"
+        : "whats-wrong");
+
+  if (
+    mode === "money-statement" ||
+    params.judgementKind === "money-statement"
+  ) {
+    const pool = MONEY_STATEMENT_POOLS[ctx.difficultyLevel];
+    const requestedCount = Math.max(2, Math.min(4, params.statementCount ?? 3));
+    const trueStmts = ctx.rng.shuffle(pool.filter((s) => s.isCorrect));
+    const falseStmts = ctx.rng.shuffle(pool.filter((s) => !s.isCorrect));
+    const chosen: MoneyStatementItem[] = [trueStmts[0], falseStmts[0]];
+    const remaining = ctx.rng.shuffle([
+      ...trueStmts.slice(1),
+      ...falseStmts.slice(1),
+    ]);
+    while (chosen.length < requestedCount && remaining.length > 0) {
+      chosen.push(remaining.shift()!);
+    }
+    const comparisonStatements = ctx.rng.shuffle(chosen);
+    const notes = comparisonStatements.map((s) => s.explanationAr);
+    const moneyDenominations: CoinDenomination[] =
+      params.denominations && params.denominations.length > 0
+        ? params.denominations
+        : ctx.difficultyLevel === "Easy"
+          ? [25, 50]
+          : COIN_CATALOG.map((c) => c.denomination);
+
+    const defaultPromptAr =
+      "انظر إلى العملات والأوراق النقدية، ثم حوّط (صح) للعبارة الصحيحة و(خطأ) للعبارة غير الصحيحة:";
+    const defaultStrategyHintAr = `انظر إلى لون العملة وحجمها وقيمتها المكتوبة قبل الحكم على صحّة كلّ عبارة (${notes.join("؛ ")}).`;
+
+    const data: JudgeEqualityData = {
+      kind: "JudgeEquality",
+      operation: "add",
+      mode: "money-statement",
+      modelKind: "equation",
+      rows: [],
+      comparisonStatements,
+      moneyDenominations,
+    };
+
+    return {
+      id: `${ctx.lesson.id}-${ctx.sectionId}-ex-${ctx.exerciseNumber}`,
+      exerciseNumber: ctx.exerciseNumber,
+      sectionId: ctx.sectionId,
+      archetype: "JudgeEquality",
+      difficultyLevel: ctx.difficultyLevel,
+      sourceLessonId: ctx.sourceLessonId,
+      titleAr: "عبارات النقود المصرية",
+      promptAr: ctx.spec.promptAr ?? defaultPromptAr,
+      strategyHintAr: ctx.spec.strategyHintAr
+        ? `${ctx.spec.strategyHintAr.replace(/\.$/, "")} (${notes.join("؛ ")}).`
+        : defaultStrategyHintAr,
+      visualModels: [],
+      data,
+    };
+  }
 
   if (
     mode === "comparison-statement" ||
@@ -718,6 +962,82 @@ function renderJudgeEqualityExercise({
 }: ArchetypeRenderProps): React.ReactElement {
   const data = exercise.data as JudgeEqualityData;
   const isAnswerKey = mode === "answer-key";
+
+  if (data.mode === "money-statement" && data.comparisonStatements) {
+    const denoms = data.moneyDenominations ?? [25, 50, 100, 500, 1000];
+    return (
+      <div
+        className="space-y-2"
+        data-archetype="JudgeEquality"
+        data-judge-mode={data.mode}
+      >
+        <ExerciseColumns columns={1}>
+          <div className="flex flex-col gap-2.5 py-1" dir="rtl">
+            {/* Compact visual reference strip of Egyptian denominations */}
+            <div className="flex w-full flex-wrap items-center justify-center gap-4 rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-1.5">
+              {denoms.map((denom) => (
+                <div key={denom} className="flex flex-col items-center gap-0.5">
+                  <LocalizedCoinSvg denomination={denom} size="medium" />
+                </div>
+              ))}
+            </div>
+
+            {/* True / False statements */}
+            <div className="flex flex-col gap-2">
+              {data.comparisonStatements.map((stmt) => {
+                const chooseTrue = isAnswerKey && stmt.isCorrect;
+                const chooseFalse = isAnswerKey && !stmt.isCorrect;
+                return (
+                  <div
+                    key={stmt.id}
+                    className={`flex items-center justify-between gap-2 rounded-xl border-2 px-3 py-1.5 transition-all ${
+                      isAnswerKey && !stmt.isCorrect
+                        ? "border-rose-300 bg-rose-50/60"
+                        : "border-slate-200 bg-white shadow-2xs"
+                    }`}
+                    data-statement-id={stmt.id}
+                  >
+                    <span className="text-[13px] font-extrabold text-slate-900">
+                      {toEasternArabicNumerals(stmt.statementAr)}
+                    </span>
+
+                    <div className="flex shrink-0 items-center gap-2">
+                      <span
+                        data-tf-choice="true"
+                        {...(chooseTrue
+                          ? { "data-circled-choice": "true" }
+                          : {})}
+                        className={`inline-flex h-7 min-w-12 items-center justify-center rounded-full px-2.5 text-[13px] font-extrabold leading-none ${
+                          chooseTrue
+                            ? "border-2 border-emerald-700 bg-emerald-100 text-emerald-950 ring-2 ring-emerald-500"
+                            : "border-2 border-dashed border-slate-300 bg-slate-50 text-slate-800"
+                        }`}
+                      >
+                        صح
+                      </span>
+                      <span
+                        data-tf-choice="false"
+                        {...(chooseFalse
+                          ? { "data-circled-choice": "false" }
+                          : {})}
+                        className={`inline-flex h-7 min-w-12 items-center justify-center rounded-full px-2.5 text-[13px] font-extrabold leading-none ${
+                          chooseFalse
+                            ? "border-2 border-rose-700 bg-rose-100 text-rose-950 ring-2 ring-rose-500"
+                            : "border-2 border-dashed border-slate-300 bg-slate-50 text-slate-800"
+                        }`}
+                      >
+                        خطأ
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </ExerciseColumns>
+      </div>
+    );
+  }
 
   if (
     data.mode === "comparison-statement" &&

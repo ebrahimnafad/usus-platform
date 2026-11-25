@@ -77,6 +77,10 @@
     "tenFrameGridBox": {
       "width": 660,
       "height": 160
+    },
+    "moneyCardBox": {
+      "width": 212,
+      "height": 160
     }
   },
   "typeScalePx": {

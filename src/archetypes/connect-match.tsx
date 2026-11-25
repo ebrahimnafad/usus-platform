@@ -1,6 +1,7 @@
 import React from "react";
 import { registerExerciseArchetype } from "@/archetypes/registry";
 import type {
+  CoinDenomination,
   ConnectMatchData,
   ConnectMatchPair,
   EverydayObjectCategory,
@@ -38,7 +39,10 @@ import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
 import { AnswerLine, AnswerSlot } from "@/components/worksheet/AnswerSlot";
 import { ExerciseColumns } from "@/components/worksheet/ExerciseColumns";
 import {
+  COIN_CATALOG,
+  createCoinSpec,
   createShape2DSpec,
+  getCoinByDenomination,
   getShapePluralAr,
   getSolidPluralAr,
 } from "@/visual-models/shapes-solids-coins";
@@ -52,11 +56,14 @@ export type ConnectMatchMode =
   | PartWholeMatchMode
   | "shape-to-description"
   | "ten-frame-to-description"
-  | "ten-frame-to-comparison";
+  | "ten-frame-to-comparison"
+  | "name-to-coin"
+  | "value-to-coin";
 
 export interface ConnectMatchBlueprintParams {
   pairCount?: number;
   categories?: EverydayObjectCategory[];
+  denominations?: CoinDenomination[];
   matchingMode?: ConnectMatchMode;
   matchKind?: ConnectMatchMode;
   operation?: "add" | "subtract";
@@ -512,6 +519,31 @@ function generateConnectMatchExercise(
           : `${p0Ar} مربعات و${p1Ar} دوائر — ${comparisonDescAr}`,
       };
     });
+  } else if (
+    matchingMode === "name-to-coin" ||
+    matchingMode === "value-to-coin"
+  ) {
+    const denomPool: CoinDenomination[] =
+      params.denominations && params.denominations.length > 0
+        ? params.denominations
+        : COIN_CATALOG.map((c) => c.denomination);
+    const count = Math.max(1, Math.min(denomPool.length, pairCount));
+    const chosenDenoms = ctx.rng.shuffle([...denomPool]).slice(0, count);
+
+    pairs = chosenDenoms.map((denom, idx) => {
+      const def = getCoinByDenomination(denom);
+      const labelText =
+        matchingMode === "name-to-coin" ? def.nameAr : def.valueAr;
+      return {
+        pairId: `money-${matchingMode}-${idx + 1}-${denom}`,
+        rightItem: createShapeDescriptionSpec({
+          id: `${matchingMode}-${denom}`,
+          textAr: labelText,
+        }),
+        leftItem: createCoinSpec(denom, { size: "large" }),
+        connectionReasonAr: `${def.nameAr} تساوي ${def.valueAr}`,
+      };
+    });
   } else if (matchingMode) {
     pairs = buildPartWholeMatchPairs({
       rng: ctx.rng,
@@ -596,25 +628,33 @@ function generateConnectMatchExercise(
   const isTenFrameEqMatch = matchingMode === "ten-frame-to-equation";
   const isTenFrameDescMatch = matchingMode === "ten-frame-to-description";
   const isTenFrameCompMatch = matchingMode === "ten-frame-to-comparison";
+  const isMoneyNameMatch = matchingMode === "name-to-coin";
+  const isMoneyValueMatch = matchingMode === "value-to-coin";
 
-  const defaultRightTitle =
-    isTenFrameBondMatch ||
-    isTenFrameEqMatch ||
-    isTenFrameDescMatch ||
-    isTenFrameCompMatch
-      ? "لوحة العشرة"
-      : "العمود الأيمن";
-  const defaultLeftTitle = isTenFrameCompMatch
-    ? "المقارنة"
-    : isTenFrameDescMatch
-      ? "الوصف"
-      : isTenFrameBondMatch
-        ? "رابطة الأعداد"
-        : isTenFrameEqMatch
-          ? params.operation === "subtract"
-            ? "معادلة الطرح"
-            : "معادلة الجمع"
-          : "العمود الأيسر";
+  const defaultRightTitle = isMoneyNameMatch
+    ? "اسم العملة"
+    : isMoneyValueMatch
+      ? "قيمة العملة"
+      : isTenFrameBondMatch ||
+          isTenFrameEqMatch ||
+          isTenFrameDescMatch ||
+          isTenFrameCompMatch
+        ? "لوحة العشرة"
+        : "العمود الأيمن";
+  const defaultLeftTitle =
+    isMoneyNameMatch || isMoneyValueMatch
+      ? "العملة أو الورقة"
+      : isTenFrameCompMatch
+        ? "المقارنة"
+        : isTenFrameDescMatch
+          ? "الوصف"
+          : isTenFrameBondMatch
+            ? "رابطة الأعداد"
+            : isTenFrameEqMatch
+              ? params.operation === "subtract"
+                ? "معادلة الطرح"
+                : "معادلة الجمع"
+              : "العمود الأيسر";
 
   const takeApartMatchSummaryAr = isTakeApartMatch
     ? pairs.map((p) => p.connectionReasonAr).join("؛ ")
