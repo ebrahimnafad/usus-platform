@@ -10,19 +10,19 @@ Arabic titles: K-113 أعداد حتى ٥٠ — العدّ بالعشرات, K-1
 
 **Blocked by:** None (can start immediately).
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] `ten-frame-grid` Visual Model renders correctly: 2×5 macro grid, micro ten-frames with 48 px cells, RTL fill, dashed empty frames, subitizing-group containers in AK
-- [ ] `ModelCountAndTrace` with `modelKind: 'ten-frame-grid'` generates count-and-trace exercises for K-113 (multiples of 10) and K-114 (tens + ones)
-- [ ] `SubitizePartWhole` `decade-subitize` mode generates subitize exercises for K-115 WB with `complementTarget: 'next-decade'`
-- [ ] `SubitizePartWhole` `writeNickname: true` generates PoD exercises where the child writes the Base-10 Nickname
-- [ ] `SubitizePartWhole` `responseKind: 'draw-to-make'` generates HOW MANY? – A BB exercises with decade targets (30, 40, 50)
-- [ ] `CountGridItems` archetype renders dense icon grids (fruit, pencil) with configurable `rows`, `cols`, `filledCount`, and digit answer slot
-- [ ] `CompareGroups` `find-difference` PoD with solids generates correctly for K-113
-- [ ] K-113, K-114, K-115 Warm-Up exercises draw from the correct prerequisite at Easy
-- [ ] Every Answer Key exercise carries a non-empty Strategy Hint
-- [ ] No Western digits in any student-facing rendered HTML
-- [ ] All digit Answer Slots are 48 × 48 px; all line Answer Slots are 32 × 160 px
-- [ ] Seed determinism: same `(grade, lesson, seed, difficulty)` → same worksheet
-- [ ] Domain tests: `filledFrameCount × 10 + onesCount = total`; `Math.ceil(total / 10) * 10 − total = complement`; no duplicate grid config within one exercise
-- [ ] Layout guard green for K-113, K-114, K-115 (`--lessons=K-113..K-115 --seeds=2`)
+- [x] `ten-frame-grid` Visual Model renders correctly: 2×5 macro grid, micro ten-frames with 48 px cells, RTL fill, dashed empty frames, subitizing-group containers in AK
+- [x] `ModelCountAndTrace` with `modelKind: 'ten-frame-grid'` generates count-and-trace exercises for K-113 (multiples of 10) and K-114 (tens + ones)
+- [x] `SubitizePartWhole` `decade-subitize` mode generates subitize exercises for K-115 WB with `complementTarget: 'next-decade'`
+- [x] `SubitizePartWhole` `writeNickname: true` generates PoD exercises where the child writes the Base-10 Nickname
+- [x] `SubitizePartWhole` `responseKind: 'draw-to-make'` generates HOW MANY? – A BB exercises with decade targets (30, 40, 50)
+- [x] `CountGridItems` archetype renders dense icon grids (fruit, pencil) with configurable `rows`, `cols`, `filledCount`, and digit answer slot
+- [x] `CompareGroups` `find-difference` PoD with solids generates correctly for K-113
+- [x] K-113, K-114, K-115 Warm-Up exercises draw from the correct prerequisite at Easy
+- [x] Every Answer Key exercise carries a non-empty Strategy Hint
+- [x] No Western digits in any student-facing rendered HTML
+- [x] All digit Answer Slots are 48 × 48 px; all line Answer Slots are 32 × 160 px
+- [x] Seed determinism: same `(grade, lesson, seed, difficulty)` → same worksheet
+- [x] Domain tests: `filledFrameCount × 10 + onesCount = total`; `Math.ceil(total / 10) * 10 − total = complement`; no duplicate grid config within one exercise
+- [x] Layout guard green for K-113, K-114, K-115 (`--lessons=K-113..K-115 --seeds=2`)
