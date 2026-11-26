@@ -67,7 +67,7 @@ export default function PrintableReadingSheet({
     <article
       data-reading-sheet="true"
       data-reading-view={viewMode}
-      className={`a4-sheet reading-a4-sheet bg-white text-slate-900 mx-auto box-border px-6 py-3 ${
+      className={`a4-sheet reading-a4-sheet bg-white text-slate-900 mx-auto box-border px-6 py-2.5 ${
         alwaysVisible ? "block" : "hidden print:block"
       }`}
       style={{
@@ -79,7 +79,7 @@ export default function PrintableReadingSheet({
       <style>{`
         @page reading-page {
           size: A4 portrait;
-          margin: 10mm 0 6mm 0;
+          margin: 7mm 0 4mm 0;
           @top-center {
             content: "أُسُس | ${level.titleAr} | «${story.titleAr ?? story.title}» | الاسم: __________ | صفحة " counter(page, arabic-indic);
             font-family: "Cairo", "Readex Pro", "Segoe UI", Tahoma, sans-serif;
@@ -292,7 +292,7 @@ export default function PrintableReadingSheet({
           </div>
         )
       ) : isFreeReading ? (
-        <div className="flex flex-col justify-between h-[245mm]">
+        <div className="flex flex-col justify-between h-[238mm]">
           {includeStoryText && (
             <div className="border border-amber-300 rounded-2xl p-8 bg-amber-50/20 text-center my-auto">
               <div className="text-xs font-extrabold text-amber-900 mb-4 inline-block bg-amber-100 px-3 py-1 rounded-full border border-amber-300">
@@ -314,10 +314,10 @@ export default function PrintableReadingSheet({
         </div>
       ) : (
         /* Standard & Transfer Test Printable Layout (Story + QAR + Grammar Lab) */
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           {/* 1. Story Text Box */}
           {includeStoryText && (
-            <section className="border border-emerald-200 border-l-4 border-l-emerald-400 rounded-xl p-2.5 bg-emerald-50/40 break-inside-avoid">
+            <section className="border border-emerald-200 border-l-4 border-l-emerald-400 rounded-xl p-2 bg-emerald-50/40 break-inside-avoid">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs font-black text-slate-800">
                   📖 نص القصة: «{story.titleAr ?? story.title}»
@@ -335,8 +335,8 @@ export default function PrintableReadingSheet({
           )}
 
           {/* 2. QAR Comprehension Questions */}
-          <section className="border border-sky-200 border-l-4 border-l-sky-400 rounded-xl p-2.5 bg-sky-50/40 break-inside-avoid">
-            <div className="flex items-center justify-between mb-1.5 border-b border-sky-200 pb-1">
+          <section className="border border-sky-200 border-l-4 border-l-sky-400 rounded-xl p-2 bg-sky-50/40 break-inside-avoid">
+            <div className="flex items-center justify-between mb-1 border-b border-sky-200 pb-1">
               <span className="text-xs font-black text-slate-900">
                 🔍 أسئلة الفهم (أين تعيش الإجابة؟):
               </span>
@@ -345,7 +345,7 @@ export default function PrintableReadingSheet({
               </span>
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               {story.qarQuestions.map((q, idx) => {
                 const tierConfig = QAR_TIER_CONFIG[q.tier] ?? {
                   label: "مباشر",
@@ -356,7 +356,7 @@ export default function PrintableReadingSheet({
                   <div
                     key={q.id}
                     data-tier={q.tier}
-                    className="text-xs space-y-1"
+                    className="text-xs space-y-0.5"
                   >
                     <div className="flex items-start gap-1.5">
                       <span className="font-black text-slate-800">
@@ -370,7 +370,7 @@ export default function PrintableReadingSheet({
                       </span>
                     </div>
                     {/* Dotted Writing Answer Lines scaled by tier */}
-                    <div className="mr-4 space-y-1">
+                    <div className="mr-4 space-y-0.5">
                       {Array.from({ length: tierConfig.lines }).map(
                         (_, lineIdx) => (
                           <div
@@ -389,7 +389,7 @@ export default function PrintableReadingSheet({
 
           {/* 3. Inductive Language Lab */}
           {story.grammarDiscovery && (
-            <section className="border border-violet-200 border-l-4 border-l-violet-400 rounded-xl p-2.5 bg-violet-50/40 break-inside-avoid">
+            <section className="border border-violet-200 border-l-4 border-l-violet-400 rounded-xl p-2 bg-violet-50/40 break-inside-avoid">
               <div className="flex items-center justify-between mb-1 border-b border-violet-200 pb-1">
                 <span className="text-xs font-black text-slate-900">
                   🧩 معمل اللغة (اكتشف القاعدة):
@@ -399,9 +399,9 @@ export default function PrintableReadingSheet({
                 </span>
               </div>
 
-              <div className="space-y-1.5 text-xs">
+              <div className="space-y-1 text-xs">
                 {/* Step 1 & 2 compact */}
-                <div className="flex flex-wrap items-center gap-2.5 text-slate-700 font-bold">
+                <div className="flex flex-wrap items-center gap-2 text-slate-700 font-bold">
                   <span>الشواهد:</span>
                   {story.grammarDiscovery.examples.map((ex, i) => (
                     <span
@@ -431,18 +431,20 @@ export default function PrintableReadingSheet({
             </section>
           )}
 
-          {/* 4. Self-Assessment Strip */}
-          <section className="flex items-center justify-between px-4 py-1 border border-dashed border-slate-200 rounded-lg bg-slate-50/50 text-xs text-slate-600 break-inside-avoid">
-            <span className="font-bold">كيف أحسست بأدائي؟</span>
-            <span className="text-base tracking-widest text-slate-400 select-none">
-              ☆ ☆ ☆
-            </span>
-          </section>
+          {/* 4. Self-Assessment Strip + Footer kept together so footer is never orphaned */}
+          <div className="space-y-1 break-inside-avoid">
+            <section className="flex items-center justify-between px-4 py-1 border border-dashed border-slate-200 rounded-lg bg-slate-50/50 text-xs text-slate-600">
+              <span className="font-bold">كيف أحسست بأدائي؟</span>
+              <span className="text-base tracking-widest text-slate-400 select-none">
+                ☆ ☆ ☆
+              </span>
+            </section>
 
-          {/* Print Footer */}
-          <footer className="text-center text-[10px] text-slate-400 font-bold pt-0.5">
-            منصة أُسُس التعليمية — ورقة عمل مطبوعة ومخصصة لدورة القصة
-          </footer>
+            {/* Print Footer */}
+            <footer className="text-center text-[10px] text-slate-400 font-bold pt-0.5">
+              منصة أُسُس التعليمية — ورقة عمل مطبوعة ومخصصة لدورة القصة
+            </footer>
+          </div>
         </div>
       )}
     </article>

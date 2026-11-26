@@ -11,6 +11,7 @@ import {
   type ReadingPrintScope,
   type ReadingPrintViewOption,
 } from "@/lib/print-html-iframe";
+import { sharePrintContent } from "@/lib/share-print";
 import { PrintDialogShell } from "@/components/print/PrintDialogShell";
 import { PrintFontSelector } from "@/components/print/PrintFontSelector";
 
@@ -54,6 +55,8 @@ export function ReadingPrintModal({
   const [localIncludeStoryText, setLocalIncludeStoryText] =
     useState<boolean>(includeStoryText);
   const [isPrinting, setIsPrinting] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
+  const [shareFeedback, setShareFeedback] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -124,6 +127,39 @@ export function ReadingPrintModal({
     }
   };
 
+  const handleShare = async () => {
+    if (isSharing || typeof window === "undefined") return;
+    setIsSharing(true);
+    try {
+      const origin = window.location.origin;
+      const effectiveView = disableAnswerKeyForSingleFreeReading
+        ? "student"
+        : viewOption;
+      const storyTitle = story.titleAr ?? story.title;
+      const shareUrl =
+        scope === "level"
+          ? `${origin}/reading/level/${level.id}`
+          : effectiveView === "answer-key"
+            ? `${origin}/reading/q/${level.id}?story=${story.storyNumber}&tashkeel=${localTashkeel}&view=answer-key`
+            : `${origin}/reading/level/${level.id}/story/${story.storyNumber}`;
+      const shareTitle =
+        scope === "level"
+          ? `أُسُس - ${level.titleAr} - كافة القصص`
+          : `أُسُس - ${level.titleAr} - القصة ${storyNumAr} - ${storyTitle}`;
+      const result = await sharePrintContent({
+        title: shareTitle,
+        text: `${level.titleAr}: «${storyTitle}»`,
+        url: shareUrl,
+      });
+      if (result === "copied") {
+        setShareFeedback("تم نسخ الرابط ✓");
+        setTimeout(() => setShareFeedback(null), 2500);
+      }
+    } finally {
+      setIsSharing(false);
+    }
+  };
+
   return (
     <PrintDialogShell
       isOpen={isOpen}
@@ -134,7 +170,11 @@ export function ReadingPrintModal({
       isPrinting={isPrinting}
       printingLabelAr="جارٍ التجهيز..."
       onConfirm={handlePrint}
+      onShare={handleShare}
+      isSharing={isSharing}
+      shareFeedbackAr={shareFeedback}
       confirmDataAttr="data-reading-print-confirm"
+      shareDataAttr="data-reading-print-share"
     >
       {/* 1. Scope */}
       <fieldset className="space-y-2">

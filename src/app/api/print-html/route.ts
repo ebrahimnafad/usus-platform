@@ -86,10 +86,16 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
   const unitAr = formatEasternNumber(currentLesson.unitNumber);
   const lessonAr = formatEasternNumber(currentLesson.lessonNumber);
+  const viewSuffix =
+    viewOption === "answer-key"
+      ? " - نموذج الإجابة"
+      : viewOption === "both"
+        ? " - ورقة العمل والإجابة"
+        : "";
   const title =
     scope === "unit"
-      ? `${grade.labelAr} – الوحدة ${unitAr} – ${state.seed}`
-      : `${grade.labelAr} – الدرس ${lessonAr} – ${state.seed}`;
+      ? `أُسُس - ${grade.labelAr} - الوحدة ${unitAr}${viewSuffix} - ${state.seed}`
+      : `أُسُس - ${grade.labelAr} - الدرس ${lessonAr} - ${currentLesson.titleAr}${viewSuffix} - ${state.seed}`;
 
   return NextResponse.json({
     html: wrapPrintSheetsHtml(htmlSheets),

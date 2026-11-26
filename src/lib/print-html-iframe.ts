@@ -69,6 +69,18 @@ export function resolvePrintFontStack(fontId?: PrintFontId): string {
   return found ? found.cssStack : PRINT_FONT_OPTIONS[0].cssStack;
 }
 
+/**
+ * Normalize a print document title so browsers (Save as PDF) produce a clean,
+ * concise filename without OS-forbidden characters (`\ / : * ? " < > |`).
+ */
+export function sanitizePrintFilenameTitle(raw: string): string {
+  return raw
+    .replace(/[\\/:*?"<>|]+/g, " - ")
+    .replace(/\s+/g, " ")
+    .replace(/^(?:\s*-\s*)+|(?:\s*-\s*)+$/g, "")
+    .trim();
+}
+
 export interface PrintHtmlInIframeOptions {
   bodyHtml: string;
   title: string;
@@ -149,6 +161,10 @@ export async function printHtmlInIframe({
   iframe.style.visibility = "hidden";
 
   const headStyles = collectHeadStylesHtml();
+  const baseHref =
+    typeof window !== "undefined" && window.location?.href
+      ? `<base href="${window.location.href.replace(/"/g, "&quot;")}" />`
+      : "";
   const bwCss = colorMode === "bw" ? BW_INK_SAVING_CSS : "";
   const fontStack = resolvePrintFontStack(fontFamily);
   const fontCss = `
@@ -157,11 +173,13 @@ html, body, .a4-sheet, .reading-a4-sheet, [data-worksheet-surface="true"], .font
 }
 `;
 
+  const safeTitle = sanitizePrintFilenameTitle(title) || "ورقة-عمل";
   const docHtml = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8" />
-  <title>${title.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</title>
+  ${baseHref}
+  <title>${safeTitle.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</title>
   ${headStyles}
   <style>
     html, body {
@@ -179,9 +197,12 @@ html, body, .a4-sheet, .reading-a4-sheet, [data-worksheet-surface="true"], .font
 </body>
 </html>`;
 
+  const previousTitle = document.title;
+  document.title = safeTitle;
   document.body.appendChild(iframe);
 
   const cleanup = () => {
+    document.title = previousTitle;
     if (iframe.parentNode) {
       iframe.parentNode.removeChild(iframe);
     }
@@ -200,19 +221,52 @@ html, body, .a4-sheet, .reading-a4-sheet, [data-worksheet-surface="true"], .font
     doc.write(docHtml);
     doc.close();
 
-    // Wait briefly for font/style application on the new document
+    // Wait for all stylesheet <link> elements to finish loading before printing
+    const stylesheetLinks = Array.from(
+      doc.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]')
+    );
+    if (stylesheetLinks.length > 0) {
+      await Promise.race([
+        Promise.all(
+          stylesheetLinks.map((link) =>
+            link.sheet
+              ? Promise.resolve()
+              : new Promise<void>((resolve) => {
+                  link.addEventListener("load", () => resolve(), {
+                    once: true,
+                  });
+                  link.addEventListener("error", () => resolve(), {
+                    once: true,
+                  });
+                })
+          )
+        ),
+        new Promise<void>((r) => setTimeout(r, 5000)),
+      ]);
+    }
+
+    // Wait for font/style application on the new document
     await new Promise<void>((resolve) => {
       const fontsReady = (doc as Document & { fonts?: FontFaceSet }).fonts
         ?.ready;
       if (fontsReady && typeof fontsReady.then === "function") {
         Promise.race([
           fontsReady.then(() => undefined),
-          new Promise<void>((r) => setTimeout(r, 150)),
+          new Promise<void>((r) => setTimeout(r, 2000)),
         ]).then(resolve);
       } else {
         setTimeout(resolve, 30);
       }
     });
+
+    // Ensure layout has been computed with loaded styles before opening print dialog
+    if (typeof win.requestAnimationFrame === "function") {
+      await new Promise<void>((resolve) => {
+        win.requestAnimationFrame(() =>
+          win.requestAnimationFrame(() => resolve())
+        );
+      });
+    }
 
     win.addEventListener("afterprint", cleanup, { once: true });
     win.focus();

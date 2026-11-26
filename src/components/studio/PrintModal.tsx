@@ -15,6 +15,7 @@ import {
   type PrintScope,
   type PrintViewOption,
 } from "@/lib/print-html-iframe";
+import { sharePrintContent } from "@/lib/share-print";
 import { PrintDialogShell } from "@/components/print/PrintDialogShell";
 import { PrintFontSelector } from "@/components/print/PrintFontSelector";
 import { RefreshIcon } from "@/components/studio/icons";
@@ -61,6 +62,8 @@ export function PrintModal({
   );
   const [seedInput, setSeedInput] = useState<string>(bundle.seed);
   const [isPrinting, setIsPrinting] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
+  const [shareFeedback, setShareFeedback] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -112,7 +115,9 @@ export function PrintModal({
           '[data-worksheet-surface="true"]'
         );
         if (surface) {
-          const title = `${bundle.grade.labelAr} – الدرس ${lessonAr} – ${effectiveSeed}`;
+          const viewSuffix =
+            viewOption === "answer-key" ? " - نموذج الإجابة" : "";
+          const title = `أُسُس - ${bundle.grade.labelAr} - الدرس ${lessonAr} - ${bundle.lesson.titleAr}${viewSuffix} - ${effectiveSeed}`;
           await printHtmlInIframe({
             bodyHtml: surface.outerHTML,
             title,
@@ -149,6 +154,36 @@ export function PrintModal({
     }
   };
 
+  const handleShare = async () => {
+    if (isSharing || typeof window === "undefined") return;
+    setIsSharing(true);
+    try {
+      const origin = window.location.origin;
+      const effectiveSeed = seedInput.trim().toUpperCase() || bundle.seed;
+      const shareUrl =
+        scope === "unit"
+          ? `${origin}/math/${bundle.grade.id}`
+          : viewOption === "answer-key"
+            ? `${origin}/q/${bundle.grade.id}?lesson=${bundle.lesson.lessonNumber}&seed=${effectiveSeed}&difficulty=${difficulty}&view=answer-key`
+            : `${origin}/print?grade=${bundle.grade.id}&lesson=${bundle.lesson.lessonNumber}&seed=${effectiveSeed}&difficulty=${difficulty}&view=${viewOption === "both" ? "worksheet" : viewOption}`;
+      const shareTitle =
+        scope === "unit"
+          ? `أُسُس - ${bundle.grade.labelAr} - الوحدة ${unitAr}`
+          : `أُسُس - ${bundle.grade.labelAr} - الدرس ${lessonAr} - ${bundle.lesson.titleAr}`;
+      const result = await sharePrintContent({
+        title: shareTitle,
+        text: `${bundle.grade.labelAr} — الدرس ${lessonAr}: ${bundle.lesson.titleAr}`,
+        url: shareUrl,
+      });
+      if (result === "copied") {
+        setShareFeedback("تم نسخ الرابط ✓");
+        setTimeout(() => setShareFeedback(null), 2500);
+      }
+    } finally {
+      setIsSharing(false);
+    }
+  };
+
   return (
     <PrintDialogShell
       isOpen={isOpen}
@@ -159,8 +194,12 @@ export function PrintModal({
       accentHex={accentHex}
       isPrinting={isPrinting}
       onConfirm={handlePrintNow}
+      onShare={handleShare}
+      isSharing={isSharing}
+      shareFeedbackAr={shareFeedback}
       dialogDataAttr="data-print-modal"
       confirmDataAttr="data-print-confirm"
+      shareDataAttr="data-print-share"
     >
       {/* Scope: Lesson vs Unit */}
       <div>

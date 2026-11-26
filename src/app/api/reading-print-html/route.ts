@@ -91,10 +91,17 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   }
 
   const storyNumAr = toEasternArabicNumerals(currentStory.storyNumber);
+  const viewSuffix =
+    viewOption === "answer-key"
+      ? " - نموذج الإجابة"
+      : viewOption === "both"
+        ? " - أوراق العمل والإجابات"
+        : "";
+  const storyTitle = currentStory.titleAr ?? currentStory.title;
   const title =
     scope === "level"
-      ? `${level.titleAr} – كافة القصص`
-      : `${level.titleAr} – القصة ${storyNumAr}: ${currentStory.titleAr ?? currentStory.title}`;
+      ? `أُسُس - ${level.titleAr} - كافة القصص${viewSuffix}`
+      : `أُسُس - ${level.titleAr} - القصة ${storyNumAr} - ${storyTitle}${viewSuffix}`;
 
   return NextResponse.json({
     html: wrapPrintSheetsHtml(htmlSheets),

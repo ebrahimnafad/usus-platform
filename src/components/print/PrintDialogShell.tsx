@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { CloseIcon, PrinterIcon } from "@/components/studio/icons";
+import { CloseIcon, PrinterIcon, ShareIcon } from "@/components/studio/icons";
 
 export interface PrintDialogShellProps {
   isOpen: boolean;
@@ -13,8 +13,12 @@ export interface PrintDialogShellProps {
   isPrinting: boolean;
   printingLabelAr?: string;
   onConfirm: () => void;
+  onShare?: () => void;
+  isSharing?: boolean;
+  shareFeedbackAr?: string | null;
   dialogDataAttr?: string;
   confirmDataAttr?: string;
+  shareDataAttr?: string;
   children: React.ReactNode;
 }
 
@@ -32,8 +36,12 @@ export function PrintDialogShell({
   isPrinting,
   printingLabelAr = "جاري التجهيز...",
   onConfirm,
+  onShare,
+  isSharing = false,
+  shareFeedbackAr = null,
   dialogDataAttr,
   confirmDataAttr,
+  shareDataAttr,
   children,
 }: PrintDialogShellProps): React.ReactElement | null {
   useEffect(() => {
@@ -49,6 +57,7 @@ export function PrintDialogShell({
 
   const dialogProps = dialogDataAttr ? { [dialogDataAttr]: "true" } : {};
   const confirmProps = confirmDataAttr ? { [confirmDataAttr]: "true" } : {};
+  const shareProps = shareDataAttr ? { [shareDataAttr]: "true" } : {};
 
   return (
     <div
@@ -104,24 +113,40 @@ export function PrintDialogShell({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-2.5 border-t border-slate-100 bg-slate-50 px-5 py-3.5">
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-extrabold text-slate-700 transition-colors hover:bg-slate-100"
-          >
-            إلغاء
-          </button>
-          <button
-            type="button"
-            {...confirmProps}
-            disabled={isPrinting}
-            onClick={onConfirm}
-            className="flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2 text-xs font-extrabold text-white shadow-sm transition-colors hover:bg-emerald-700 disabled:opacity-50"
-          >
-            <PrinterIcon size={15} />
-            <span>{isPrinting ? printingLabelAr : "طباعة الآن"}</span>
-          </button>
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 bg-slate-50 px-5 py-3.5">
+          <div>
+            {onShare && (
+              <button
+                type="button"
+                {...shareProps}
+                disabled={isPrinting || isSharing}
+                onClick={onShare}
+                className="flex min-h-[44px] items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-extrabold text-slate-700 transition-colors hover:bg-slate-100 disabled:opacity-50 sm:min-h-0"
+              >
+                <ShareIcon size={15} />
+                <span>{shareFeedbackAr ?? "مشاركة"}</span>
+              </button>
+            )}
+          </div>
+          <div className="flex items-center gap-2.5">
+            <button
+              type="button"
+              onClick={onClose}
+              className="min-h-[44px] rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-extrabold text-slate-700 transition-colors hover:bg-slate-100 sm:min-h-0"
+            >
+              إلغاء
+            </button>
+            <button
+              type="button"
+              {...confirmProps}
+              disabled={isPrinting}
+              onClick={onConfirm}
+              className="flex min-h-[44px] items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2 text-xs font-extrabold text-white shadow-sm transition-colors hover:bg-emerald-700 disabled:opacity-50 sm:min-h-0"
+            >
+              <PrinterIcon size={15} />
+              <span>{isPrinting ? printingLabelAr : "طباعة الآن"}</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

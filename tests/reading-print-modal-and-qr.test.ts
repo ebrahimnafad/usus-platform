@@ -117,6 +117,10 @@ describe("Reading Print Modal, /api/reading-print-html, and Header QR Codes", ()
     expect(dataSingle.storyCount).toBe(1);
     expect(dataSingle.html).toContain('data-reading-view="student"');
     expect(dataSingle.html).toContain('data-reading-view="answer-key"');
+    expect(dataSingle.title).toBe(
+      "أُسُس - المستوى الأول - القصة ١ - عُصْفُورُ سَامِي - أوراق العمل والإجابات"
+    );
+    expect(dataSingle.title).not.toMatch(/[\\/:*?"<>|]/);
 
     const reqLevel = new NextRequest(
       "http://localhost:3000/api/reading-print-html?level=level-1&story=1&scope=level&viewOption=both&tashkeel=partial"
@@ -126,8 +130,13 @@ describe("Reading Print Modal, /api/reading-print-html, and Header QR Codes", ()
     const dataLevel = (await resLevel.json()) as {
       html: string;
       storyCount: number;
+      title: string;
     };
     expect(dataLevel.storyCount).toBe(level1.stories.length);
+    expect(dataLevel.title).toBe(
+      "أُسُس - المستوى الأول - كافة القصص - أوراق العمل والإجابات"
+    );
+    expect(dataLevel.title).not.toMatch(/[\\/:*?"<>|]/);
   });
 
   it("renders all 4 convenient Arabic print fonts inside ReadingPrintModal", () => {
@@ -147,5 +156,39 @@ describe("Reading Print Modal, /api/reading-print-html, and Header QR Codes", ()
       expect(html).toContain(`data-print-font="${opt.id}"`);
       expect(html).toContain(opt.labelAr);
     }
+  });
+
+  it("keeps self-assessment strip and footer inside a break-inside-avoid wrapper to prevent orphan footer pages", () => {
+    const level2 = getReadingLevel("level-2")!;
+    const story12 = getReadingStory("level-2", 12)!;
+    const html = renderToStaticMarkup(
+      React.createElement(PrintableReadingSheet, {
+        level: level2,
+        story: story12,
+        viewMode: "student",
+        alwaysVisible: true,
+      })
+    );
+
+    expect(html).toMatch(
+      /<div[^>]*class="[^"]*\bbreak-inside-avoid\b[^"]*"[^>]*>[\s\S]*?كيف أحسست بأدائي؟[\s\S]*?<footer[\s\S]*?منصة أُسُس التعليمية[\s\S]*?<\/footer>[\s\S]*?<\/div>/
+    );
+  });
+
+  it("renders a mobile-friendly Share button inside ReadingPrintModal", () => {
+    const html = renderToStaticMarkup(
+      React.createElement(ReadingPrintModal, {
+        isOpen: true,
+        onClose: () => {},
+        level: level1,
+        story: standardStory,
+        tashkeelMode: "full",
+        includeStoryText: true,
+      })
+    );
+
+    expect(html).toContain('data-reading-print-share="true"');
+    expect(html).toContain("مشاركة");
+    expect(html).toContain("min-h-[44px]");
   });
 });
