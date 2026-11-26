@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
-import { toEasternArabicNumerals } from "@/lib/numerals";
+import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
 import { READING_LEVEL_1, READING_LEVEL_2 } from "@/curriculum/reading-catalog";
 
 export const metadata = {
@@ -11,227 +11,338 @@ export const metadata = {
 
 export default function ReadingHubPage() {
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 pb-16" dir="rtl">
-      {/* Top Header & Breadcrumb */}
-      <header className="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-200 px-4 sm:px-8 py-3">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
+    <div
+      className="home-sky-bg min-h-screen text-slate-900 pb-16"
+      dir="rtl"
+      lang="ar"
+      data-reading-hub="true"
+    >
+      {/* ── Glassmorphic Topbar ── */}
+      <div className="sticky top-0 z-40 border-b border-slate-900/10 bg-white/75 backdrop-blur-md">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3">
             <Link
               href="/"
-              className="flex items-center gap-2 group focus:outline-none"
+              className="flex items-center gap-2.5 text-lg font-black text-slate-900 transition hover:opacity-85"
               title="العودة إلى بوابة أُسُس"
             >
-              <div className="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center text-white font-extrabold shadow-sm group-hover:bg-emerald-700 transition">
-                أُ
-              </div>
-              <span className="font-extrabold text-lg text-slate-800">
-                أُسُس
+              <span className="grid size-9 place-items-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 text-base text-white shadow-sm">
+                📚
               </span>
+              <span>أُسُس</span>
             </Link>
-            <span className="text-slate-300 font-bold">/</span>
+            <span className="font-bold text-slate-300">/</span>
             <Breadcrumbs
               segments={[
                 { label: "الرئيسية", href: "/" },
                 { label: "القراءة والفهم" },
               ]}
-              activeItemClassName="text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-lg border border-emerald-200"
-              linkClassName="hover:text-emerald-700 transition"
+              listClassName="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-slate-500"
+              activeItemClassName="text-emerald-700 font-extrabold"
+              linkClassName="hover:text-slate-900 transition"
+              separator={
+                <span
+                  className="select-none font-bold text-slate-300"
+                  aria-hidden="true"
+                >
+                  &gt;
+                </span>
+              }
             />
           </div>
-          <Link
-            href="/"
-            className="text-xs font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg transition"
+
+          <nav
+            aria-label="التنقل السريع"
+            className="flex items-center gap-2 text-xs font-bold"
           >
-            ← العودة للرئيسية
-          </Link>
+            <Link
+              href="/math"
+              className="rounded-full px-3.5 py-1.5 text-slate-600 transition hover:bg-indigo-500/10 hover:text-indigo-700"
+            >
+              الرياضيات
+            </Link>
+            <Link
+              href="/"
+              className="rounded-full border border-slate-900/10 bg-white px-3.5 py-1.5 text-slate-700 shadow-2xs transition hover:bg-slate-50"
+            >
+              ← الرئيسية
+            </Link>
+          </nav>
+        </div>
+      </div>
+
+      {/* ── Airy Hero ── */}
+      <header className="mx-auto max-w-4xl px-4 pt-9 pb-6 text-center sm:pt-12 sm:pb-8">
+        <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white px-4 py-1.5 text-xs font-extrabold text-emerald-700 shadow-sm">
+          <span aria-hidden="true">📖</span>
+          <span>نادي القراءة والفهم القرائي</span>
+          <span className="text-emerald-300">•</span>
+          <span>{formatEasternNumber(24)} دورة قصة</span>
+        </div>
+
+        <h1 className="mb-3 text-3xl font-black tracking-tight text-slate-950 sm:text-5xl">
+          <span className="bg-gradient-to-l from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+            نادي القراءة
+          </span>
+        </h1>
+
+        <p className="mx-auto max-w-2xl text-sm leading-relaxed font-medium text-slate-600 sm:text-base">
+          مسار منهجي متدرج وفق قاعدة الشرط الواحد لتطوير الفهم القرائي المستقل
+          من الطلاقة القرائية إلى الاستنتاج المركب.
+        </p>
+
+        <div className="mt-6 flex flex-wrap justify-center gap-3">
+          <div className="min-w-[108px] rounded-2xl border border-slate-900/10 bg-white/90 px-4 py-2 text-center shadow-xs">
+            <b className="block text-base font-black text-emerald-700">
+              {formatEasternNumber(3)}
+            </b>
+            <span className="text-[11px] font-semibold text-slate-500">
+              مستويات قرائية
+            </span>
+          </div>
+          <div className="min-w-[108px] rounded-2xl border border-slate-900/10 bg-white/90 px-4 py-2 text-center shadow-xs">
+            <b className="block text-base font-black text-teal-700">
+              {formatEasternNumber(24)}
+            </b>
+            <span className="text-[11px] font-semibold text-slate-500">
+              دورة قصة
+            </span>
+          </div>
+          <div className="min-w-[108px] rounded-2xl border border-slate-900/10 bg-white/90 px-4 py-2 text-center shadow-xs">
+            <b className="block text-base font-black text-sky-700">QAR</b>
+            <span className="text-[11px] font-semibold text-slate-500">
+              استراتيجية الفهم
+            </span>
+          </div>
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-8 pt-8">
-        {/* Diagnostic Banner */}
-        <section className="mb-10 rounded-2xl bg-gradient-to-r from-emerald-900 to-teal-800 text-white p-6 sm:p-8 shadow-md border border-emerald-700/50 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div className="space-y-2 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-200 text-xs font-bold border border-emerald-400/30">
-              <span>🎯</span>
-              <span>تحديد نقطة الانطلاق المناسبة للمتعلم</span>
-            </div>
-            <h2 className="text-xl sm:text-2xl font-extrabold">
-              أداة تهيئة نقطة البداية وتشخيص الاستيعاب
-            </h2>
-            <p className="text-emerald-100/90 text-sm leading-relaxed">
-              استبيان استرشادي سريع ومحدد من {toEasternArabicNumerals(6)} أسئلة
-              للمربي وولي الأمر لتقييم التوازن بين الطلاقة القرائية والفهم
-              السمعي، وتحديد المستوى الأمثل لبدء دورة القصة.
-            </p>
-          </div>
-          <Link
-            href="/reading/diagnostic"
-            className="shrink-0 inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl bg-white text-emerald-950 font-extrabold text-sm hover:bg-emerald-50 transition shadow-sm"
+      <main className="mx-auto max-w-6xl px-4 pt-2 sm:px-6">
+        {/* ── Diagnostic Banner ── */}
+        <section className="mb-10 overflow-hidden rounded-[32px] bg-white shadow-[0_24px_48px_-24px_rgba(5,150,105,0.25)] border border-white/80">
+          {/* Pastel art header */}
+          <div
+            className="relative flex items-center justify-between gap-4 px-6 pt-6 pb-10 sm:px-8"
+            style={{
+              background:
+                "radial-gradient(circle at 20% 50%, #D1FAE5, #A7F3D0, #ECFDF5)",
+            }}
           >
-            <span>بدء الاستبيان التشخيصي</span>
-            <span>←</span>
-          </Link>
+            <div className="space-y-2 max-w-2xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-800 text-xs font-black">
+                <span>🎯</span>
+                <span>تحديد نقطة الانطلاق المناسبة</span>
+              </div>
+              <h2 className="text-xl sm:text-2xl font-black text-emerald-950">
+                أداة تهيئة نقطة البداية وتشخيص الاستيعاب
+              </h2>
+              <p className="text-emerald-800/80 text-sm leading-relaxed font-medium">
+                استبيان استرشادي سريع من {toEasternArabicNumerals(6)} أسئلة
+                للمربي وولي الأمر لتقييم التوازن بين الطلاقة القرائية والفهم
+                السمعي.
+              </p>
+            </div>
+            <span className="text-5xl hidden sm:block" aria-hidden="true">
+              🔍
+            </span>
+          </div>
+
+          {/* Curved-lip body */}
+          <div className="home-card-lip relative bg-white px-6 pt-1 pb-6 sm:px-8">
+            <Link
+              href="/reading/diagnostic"
+              className="mt-4 inline-flex items-center gap-2.5 rounded-full bg-emerald-600 px-6 py-3 text-sm font-black text-white shadow-[0_12px_22px_-10px_rgba(5,150,105,0.7)] transition hover:-translate-y-0.5 hover:bg-emerald-700"
+            >
+              <span>بدء الاستبيان التشخيصي</span>
+              <span aria-hidden="true">←</span>
+            </Link>
+          </div>
         </section>
 
-        {/* Section Heading */}
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-black text-slate-900">
-              مستويات نادي القراءة والفهم
-            </h1>
-            <p className="text-sm text-slate-500 font-medium mt-1">
-              مسار منهجي متدرج وفق قاعدة الشرط الواحد لتطوير الفهم القرائي
-              المستقل
-            </p>
-          </div>
+        {/* ── Levels Grid ── */}
+        <div className="mb-6">
+          <h2 className="text-2xl font-black text-slate-900">
+            مستويات نادي القراءة والفهم
+          </h2>
+          <p className="text-sm text-slate-500 font-medium mt-1">
+            مسار منهجي متدرج وفق قاعدة الشرط الواحد
+          </p>
         </div>
 
-        {/* Levels Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Level 1: Active */}
-          <div className="rounded-2xl bg-white border-2 border-emerald-500 p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between relative overflow-hidden">
-            <div className="absolute top-0 right-0 left-0 h-2 bg-emerald-500" />
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold">
-                  <span>📖</span>
-                  <span>المستوى النشط</span>
+          {/* ── Level 1: Active ── */}
+          <div className="group relative flex flex-col overflow-hidden rounded-[32px] border border-white/80 bg-white shadow-[0_24px_48px_-24px_rgba(5,150,105,0.35)] transition-all duration-300 hover:border-emerald-300 hover:shadow-[0_32px_60px_-24px_rgba(5,150,105,0.35)] hover:-translate-y-1">
+            {/* Pastel art header */}
+            <div
+              className="relative flex h-40 w-full flex-col justify-between overflow-hidden rounded-t-[32px] px-5 pt-4 pb-8"
+              style={{
+                background:
+                  "radial-gradient(circle at 50% 40%, #D1FAE5, #E2EEF6)",
+              }}
+            >
+              <div className="relative z-10 flex items-center justify-between gap-2">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500 px-3.5 py-1 text-xs font-black text-white shadow-xs">
+                  المستوى الأول
                 </span>
-                <span className="text-xs font-bold text-slate-400">
-                  {`${toEasternArabicNumerals(12)} دورة قصة`}
-                </span>
+                <div className="inline-flex items-center gap-1 rounded-full bg-white/90 px-3 py-1 text-[11px] font-extrabold text-slate-700 shadow-2xs">
+                  <span>{`${toEasternArabicNumerals(12)} دورة قصة`}</span>
+                </div>
               </div>
-              <h3 className="text-xl font-extrabold text-slate-900 mb-1">
-                {READING_LEVEL_1.titleAr}
-              </h3>
-              <p className="text-sm font-bold text-emerald-700 mb-3">
-                {READING_LEVEL_1.subtitleAr}
-              </p>
-              <p className="text-xs text-slate-600 leading-relaxed mb-6">
-                {READING_LEVEL_1.descriptionAr}
-              </p>
-
-              <div className="space-y-2 border-t border-slate-100 pt-4 mb-6">
-                <div className="flex items-center justify-between text-xs font-bold text-slate-600">
-                  <span>طول النصوص:</span>
-                  <span className="text-slate-800">
-                    {toEasternArabicNumerals(50)}–{toEasternArabicNumerals(75)}{" "}
-                    كلمة
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-xs font-bold text-slate-600">
-                  <span>التركيز النحوي:</span>
-                  <span className="text-slate-800">
-                    الجملة الفعلية والروابط
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-xs font-bold text-slate-600">
-                  <span>استراتيجية الفهم:</span>
-                  <span className="text-slate-800">
-                    أسئلة الفهم الثلاثية QAR
-                  </span>
-                </div>
+              <div className="relative z-10 flex flex-1 items-center justify-center pt-2 text-4xl">
+                📗
               </div>
             </div>
 
-            <Link
-              href="/reading/level/level-1"
-              className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-emerald-600 text-white font-extrabold text-sm hover:bg-emerald-700 transition shadow-sm"
-            >
-              <span>دخول قصص المستوى</span>
-              <span>←</span>
-            </Link>
+            {/* Curved-lip body */}
+            <div className="home-card-lip relative flex flex-1 flex-col justify-between bg-white px-6 pt-1 pb-6">
+              <div>
+                <h3 className="mb-1.5 text-xl font-black text-emerald-950">
+                  {READING_LEVEL_1.titleAr}
+                </h3>
+                <p className="mb-1 text-sm font-bold text-emerald-700">
+                  {READING_LEVEL_1.subtitleAr}
+                </p>
+                <p className="mb-4 line-clamp-2 text-xs leading-relaxed font-semibold text-slate-600">
+                  {READING_LEVEL_1.descriptionAr}
+                </p>
+                <div className="space-y-1.5 border-t border-slate-100 pt-3 mb-5 text-xs font-bold text-slate-600">
+                  <div className="flex items-center justify-between">
+                    <span>طول النصوص:</span>
+                    <span className="text-slate-800">
+                      {toEasternArabicNumerals(50)}–
+                      {toEasternArabicNumerals(75)} كلمة
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>استراتيجية الفهم:</span>
+                    <span className="text-slate-800">أسئلة QAR الثلاثية</span>
+                  </div>
+                </div>
+              </div>
+              <Link
+                href="/reading/level/level-1"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-5 py-3 text-xs font-black text-white shadow-[0_12px_22px_-10px_rgba(5,150,105,0.7)] transition hover:-translate-y-0.5 hover:bg-emerald-700 sm:text-sm"
+              >
+                <span>دخول قصص المستوى</span>
+                <span aria-hidden="true" className="text-base leading-none">
+                  ←
+                </span>
+              </Link>
+            </div>
           </div>
 
-          {/* Level 2: Active */}
-          <div className="rounded-2xl bg-white border-2 border-emerald-500 p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between relative overflow-hidden">
-            <div className="absolute top-0 right-0 left-0 h-2 bg-emerald-500" />
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold">
-                  <span>📖</span>
-                  <span>المستوى النشط</span>
+          {/* ── Level 2: Active ── */}
+          <div className="group relative flex flex-col overflow-hidden rounded-[32px] border border-white/80 bg-white shadow-[0_24px_48px_-24px_rgba(5,150,105,0.35)] transition-all duration-300 hover:border-teal-300 hover:shadow-[0_32px_60px_-24px_rgba(20,184,166,0.35)] hover:-translate-y-1">
+            {/* Pastel art header */}
+            <div
+              className="relative flex h-40 w-full flex-col justify-between overflow-hidden rounded-t-[32px] px-5 pt-4 pb-8"
+              style={{
+                background:
+                  "radial-gradient(circle at 50% 40%, #CCFBF1, #E2EEF6)",
+              }}
+            >
+              <div className="relative z-10 flex items-center justify-between gap-2">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-500 px-3.5 py-1 text-xs font-black text-white shadow-xs">
+                  المستوى الثاني
                 </span>
-                <span className="text-xs font-bold text-slate-400">
-                  {`${toEasternArabicNumerals(READING_LEVEL_2.stories.length)} دورة قصة`}
-                </span>
+                <div className="inline-flex items-center gap-1 rounded-full bg-white/90 px-3 py-1 text-[11px] font-extrabold text-slate-700 shadow-2xs">
+                  <span>{`${toEasternArabicNumerals(READING_LEVEL_2.stories.length)} دورة قصة`}</span>
+                </div>
               </div>
-              <h3 className="text-xl font-extrabold text-slate-900 mb-1">
-                {READING_LEVEL_2.titleAr}
-              </h3>
-              <p className="text-sm font-bold text-emerald-700 mb-3">
-                {READING_LEVEL_2.subtitleAr}
-              </p>
-              <p className="text-xs text-slate-600 leading-relaxed mb-6">
-                {READING_LEVEL_2.descriptionAr}
-              </p>
-
-              <div className="space-y-2 border-t border-slate-100 pt-4 mb-6">
-                <div className="flex items-center justify-between text-xs font-bold text-slate-600">
-                  <span>طول النصوص:</span>
-                  <span className="text-slate-800">
-                    {toEasternArabicNumerals(
-                      READING_LEVEL_2.targetWordCount.min
-                    )}
-                    –
-                    {toEasternArabicNumerals(
-                      READING_LEVEL_2.targetWordCount.max
-                    )}{" "}
-                    كلمة
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-xs font-bold text-slate-600">
-                  <span>التركيز النحوي:</span>
-                  <span className="text-slate-800">
-                    الضمائر والظروف والعطف والنفي
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-xs font-bold text-slate-600">
-                  <span>التشكيل الافتراضي:</span>
-                  <span className="text-slate-800">تشكيل جزئي متدرج</span>
-                </div>
+              <div className="relative z-10 flex flex-1 items-center justify-center pt-2 text-4xl">
+                📘
               </div>
             </div>
 
-            <Link
-              href="/reading/level/level-2"
-              className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-emerald-600 text-white font-extrabold text-sm hover:bg-emerald-700 transition shadow-sm"
-            >
-              <span>دخول قصص المستوى</span>
-              <span>←</span>
-            </Link>
+            {/* Curved-lip body */}
+            <div className="home-card-lip relative flex flex-1 flex-col justify-between bg-white px-6 pt-1 pb-6">
+              <div>
+                <h3 className="mb-1.5 text-xl font-black text-teal-950">
+                  {READING_LEVEL_2.titleAr}
+                </h3>
+                <p className="mb-1 text-sm font-bold text-teal-700">
+                  {READING_LEVEL_2.subtitleAr}
+                </p>
+                <p className="mb-4 line-clamp-2 text-xs leading-relaxed font-semibold text-slate-600">
+                  {READING_LEVEL_2.descriptionAr}
+                </p>
+                <div className="space-y-1.5 border-t border-slate-100 pt-3 mb-5 text-xs font-bold text-slate-600">
+                  <div className="flex items-center justify-between">
+                    <span>طول النصوص:</span>
+                    <span className="text-slate-800">
+                      {toEasternArabicNumerals(
+                        READING_LEVEL_2.targetWordCount.min
+                      )}
+                      –
+                      {toEasternArabicNumerals(
+                        READING_LEVEL_2.targetWordCount.max
+                      )}{" "}
+                      كلمة
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>التشكيل:</span>
+                    <span className="text-slate-800">تشكيل جزئي متدرج</span>
+                  </div>
+                </div>
+              </div>
+              <Link
+                href="/reading/level/level-2"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-teal-600 px-5 py-3 text-xs font-black text-white shadow-[0_12px_22px_-10px_rgba(20,184,166,0.7)] transition hover:-translate-y-0.5 hover:bg-teal-700 sm:text-sm"
+              >
+                <span>دخول قصص المستوى</span>
+                <span aria-hidden="true" className="text-base leading-none">
+                  ←
+                </span>
+              </Link>
+            </div>
           </div>
 
-          {/* Level 3: Preview */}
-          <div className="rounded-2xl bg-white border border-slate-200 p-6 opacity-85 flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-bold">
-                  <span>⏳</span>
-                  <span>قريباً</span>
-                </span>
-                <span className="text-xs font-bold text-slate-400">
-                  {`${toEasternArabicNumerals(12)} دورة قصة`}
-                </span>
-              </div>
-              <h3 className="text-xl font-extrabold text-slate-800 mb-1">
-                المستوى الثالث
-              </h3>
-              <p className="text-sm font-bold text-slate-500 mb-3">
-                النصوص الوصفية والاستنتاج المركب
-              </p>
-              <p className="text-xs text-slate-500 leading-relaxed mb-6">
-                قراءة نصوص متنوعة ({toEasternArabicNumerals(100)}–
-                {toEasternArabicNumerals(130)} كلمة) تعتمد على استخلاص الأفكار
-                الرئيسة والتعبير البديل.
-              </p>
-            </div>
-            <button
-              disabled
-              className="w-full py-3 px-4 rounded-xl bg-slate-100 text-slate-400 font-extrabold text-xs cursor-not-allowed"
+          {/* ── Level 3: Preview ── */}
+          <div className="group relative flex flex-col overflow-hidden rounded-[32px] border border-slate-200/80 bg-white/70 opacity-80 shadow-[0_16px_32px_-16px_rgba(30,60,100,0.15)]">
+            {/* Pastel art header */}
+            <div
+              className="relative flex h-40 w-full flex-col justify-between overflow-hidden rounded-t-[32px] px-5 pt-4 pb-8"
+              style={{
+                background:
+                  "radial-gradient(circle at 50% 40%, #F1F5F9, #E2EEF6)",
+              }}
             >
-              قيد الإعداد المنهجي
-            </button>
+              <div className="relative z-10 flex items-center justify-between gap-2">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-400 px-3.5 py-1 text-xs font-black text-white shadow-xs">
+                  المستوى الثالث
+                </span>
+                <div className="inline-flex items-center gap-1 rounded-full bg-white/90 px-3 py-1 text-[11px] font-extrabold text-slate-500 shadow-2xs">
+                  <span>{`${toEasternArabicNumerals(12)} دورة قصة`}</span>
+                </div>
+              </div>
+              <div className="relative z-10 flex flex-1 items-center justify-center pt-2 text-4xl opacity-50">
+                📙
+              </div>
+            </div>
+
+            {/* Curved-lip body */}
+            <div className="home-card-lip relative flex flex-1 flex-col justify-between bg-white/80 px-6 pt-1 pb-6">
+              <div>
+                <h3 className="mb-1.5 text-xl font-black text-slate-700">
+                  المستوى الثالث
+                </h3>
+                <p className="mb-1 text-sm font-bold text-slate-500">
+                  النصوص الوصفية والاستنتاج المركب
+                </p>
+                <p className="mb-4 text-xs leading-relaxed font-semibold text-slate-400">
+                  قراءة نصوص متنوعة ({toEasternArabicNumerals(100)}–
+                  {toEasternArabicNumerals(130)} كلمة) تعتمد على استخلاص الأفكار
+                  الرئيسة والتعبير البديل.
+                </p>
+              </div>
+              <button
+                disabled
+                className="inline-flex w-full items-center justify-center rounded-full bg-slate-100 px-5 py-3 text-xs font-black text-slate-400 cursor-not-allowed sm:text-sm"
+              >
+                <span>⏳ قيد الإعداد المنهجي</span>
+              </button>
+            </div>
           </div>
         </div>
       </main>

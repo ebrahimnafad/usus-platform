@@ -17,10 +17,10 @@ export default async function ReadingLevelGridPage({ params }: Props) {
   if (!level) {
     return (
       <div
-        className="min-h-screen bg-slate-50 flex items-center justify-center p-6"
+        className="home-sky-bg min-h-screen flex items-center justify-center p-6"
         dir="rtl"
       >
-        <div className="bg-white rounded-2xl p-8 max-w-md w-full text-center border border-slate-200 shadow-sm">
+        <div className="bg-white rounded-[32px] p-8 max-w-md w-full text-center border border-white/80 shadow-[0_24px_48px_-24px_rgba(30,60,100,0.25)]">
           <div className="w-16 h-16 bg-amber-100 text-amber-700 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl font-black">
             !
           </div>
@@ -32,7 +32,7 @@ export default async function ReadingLevelGridPage({ params }: Props) {
           </p>
           <Link
             href="/reading"
-            className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-emerald-600 text-white font-extrabold text-sm hover:bg-emerald-700 transition"
+            className="inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-emerald-600 text-white font-extrabold text-sm hover:bg-emerald-700 transition"
           >
             ← العودة لمستويات القراءة
           </Link>
@@ -41,168 +41,236 @@ export default async function ReadingLevelGridPage({ params }: Props) {
     );
   }
 
+  const levelColor =
+    level.id === "level-2"
+      ? {
+          badge: "bg-teal-500",
+          activeBadge: "text-teal-700 font-extrabold",
+          art: "radial-gradient(circle at 50% 40%, #CCFBF1, #DCEAF5)",
+          button:
+            "bg-teal-600 hover:bg-teal-700 shadow-[0_12px_22px_-10px_rgba(20,184,166,0.7)]",
+          pill: "text-teal-700",
+          border: "border-teal-200",
+          hover: "hover:border-teal-400",
+        }
+      : {
+          badge: "bg-emerald-500",
+          activeBadge: "text-emerald-700 font-extrabold",
+          art: "radial-gradient(circle at 50% 40%, #D1FAE5, #DCEAF5)",
+          button:
+            "bg-emerald-600 hover:bg-emerald-700 shadow-[0_12px_22px_-10px_rgba(5,150,105,0.7)]",
+          pill: "text-emerald-700",
+          border: "border-emerald-200",
+          hover: "hover:border-emerald-400",
+        };
+
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 pb-20" dir="rtl">
-      {/* Top Header & Breadcrumb */}
-      <header className="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-200 px-4 sm:px-8 py-3">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
+    <div
+      className="home-sky-bg min-h-screen text-slate-900 pb-20"
+      dir="rtl"
+      lang="ar"
+    >
+      {/* ── Glassmorphic Topbar ── */}
+      <div className="sticky top-0 z-40 border-b border-slate-900/10 bg-white/75 backdrop-blur-md">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3">
             <Link
               href="/"
-              className="flex items-center gap-2 group focus:outline-none"
+              className="flex items-center gap-2.5 text-lg font-black text-slate-900 transition hover:opacity-85"
               title="العودة إلى بوابة أُسُس"
             >
-              <div className="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center text-white font-extrabold shadow-sm group-hover:bg-emerald-700 transition">
-                أُ
-              </div>
-              <span className="font-extrabold text-lg text-slate-800">
-                أُسُس
+              <span className="grid size-9 place-items-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 text-base text-white shadow-sm">
+                📚
               </span>
+              <span>أُسُس</span>
             </Link>
-            <span className="text-slate-300 font-bold">/</span>
+            <span className="font-bold text-slate-300">/</span>
             <Breadcrumbs
               segments={[
                 { label: "الرئيسية", href: "/" },
                 { label: "القراءة", href: "/reading" },
                 { label: level.titleAr },
               ]}
-              activeItemClassName="text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-lg border border-emerald-200"
-              linkClassName="hover:text-emerald-700 transition"
+              listClassName="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-slate-500"
+              activeItemClassName={levelColor.activeBadge}
+              linkClassName="hover:text-slate-900 transition"
+              separator={
+                <span
+                  className="select-none font-bold text-slate-300"
+                  aria-hidden="true"
+                >
+                  &gt;
+                </span>
+              }
             />
           </div>
+
           <Link
             href="/reading"
-            className="text-xs font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg transition"
+            className="rounded-full border border-slate-900/10 bg-white px-3.5 py-1.5 text-xs font-bold text-slate-700 shadow-2xs transition hover:bg-slate-50"
           >
             ← كافة المستويات
           </Link>
         </div>
-      </header>
+      </div>
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-8 pt-8">
-        {/* Level Overview Banner */}
-        <section className="mb-8 bg-white border border-emerald-200 rounded-2xl p-6 sm:p-8 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold">
-              <span>📚</span>
-              <span>{level.titleAr}</span>
-              <span>•</span>
-              <span>{level.subtitleAr}</span>
+      <main className="mx-auto max-w-6xl px-4 pt-6 sm:px-6 sm:pt-8">
+        {/* ── Level Overview Banner ── */}
+        <section className="mb-10 overflow-hidden rounded-[32px] bg-white shadow-[0_24px_48px_-24px_rgba(5,150,105,0.25)] border border-white/80">
+          {/* Pastel art header */}
+          <div
+            className="relative flex flex-col md:flex-row md:items-center justify-between gap-6 px-6 pt-6 pb-10 sm:px-8"
+            style={{ background: levelColor.art }}
+          >
+            <div className="space-y-2 max-w-2xl">
+              <div
+                className={`inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/60 text-xs font-black ${levelColor.pill}`}
+              >
+                <span>📚</span>
+                <span>{level.titleAr}</span>
+                <span className="text-slate-300">•</span>
+                <span>{level.subtitleAr}</span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-900">
+                شبكة دورات القراءة (
+                {toEasternArabicNumerals(level.stories.length)} دورة)
+              </h1>
+              <p className="text-slate-700 text-sm leading-relaxed font-medium">
+                {level.descriptionAr}
+              </p>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900">
-              شبكة دورات القراءة (
-              {toEasternArabicNumerals(level.stories.length)} دورة)
-            </h1>
-            <p className="text-slate-600 text-sm leading-relaxed">
-              {level.descriptionAr}
-            </p>
+            <div className="flex flex-wrap gap-2 text-xs font-bold shrink-0">
+              <div className="bg-white/70 backdrop-blur-sm rounded-2xl border border-white/80 px-4 py-2 text-center shadow-xs">
+                <span className="text-slate-400 block mb-0.5 text-[11px]">
+                  طول النص
+                </span>
+                <span className="text-slate-800 font-black">
+                  {toEasternArabicNumerals(level.targetWordCount.min)}–
+                  {toEasternArabicNumerals(level.targetWordCount.max)} كلمة
+                </span>
+              </div>
+              <div className="bg-white/70 backdrop-blur-sm rounded-2xl border border-white/80 px-4 py-2 text-center shadow-xs">
+                <span className="text-slate-400 block mb-0.5 text-[11px]">
+                  الدورات الحرة
+                </span>
+                <span className="text-amber-700 font-black">دورتان 🌟</span>
+              </div>
+              <div className="bg-white/70 backdrop-blur-sm rounded-2xl border border-white/80 px-4 py-2 text-center shadow-xs">
+                <span className="text-slate-400 block mb-0.5 text-[11px]">
+                  اختبارات النقل
+                </span>
+                <span className="text-indigo-700 font-black">دورتان 🎯</span>
+              </div>
+            </div>
           </div>
-          <div className="flex flex-wrap gap-2 text-xs font-bold shrink-0">
-            <div className="bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2">
-              <span className="text-slate-400 block mb-0.5">طول النص</span>
-              <span className="text-slate-800">
-                {toEasternArabicNumerals(level.targetWordCount.min)}–
-                {toEasternArabicNumerals(level.targetWordCount.max)} كلمة
-              </span>
-            </div>
-            <div className="bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2">
-              <span className="text-slate-400 block mb-0.5">الدورات الحرة</span>
-              <span className="text-amber-700">دورتان 🌟</span>
-            </div>
-            <div className="bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2">
-              <span className="text-slate-400 block mb-0.5">
-                اختبارات النقل
-              </span>
-              <span className="text-indigo-700">دورتان 🎯</span>
-            </div>
-          </div>
+
+          {/* Curved-lip body — empty, just the lip */}
+          <div className="home-card-lip relative bg-white h-4" />
         </section>
 
-        {/* Stories Grid */}
+        {/* ── Stories Grid ── */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {level.stories.map((story) => {
             const isFreeReading = story.type === "free_reading";
             const isTransferTest = story.type === "transfer_test";
 
-            let cardBorder = "border-slate-200 hover:border-emerald-400";
-            let badgeBg = "bg-emerald-50 text-emerald-800 border-emerald-200";
-            let badgeText = "دورة قياسية";
+            let cardStyle = {
+              border: "border-slate-200",
+              hover: `${levelColor.hover}`,
+              badgeBg: `bg-emerald-50 text-emerald-800 border-emerald-200`,
+              badgeText: "دورة قياسية",
+              artBg: levelColor.art,
+            };
 
             if (isFreeReading) {
-              cardBorder =
-                "border-amber-300 bg-amber-50/30 hover:border-amber-500";
-              badgeBg = "bg-amber-100 text-amber-900 border-amber-300";
-              badgeText = "🌟 قراءة حرة للمتعة";
+              cardStyle = {
+                border: "border-amber-200",
+                hover: "hover:border-amber-400",
+                badgeBg: "bg-amber-100 text-amber-900 border-amber-300",
+                badgeText: "🌟 قراءة حرة للمتعة",
+                artBg:
+                  "radial-gradient(circle at 50% 30%, #FEF3C7, #FDE68A33, #FFFFFF)",
+              };
             } else if (isTransferTest) {
-              cardBorder =
-                "border-indigo-300 bg-indigo-50/20 hover:border-indigo-500";
-              badgeBg = "bg-indigo-100 text-indigo-900 border-indigo-300";
-              badgeText = "🎯 اختبار النقل";
+              cardStyle = {
+                border: "border-indigo-200",
+                hover: "hover:border-indigo-400",
+                badgeBg: "bg-indigo-100 text-indigo-900 border-indigo-300",
+                badgeText: "🎯 اختبار النقل",
+                artBg:
+                  "radial-gradient(circle at 50% 30%, #EDE9FE, #DDD6FE33, #FFFFFF)",
+              };
             }
 
             return (
               <Link
                 key={story.id}
                 href={`/reading/level/${level.id}/story/${story.storyNumber}`}
-                className={`group rounded-2xl bg-white border p-5 shadow-xs hover:shadow-md transition flex flex-col justify-between ${cardBorder}`}
+                className={`group relative flex flex-col overflow-hidden rounded-[32px] border bg-white shadow-[0_16px_32px_-16px_rgba(30,60,100,0.2)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_48px_-20px_rgba(30,60,100,0.3)] ${cardStyle.border} ${cardStyle.hover}`}
               >
-                <div>
-                  {/* Top Bar: Story Number & Badge */}
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="w-8 h-8 rounded-xl bg-slate-100 text-slate-700 text-xs font-black flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition">
-                      {toEasternArabicNumerals(story.storyNumber)}
-                    </span>
-                    <span
-                      className={`text-[11px] font-extrabold px-2.5 py-0.5 rounded-lg border ${badgeBg}`}
-                    >
-                      {badgeText}
-                    </span>
-                  </div>
-
-                  {/* Title */}
-                  <h3 className="text-lg font-black text-slate-900 group-hover:text-emerald-700 transition mb-2">
-                    {story.titleAr}
-                  </h3>
-
-                  {/* Metadata */}
-                  <div className="space-y-1.5 text-xs text-slate-500 mb-4">
-                    <div className="flex items-center justify-between">
-                      <span>عدد الكلمات:</span>
-                      <span className="font-bold text-slate-700">
-                        {toEasternArabicNumerals(story.wordCount)} كلمة
-                      </span>
-                    </div>
-                    {story.grammarDiscovery && (
-                      <div className="flex items-center justify-between">
-                        <span>معمل النحو:</span>
-                        <span className="font-bold text-emerald-700">
-                          {story.grammarDiscovery.targetRule}
-                        </span>
-                      </div>
-                    )}
-                    {story.theme && (
-                      <div className="flex items-center justify-between">
-                        <span>المجال:</span>
-                        <span className="font-bold text-slate-600">
-                          {story.theme}
-                        </span>
-                      </div>
-                    )}
-                  </div>
+                {/* Mini art header */}
+                <div
+                  className="relative flex h-20 w-full items-center justify-between overflow-hidden rounded-t-[32px] px-5 pt-3 pb-6"
+                  style={{ background: cardStyle.artBg }}
+                >
+                  <span className="w-9 h-9 rounded-xl bg-white/80 text-slate-700 text-sm font-black flex items-center justify-center shadow-xs group-hover:bg-emerald-600 group-hover:text-white transition">
+                    {toEasternArabicNumerals(story.storyNumber)}
+                  </span>
+                  <span
+                    className={`text-[11px] font-extrabold px-2.5 py-0.5 rounded-lg border ${cardStyle.badgeBg}`}
+                  >
+                    {cardStyle.badgeText}
+                  </span>
                 </div>
 
-                {/* Card CTA Footer */}
-                <div className="border-t border-slate-100 pt-3 flex items-center justify-between text-xs font-bold text-emerald-700 group-hover:text-emerald-800">
-                  <span>
-                    {isFreeReading
-                      ? "دخول ركن القراءة"
-                      : isTransferTest
-                        ? "بدء اختبار النقل"
-                        : "بدء دورة القصة"}
-                  </span>
-                  <span className="group-hover:-translate-x-1 transition-transform">
-                    ←
-                  </span>
+                {/* Curved-lip card body */}
+                <div className="home-card-lip relative flex flex-1 flex-col justify-between bg-white px-5 pt-1 pb-5">
+                  <div>
+                    <h3
+                      className={`text-base font-black text-slate-900 group-hover:${levelColor.pill} transition mb-2`}
+                    >
+                      {story.titleAr}
+                    </h3>
+                    <div className="space-y-1 text-xs text-slate-500 mb-4 font-bold">
+                      <div className="flex items-center justify-between">
+                        <span>عدد الكلمات:</span>
+                        <span className="text-slate-700">
+                          {toEasternArabicNumerals(story.wordCount)} كلمة
+                        </span>
+                      </div>
+                      {story.grammarDiscovery && (
+                        <div className="flex items-center justify-between">
+                          <span>معمل النحو:</span>
+                          <span className={`font-bold ${levelColor.pill}`}>
+                            {story.grammarDiscovery.targetRule}
+                          </span>
+                        </div>
+                      )}
+                      {story.theme && (
+                        <div className="flex items-center justify-between">
+                          <span>المجال:</span>
+                          <span className="font-bold text-slate-600">
+                            {story.theme}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div
+                    className={`border-t border-slate-100 pt-3 flex items-center justify-between text-xs font-bold ${levelColor.pill}`}
+                  >
+                    <span>
+                      {isFreeReading
+                        ? "دخول ركن القراءة"
+                        : isTransferTest
+                          ? "بدء اختبار النقل"
+                          : "بدء دورة القصة"}
+                    </span>
+                    <span className="group-hover:-translate-x-1 transition-transform">
+                      ←
+                    </span>
+                  </div>
                 </div>
               </Link>
             );
