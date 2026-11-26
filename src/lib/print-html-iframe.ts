@@ -136,12 +136,15 @@ const CAPTURE_PRINT_PARITY_CSS = `
 }
 .a4-sheet,
 .reading-a4-sheet {
-  width: 794px !important;
-  min-height: 1123px !important;
-  padding: 10mm !important;
+  width: 718px !important;
+  min-height: 0 !important;
+  padding: 0 !important;
   margin: 0 !important;
   border: 0 !important;
   box-shadow: none !important;
+}
+.a4-sheet[data-worksheet-surface="true"] > [data-worksheet-footer="true"] {
+  display: none !important;
 }
 .a4-sheet[data-worksheet-surface="true"] [data-section-id] {
   border: 0 !important;
@@ -150,6 +153,73 @@ const CAPTURE_PRINT_PARITY_CSS = `
   background: transparent !important;
 }
 `;
+
+export interface PageBreakBlock {
+  top: number;
+  bottom: number;
+  keepWithNext?: boolean;
+}
+
+export interface PageSliceRange {
+  startY: number;
+  endY: number;
+}
+
+/**
+ * Partition a tall rendered sheet into A4-height slices without cutting through
+ * indivisible blocks (`break-inside: avoid`) or orphaning section headers.
+ */
+export function computeSmartPageSlices(
+  totalHeightPx: number,
+  maxPageHeightPx: number,
+  blocks: readonly PageBreakBlock[]
+): PageSliceRange[] {
+  if (totalHeightPx <= 0 || maxPageHeightPx <= 0) {
+    return [];
+  }
+  if (totalHeightPx <= maxPageHeightPx * 1.02) {
+    return [{ startY: 0, endY: totalHeightPx }];
+  }
+
+  const slices: PageSliceRange[] = [];
+  let startY = 0;
+
+  while (startY < totalHeightPx) {
+    const idealEnd = startY + maxPageHeightPx;
+    if (idealEnd >= totalHeightPx) {
+      slices.push({ startY, endY: totalHeightPx });
+      break;
+    }
+
+    let cutY = idealEnd;
+    for (const block of blocks) {
+      if (block.top > startY + 24 && block.top < cutY && block.bottom > cutY) {
+        cutY = Math.max(startY + 24, Math.floor(block.top) - 4);
+      }
+    }
+
+    // Avoid orphaning a section header right at the bottom of a page
+    for (const block of blocks) {
+      if (
+        block.keepWithNext &&
+        block.top > startY + 24 &&
+        block.bottom <= cutY &&
+        cutY - block.bottom < 48
+      ) {
+        cutY = Math.max(startY + 24, Math.floor(block.top) - 4);
+      }
+    }
+
+    if (cutY <= startY) {
+      cutY = idealEnd;
+    }
+
+    slices.push({ startY, endY: cutY });
+    startY = cutY;
+  }
+
+  return slices;
+}
 
 function collectHeadStylesHtml(): string {
   if (typeof document === "undefined") return "";
@@ -386,49 +456,47 @@ export async function renderHtmlToPdfFile(
 
     const pageWidthMm = 210;
     const pageHeightMm = 297;
-    const a4Ratio = pageHeightMm / pageWidthMm;
+    const marginXMm = 10;
+    const marginTopMm = 10;
+    const marginBottomMm = 12;
+    const contentWidthMm = pageWidthMm - marginXMm * 2;
+    const contentHeightMm = pageHeightMm - marginTopMm - marginBottomMm;
+    const contentRatio = contentHeightMm / contentWidthMm;
+    const pixelRatio = 2;
     let isFirstPdfPage = true;
 
     for (const target of targets) {
+      const targetRect = target.getBoundingClientRect();
+      const blocks: PageBreakBlock[] = Array.from(
+        target.querySelectorAll<HTMLElement>(
+          "[data-exercise-id], .break-inside-avoid, [data-reading-block], header, footer, [data-section-id] > div:first-child"
+        )
+      ).map((el) => {
+        const rect = el.getBoundingClientRect();
+        return {
+          top: (rect.top - targetRect.top) * pixelRatio,
+          bottom: (rect.bottom - targetRect.top) * pixelRatio,
+          keepWithNext: el.matches("[data-section-id] > div:first-child"),
+        };
+      });
+
       const canvas = await toCanvas(target, {
-        pixelRatio: 2,
+        pixelRatio,
         backgroundColor: "#ffffff",
       });
 
-      const pageSliceHeightPx = Math.round(canvas.width * a4Ratio);
+      const maxSliceHeightPx = Math.round(canvas.width * contentRatio);
+      const slices = computeSmartPageSlices(
+        canvas.height,
+        maxSliceHeightPx,
+        blocks
+      );
 
-      // Single-page sheet (with small 2% tolerance for subpixel rounding)
-      if (canvas.height <= pageSliceHeightPx * 1.02) {
-        if (!isFirstPdfPage) pdf.addPage("a4", "portrait");
-        isFirstPdfPage = false;
-        const dataUrl = canvas.toDataURL("image/jpeg", 0.94);
-        const drawHeightMm = Math.min(
-          pageHeightMm,
-          (canvas.height / canvas.width) * pageWidthMm
-        );
-        pdf.addImage(
-          dataUrl,
-          "JPEG",
-          0,
-          0,
-          pageWidthMm,
-          drawHeightMm,
-          undefined,
-          "FAST"
-        );
-        continue;
-      }
-
-      // Multi-page sheet: slice cleanly into A4 pages without squishing
-      let offsetY = 0;
-      while (offsetY < canvas.height) {
+      for (const slice of slices) {
         if (!isFirstPdfPage) pdf.addPage("a4", "portrait");
         isFirstPdfPage = false;
 
-        const sliceHeight = Math.min(
-          pageSliceHeightPx,
-          canvas.height - offsetY
-        );
+        const sliceHeight = slice.endY - slice.startY;
         const pageCanvas = document.createElement("canvas");
         pageCanvas.width = canvas.width;
         pageCanvas.height = sliceHeight;
@@ -439,7 +507,7 @@ export async function renderHtmlToPdfFile(
           ctx.drawImage(
             canvas,
             0,
-            offsetY,
+            slice.startY,
             canvas.width,
             sliceHeight,
             0,
@@ -449,18 +517,20 @@ export async function renderHtmlToPdfFile(
           );
         }
         const sliceDataUrl = pageCanvas.toDataURL("image/jpeg", 0.94);
-        const sliceHeightMm = (sliceHeight / canvas.width) * pageWidthMm;
+        const sliceHeightMm = Math.min(
+          contentHeightMm,
+          (sliceHeight / canvas.width) * contentWidthMm
+        );
         pdf.addImage(
           sliceDataUrl,
           "JPEG",
-          0,
-          0,
-          pageWidthMm,
+          marginXMm,
+          marginTopMm,
+          contentWidthMm,
           sliceHeightMm,
           undefined,
           "FAST"
         );
-        offsetY += sliceHeight;
       }
     }
 

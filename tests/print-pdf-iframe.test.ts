@@ -212,3 +212,36 @@ describe("printPdfViaIframe — lifecycle unit tests", () => {
     expect(docTitle).toBe("Original Title");
   });
 });
+
+describe("computeSmartPageSlices — break-inside avoidance", () => {
+  it("pushes a straddling exercise block cleanly to the next page without cutting it", async () => {
+    const { computeSmartPageSlices } = await import("@/lib/print-html-iframe");
+
+    const slices = computeSmartPageSlices(1500, 1000, [
+      { top: 100, bottom: 450 },
+      { top: 470, bottom: 860 },
+      { top: 880, bottom: 1200 }, // straddles y=1000
+      { top: 1220, bottom: 1460 },
+    ]);
+
+    expect(slices).toEqual([
+      { startY: 0, endY: 876 },
+      { startY: 876, endY: 1500 },
+    ]);
+  });
+
+  it("avoids orphaning a section header at the bottom of a page", async () => {
+    const { computeSmartPageSlices } = await import("@/lib/print-html-iframe");
+
+    const slices = computeSmartPageSlices(1400, 1000, [
+      { top: 100, bottom: 820 },
+      { top: 840, bottom: 890, keepWithNext: true }, // section header near page end
+      { top: 900, bottom: 1250 }, // first exercise straddles y=1000
+    ]);
+
+    expect(slices).toEqual([
+      { startY: 0, endY: 836 },
+      { startY: 836, endY: 1400 },
+    ]);
+  });
+});
