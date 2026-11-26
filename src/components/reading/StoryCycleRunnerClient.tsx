@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { ArrowLeftIcon, ArrowRightIcon } from "@/components/studio/icons";
 import type { ReadingLevel, ReadingStory } from "@/domain/reading-types";
 import {
   transformTashkeel,
@@ -250,9 +251,10 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
             </button>
             <Link
               href={`/reading/level/${level.id}`}
-              className="text-xs font-bold text-slate-600 hover:text-slate-900 bg-white/80 hover:bg-white border border-slate-900/10 px-3.5 py-1.5 rounded-full transition"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 bg-white/80 hover:bg-white border border-slate-900/10 px-3.5 py-1.5 rounded-full transition"
             >
-              ← شبكة القصص
+              <ArrowRightIcon size={14} />
+              <span>شبكة القصص</span>
             </Link>
           </div>
         </div>
@@ -413,9 +415,10 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
           <button
             disabled={activeStation <= 1}
             onClick={() => setActiveStation((prev) => Math.max(1, prev - 1))}
-            className="px-5 py-2 rounded-full text-xs font-extrabold transition border border-slate-900/10 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700"
+            className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full text-xs font-extrabold transition border border-slate-900/10 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700"
           >
-            → المحطة السابقة
+            <ArrowRightIcon size={14} />
+            <span>المحطة السابقة</span>
           </button>
 
           <span className="text-xs font-bold text-slate-500">
@@ -426,9 +429,10 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
           <button
             disabled={activeStation >= 6}
             onClick={() => setActiveStation((prev) => Math.min(6, prev + 1))}
-            className="px-5 py-2 rounded-full text-xs font-black transition bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed text-white shadow-[0_8px_18px_-8px_rgba(5,150,105,0.65)]"
+            className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full text-xs font-black transition bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed text-white shadow-[0_8px_18px_-8px_rgba(5,150,105,0.65)]"
           >
-            المحطة التالية ←
+            <span>المحطة التالية</span>
+            <ArrowLeftIcon size={14} />
           </button>
         </div>
       </main>
@@ -453,9 +457,10 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
             type="button"
             disabled={activeStation <= 1}
             onClick={() => setActiveStation((prev) => Math.max(1, prev - 1))}
-            className="min-h-[44px] min-w-[44px] px-3 inline-flex items-center justify-center rounded-full text-xs font-extrabold transition border border-slate-900/10 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 shrink-0"
+            className="min-h-[44px] min-w-[44px] px-3 inline-flex items-center justify-center gap-1 rounded-full text-xs font-extrabold transition border border-slate-900/10 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 shrink-0"
           >
-            → السابقة
+            <ArrowRightIcon size={14} />
+            <span>السابقة</span>
           </button>
 
           <span className="text-xs font-bold text-slate-600 text-center whitespace-nowrap px-1">
@@ -466,9 +471,10 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
             type="button"
             disabled={activeStation >= 6}
             onClick={() => setActiveStation((prev) => Math.min(6, prev + 1))}
-            className="min-h-[44px] min-w-[44px] px-3 inline-flex items-center justify-center rounded-full text-xs font-black transition bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed text-white shadow-xs shrink-0"
+            className="min-h-[44px] min-w-[44px] px-3 inline-flex items-center justify-center gap-1 rounded-full text-xs font-black transition bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed text-white shadow-xs shrink-0"
           >
-            التالية ←
+            <span>التالية</span>
+            <ArrowLeftIcon size={14} />
           </button>
 
           <button

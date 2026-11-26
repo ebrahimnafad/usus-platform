@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { ArrowLeftIcon, ArrowRightIcon } from "@/components/studio/icons";
 import { getReadingLevel } from "@/curriculum/reading-catalog";
 import { toEasternArabicNumerals } from "@/lib/numerals";
 
@@ -28,13 +29,14 @@ export default async function ReadingLevelGridPage({ params }: Props) {
             المستوى غير موجود
           </h1>
           <p className="text-sm text-slate-500 mb-6">
-            تعذّر العثور على المستوى المطلوب في مسار القراءة والفهم.
+            لم نتمكّن من العثور على هذا المستوى في نادي القراءة.
           </p>
           <Link
             href="/reading"
-            className="inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-emerald-600 text-white font-extrabold text-sm hover:bg-emerald-700 transition"
+            className="inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-full bg-emerald-600 text-white font-extrabold text-sm hover:bg-emerald-700 transition"
           >
-            ← العودة لمستويات القراءة
+            <ArrowRightIcon size={15} />
+            <span>العودة لمستويات القراءة</span>
           </Link>
         </div>
       </div>
@@ -94,78 +96,77 @@ export default async function ReadingLevelGridPage({ params }: Props) {
               listClassName="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-slate-500"
               activeItemClassName={levelColor.activeBadge}
               linkClassName="hover:text-slate-900 transition"
-              separator={
-                <span
-                  className="select-none font-bold text-slate-300"
-                  aria-hidden="true"
-                >
-                  &gt;
-                </span>
-              }
             />
           </div>
 
           <Link
             href="/reading"
-            className="rounded-full border border-slate-900/10 bg-white px-3.5 py-1.5 text-xs font-bold text-slate-700 shadow-2xs transition hover:bg-slate-50"
+            className="inline-flex items-center gap-1.5 rounded-full border border-slate-900/10 bg-white px-3.5 py-1.5 text-xs font-bold text-slate-700 shadow-2xs transition hover:bg-slate-50"
           >
-            ← كافة المستويات
+            <ArrowRightIcon size={14} />
+            <span>جميع المستويات</span>
           </Link>
         </div>
       </div>
 
       <main className="mx-auto max-w-6xl px-4 pt-6 sm:px-6 sm:pt-8">
-        {/* ── Level Overview Banner ── */}
-        <section className="mb-10 overflow-hidden rounded-[32px] bg-white shadow-[0_24px_48px_-24px_rgba(5,150,105,0.25)] border border-white/80">
-          {/* Pastel art header */}
+        {/* ── Level Overview Utility Strip (distinct from story cards) ── */}
+        <section
+          aria-label="نظرة عامة على المستوى"
+          className="relative mb-10 overflow-hidden rounded-[28px] border border-emerald-700/40 bg-gradient-to-l from-emerald-950 via-emerald-900 to-teal-900 p-5 text-white shadow-[0_22px_48px_-22px_rgba(6,78,59,0.55)] sm:p-7"
+        >
+          {/* Decorative radial glow */}
           <div
-            className="relative flex flex-col md:flex-row md:items-center justify-between gap-6 px-6 pt-6 pb-10 sm:px-8"
-            style={{ background: levelColor.art }}
-          >
-            <div className="space-y-2 max-w-2xl">
-              <div
-                className={`inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/60 text-xs font-black ${levelColor.pill}`}
-              >
-                <span>📚</span>
+            aria-hidden="true"
+            className="pointer-events-none absolute -top-20 -start-20 size-56 rounded-full bg-emerald-400/15 blur-3xl"
+          />
+
+          <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+            {/* Left: identity */}
+            <div className="space-y-2 min-w-0">
+              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/15 px-3.5 py-1 text-xs font-extrabold text-emerald-100">
+                <span aria-hidden="true">📚</span>
                 <span>{level.titleAr}</span>
-                <span className="text-slate-300">•</span>
+                <span className="text-emerald-400/60">•</span>
                 <span>{level.subtitleAr}</span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-black text-slate-900">
-                شبكة دورات القراءة (
-                {toEasternArabicNumerals(level.stories.length)} دورة)
+
+              <h1 className="text-xl font-black tracking-tight text-white sm:text-2xl">
+                {`قصص المستوى (${toEasternArabicNumerals(level.stories.length)} قصة)`}
               </h1>
-              <p className="text-slate-700 text-sm leading-relaxed font-medium">
+
+              <p className="text-sm leading-relaxed font-medium text-emerald-100/80 max-w-xl">
                 {level.descriptionAr}
               </p>
             </div>
+
+            {/* Right: stat pills */}
             <div className="flex flex-wrap gap-2 text-xs font-bold shrink-0">
-              <div className="bg-white/70 backdrop-blur-sm rounded-2xl border border-white/80 px-4 py-2 text-center shadow-xs">
-                <span className="text-slate-400 block mb-0.5 text-[11px]">
+              {/* Word range */}
+              <div className="flex flex-col items-center rounded-2xl border border-emerald-400/25 bg-white/8 px-4 py-2.5 text-center backdrop-blur-sm min-w-[88px]">
+                <span className="text-emerald-300/70 text-[11px] mb-0.5 font-semibold">
                   طول النص
                 </span>
-                <span className="text-slate-800 font-black">
-                  {toEasternArabicNumerals(level.targetWordCount.min)}–
-                  {toEasternArabicNumerals(level.targetWordCount.max)} كلمة
+                <span className="text-white font-black">
+                  {`${toEasternArabicNumerals(level.targetWordCount.min)}–${toEasternArabicNumerals(level.targetWordCount.max)} كلمة`}
                 </span>
               </div>
-              <div className="bg-white/70 backdrop-blur-sm rounded-2xl border border-white/80 px-4 py-2 text-center shadow-xs">
-                <span className="text-slate-400 block mb-0.5 text-[11px]">
+              {/* Free reading */}
+              <div className="flex flex-col items-center rounded-2xl border border-amber-400/25 bg-amber-400/10 px-4 py-2.5 text-center backdrop-blur-sm min-w-[88px]">
+                <span className="text-amber-300/70 text-[11px] mb-0.5 font-semibold">
                   الدورات الحرة
                 </span>
-                <span className="text-amber-700 font-black">دورتان 🌟</span>
+                <span className="text-amber-200 font-black">قصتان 🌟</span>
               </div>
-              <div className="bg-white/70 backdrop-blur-sm rounded-2xl border border-white/80 px-4 py-2 text-center shadow-xs">
-                <span className="text-slate-400 block mb-0.5 text-[11px]">
+              {/* Transfer tests */}
+              <div className="flex flex-col items-center rounded-2xl border border-indigo-400/25 bg-indigo-400/10 px-4 py-2.5 text-center backdrop-blur-sm min-w-[88px]">
+                <span className="text-indigo-300/70 text-[11px] mb-0.5 font-semibold">
                   اختبارات النقل
                 </span>
-                <span className="text-indigo-700 font-black">دورتان 🎯</span>
+                <span className="text-indigo-200 font-black">اختباران 🎯</span>
               </div>
             </div>
           </div>
-
-          {/* Curved-lip body — empty, just the lip */}
-          <div className="home-card-lip relative bg-white h-4" />
         </section>
 
         {/* ── Stories Grid ── */}
@@ -178,7 +179,7 @@ export default async function ReadingLevelGridPage({ params }: Props) {
               border: "border-slate-200",
               hover: `${levelColor.hover}`,
               badgeBg: `bg-emerald-50 text-emerald-800 border-emerald-200`,
-              badgeText: "دورة قياسية",
+              badgeText: "قصة تعليمية",
               artBg: levelColor.art,
             };
 
@@ -262,14 +263,15 @@ export default async function ReadingLevelGridPage({ params }: Props) {
                   >
                     <span>
                       {isFreeReading
-                        ? "دخول ركن القراءة"
+                        ? "ابدأ القراءة الحرة"
                         : isTransferTest
-                          ? "بدء اختبار النقل"
-                          : "بدء دورة القصة"}
+                          ? "ابدأ اختبار النقل"
+                          : "ابدأ القصة"}
                     </span>
-                    <span className="group-hover:-translate-x-1 transition-transform">
-                      ←
-                    </span>
+                    <ArrowLeftIcon
+                      size={15}
+                      className="group-hover:-translate-x-1 transition-transform"
+                    />
                   </div>
                 </div>
               </Link>
