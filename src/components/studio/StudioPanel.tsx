@@ -514,30 +514,54 @@ export function StudioPanel({
         <section
           aria-label="الدرس الحالي"
           data-lesson-poster="true"
-          className="rounded-[var(--studio-radius)] border border-[var(--studio-seam)] bg-white/65 p-2.5 shadow-[var(--studio-plate-shadow)]"
+          className="rounded-[var(--studio-radius)] border border-white/90 bg-white/85 p-3 shadow-[var(--studio-plate-shadow)]"
         >
-          <p className="text-[11px] font-bold text-stone-500">
-            الوحدة {formatEasternNumber(currentUnit?.unitNumber ?? 0)} ·{" "}
-            {currentUnit?.titleAr}
-          </p>
-          <div className="mt-1.5 flex items-start gap-2.5">
+          <div className="flex items-center justify-between gap-2">
+            <p className="min-w-0 truncate text-[11px] font-bold text-slate-500">
+              الوحدة {formatEasternNumber(currentUnit?.unitNumber ?? 0)} ·{" "}
+              {currentUnit?.titleAr}
+            </p>
+            <div className="flex shrink-0 items-center gap-0.5 rounded-full border border-slate-900/10 bg-white/90 p-0.5">
+              <button
+                type="button"
+                disabled={lessonNumber <= 1}
+                onClick={() => selectLesson(grade.id, lessonNumber - 1)}
+                aria-label="الدرس السابق"
+                title="الدرس السابق"
+                className="flex size-6 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100 disabled:opacity-30"
+              >
+                <ArrowRightIcon size={13} />
+              </button>
+              <button
+                type="button"
+                disabled={lessonNumber >= grade.lessons.length}
+                onClick={() => selectLesson(grade.id, lessonNumber + 1)}
+                aria-label="الدرس التالي"
+                title="الدرس التالي"
+                className="flex size-6 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100 disabled:opacity-30"
+              >
+                <ArrowLeftIcon size={13} />
+              </button>
+            </div>
+          </div>
+          <div className="mt-2 flex items-start gap-2.5">
             <span
-              className="studio-tint-surface flex min-h-9 min-w-9 shrink-0 items-center justify-center rounded-lg px-1.5 text-lg font-black tabular-nums text-white"
+              className="studio-tint-surface flex min-h-9 min-w-9 shrink-0 items-center justify-center rounded-xl px-1.5 text-lg font-black tabular-nums text-white shadow-xs"
               style={{ backgroundColor: "var(--studio-accent)" }}
               data-poster-lesson-number="true"
             >
               {formatEasternNumber(lessonNumber)}
             </span>
-            <h2 className="line-clamp-2 pt-0.5 text-[15px] font-extrabold leading-5 text-stone-900">
+            <h2 className="line-clamp-2 pt-0.5 text-[15px] font-extrabold leading-5 text-slate-900">
               {toEasternArabicNumerals(currentLesson?.titleAr ?? "")}
             </h2>
           </div>
-          <div className="mt-1.5 flex flex-wrap items-center gap-1">
+          <div className="mt-2 flex flex-wrap items-center gap-1">
             {(currentLesson?.standards ?? []).map((standard) => (
               <span
                 key={standard}
                 data-standard-code="true"
-                className="rounded bg-stone-100 px-1.5 py-0.5 font-mono text-[10px] font-bold text-stone-500"
+                className="rounded-md bg-slate-900/5 px-1.5 py-0.5 font-mono text-[10px] font-bold text-slate-600"
               >
                 {standard}
               </span>
@@ -593,7 +617,7 @@ export function StudioPanel({
             نمط الصعوبة
           </span>
           <div
-            className="grid grid-cols-4 gap-1"
+            className="grid grid-cols-4 gap-1 rounded-2xl bg-slate-900/5 p-1"
             role="group"
             aria-labelledby={difficultyLabelId}
             aria-describedby={difficultyExplainerId}
@@ -607,10 +631,10 @@ export function StudioPanel({
                   data-difficulty-option={option.value}
                   aria-pressed={isSelected}
                   onClick={() => selectDifficulty(option.value)}
-                  className={`min-h-8 rounded-lg px-1 py-1 text-[11px] font-extrabold transition-colors duration-150 motion-reduce:transition-none ${
+                  className={`min-h-8 rounded-xl px-1 py-1 text-[11px] font-extrabold transition-all duration-150 motion-reduce:transition-none ${
                     isSelected
                       ? "studio-tint-surface text-white shadow-xs"
-                      : "bg-white text-stone-700 hover:bg-stone-100"
+                      : "text-slate-600 hover:bg-white/70 hover:text-slate-900"
                   }`}
                   style={
                     isSelected
@@ -636,7 +660,7 @@ export function StudioPanel({
           aria-label="رمز الورقة"
           data-seed-ticket="true"
           title="نفس الرمز = نفس الورقة"
-          className="rounded-xl border border-dashed border-stone-300 bg-white/55 px-2.5 py-2"
+          className="rounded-2xl border border-dashed border-slate-300/80 bg-white/75 px-3 py-2.5"
         >
           <div className="flex items-center justify-between gap-2">
             <div className="flex min-w-0 items-center gap-1.5">
@@ -837,7 +861,7 @@ export function StudioPanel({
 
       <div
         data-studio-mobile-bar="true"
-        className="studio-mobile-bar no-print fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-2 border-t border-[var(--studio-seam)] bg-[var(--studio-panel)] px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-8px_24px_-12px_rgb(28_25_23_/_0.25)] lg:hidden"
+        className="studio-mobile-bar no-print fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-2 rounded-t-2xl border-t border-slate-900/10 px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-10px_28px_-14px_rgb(30_60_100_/_0.22)] lg:hidden"
       >
         <button
           ref={triggerRef}
@@ -846,13 +870,19 @@ export function StudioPanel({
           onClick={() => (sheetOpen ? closeSheet() : openSheet())}
           aria-expanded={sheetOpen}
           aria-controls={panelId}
-          className="flex min-h-10 items-center gap-1.5 rounded-xl border border-[var(--studio-seam)] px-3 text-xs font-extrabold text-stone-700"
+          className="flex min-h-10 items-center gap-1.5 rounded-full border border-slate-900/10 bg-white px-4 text-xs font-extrabold text-slate-700 shadow-2xs transition hover:bg-slate-50"
         >
           <MenuIcon size={15} />
           المنهج
         </button>
 
-        <div className="flex items-center gap-1">
+        <div className="flex min-w-0 flex-1 items-center justify-center px-1">
+          <span className="truncate text-[11px] font-bold text-slate-600">
+            {toEasternArabicNumerals(currentLesson?.titleAr ?? "")}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-1 rounded-full border border-slate-900/10 bg-white/90 px-1 py-0.5 shadow-2xs">
           <button
             type="button"
             data-mobile-prev-lesson="true"

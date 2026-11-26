@@ -7,17 +7,19 @@
 
 /* ── Teacher Studio theme tokens (scoped to the studio shell) ───────── */
 .studio-shell-root {
-  --studio-panel: #fbfaf7;
-  --studio-seam: #e7e2d8;
-  --studio-dot: #e9e4da;
+  --studio-panel: rgba(255, 255, 255, 0.84);
+  --studio-seam: rgba(15, 23, 42, 0.08);
+  --studio-dot: rgba(15, 23, 42, 0.08);
   --studio-plate-shadow:
-    0 1px 2px rgb(28 25 23 / 0.06), 0 8px 24px -12px rgb(28 25 23 / 0.18);
-  --studio-radius: 1.25rem;
+    0 1px 2px rgb(30 60 100 / 0.05), 0 12px 28px -16px rgb(30 60 100 / 0.18);
+  --studio-radius: 1.375rem;
 }
 
 .studio-panel,
 .studio-mobile-bar {
   background-color: var(--studio-panel);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 
 .studio-panel {

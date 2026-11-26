@@ -85,7 +85,7 @@ export function StudioShell({
         dir="rtl"
         lang="ar"
         data-studio-root="true"
-        className="studio-shell-root flex h-[100dvh] min-h-0 flex-col overflow-hidden bg-stone-100"
+        className="studio-shell-root home-sky-bg flex h-[100dvh] min-h-0 flex-col overflow-hidden"
       >
         <a
           href="#studio-worksheet-region"

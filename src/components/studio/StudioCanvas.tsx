@@ -73,7 +73,7 @@ export function StudioCanvas({
       data-studio-canvas="true"
       data-canvas-pending={isPending ? "true" : "false"}
       aria-busy={isPending ? "true" : undefined}
-      className="studio-canvas relative flex min-h-0 flex-1 flex-col overflow-y-auto bg-slate-100 px-3 pb-24 pt-3 text-slate-900 outline-none lg:px-6 lg:pb-6 lg:pt-5"
+      className="studio-canvas relative flex min-h-0 flex-1 flex-col overflow-y-auto bg-transparent px-3 pb-24 pt-3 text-slate-900 outline-none lg:px-6 lg:pb-8 lg:pt-5"
       style={
         {
           "--studio-accent": accents.accentHex,
@@ -91,10 +91,10 @@ export function StudioCanvas({
 
       <div
         data-studio-canvas-toolbar="true"
-        className="no-print sticky top-0 z-20 mx-auto mb-4 flex w-full max-w-[210mm] flex-wrap items-center justify-between gap-2 rounded-2xl border border-slate-200 bg-white/95 px-3 py-2 shadow-xs backdrop-blur"
+        className="no-print sticky top-0 z-20 mx-auto mb-4 flex w-full max-w-[210mm] flex-wrap items-center justify-between gap-2 rounded-[22px] border border-white/80 bg-white/85 px-3 py-2 shadow-[0_12px_32px_-16px_rgba(30,60,100,0.28)] backdrop-blur-md"
       >
         <div
-          className="inline-flex rounded-xl bg-slate-100 p-1"
+          className="inline-flex rounded-2xl bg-slate-900/5 p-1"
           role="tablist"
           aria-label="طريقة العرض"
         >
@@ -106,10 +106,10 @@ export function StudioCanvas({
               aria-selected={viewMode === tab.id}
               data-view-tab={tab.id}
               onClick={() => onViewModeChange?.(tab.id)}
-              className={`flex min-h-8 items-center gap-1.5 rounded-lg px-2.5 py-1 text-[11px] font-extrabold transition-colors duration-150 motion-reduce:transition-none ${
+              className={`flex min-h-8 items-center gap-1.5 rounded-xl px-3 py-1 text-[11px] font-extrabold transition-all duration-150 motion-reduce:transition-none ${
                 viewMode === tab.id
                   ? "text-white shadow-xs"
-                  : "text-slate-600 hover:text-slate-900"
+                  : "text-slate-600 hover:bg-white/60 hover:text-slate-900"
               }`}
               style={
                 viewMode === tab.id
@@ -125,13 +125,13 @@ export function StudioCanvas({
 
         <div className="flex flex-wrap items-center gap-2">
           <div
-            className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-slate-50 px-1.5 py-1 text-[11px] font-extrabold text-slate-700"
+            className="inline-flex items-center gap-1 rounded-full border border-slate-900/10 bg-white/90 px-2 py-1 text-[11px] font-extrabold text-slate-700 shadow-2xs"
             aria-label="التحكم في التكبير والتصغير"
           >
             <button
               type="button"
               onClick={() => onZoomStep?.(-1)}
-              className="flex size-7 items-center justify-center rounded-lg hover:bg-slate-200"
+              className="flex size-6 items-center justify-center rounded-full transition hover:bg-slate-100"
               aria-label="تصغير العرض"
             >
               −
@@ -145,7 +145,7 @@ export function StudioCanvas({
             <button
               type="button"
               onClick={() => onZoomStep?.(1)}
-              className="flex size-7 items-center justify-center rounded-lg hover:bg-slate-200"
+              className="flex size-6 items-center justify-center rounded-full transition hover:bg-slate-100"
               aria-label="تكبير العرض"
             >
               +
@@ -156,7 +156,7 @@ export function StudioCanvas({
             type="button"
             data-print-trigger="true"
             onClick={() => setIsPrintModalOpen(true)}
-            className="flex min-h-8 items-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-1 text-[11px] font-extrabold text-white shadow-xs transition-colors duration-150 hover:bg-emerald-700"
+            className="flex min-h-8 items-center gap-1.5 rounded-full bg-emerald-600 px-4 py-1.5 text-[11px] font-black text-white shadow-[0_10px_20px_-10px_rgba(5,150,105,0.75)] transition-all duration-150 hover:-translate-y-0.5 hover:bg-emerald-700"
           >
             <PrinterIcon size={14} />
             طباعة
@@ -172,8 +172,10 @@ export function StudioCanvas({
       >
         <div
           className={`origin-top transition-opacity duration-150 motion-reduce:transition-none ${
-            isPending ? "opacity-[0.55]" : "opacity-100"
-          }`}
+            viewMode !== "teacher-notes"
+              ? "rounded-2xl shadow-[0_24px_60px_-24px_rgba(30,60,100,0.32)] ring-1 ring-slate-900/5"
+              : ""
+          } ${isPending ? "opacity-[0.55]" : "opacity-100"}`}
           style={
             effectiveScale !== 1
               ? {

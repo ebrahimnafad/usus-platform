@@ -53,17 +53,17 @@ export function StudioHeader({
       transition={
         !prefersReduced ? { duration: 0.35, ease: "easeOut" } : { duration: 0 }
       }
-      className={`no-print sticky top-0 z-30 flex h-14 w-full items-center justify-between bg-gradient-to-l ${gradientClass} px-4 shadow-sm text-white ${className}`}
+      className={`no-print sticky top-0 z-30 flex h-14 w-full items-center justify-between bg-gradient-to-l ${gradientClass} px-4 shadow-[0_8px_24px_-12px_rgba(15,23,42,0.35)] backdrop-blur-md text-white ${className}`}
     >
       {/* Right side in RTL: Back button + Logo + Breadcrumbs */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2.5 sm:gap-3">
         <BackButton href="/math" ariaLabel="العودة لاختيار الصف" />
 
-        <div className="h-5 w-px bg-white/20" aria-hidden="true" />
+        <div className="h-5 w-px bg-white/25" aria-hidden="true" />
 
         <Link
           href="/"
-          className="flex items-center gap-1.5 font-black text-white hover:text-white/80 transition"
+          className="flex items-center gap-1.5 rounded-full px-2 py-1 font-black text-white transition hover:bg-white/15"
           title="بوابة أُسُس"
         >
           <span className="text-base font-extrabold tracking-tight">أُسُس</span>
@@ -77,8 +77,8 @@ export function StudioHeader({
             { label: "الرياضيات", href: "/math" },
             { label },
           ]}
-          listClassName="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-white/80"
-          activeItemClassName="text-white font-extrabold"
+          listClassName="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-white/85"
+          activeItemClassName="rounded-full bg-white/20 px-2.5 py-0.5 text-white font-extrabold"
           linkClassName="hover:text-white transition"
           separator={
             <span
@@ -91,9 +91,15 @@ export function StudioHeader({
         />
       </div>
 
-      {/* Left side in RTL: Visual Model Miniature Badge & Grade Title */}
+      {/* Left side in RTL: Quick link + Visual Model Miniature Badge & Grade Title */}
       <div className="flex items-center gap-2">
-        <div className="hidden sm:flex items-center gap-2 rounded-xl bg-white/15 px-3 py-1 backdrop-blur-xs border border-white/20">
+        <Link
+          href="/reading"
+          className="hidden md:inline-flex items-center gap-1 rounded-full bg-white/15 px-3 py-1 text-xs font-bold text-white/90 transition hover:bg-white/25 hover:text-white"
+        >
+          <span>الفهم القرائي</span>
+        </Link>
+        <div className="hidden sm:flex items-center gap-2 rounded-full bg-white/20 px-3 py-1 backdrop-blur-xs border border-white/25 shadow-2xs">
           {config && (
             <motion.div
               layoutId={!prefersReduced ? `grade-model-${gradeKey}` : undefined}
