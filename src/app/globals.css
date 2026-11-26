@@ -214,3 +214,103 @@
     display: none !important;
   }
 }
+
+/* ── Home hub sky-doodle backdrop & tactile card motion ───────────── */
+.home-sky-bg {
+  background-color: #eef5fa;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260' fill='none' stroke='%23ffffff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round' opacity='0.78'%3E%3Cpath d='M40 52c-9-12-27 0-16 16l16 16 16-16c11-16-7-28-16-16z'/%3E%3Cpath d='M168 22q4 16 16 19-12 4-16 19-4-15-16-19 12-3 16-19z'/%3E%3Cpath d='M36 170c24-34 70-12 46 12s-46 0-22-22'/%3E%3Ccircle cx='200' cy='190' r='20'/%3E%3Cpath d='M192 184v2M208 184v2M192 196q8 7 16 0'/%3E%3Cpath d='M104 112h44a10 10 0 0 1 10 10v16a10 10 0 0 1-10 10h-26l-12 11v-11h-6a10 10 0 0 1-10-10v-16a10 10 0 0 1 10-10z'/%3E%3Cpath d='M130 236l12-11 12 11 12-11M214 70l14-8M220 88l16-2M222 106l12 8'/%3E%3Ccircle cx='90' cy='40' r='2'/%3E%3Ccircle cx='240' cy='140' r='2'/%3E%3Ccircle cx='20' cy='230' r='2'/%3E%3C/svg%3E"),
+    linear-gradient(160deg, #dfeef7 0%, #c4dfee 100%);
+  background-size:
+    260px 260px,
+    cover;
+}
+
+.home-card-lip::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -30px;
+  height: 31px;
+  background: #ffffff;
+  border-top-left-radius: 32px;
+  clip-path: polygon(0 0, 60% 0, calc(60% + 32px) 100%, 100% 100%, 0 100%);
+}
+
+.home-float {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: home-float 4s ease-in-out infinite;
+}
+
+.home-float-2 {
+  animation-delay: -1.3s;
+  animation-duration: 5s;
+}
+
+.home-float-3 {
+  animation-delay: -2.4s;
+  animation-duration: 4.6s;
+}
+
+.home-hl {
+  transform-box: fill-box;
+  transform-origin: right center;
+  animation: home-readline 3.6s ease-in-out infinite;
+}
+
+.home-hl-2 {
+  animation-delay: 1.2s;
+}
+
+.home-ring {
+  stroke-dasharray: 126;
+  animation: home-ring 3.4s ease-in-out infinite;
+}
+
+@keyframes home-float {
+  50% {
+    transform: translateY(-8px) rotate(3deg);
+  }
+}
+
+@keyframes home-readline {
+  0% {
+    transform: scaleX(0);
+    opacity: 1;
+  }
+  55% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+  85% {
+    transform: scaleX(1);
+    opacity: 0;
+  }
+  100% {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+}
+
+@keyframes home-ring {
+  0% {
+    stroke-dashoffset: 126;
+  }
+  60%,
+  100% {
+    stroke-dashoffset: 22;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-float,
+  .home-float-2,
+  .home-float-3,
+  .home-hl,
+  .home-hl-2,
+  .home-ring {
+    animation: none !important;
+  }
+}
