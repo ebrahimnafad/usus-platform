@@ -23,8 +23,9 @@ export interface BuildReadingQuickViewUrlInput {
 
 /**
  * Resolve the origin for QR target URLs.
- * Pure & SSR-safe: uses `explicitOrigin` or `NEXT_PUBLIC_SITE_URL` and falls
- * back to a relative path (`""`). Client components upgrade to
+ * Pure & SSR-safe: uses `explicitOrigin`, `NEXT_PUBLIC_SITE_URL`, or Vercel's
+ * runtime host env vars (`VERCEL_PROJECT_PRODUCTION_URL` / `VERCEL_URL`),
+ * falling back to a relative path (`""`). Client components upgrade to
  * `window.location.origin` inside `useEffect` after hydration.
  */
 export function resolveQrOrigin(explicitOrigin?: string): string {
@@ -34,6 +35,12 @@ export function resolveQrOrigin(explicitOrigin?: string): string {
   const envUrl = process.env.NEXT_PUBLIC_SITE_URL;
   if (envUrl && envUrl.trim().length > 0) {
     return envUrl.replace(/\/+$/, "");
+  }
+  const vercelHost =
+    process.env.VERCEL_PROJECT_PRODUCTION_URL ?? process.env.VERCEL_URL;
+  if (vercelHost && vercelHost.trim().length > 0) {
+    const trimmed = vercelHost.trim().replace(/\/+$/, "");
+    return trimmed.startsWith("http") ? trimmed : `https://${trimmed}`;
   }
   return "";
 }

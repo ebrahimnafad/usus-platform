@@ -161,6 +161,7 @@ export async function printHtmlInIframe({
   iframe.style.visibility = "hidden";
 
   const headStyles = collectHeadStylesHtml();
+  const printFontsLink = `<link rel="stylesheet" href="${printFontsConfig.stylesheetHref}" />`;
   const baseHref =
     typeof window !== "undefined" && window.location?.href
       ? `<base href="${window.location.href.replace(/"/g, "&quot;")}" />`
@@ -180,6 +181,7 @@ html, body, .a4-sheet, .reading-a4-sheet, [data-worksheet-surface="true"], .font
   <meta charset="utf-8" />
   ${baseHref}
   <title>${safeTitle.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</title>
+  ${printFontsLink}
   ${headStyles}
   <style>
     html, body {

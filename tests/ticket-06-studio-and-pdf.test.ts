@@ -167,11 +167,10 @@ describe("Ticket 06 — RTL Teacher Studio: Grades K–5, 12 Units Accordion, Se
   });
 });
 
-describe("Ticket 06 — Secondary Seam: Headless Browser A4 PDF Exporter & /api/pdf Route", () => {
+describe("Ticket 06 — Secondary Seam: Local Headless Browser A4 PDF Exporter", () => {
   it("renders Worksheet and Answer Key via Playwright headless Chromium with @page { size: A4 portrait; margin: 0; } and print-color-adjust: exact into valid %PDF- buffers within the 1–2 page budget", async () => {
     const { buildPrintCleanA4Html } = await import("@/pdf/print-document");
     const { exportWorksheetPdf } = await import("@/pdf/pdf-exporter");
-    const { GET } = await import("@/app/api/pdf/route");
 
     // 1. Verify print-clean A4 HTML rules and Eastern Arabic Numerals invariant
     const printDoc = await buildPrintCleanA4Html({
@@ -206,32 +205,20 @@ describe("Ticket 06 — Secondary Seam: Headless Browser A4 PDF Exporter & /api/
     expect(worksheetPdf.withinPageBudget).toBe(worksheetPdf.pageCount <= 2);
     expect(worksheetPdf.filename).toBe("worksheet-K-1-PDF-2026-worksheet.pdf");
 
-    // 3. Headless browser PDF export for Answer Key via GET /api/pdf route handler
-    const { createPrintHarness } =
-      await import("../scripts/lib/print-measure.mjs");
-    const harness = await createPrintHarness();
-    try {
-      const request = new Request(
-        `${harness.baseUrl}/api/pdf?grade=K&lesson=1&seed=PDF-2026&difficulty=scaffolded&view=answer-key`
-      );
-      const response = await GET(request);
-      expect(response.status).toBe(200);
-      expect(response.headers.get("Content-Type")).toBe("application/pdf");
-      expect(response.headers.get("Content-Disposition")).toContain(
-        "worksheet-K-1-PDF-2026-answer-key.pdf"
-      );
-
-      const arrayBuffer = await response.arrayBuffer();
-      const routePdfBuffer = Buffer.from(arrayBuffer);
-      expect(routePdfBuffer.subarray(0, 5).toString("ascii")).toBe("%PDF-");
-      expect(routePdfBuffer.byteLength).toBeGreaterThan(5000);
-      const pageCountHeader = Number(response.headers.get("X-PDF-Page-Count"));
-      expect(pageCountHeader).toBeGreaterThanOrEqual(1);
-      expect(response.headers.get("X-PDF-Within-Page-Budget")).toBe(
-        String(pageCountHeader <= 2)
-      );
-    } finally {
-      harness.close();
-    }
+    // 3. Printable HTML route for Answer Key via GET /api/print-html
+    const { GET: getPrintHtml } = await import("@/app/api/print-html/route");
+    const request = new Request(
+      "http://localhost:3000/api/print-html?grade=K&lesson=1&seed=PDF-2026&difficulty=scaffolded&viewOption=answer-key&scope=lesson"
+    );
+    const { NextRequest } = await import("next/server");
+    const response = await getPrintHtml(new NextRequest(request));
+    expect(response.status).toBe(200);
+    expect(response.headers.get("Content-Type")).toContain("application/json");
+    const printPayload = (await response.json()) as {
+      html: string;
+      title: string;
+    };
+    expect(printPayload.html).toContain("a4-sheet");
+    expect(findWesternNumeralsInRenderedHtml(printPayload.html)).toEqual([]);
   }, 120_000); // Playwright + Edge startup needs headroom; 60 s was the cliff edge
 });

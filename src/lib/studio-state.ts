@@ -222,6 +222,9 @@ export function buildPdfExportUrl(
     difficulty: state.difficultyLevel,
     view: targetView,
   });
+  // NOTE: /api/pdf no longer exists in production (ADR-0020).
+  // This URL is retained for local layout-guard scripts that run against a
+  // local dev server with the full Playwright-backed PDF pipeline.
   return `/api/pdf?${params.toString()}`;
 }
 

@@ -18,8 +18,10 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run lint:numerals
+      - run: npm run lint:reading
       - run: npm run lint:console
       - run: npm test
+      - run: npm run build
 
   e2e:
     runs-on: ubuntu-latest

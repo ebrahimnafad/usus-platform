@@ -4,7 +4,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { findWesternNumeralsInRenderedHtml } from "@/lib/numerals";
 import HomePage from "@/app/page";
 import MathPage from "@/app/math/page";
-import { GET as getPdfRoute } from "@/app/api/pdf/route";
+import { type NextRequest } from "next/server";
+import { GET as getPrintHtmlRoute } from "@/app/api/print-html/route";
 
 describe("Ticket 01 — Hub Page and Domain Route Migration", () => {
   describe("Root Hub Page (/)", () => {
@@ -70,16 +71,20 @@ describe("Ticket 01 — Hub Page and Domain Route Migration", () => {
     });
   });
 
-  describe("Existing Math Routes Integrity (/api/pdf)", () => {
-    it("preserves PDF generation endpoint for math worksheets", async () => {
+  describe("Existing Math Routes Integrity (/api/print-html)", () => {
+    it("preserves printable HTML generation endpoint for math worksheets", async () => {
       const request = new Request(
-        "http://localhost:3000/api/pdf?grade=K&lesson=1&seed=PDF-HUB-01&difficulty=scaffolded&view=worksheet"
+        "http://localhost:3000/api/print-html?grade=K&lesson=1&seed=PDF-HUB-01&difficulty=scaffolded&viewOption=worksheet&scope=lesson"
       );
-      const response = await getPdfRoute(request);
+      const response = await getPrintHtmlRoute(
+        request as unknown as NextRequest
+      );
       expect(response.status).toBe(200);
-      expect(response.headers.get("Content-Type")).toBe("application/pdf");
-      const buffer = Buffer.from(await response.arrayBuffer());
-      expect(buffer.subarray(0, 5).toString("ascii")).toBe("%PDF-");
+      expect(response.headers.get("Content-Type")).toContain(
+        "application/json"
+      );
+      const data = (await response.json()) as { html: string; title: string };
+      expect(data.html).toContain("a4-sheet");
     }, 60000);
   });
 });

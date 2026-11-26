@@ -147,7 +147,8 @@
   html,
   body {
     direction: rtl;
-    font-family: "Cairo", "Readex Pro", "Segoe UI", Tahoma, sans-serif;
+    font-family:
+      var(--font-cairo), "Cairo", "Readex Pro", "Segoe UI", Tahoma, sans-serif;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
