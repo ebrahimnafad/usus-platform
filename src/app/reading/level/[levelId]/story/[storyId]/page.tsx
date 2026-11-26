@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import { ArrowRightIcon } from "@/components/studio/icons";
 import { getReadingLevel, getReadingStory } from "@/curriculum/reading-catalog";
 import StoryCycleRunnerClient from "@/components/reading/StoryCycleRunnerClient";
 
@@ -33,9 +34,10 @@ export default async function StoryCycleRunnerPage({ params }: Props) {
           </p>
           <Link
             href={`/reading/level/${levelId}`}
-            className="inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-emerald-600 text-white font-extrabold text-sm hover:bg-emerald-700 transition"
+            className="inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-full bg-emerald-600 text-white font-extrabold text-sm hover:bg-emerald-700 transition"
           >
-            ← العودة لقصص المستوى
+            <ArrowRightIcon size={15} />
+            <span>العودة لقصص المستوى</span>
           </Link>
         </div>
       </div>

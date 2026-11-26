@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import { ArrowLeftIcon, ArrowRightIcon } from "@/components/studio/icons";
 import type { ReadingLevel, ReadingStory } from "@/domain/reading-types";
 import { toEasternArabicNumerals } from "@/lib/numerals";
 
@@ -32,24 +33,28 @@ export default function StationReview({
           {nextStoryNumber ? (
             <Link
               href={`/reading/level/${level.id}/story/${nextStoryNumber}`}
-              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-emerald-600 text-white font-extrabold text-sm hover:bg-emerald-700 transition shadow-sm"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-emerald-600 text-white font-extrabold text-sm hover:bg-emerald-700 transition shadow-sm"
             >
-              الانتقال للقصة التالية ({toEasternArabicNumerals(nextStoryNumber)}
-              ) ←
+              <span>
+                الانتقال للقصة التالية (
+                {toEasternArabicNumerals(nextStoryNumber)})
+              </span>
+              <ArrowLeftIcon size={16} />
             </Link>
           ) : (
             <Link
               href={`/reading/level/${level.id}`}
-              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-emerald-600 text-white font-extrabold text-sm hover:bg-emerald-700 transition shadow-sm"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-emerald-600 text-white font-extrabold text-sm hover:bg-emerald-700 transition shadow-sm"
             >
-              العودة لشبكة قصص المستوى ←
+              <ArrowRightIcon size={15} />
+              <span>العودة لقصص المستوى</span>
             </Link>
           )}
           <Link
             href={`/reading/level/${level.id}`}
             className="w-full sm:w-auto px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-sm transition"
           >
-            كافة القصص
+            جميع القصص
           </Link>
         </div>
       </div>

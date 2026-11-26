@@ -25,7 +25,7 @@ describe("Reading Mobile Layout 01 — Trim breadcrumbs and Transfer Test banner
     expect(levelLiMatch).not.toBeNull();
     expect(levelLiMatch![0]).not.toMatch(/<li[^>]*class="[^"]*\bhidden\b/);
     expect(levelLiMatch![0]).toMatch(
-      /<span[^>]*class="[^"]*hidden sm:inline[^"]*"[^>]*><span[^>]*>&gt;<\/span><\/span>/
+      /<span[^>]*class="[^"]*hidden sm:inline[^"]*"[^>]*><svg[^>]*>[\s\S]*?<\/svg><\/span>/
     );
 
     const storyLiMatch = html.match(

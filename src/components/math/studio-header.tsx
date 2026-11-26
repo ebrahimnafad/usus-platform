@@ -143,14 +143,6 @@ export function StudioHeader({
           listClassName="hidden sm:flex items-center gap-1.5 text-xs font-bold text-slate-500"
           activeItemClassName={`rounded-full border px-2.5 py-0.5 font-extrabold ${theme.pill}`}
           linkClassName="hover:text-slate-900 transition"
-          separator={
-            <span
-              className="text-slate-300 font-bold select-none"
-              aria-hidden="true"
-            >
-              &gt;
-            </span>
-          }
         />
 
         {/* Compact mobile grade title */}

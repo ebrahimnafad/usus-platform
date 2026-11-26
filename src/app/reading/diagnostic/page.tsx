@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { ArrowLeftIcon, ArrowRightIcon } from "@/components/studio/icons";
 import {
   DIAGNOSTIC_QUESTIONS,
   evaluateDiagnosticAnswers,
@@ -52,7 +53,7 @@ export default function DiagnosticPage() {
             <Breadcrumbs
               segments={[
                 { label: "نادي القراءة", href: "/reading" },
-                { label: "أداة التشخيص وتحديد المستوى" },
+                { label: "التشخيص وتحديد المستوى" },
               ]}
               activeItemClassName="text-sm font-semibold text-emerald-800"
               linkClassName="text-sm font-medium text-slate-600 hover:text-emerald-700 transition-colors"
@@ -61,9 +62,10 @@ export default function DiagnosticPage() {
 
           <Link
             href="/reading"
-            className="text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition-colors"
           >
-            ← العودة للمكتبة
+            <ArrowRightIcon size={14} />
+            <span>العودة لنادي القراءة</span>
           </Link>
         </div>
       </header>
@@ -73,24 +75,21 @@ export default function DiagnosticPage() {
         {/* Intro Hero */}
         <section className="mb-8 text-center sm:text-right bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-transparent p-6 sm:p-8 rounded-2xl border border-emerald-100">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-semibold mb-3">
-            <span>🎯 أداة تحديد نقطة الانطلاق القرائية</span>
+            <span>🎯 تحديد مستوى القراءة</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-3 tracking-tight">
-            استبانة تشخيص مستوى القراءة والفهم
+            كيف نختار المستوى الأنسب؟
           </h1>
           <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-2xl">
-            أجب عن الأسئلة الستة التالية لتحديد قدرات الطفل بدقة بين التهجئة
-            الصوتية، والتعرف البصري، والفهم الذاتي مقابل السماعي، وتحديد
-            الجاهزية لدخول المستوى الأول (الانطلاق وبناء المعنى) أو مستويات
-            أخرى، والحصول على رابط فوري للبدء.
+            أجب عن هذه الأسئلة الستة حول قراءة الطفل وفهمه، لنقترح عليك المستوى
+            الأنسب — بدءاً من المستوى الأول (الانطلاق وبناء المعنى) أو المستويات
+            الأعلى — وننقلك مباشرةً إلى قصصه.
           </p>
 
           {/* Progress Bar */}
           <div className="mt-6 pt-4 border-t border-emerald-100/70 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm text-slate-600">
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-emerald-800">
-                الأسئلة المجاب عنها:
-              </span>
+              <span className="font-semibold text-emerald-800">أجبت عن:</span>
               <span className="font-mono bg-white px-2.5 py-0.5 rounded-md border border-slate-200 text-slate-800">
                 {formatEasternNumber(answeredCount)} من{" "}
                 {formatEasternNumber(totalQuestions)}
@@ -196,8 +195,8 @@ export default function DiagnosticPage() {
                 }`}
               >
                 {isComplete
-                  ? "إظهار النتيجة والمستوى الموصى به 🎯"
-                  : `يُرجى الإجابة عن كافة الأسئلة (المتبقي: ${formatEasternNumber(
+                  ? "اعرض المستوى المناسب 🎯"
+                  : `أجب عن جميع الأسئلة أولاً (المتبقي: ${formatEasternNumber(
                       totalQuestions - answeredCount
                     )})`}
               </button>
@@ -233,9 +232,10 @@ export default function DiagnosticPage() {
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                 <Link
                   href={result.directLink}
-                  className="px-6 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-center font-bold text-sm shadow hover:shadow-md transition-all"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-center font-bold text-sm shadow hover:shadow-md transition-all"
                 >
-                  الانتقال إلى المستوى والبدء بالقصة الأولى ←
+                  <span>انتقل إلى قصص المستوى</span>
+                  <ArrowLeftIcon size={16} />
                 </Link>
 
                 <button
@@ -243,7 +243,7 @@ export default function DiagnosticPage() {
                   onClick={handleReset}
                   className="px-4 py-3 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-700 font-semibold text-sm transition-colors cursor-pointer"
                 >
-                  إعادة التشخيص ↻
+                  إعادة الأسئلة ↻
                 </button>
               </div>
             </div>

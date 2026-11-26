@@ -1,6 +1,11 @@
 import React from "react";
 import Link from "next/link";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  ChevronLeftIcon,
+} from "@/components/studio/icons";
 import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
 import {
   READING_LEVEL_1,
@@ -44,14 +49,6 @@ export default function ReadingHubPage() {
               listClassName="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-slate-500"
               activeItemClassName="text-emerald-700 font-extrabold"
               linkClassName="hover:text-slate-900 transition"
-              separator={
-                <span
-                  className="select-none font-bold text-slate-300"
-                  aria-hidden="true"
-                >
-                  &gt;
-                </span>
-              }
             />
           </div>
 
@@ -67,9 +64,10 @@ export default function ReadingHubPage() {
             </Link>
             <Link
               href="/"
-              className="rounded-full border border-slate-900/10 bg-white px-3.5 py-1.5 text-slate-700 shadow-2xs transition hover:bg-slate-50"
+              className="inline-flex items-center gap-1.5 rounded-full border border-slate-900/10 bg-white px-3.5 py-1.5 text-slate-700 shadow-2xs transition hover:bg-slate-50"
             >
-              ← الرئيسية
+              <ArrowRightIcon size={14} />
+              <span>الرئيسية</span>
             </Link>
           </nav>
         </div>
@@ -81,7 +79,7 @@ export default function ReadingHubPage() {
           <span aria-hidden="true">📖</span>
           <span>نادي القراءة والفهم القرائي</span>
           <span className="text-emerald-300">•</span>
-          <span>{formatEasternNumber(36)} دورة قصة</span>
+          <span>{formatEasternNumber(36)} قصة تفاعلية</span>
         </div>
 
         <h1 className="mb-3 text-3xl font-black tracking-tight text-slate-950 sm:text-5xl">
@@ -91,8 +89,8 @@ export default function ReadingHubPage() {
         </h1>
 
         <p className="mx-auto max-w-2xl text-sm leading-relaxed font-medium text-slate-600 sm:text-base">
-          مسار منهجي متدرج وفق قاعدة الشرط الواحد لتطوير الفهم القرائي المستقل
-          من الطلاقة القرائية إلى الاستنتاج المركب.
+          رحلة قرائية متدرّجة تنقل الطفل خطوةً بخطوة من التهجئة والطلاقة إلى فهم
+          المعنى والتعبير السليم.
         </p>
 
         <div className="mt-6 flex flex-wrap justify-center gap-3">
@@ -109,7 +107,7 @@ export default function ReadingHubPage() {
               {formatEasternNumber(36)}
             </b>
             <span className="text-[11px] font-semibold text-slate-500">
-              دورة قصة
+              قصة تفاعلية
             </span>
           </div>
           <div className="min-w-[108px] rounded-2xl border border-slate-900/10 bg-white/90 px-4 py-2 text-center shadow-xs">
@@ -137,17 +135,17 @@ export default function ReadingHubPage() {
             <div className="max-w-2xl space-y-3">
               <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/15 px-3.5 py-1 text-xs font-extrabold text-emerald-100">
                 <span aria-hidden="true">🧭</span>
-                <span>تحديد نقطة الانطلاق المناسبة</span>
+                <span>من أين يبدأ طفلك؟</span>
               </div>
 
               <h2 className="text-xl font-black tracking-tight text-white sm:text-2xl">
-                أداة تهيئة نقطة البداية وتشخيص الاستيعاب
+                اختيار مستوى القراءة المناسب
               </h2>
 
               <p className="text-sm leading-relaxed font-medium text-emerald-100/85">
-                استبيان استرشادي سريع من {toEasternArabicNumerals(6)} أسئلة
-                للمربي وولي الأمر لتقييم التوازن بين الطلاقة القرائية والفهم
-                السمعي واقتراح المستوى الأنسب للبدء.
+                {toEasternArabicNumerals(6)} أسئلة سريعة تساعد المعلّم وولي
+                الأمر على معرفة مستوى الطفل في القراءة والفهم، واختيار البداية
+                الأنسب له.
               </p>
 
               {/* Compact 3-step convenience pills */}
@@ -156,16 +154,20 @@ export default function ReadingHubPage() {
                   <span>{toEasternArabicNumerals(1)}.</span>
                   <span>{toEasternArabicNumerals(6)} أسئلة سريعة</span>
                 </span>
-                <span className="text-emerald-400/60" aria-hidden="true">
-                  ←
-                </span>
+                <ChevronLeftIcon
+                  size={13}
+                  className="text-emerald-400/70"
+                  aria-hidden="true"
+                />
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1">
                   <span>{toEasternArabicNumerals(2)}.</span>
                   <span>توصية فورية بالمستوى</span>
                 </span>
-                <span className="text-emerald-400/60" aria-hidden="true">
-                  ←
-                </span>
+                <ChevronLeftIcon
+                  size={13}
+                  className="text-emerald-400/70"
+                  aria-hidden="true"
+                />
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1">
                   <span>{toEasternArabicNumerals(3)}.</span>
                   <span>انتقال مباشر للقصص</span>
@@ -178,13 +180,11 @@ export default function ReadingHubPage() {
                 href="/reading/diagnostic"
                 className="inline-flex items-center justify-center gap-2.5 rounded-full bg-white px-7 py-3.5 text-sm font-black text-emerald-950 shadow-[0_14px_28px_-12px_rgba(0,0,0,0.45)] transition hover:-translate-y-0.5 hover:bg-emerald-50"
               >
-                <span>بدء الاستبيان التشخيصي</span>
-                <span aria-hidden="true" className="text-base leading-none">
-                  ←
-                </span>
+                <span>ابدأ تحديد المستوى</span>
+                <ArrowLeftIcon size={16} />
               </Link>
               <span className="text-center text-[11px] font-semibold text-emerald-200/80 lg:px-2">
-                يستغرق دقيقتين تقريباً • اختياري قبل اختيار المستوى
+                دقيقتان فقط • خطوة اختيارية قبل البدء
               </span>
             </div>
           </div>
@@ -196,7 +196,7 @@ export default function ReadingHubPage() {
             مستويات نادي القراءة والفهم
           </h2>
           <p className="text-sm text-slate-500 font-medium mt-1">
-            مسار منهجي متدرج وفق قاعدة الشرط الواحد
+            اختر المستوى المناسب لبداية طفلك، وتدرّج معه في القراءة والفهم
           </p>
         </div>
 
@@ -216,7 +216,7 @@ export default function ReadingHubPage() {
                   المستوى الأول
                 </span>
                 <div className="inline-flex items-center gap-1 rounded-full bg-white/90 px-3 py-1 text-[11px] font-extrabold text-slate-700 shadow-2xs">
-                  <span>{`${toEasternArabicNumerals(12)} دورة قصة`}</span>
+                  <span>{`${toEasternArabicNumerals(12)} قصة`}</span>
                 </div>
               </div>
               <div className="relative z-10 flex flex-1 items-center justify-center pt-2 text-4xl">
@@ -254,10 +254,8 @@ export default function ReadingHubPage() {
                 href="/reading/level/level-1"
                 className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-5 py-3 text-xs font-black text-white shadow-[0_12px_22px_-10px_rgba(5,150,105,0.7)] transition hover:-translate-y-0.5 hover:bg-emerald-700 sm:text-sm"
               >
-                <span>دخول قصص المستوى</span>
-                <span aria-hidden="true" className="text-base leading-none">
-                  ←
-                </span>
+                <span>تصفّح القصص</span>
+                <ArrowLeftIcon size={16} />
               </Link>
             </div>
           </div>
@@ -277,7 +275,7 @@ export default function ReadingHubPage() {
                   المستوى الثاني
                 </span>
                 <div className="inline-flex items-center gap-1 rounded-full bg-white/90 px-3 py-1 text-[11px] font-extrabold text-slate-700 shadow-2xs">
-                  <span>{`${toEasternArabicNumerals(READING_LEVEL_2.stories.length)} دورة قصة`}</span>
+                  <span>{`${toEasternArabicNumerals(READING_LEVEL_2.stories.length)} قصة`}</span>
                 </div>
               </div>
               <div className="relative z-10 flex flex-1 items-center justify-center pt-2 text-4xl">
@@ -321,10 +319,8 @@ export default function ReadingHubPage() {
                 href="/reading/level/level-2"
                 className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-teal-600 px-5 py-3 text-xs font-black text-white shadow-[0_12px_22px_-10px_rgba(20,184,166,0.7)] transition hover:-translate-y-0.5 hover:bg-teal-700 sm:text-sm"
               >
-                <span>دخول قصص المستوى</span>
-                <span aria-hidden="true" className="text-base leading-none">
-                  ←
-                </span>
+                <span>تصفّح القصص</span>
+                <ArrowLeftIcon size={16} />
               </Link>
             </div>
           </div>
@@ -344,7 +340,7 @@ export default function ReadingHubPage() {
                   المستوى الثالث
                 </span>
                 <div className="inline-flex items-center gap-1 rounded-full bg-white/90 px-3 py-1 text-[11px] font-extrabold text-slate-700 shadow-2xs">
-                  <span>{`${toEasternArabicNumerals(READING_LEVEL_3.stories.length)} دورة قصة`}</span>
+                  <span>{`${toEasternArabicNumerals(READING_LEVEL_3.stories.length)} قصة`}</span>
                 </div>
               </div>
               <div className="relative z-10 flex flex-1 items-center justify-center pt-2 text-4xl">
@@ -380,7 +376,7 @@ export default function ReadingHubPage() {
                   </div>
                   <div className="flex items-center justify-between">
                     <span>التشكيل:</span>
-                    <span className="text-slate-800">بدون تشكيل افتراضيًا</span>
+                    <span className="text-slate-800">بلا تشكيل</span>
                   </div>
                 </div>
               </div>
@@ -388,10 +384,8 @@ export default function ReadingHubPage() {
                 href="/reading/level/level-3"
                 className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-amber-600 px-5 py-3 text-xs font-black text-white shadow-[0_12px_22px_-10px_rgba(217,119,6,0.7)] transition hover:-translate-y-0.5 hover:bg-amber-700 sm:text-sm"
               >
-                <span>دخول قصص المستوى</span>
-                <span aria-hidden="true" className="text-base leading-none">
-                  ←
-                </span>
+                <span>تصفّح القصص</span>
+                <ArrowLeftIcon size={16} />
               </Link>
             </div>
           </div>

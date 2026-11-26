@@ -7,6 +7,7 @@ import type { GradeConfig, GradeColorToken } from "@/config/grades";
 import { GradeCardVisualModel } from "@/components/math/grade-card-models";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import { formatEasternNumber } from "@/lib/numerals";
+import { ArrowLeftIcon } from "@/components/studio/icons";
 
 export interface GradeCardProps {
   grade: GradeConfig;
@@ -175,9 +176,7 @@ export function GradeCard({ grade }: GradeCardProps): React.ReactElement {
           aria-label={`دخول استوديو ${grade.label}`}
         >
           <span>تصفح استوديو {grade.label}</span>
-          <span aria-hidden="true" className="text-base leading-none">
-            ←
-          </span>
+          <ArrowLeftIcon size={16} />
         </Link>
       </div>
     </motion.div>

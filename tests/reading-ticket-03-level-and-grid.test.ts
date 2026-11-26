@@ -17,13 +17,13 @@ describe("Ticket 03 — Reading Level Selection and Story Grid Browser", () => {
 
       // 2. Diagnostic banner
       expect(html).toContain("/reading/diagnostic");
-      expect(html).toContain("أداة تهيئة نقطة البداية");
+      expect(html).toContain("اختيار مستوى القراءة المناسب");
 
       // 3. Level 1 card with details
       expect(html).toContain("المستوى الأول");
       expect(html).toContain("الانطلاق وبناء المعنى");
       expect(html).toContain("/reading/level/level-1");
-      expect(html).toContain("١٢ دورة قصة");
+      expect(html).toContain("١٢ قصة");
 
       // 4. Upcoming preview levels
       expect(html).toContain("المستوى الثاني");

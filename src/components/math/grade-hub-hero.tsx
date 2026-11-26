@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { ArrowRightIcon } from "@/components/studio/icons";
 import { formatEasternNumber } from "@/lib/numerals";
 
 export function GradeHubHero(): React.ReactElement {
@@ -31,14 +32,6 @@ export function GradeHubHero(): React.ReactElement {
               listClassName="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-slate-500"
               activeItemClassName="text-indigo-700 font-extrabold"
               linkClassName="hover:text-slate-900 transition"
-              separator={
-                <span
-                  className="select-none font-bold text-slate-300"
-                  aria-hidden="true"
-                >
-                  &gt;
-                </span>
-              }
             />
           </div>
 
@@ -54,9 +47,10 @@ export function GradeHubHero(): React.ReactElement {
             </Link>
             <Link
               href="/"
-              className="rounded-full border border-slate-900/10 bg-white px-3.5 py-1.5 text-slate-700 shadow-2xs transition hover:bg-slate-50"
+              className="inline-flex items-center gap-1.5 rounded-full border border-slate-900/10 bg-white px-3.5 py-1.5 text-slate-700 shadow-2xs transition hover:bg-slate-50"
             >
-              ← الرئيسية
+              <ArrowRightIcon size={14} />
+              <span>الرئيسية</span>
             </Link>
           </nav>
         </div>

@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
+import { ChevronLeftIcon } from "@/components/studio/icons";
 
 export interface BreadcrumbSegment {
   label: string;
@@ -38,9 +39,11 @@ export function Breadcrumbs({
   const shouldAnimate = animated && !prefersReducedMotion;
 
   const defaultSeparator = (
-    <span className="select-none text-slate-300 font-bold" aria-hidden="true">
-      &gt;
-    </span>
+    <ChevronLeftIcon
+      size={14}
+      className="select-none text-slate-300"
+      aria-hidden="true"
+    />
   );
 
   const activeSeparator = separator ?? defaultSeparator;
