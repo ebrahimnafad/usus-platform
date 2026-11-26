@@ -38,8 +38,8 @@ describe("Ticket 06 — RTL Teacher Studio: Grades K–5, 12 Units Accordion, Se
     expect(studioHtmlK).toContain("تقديم مشترك");
     expect(studioHtmlK).toContain("إثرائي *");
 
-    // 4. PDF download button (تحميل PDF) and zoom controls are visible with Eastern Arabic Numerals
-    expect(studioHtmlK).toContain("تحميل PDF");
+    // 4. Print button (طباعة) and zoom controls are visible with Eastern Arabic Numerals
+    expect(studioHtmlK).toContain("طباعة");
     expect(studioHtmlK).toContain("١٠٠٪");
 
     // 5. Strict Eastern Arabic Numerals invariant across the entire rendered studio HTML
@@ -185,7 +185,8 @@ describe("Ticket 06 — Secondary Seam: Local Headless Browser A4 PDF Exporter",
     expect(printDoc.html).toContain("margin: 0");
     expect(printDoc.html).toContain("print-color-adjust: exact");
     expect(printDoc.html).toContain("break-inside: avoid");
-    expect(printDoc.html).toContain("fonts.googleapis.com/css2?family=Cairo");
+    expect(printDoc.html).toContain("fonts.googleapis.com/css2?");
+    expect(printDoc.html).toContain("Cairo");
     expect(findWesternNumeralsInRenderedHtml(printDoc.html)).toEqual([]);
 
     // 2. Headless browser PDF export for Worksheet

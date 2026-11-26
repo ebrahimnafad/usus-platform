@@ -4,7 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { findWesternNumeralsInRenderedHtml } from "@/lib/numerals";
 import HomePage from "@/app/page";
 import MathPage from "@/app/math/page";
-import { type NextRequest } from "next/server";
+import { NextRequest } from "next/server";
 import { GET as getPrintHtmlRoute } from "@/app/api/print-html/route";
 
 describe("Ticket 01 — Hub Page and Domain Route Migration", () => {
@@ -73,12 +73,10 @@ describe("Ticket 01 — Hub Page and Domain Route Migration", () => {
 
   describe("Existing Math Routes Integrity (/api/print-html)", () => {
     it("preserves printable HTML generation endpoint for math worksheets", async () => {
-      const request = new Request(
+      const request = new NextRequest(
         "http://localhost:3000/api/print-html?grade=K&lesson=1&seed=PDF-HUB-01&difficulty=scaffolded&viewOption=worksheet&scope=lesson"
       );
-      const response = await getPrintHtmlRoute(
-        request as unknown as NextRequest
-      );
+      const response = await getPrintHtmlRoute(request);
       expect(response.status).toBe(200);
       expect(response.headers.get("Content-Type")).toContain(
         "application/json"
