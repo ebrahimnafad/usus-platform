@@ -118,44 +118,71 @@ export default function ReadingHubPage() {
       </header>
 
       <main className="mx-auto max-w-6xl px-4 pt-2 sm:px-6">
-        {/* ── Diagnostic Banner ── */}
-        <section className="mb-10 overflow-hidden rounded-[32px] bg-white shadow-[0_24px_48px_-24px_rgba(5,150,105,0.25)] border border-white/80">
-          {/* Pastel art header */}
+        {/* ── Diagnostic Utility Strip (distinct from Level Cards) ── */}
+        <section
+          aria-label="أداة التشخيص وتحديد المستوى"
+          className="relative mb-10 overflow-hidden rounded-[28px] border border-emerald-700/40 bg-gradient-to-l from-emerald-950 via-emerald-900 to-teal-900 p-6 text-white shadow-[0_22px_48px_-22px_rgba(6,78,59,0.6)] sm:p-8"
+        >
+          {/* Subtle decorative radial glow */}
           <div
-            className="relative flex items-center justify-between gap-4 px-6 pt-6 pb-10 sm:px-8"
-            style={{
-              background:
-                "radial-gradient(circle at 20% 50%, #D1FAE5, #A7F3D0, #ECFDF5)",
-            }}
-          >
-            <div className="space-y-2 max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-800 text-xs font-black">
-                <span>🎯</span>
+            aria-hidden="true"
+            className="pointer-events-none absolute -top-24 -start-24 size-64 rounded-full bg-emerald-400/15 blur-3xl"
+          />
+
+          <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="max-w-2xl space-y-3">
+              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/15 px-3.5 py-1 text-xs font-extrabold text-emerald-100">
+                <span aria-hidden="true">🧭</span>
                 <span>تحديد نقطة الانطلاق المناسبة</span>
               </div>
-              <h2 className="text-xl sm:text-2xl font-black text-emerald-950">
+
+              <h2 className="text-xl font-black tracking-tight text-white sm:text-2xl">
                 أداة تهيئة نقطة البداية وتشخيص الاستيعاب
               </h2>
-              <p className="text-emerald-800/80 text-sm leading-relaxed font-medium">
+
+              <p className="text-sm leading-relaxed font-medium text-emerald-100/85">
                 استبيان استرشادي سريع من {toEasternArabicNumerals(6)} أسئلة
                 للمربي وولي الأمر لتقييم التوازن بين الطلاقة القرائية والفهم
-                السمعي.
+                السمعي واقتراح المستوى الأنسب للبدء.
               </p>
-            </div>
-            <span className="text-5xl hidden sm:block" aria-hidden="true">
-              🔍
-            </span>
-          </div>
 
-          {/* Curved-lip body */}
-          <div className="home-card-lip relative bg-white px-6 pt-1 pb-6 sm:px-8">
-            <Link
-              href="/reading/diagnostic"
-              className="mt-4 inline-flex items-center gap-2.5 rounded-full bg-emerald-600 px-6 py-3 text-sm font-black text-white shadow-[0_12px_22px_-10px_rgba(5,150,105,0.7)] transition hover:-translate-y-0.5 hover:bg-emerald-700"
-            >
-              <span>بدء الاستبيان التشخيصي</span>
-              <span aria-hidden="true">←</span>
-            </Link>
+              {/* Compact 3-step convenience pills */}
+              <div className="flex flex-wrap items-center gap-2 pt-1 text-[11px] font-bold text-emerald-100/90">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1">
+                  <span>{toEasternArabicNumerals(1)}.</span>
+                  <span>{toEasternArabicNumerals(6)} أسئلة سريعة</span>
+                </span>
+                <span className="text-emerald-400/60" aria-hidden="true">
+                  ←
+                </span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1">
+                  <span>{toEasternArabicNumerals(2)}.</span>
+                  <span>توصية فورية بالمستوى</span>
+                </span>
+                <span className="text-emerald-400/60" aria-hidden="true">
+                  ←
+                </span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1">
+                  <span>{toEasternArabicNumerals(3)}.</span>
+                  <span>انتقال مباشر للقصص</span>
+                </span>
+              </div>
+            </div>
+
+            <div className="flex shrink-0 flex-col items-stretch gap-2 sm:items-start lg:items-end">
+              <Link
+                href="/reading/diagnostic"
+                className="inline-flex items-center justify-center gap-2.5 rounded-full bg-white px-7 py-3.5 text-sm font-black text-emerald-950 shadow-[0_14px_28px_-12px_rgba(0,0,0,0.45)] transition hover:-translate-y-0.5 hover:bg-emerald-50"
+              >
+                <span>بدء الاستبيان التشخيصي</span>
+                <span aria-hidden="true" className="text-base leading-none">
+                  ←
+                </span>
+              </Link>
+              <span className="text-center text-[11px] font-semibold text-emerald-200/80 lg:px-2">
+                يستغرق دقيقتين تقريباً • اختياري قبل اختيار المستوى
+              </span>
+            </div>
           </div>
         </section>
 
