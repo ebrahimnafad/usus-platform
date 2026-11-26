@@ -7,6 +7,7 @@ import { WorksheetSurface } from "@/components/worksheet/WorksheetSurface";
 import { buildStudioRouteHref } from "@/lib/studio-state";
 import { formatEasternNumber } from "@/lib/numerals";
 import { printHtmlInIframe } from "@/lib/print-html-iframe";
+import { A4_WIDTH_PX, useA4FitScale } from "@/lib/use-a4-fit-scale";
 import {
   AnswerKeyIcon,
   NotesIcon,
@@ -18,8 +19,6 @@ export interface QuickViewClientProps {
   initialViewMode: "answer-key" | "teacher-notes";
 }
 
-const A4_WIDTH_PX = 794; // 210mm at 96dpi
-
 export function QuickViewClient({
   bundle,
   initialViewMode,
@@ -27,35 +26,14 @@ export function QuickViewClient({
   const [viewMode, setViewMode] = useState<"answer-key" | "teacher-notes">(
     initialViewMode
   );
-  const [scale, setScale] = useState(1);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const { containerRef, fitScale: scale } = useA4FitScale(
+    viewMode === "answer-key"
+  );
   const sheetRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setViewMode(initialViewMode);
   }, [initialViewMode]);
-
-  useEffect(() => {
-    if (viewMode !== "answer-key") {
-      setScale(1);
-      return;
-    }
-
-    const updateScale = () => {
-      const container = containerRef.current;
-      if (!container) return;
-      const available = container.clientWidth;
-      if (available > 0 && available < A4_WIDTH_PX) {
-        setScale(Math.max(0.38, available / A4_WIDTH_PX));
-      } else {
-        setScale(1);
-      }
-    };
-
-    updateScale();
-    window.addEventListener("resize", updateScale);
-    return () => window.removeEventListener("resize", updateScale);
-  }, [viewMode]);
 
   const studioHref = buildStudioRouteHref({
     grade: bundle.grade.id,

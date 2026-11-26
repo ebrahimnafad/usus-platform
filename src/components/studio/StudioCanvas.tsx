@@ -11,6 +11,7 @@ import { WorksheetSurface } from "@/components/worksheet/WorksheetSurface";
 import { PrintModal } from "@/components/studio/PrintModal";
 import { formatEasternNumber } from "@/lib/numerals";
 import { getGradeAccents, getGradeConfig } from "@/config/grades";
+import { A4_WIDTH_PX, useA4FitScale } from "@/lib/use-a4-fit-scale";
 import {
   AnswerKeyIcon,
   NotesIcon,
@@ -56,6 +57,10 @@ export function StudioCanvas({
 
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const [qrOrigin, setQrOrigin] = useState<string | undefined>(undefined);
+  const { containerRef, fitScale } = useA4FitScale(
+    viewMode !== "teacher-notes"
+  );
+  const effectiveScale = fitScale * (zoomPercent / 100);
 
   useEffect(() => {
     setQrOrigin(window.location.origin);
@@ -159,14 +164,27 @@ export function StudioCanvas({
         </div>
       </div>
 
-      <div className="mx-auto w-full max-w-[210mm]">
+      <div
+        ref={containerRef}
+        className={`mx-auto w-full max-w-[210mm] ${
+          fitScale < 1 ? "overflow-x-hidden" : ""
+        }`}
+      >
         <div
           className={`origin-top transition-opacity duration-150 motion-reduce:transition-none ${
             isPending ? "opacity-[0.55]" : "opacity-100"
           }`}
           style={
-            zoomPercent !== 100
-              ? { transform: `scale(${zoomPercent / 100})` }
+            effectiveScale !== 1
+              ? {
+                  transform: `scale(${effectiveScale})`,
+                  ...(fitScale < 1
+                    ? {
+                        transformOrigin: "top right",
+                        width: `${A4_WIDTH_PX}px`,
+                      }
+                    : undefined),
+                }
               : undefined
           }
         >
