@@ -56,11 +56,14 @@ export default function FreeReadingNook({
 
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={() => onSetShieldOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-950 font-extrabold text-xs transition border border-amber-300 shadow-2xs"
+              className="inline-flex items-center justify-center gap-1.5 min-h-[44px] min-w-[44px] px-3 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-950 font-extrabold text-xs transition border border-amber-300 shadow-2xs"
+              title="درع المعلم"
+              aria-label="درع المعلم"
             >
               <span>👩‍🏫</span>
-              <span>درع المعلم</span>
+              <span className="hidden sm:inline">درع المعلم</span>
             </button>
             <button
               type="button"
@@ -68,11 +71,12 @@ export default function FreeReadingNook({
               onClick={() =>
                 onOpenPrintModal ? onOpenPrintModal() : window.print()
               }
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs transition shadow-xs"
+              className="inline-flex items-center justify-center gap-1.5 min-h-[44px] min-w-[44px] px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs transition shadow-xs"
               title="طباعة ورقة العمل"
+              aria-label="طباعة ورقة العمل"
             >
               <span>🖨️</span>
-              <span>طباعة ورقة العمل</span>
+              <span className="hidden sm:inline">طباعة ورقة العمل</span>
             </button>
           </div>
         </div>
