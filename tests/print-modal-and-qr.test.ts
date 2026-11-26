@@ -183,6 +183,15 @@ describe("QR codes, Quick View URLs, and Print HTML API", () => {
         text: "الدرس ١",
         files: [pdfFile],
       });
+
+      // Exclusively shares: returns "unsupported" (never downloads) when file sharing is unavailable
+      vi.stubGlobal("navigator", {});
+      const unsupportedResult = await sharePrintPdfFile({
+        title: "ورقة عمل",
+        text: "الدرس ١",
+        file: pdfFile,
+      });
+      expect(unsupportedResult).toBe("unsupported");
     });
   });
 });

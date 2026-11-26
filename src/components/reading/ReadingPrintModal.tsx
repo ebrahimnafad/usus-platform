@@ -153,11 +153,12 @@ export function ReadingPrintModal({
         text: `${level.titleAr}: «${storyTitle}»`,
         file: pdfFile,
       });
-      if (result === "downloaded" || result === "shared") {
-        setShareFeedback(
-          result === "downloaded" ? "تم تحميل PDF ✓" : "تمت المشاركة ✓"
-        );
+      if (result === "shared") {
+        setShareFeedback("تمت المشاركة ✓");
         setTimeout(() => setShareFeedback(null), 2500);
+      } else if (result === "unsupported") {
+        setShareFeedback("المشاركة غير مدعومة هنا");
+        setTimeout(() => setShareFeedback(null), 3000);
       }
     } catch {
       setShareFeedback("تعذّرت المشاركة");

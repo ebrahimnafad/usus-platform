@@ -125,6 +125,32 @@ const MULTI_SHEET_BREAK_CSS = `
 }
 `;
 
+/**
+ * Mirror the `@media print` rules from WorksheetSurface / globals.css when
+ * capturing an off-screen DOM sheet into a PDF so the shared PDF matches the
+ * browser's Print output 1:1.
+ */
+const CAPTURE_PRINT_PARITY_CSS = `
+.no-print {
+  display: none !important;
+}
+.a4-sheet,
+.reading-a4-sheet {
+  width: 794px !important;
+  min-height: 1123px !important;
+  padding: 10mm !important;
+  margin: 0 !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+.a4-sheet[data-worksheet-surface="true"] [data-section-id] {
+  border: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+`;
+
 function collectHeadStylesHtml(): string {
   if (typeof document === "undefined") return "";
   const nodes = document.querySelectorAll('style, link[rel="stylesheet"]');
@@ -183,6 +209,7 @@ async function mountPrintIframe({
       ? `<base href="${window.location.href.replace(/"/g, "&quot;")}" />`
       : "";
   const bwCss = colorMode === "bw" ? BW_INK_SAVING_CSS : "";
+  const captureCss = visibleForCapture ? CAPTURE_PRINT_PARITY_CSS : "";
   const fontStack = resolvePrintFontStack(fontFamily);
   const fontCss = `
 html, body, .a4-sheet, .reading-a4-sheet, [data-worksheet-surface="true"], .font-serif {
@@ -208,6 +235,7 @@ html, body, .a4-sheet, .reading-a4-sheet, [data-worksheet-surface="true"], .font
     ${fontCss}
     ${MULTI_SHEET_BREAK_CSS}
     ${bwCss}
+    ${captureCss}
   </style>
 </head>
 <body class="${colorMode === "bw" ? "print-bw" : "print-color"}">
@@ -339,7 +367,7 @@ export async function renderHtmlToPdfFile(
 
   try {
     const { doc, safeTitle } = mounted;
-    const [{ toJpeg }, { jsPDF }] = await Promise.all([
+    const [{ toCanvas }, { jsPDF }] = await Promise.all([
       import("html-to-image"),
       import("jspdf"),
     ]);
@@ -356,40 +384,84 @@ export async function renderHtmlToPdfFile(
       compress: true,
     });
 
-    for (let i = 0; i < targets.length; i++) {
-      const target = targets[i];
-      if (i > 0) {
-        pdf.addPage("a4", "portrait");
-      }
+    const pageWidthMm = 210;
+    const pageHeightMm = 297;
+    const a4Ratio = pageHeightMm / pageWidthMm;
+    let isFirstPdfPage = true;
 
-      const dataUrl = await toJpeg(target, {
+    for (const target of targets) {
+      const canvas = await toCanvas(target, {
         pixelRatio: 2,
-        quality: 0.92,
         backgroundColor: "#ffffff",
       });
 
-      const widthPx = target.scrollWidth || 794;
-      const heightPx = target.scrollHeight || 1123;
-      const pageWidthMm = 210;
-      const pageHeightMm = 297;
-      const scaledHeightMm = (heightPx / widthPx) * pageWidthMm;
-      const drawHeightMm = Math.min(pageHeightMm, scaledHeightMm);
-      const drawWidthMm =
-        scaledHeightMm > pageHeightMm
-          ? pageWidthMm * (pageHeightMm / scaledHeightMm)
-          : pageWidthMm;
-      const offsetX = (pageWidthMm - drawWidthMm) / 2;
+      const pageSliceHeightPx = Math.round(canvas.width * a4Ratio);
 
-      pdf.addImage(
-        dataUrl,
-        "JPEG",
-        offsetX,
-        0,
-        drawWidthMm,
-        drawHeightMm,
-        undefined,
-        "FAST"
-      );
+      // Single-page sheet (with small 2% tolerance for subpixel rounding)
+      if (canvas.height <= pageSliceHeightPx * 1.02) {
+        if (!isFirstPdfPage) pdf.addPage("a4", "portrait");
+        isFirstPdfPage = false;
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.94);
+        const drawHeightMm = Math.min(
+          pageHeightMm,
+          (canvas.height / canvas.width) * pageWidthMm
+        );
+        pdf.addImage(
+          dataUrl,
+          "JPEG",
+          0,
+          0,
+          pageWidthMm,
+          drawHeightMm,
+          undefined,
+          "FAST"
+        );
+        continue;
+      }
+
+      // Multi-page sheet: slice cleanly into A4 pages without squishing
+      let offsetY = 0;
+      while (offsetY < canvas.height) {
+        if (!isFirstPdfPage) pdf.addPage("a4", "portrait");
+        isFirstPdfPage = false;
+
+        const sliceHeight = Math.min(
+          pageSliceHeightPx,
+          canvas.height - offsetY
+        );
+        const pageCanvas = document.createElement("canvas");
+        pageCanvas.width = canvas.width;
+        pageCanvas.height = sliceHeight;
+        const ctx = pageCanvas.getContext("2d");
+        if (ctx) {
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+          ctx.drawImage(
+            canvas,
+            0,
+            offsetY,
+            canvas.width,
+            sliceHeight,
+            0,
+            0,
+            canvas.width,
+            sliceHeight
+          );
+        }
+        const sliceDataUrl = pageCanvas.toDataURL("image/jpeg", 0.94);
+        const sliceHeightMm = (sliceHeight / canvas.width) * pageWidthMm;
+        pdf.addImage(
+          sliceDataUrl,
+          "JPEG",
+          0,
+          0,
+          pageWidthMm,
+          sliceHeightMm,
+          undefined,
+          "FAST"
+        );
+        offsetY += sliceHeight;
+      }
     }
 
     const blob = pdf.output("blob");
