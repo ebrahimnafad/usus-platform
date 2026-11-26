@@ -1,5 +1,5 @@
 import React from "react";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import printFonts from "@/config/print-fonts.json";
 import "./globals.css";
 
@@ -7,6 +7,12 @@ export const metadata: Metadata = {
   title: "منصة أوراق العمل الرياضية | الصفوف K–٥",
   description:
     "منصة عربية لتوليد أوراق عمل رياضية ملونة ومفاتيح إجابة وملاحظات المعلم للصفوف من الروضة حتى الصف الخامس",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

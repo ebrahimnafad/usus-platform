@@ -223,7 +223,7 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
             />
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="hidden sm:flex items-center gap-2">
             <button
               onClick={() => setShieldOpen(true)}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-extrabold text-xs transition border border-slate-200"
@@ -402,7 +402,7 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
         )}
 
         {/* Bottom Station Navigation Bar */}
-        <div className="mt-8 pt-4 border-t border-slate-200 flex items-center justify-between no-print">
+        <div className="mt-8 pt-4 border-t border-slate-200 hidden sm:flex items-center justify-between no-print">
           <button
             disabled={activeStation <= 1}
             onClick={() => setActiveStation((prev) => Math.max(1, prev - 1))}
@@ -425,6 +425,56 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
           </button>
         </div>
       </main>
+
+      {/* Fixed Mobile Bottom Bar */}
+      <nav
+        aria-label="التنقل السريع"
+        className="fixed bottom-0 inset-x-0 z-30 sm:hidden bg-white border-t border-slate-200 pb-[env(safe-area-inset-bottom)] no-print"
+      >
+        <div className="flex items-center justify-between gap-1 px-2 py-1.5 max-w-md mx-auto">
+          <button
+            type="button"
+            onClick={() => setShieldOpen(true)}
+            aria-label="درع المعلم"
+            title="درع المعلم"
+            className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 text-base transition shrink-0"
+          >
+            👩‍🏫
+          </button>
+
+          <button
+            type="button"
+            disabled={activeStation <= 1}
+            onClick={() => setActiveStation((prev) => Math.max(1, prev - 1))}
+            className="min-h-[44px] min-w-[44px] px-2.5 inline-flex items-center justify-center rounded-xl text-xs font-extrabold transition border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 shrink-0"
+          >
+            → السابقة
+          </button>
+
+          <span className="text-xs font-bold text-slate-500 text-center whitespace-nowrap px-1">
+            {`المحطة ${toEasternArabicNumerals(activeStation)} من ${toEasternArabicNumerals(6)}`}
+          </span>
+
+          <button
+            type="button"
+            disabled={activeStation >= 6}
+            onClick={() => setActiveStation((prev) => Math.min(6, prev + 1))}
+            className="min-h-[44px] min-w-[44px] px-2.5 inline-flex items-center justify-center rounded-xl text-xs font-extrabold transition bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed text-white shadow-xs shrink-0"
+          >
+            التالية ←
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setPrintModalOpen(true)}
+            aria-label="طباعة ورقة العمل"
+            title="طباعة ورقة العمل"
+            className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-base transition shadow-xs shrink-0"
+          >
+            🖨️
+          </button>
+        </div>
+      </nav>
 
       {/* Teacher Shield Collapsible Right Drawer */}
       <TeacherShieldDrawer
