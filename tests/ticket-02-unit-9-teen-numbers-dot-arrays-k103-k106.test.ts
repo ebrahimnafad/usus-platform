@@ -389,7 +389,7 @@ describe("Ticket 02 (Unit 9) — Slice 2: K-103 blueprint and full surfaces", ()
     expect(generated.warmUpSourceLessonId).toBe("K-62");
     expect(generated.worksheet.sections).toHaveLength(3);
     expect(generated.worksheet.header.lessonTitleAr).toContain(
-      "الأعداد المراهقة"
+      "الأعداد من ١١ إلى ٢٠"
     );
     // Warm-up + practice (≥2 items) + challenge (PoD + BB)
     expect(
@@ -532,7 +532,7 @@ describe("Ticket 02 (Unit 9) — Slice 3: K-104 blueprint and full surfaces", ()
     expect(generated.warmUpSourceLessonId).toBe("K-63");
     expect(generated.worksheet.sections).toHaveLength(3);
     expect(generated.worksheet.header.lessonTitleAr).toContain(
-      "الأعداد المراهقة"
+      "الأعداد من ١١ إلى ٢٠"
     );
     expect(
       generated.worksheet.sections[0].exercises.length

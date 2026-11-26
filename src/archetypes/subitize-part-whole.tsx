@@ -631,7 +631,7 @@ function generateDecomposeTeenExercise(
     archetype: "SubitizePartWhole",
     difficultyLevel: ctx.difficultyLevel,
     sourceLessonId: ctx.sourceLessonId,
-    titleAr: "اعرف العدد بسرعة: تفكيك الأعداد المراهقة (١٠ وقليل أكثر)",
+    titleAr: "اعرف العدد بسرعة: تفكيك الأعداد من ١١ إلى ١٩ (١٠ وزيادة)",
     promptAr: ctx.spec.promptAr ?? defaultPromptAr,
     strategyHintAr: ctx.spec.strategyHintAr ?? defaultStrategyHintAr,
     visualModels,

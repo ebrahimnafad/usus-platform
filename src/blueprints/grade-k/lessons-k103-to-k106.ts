@@ -1,4 +1,4 @@
-﻿import type { LessonBlueprint } from "@/domain/types";
+import type { LessonBlueprint } from "@/domain/types";
 import { AUTHORED_LESSON_LOCALIZATION } from "@/curriculum/arabic-localization";
 import { registerLessonBlueprint } from "@/blueprints/registry";
 
@@ -1249,7 +1249,7 @@ export const lessonK106Blueprint: LessonBlueprint = {
       practice: [
         {
           archetype: "SequenceAndZero",
-          promptAr: "عدّ نقاط كل مصفوفة ثم اكتب الأعداد المراهقة الناقصة:",
+          promptAr: "عدّ نقاط كل مصفوفة ثم اكتب الأعداد الناقصة:",
           strategyHintAr:
             "انظر إلى الصفّ الكامل (١٠) بلمحة واحدة ثم عدّ نقاط الصفّ الثاني الملفوف.",
           params: {
@@ -1320,8 +1320,7 @@ export const lessonK106Blueprint: LessonBlueprint = {
       practice: [
         {
           archetype: "SequenceAndZero",
-          promptAr:
-            "عدّ نقاط كل مصفوفة ثم اكتب الأعداد المراهقة الناقصة حتى ٢٠:",
+          promptAr: "عدّ نقاط كل مصفوفة ثم اكتب الأعداد الناقصة حتى ٢٠:",
           strategyHintAr:
             "انظر إلى الصفّين الكاملين (٢٠) بلمحة واحدة ثم عدّ النقاط الناقصة.",
           params: {
@@ -1392,8 +1391,7 @@ export const lessonK106Blueprint: LessonBlueprint = {
       practice: [
         {
           archetype: "SequenceAndZero",
-          promptAr:
-            "عدّ نقاط كل مصفوفة ثم اكتب الأعداد المراهقة الناقصة حتى ٢٠:",
+          promptAr: "عدّ نقاط كل مصفوفة ثم اكتب الأعداد الناقصة حتى ٢٠:",
           strategyHintAr:
             "انظر إلى الصفّين الكاملين (٢٠) بلمحة واحدة ثم عدّ النقاط الناقصة.",
           params: {
