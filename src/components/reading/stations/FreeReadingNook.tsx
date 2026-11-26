@@ -107,7 +107,7 @@ export default function FreeReadingNook({
           <h1 className="text-2xl sm:text-4xl font-black text-slate-900 mb-10 font-serif">
             {story.titleAr ?? story.title}
           </h1>
-          <div className="font-serif text-2xl sm:text-3xl leading-[2.5] text-slate-800 text-justify max-w-2xl mx-auto">
+          <div className="font-serif text-2xl sm:text-3xl leading-[2.5] text-slate-800 text-justify max-w-2xl mx-auto whitespace-pre-line">
             {story.text}
           </div>
 

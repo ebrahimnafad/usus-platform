@@ -435,10 +435,11 @@ for (const level of levels) {
         report(ctx, `free_reading story must not define expressionPrompt`);
       }
     } else {
-      if (story.qarQuestions.length !== 3) {
+      const expectedQarCount = level.levelNumber >= 3 ? 4 : 3;
+      if (story.qarQuestions.length !== expectedQarCount) {
         report(
           ctx,
-          `Expected 3 qarQuestions, got ${story.qarQuestions.length}`
+          `Expected ${expectedQarCount} qarQuestions, got ${story.qarQuestions.length}`
         );
       }
       const tiers = new Set(story.qarQuestions.map((q) => q.tier));

@@ -10,6 +10,8 @@ export type ReadingLevelId =
   | "read_l2"
   | "2"
   | "level-3"
+  | "read_l3"
+  | "3"
   | "level-0";
 
 export type ReadingStoryType = "standard" | "free_reading" | "transfer_test";

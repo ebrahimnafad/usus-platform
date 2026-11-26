@@ -2,7 +2,11 @@ import React from "react";
 import Link from "next/link";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { formatEasternNumber, toEasternArabicNumerals } from "@/lib/numerals";
-import { READING_LEVEL_1, READING_LEVEL_2 } from "@/curriculum/reading-catalog";
+import {
+  READING_LEVEL_1,
+  READING_LEVEL_2,
+  READING_LEVEL_3,
+} from "@/curriculum/reading-catalog";
 
 export const metadata = {
   title: "أُسُس — نادي القراءة والفهم القرائي",
@@ -77,7 +81,7 @@ export default function ReadingHubPage() {
           <span aria-hidden="true">📖</span>
           <span>نادي القراءة والفهم القرائي</span>
           <span className="text-emerald-300">•</span>
-          <span>{formatEasternNumber(24)} دورة قصة</span>
+          <span>{formatEasternNumber(36)} دورة قصة</span>
         </div>
 
         <h1 className="mb-3 text-3xl font-black tracking-tight text-slate-950 sm:text-5xl">
@@ -102,7 +106,7 @@ export default function ReadingHubPage() {
           </div>
           <div className="min-w-[108px] rounded-2xl border border-slate-900/10 bg-white/90 px-4 py-2 text-center shadow-xs">
             <b className="block text-base font-black text-teal-700">
-              {formatEasternNumber(24)}
+              {formatEasternNumber(36)}
             </b>
             <span className="text-[11px] font-semibold text-slate-500">
               دورة قصة
@@ -325,50 +329,70 @@ export default function ReadingHubPage() {
             </div>
           </div>
 
-          {/* ── Level 3: Preview ── */}
-          <div className="group relative flex flex-col overflow-hidden rounded-[32px] border border-slate-200/80 bg-white/70 opacity-80 shadow-[0_16px_32px_-16px_rgba(30,60,100,0.15)]">
+          {/* ── Level 3: Active ── */}
+          <div className="group relative flex flex-col overflow-hidden rounded-[32px] border border-white/80 bg-white shadow-[0_24px_48px_-24px_rgba(5,150,105,0.35)] transition-all duration-300 hover:border-amber-300 hover:shadow-[0_32px_60px_-24px_rgba(217,119,6,0.28)] hover:-translate-y-1">
             {/* Pastel art header */}
             <div
               className="relative flex h-40 w-full flex-col justify-between overflow-hidden rounded-t-[32px] px-5 pt-4 pb-8"
               style={{
                 background:
-                  "radial-gradient(circle at 50% 40%, #F1F5F9, #E2EEF6)",
+                  "radial-gradient(circle at 50% 40%, #FEF3C7, #E2EEF6)",
               }}
             >
               <div className="relative z-10 flex items-center justify-between gap-2">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-400 px-3.5 py-1 text-xs font-black text-white shadow-xs">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500 px-3.5 py-1 text-xs font-black text-white shadow-xs">
                   المستوى الثالث
                 </span>
-                <div className="inline-flex items-center gap-1 rounded-full bg-white/90 px-3 py-1 text-[11px] font-extrabold text-slate-500 shadow-2xs">
-                  <span>{`${toEasternArabicNumerals(12)} دورة قصة`}</span>
+                <div className="inline-flex items-center gap-1 rounded-full bg-white/90 px-3 py-1 text-[11px] font-extrabold text-slate-700 shadow-2xs">
+                  <span>{`${toEasternArabicNumerals(READING_LEVEL_3.stories.length)} دورة قصة`}</span>
                 </div>
               </div>
-              <div className="relative z-10 flex flex-1 items-center justify-center pt-2 text-4xl opacity-50">
+              <div className="relative z-10 flex flex-1 items-center justify-center pt-2 text-4xl">
                 📙
               </div>
             </div>
 
             {/* Curved-lip body */}
-            <div className="home-card-lip relative flex flex-1 flex-col justify-between bg-white/80 px-6 pt-1 pb-6">
+            <div className="home-card-lip relative flex flex-1 flex-col justify-between bg-white px-6 pt-1 pb-6">
               <div>
-                <h3 className="mb-1.5 text-xl font-black text-slate-700">
-                  المستوى الثالث
+                <h3 className="mb-1.5 text-xl font-black text-amber-950">
+                  {READING_LEVEL_3.titleAr}
                 </h3>
-                <p className="mb-1 text-sm font-bold text-slate-500">
-                  النصوص الوصفية والاستنتاج المركب
+                <p className="mb-1 text-sm font-bold text-amber-700">
+                  {READING_LEVEL_3.subtitleAr}
                 </p>
-                <p className="mb-4 text-xs leading-relaxed font-semibold text-slate-400">
-                  قراءة نصوص متنوعة ({toEasternArabicNumerals(100)}–
-                  {toEasternArabicNumerals(130)} كلمة) تعتمد على استخلاص الأفكار
-                  الرئيسة والتعبير البديل.
+                <p className="mb-4 line-clamp-2 text-xs leading-relaxed font-semibold text-slate-600">
+                  {READING_LEVEL_3.descriptionAr}
                 </p>
+                <div className="space-y-1.5 border-t border-slate-100 pt-3 mb-5 text-xs font-bold text-slate-600">
+                  <div className="flex items-center justify-between">
+                    <span>طول النصوص:</span>
+                    <span className="text-slate-800">
+                      {toEasternArabicNumerals(
+                        READING_LEVEL_3.targetWordCount.min
+                      )}
+                      –
+                      {toEasternArabicNumerals(
+                        READING_LEVEL_3.targetWordCount.max
+                      )}{" "}
+                      كلمة
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>التشكيل:</span>
+                    <span className="text-slate-800">بدون تشكيل افتراضيًا</span>
+                  </div>
+                </div>
               </div>
-              <button
-                disabled
-                className="inline-flex w-full items-center justify-center rounded-full bg-slate-100 px-5 py-3 text-xs font-black text-slate-400 cursor-not-allowed sm:text-sm"
+              <Link
+                href="/reading/level/level-3"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-amber-600 px-5 py-3 text-xs font-black text-white shadow-[0_12px_22px_-10px_rgba(217,119,6,0.7)] transition hover:-translate-y-0.5 hover:bg-amber-700 sm:text-sm"
               >
-                <span>⏳ قيد الإعداد المنهجي</span>
-              </button>
+                <span>دخول قصص المستوى</span>
+                <span aria-hidden="true" className="text-base leading-none">
+                  ←
+                </span>
+              </Link>
             </div>
           </div>
         </div>

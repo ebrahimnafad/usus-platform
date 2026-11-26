@@ -205,7 +205,7 @@ export default function PrintableReadingSheet({
         ) : (
           <div className="space-y-3">
             {/* QAR Sample Answers & Evidence */}
-            <section className="border border-emerald-300 border-l-4 border-l-emerald-500 rounded-xl p-3.5 bg-emerald-50/30 break-inside-avoid">
+            <section className="border border-emerald-300 border-l-4 border-l-emerald-500 rounded-xl p-3.5 bg-emerald-50/30">
               <div className="flex items-center justify-between mb-2 border-b border-emerald-200 pb-1">
                 <span className="text-xs font-black text-emerald-950">
                   ✅ نموذج إجابات الفهم القرائي (QAR):
@@ -225,7 +225,7 @@ export default function PrintableReadingSheet({
                     <div
                       key={q.id}
                       data-tier={q.tier}
-                      className="rounded-lg border border-emerald-200 bg-white p-2.5 text-xs space-y-1"
+                      className="rounded-lg border border-emerald-200 bg-white p-2.5 text-xs space-y-1 break-inside-avoid"
                     >
                       <div className="flex items-start gap-1.5">
                         <span className="font-black text-slate-800">
@@ -302,7 +302,7 @@ export default function PrintableReadingSheet({
                 {story.titleAr ?? story.title}
               </h1>
               <div
-                className={`font-serif ${typographyClass} text-slate-900 text-justify max-w-xl mx-auto`}
+                className={`font-serif ${typographyClass} text-slate-900 text-justify max-w-xl mx-auto whitespace-pre-line`}
               >
                 {renderedStoryText}
               </div>
@@ -327,7 +327,7 @@ export default function PrintableReadingSheet({
                 </span>
               </div>
               <div
-                className={`font-serif ${typographyClass} text-slate-900 text-justify`}
+                className={`font-serif ${typographyClass} text-slate-900 text-justify whitespace-pre-line`}
               >
                 {renderedStoryText}
               </div>
@@ -335,7 +335,7 @@ export default function PrintableReadingSheet({
           )}
 
           {/* 2. QAR Comprehension Questions */}
-          <section className="border border-sky-200 border-l-4 border-l-sky-400 rounded-xl p-2 bg-sky-50/40 break-inside-avoid">
+          <section className="border border-sky-200 border-l-4 border-l-sky-400 rounded-xl p-2 bg-sky-50/40">
             <div className="flex items-center justify-between mb-1 border-b border-sky-200 pb-1">
               <span className="text-xs font-black text-slate-900">
                 🔍 أسئلة الفهم (أين تعيش الإجابة؟):
@@ -356,7 +356,7 @@ export default function PrintableReadingSheet({
                   <div
                     key={q.id}
                     data-tier={q.tier}
-                    className="text-xs space-y-0.5"
+                    className="text-xs space-y-0.5 break-inside-avoid"
                   >
                     <div className="flex items-start gap-1.5">
                       <span className="font-black text-slate-800">

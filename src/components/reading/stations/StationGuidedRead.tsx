@@ -75,7 +75,7 @@ export default function StationGuidedRead({
           قراءة موجهة لضبط الطلاقة والتنغيم الصوتي
         </h2>
         <div
-          className="font-serif text-2xl sm:text-3xl leading-[2.4] text-slate-800 text-justify max-w-3xl mx-auto"
+          className="font-serif text-2xl sm:text-3xl leading-[2.4] text-slate-800 text-justify max-w-3xl mx-auto whitespace-pre-line"
           dangerouslySetInnerHTML={{ __html: station2Html }}
         />
       </div>

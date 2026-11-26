@@ -52,7 +52,10 @@ export default function PinnedStorySnippet({
           pinnedExpanded ? "max-h-none" : "max-h-24 overflow-hidden relative"
         }`}
       >
-        <div dangerouslySetInnerHTML={{ __html: storyHtml }} />
+        <div
+          className="whitespace-pre-line"
+          dangerouslySetInnerHTML={{ __html: storyHtml }}
+        />
         {!pinnedExpanded && (
           <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-white to-transparent pointer-events-none" />
         )}

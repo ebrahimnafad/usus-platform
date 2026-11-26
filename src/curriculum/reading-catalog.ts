@@ -4,8 +4,9 @@ import type {
   ReadingLevelId,
 } from "@/domain/reading-types";
 import { READING_LEVEL_2 } from "./reading-level-2";
+import { READING_LEVEL_3 } from "./reading-level-3";
 
-export { READING_LEVEL_2 };
+export { READING_LEVEL_2, READING_LEVEL_3 };
 
 /**
  * Counts words in an Arabic text, splitting on whitespace.
@@ -872,6 +873,9 @@ const READING_LEVELS: Record<string, ReadingLevel> = {
   "level-2": READING_LEVEL_2,
   read_l2: READING_LEVEL_2,
   "2": READING_LEVEL_2,
+  "level-3": READING_LEVEL_3,
+  read_l3: READING_LEVEL_3,
+  "3": READING_LEVEL_3,
 };
 
 /**

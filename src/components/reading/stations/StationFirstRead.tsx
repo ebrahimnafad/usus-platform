@@ -73,7 +73,7 @@ export default function StationFirstRead({
         <h1 className="text-2xl sm:text-3xl font-black text-slate-900 mb-8 font-serif">
           {story.titleAr ?? story.title}
         </h1>
-        <div className="font-serif text-2xl sm:text-3xl leading-[2.4] text-slate-800 text-justify max-w-3xl mx-auto">
+        <div className="font-serif text-2xl sm:text-3xl leading-[2.4] text-slate-800 text-justify max-w-3xl mx-auto whitespace-pre-line">
           {displayedStoryText}
         </div>
       </div>
