@@ -18,10 +18,10 @@ export default async function StoryCycleRunnerPage({ params }: Props) {
   if (!level || !story) {
     return (
       <div
-        className="min-h-screen bg-slate-50 flex items-center justify-center p-6"
+        className="home-sky-bg min-h-screen flex items-center justify-center p-6"
         dir="rtl"
       >
-        <div className="bg-white rounded-2xl p-8 max-w-md w-full text-center border border-slate-200 shadow-sm">
+        <div className="bg-white rounded-[32px] p-8 max-w-md w-full text-center border border-white/80 shadow-[0_24px_48px_-24px_rgba(30,60,100,0.25)]">
           <div className="w-16 h-16 bg-amber-100 text-amber-700 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl font-black">
             !
           </div>
@@ -33,7 +33,7 @@ export default async function StoryCycleRunnerPage({ params }: Props) {
           </p>
           <Link
             href={`/reading/level/${levelId}`}
-            className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-emerald-600 text-white font-extrabold text-sm hover:bg-emerald-700 transition"
+            className="inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-emerald-600 text-white font-extrabold text-sm hover:bg-emerald-700 transition"
           >
             ← العودة لقصص المستوى
           </Link>

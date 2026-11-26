@@ -181,30 +181,37 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
   // RENDER VARIANT 2: STANDARD OR TRANSFER-TEST STORY CYCLE
   return (
     <div
-      className="min-h-screen bg-slate-50 text-slate-900 pb-24 print:pb-0 print:min-h-0 print:bg-white"
+      className="home-sky-bg min-h-screen text-slate-900 pb-24 print:pb-0 print:min-h-0 print:bg-white"
       dir="rtl"
+      lang="ar"
     >
       {/* Top Navigation Bar */}
-      <header className="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-200 px-4 sm:px-8 py-3 no-print">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
+      <header className="sticky top-0 z-30 relative bg-white/80 backdrop-blur-md border-b border-slate-900/10 px-4 sm:px-6 py-3 shadow-[0_6px_24px_-14px_rgba(30,60,100,0.18)] no-print">
+        <span
+          aria-hidden="true"
+          className={`pointer-events-none absolute inset-x-0 top-0 h-[3px] bg-gradient-to-l ${
+            isTransferTest
+              ? "from-indigo-600 to-violet-500"
+              : "from-emerald-500 to-teal-500"
+          }`}
+        />
+        <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
             <Link
               href="/"
-              className="flex items-center gap-2 group focus:outline-none"
+              className="flex shrink-0 items-center gap-2 group focus:outline-none"
               title="العودة إلى بوابة أُسُس"
             >
-              <div
-                className={`w-9 h-9 rounded-xl flex items-center justify-center text-white font-extrabold shadow-sm transition ${
+              <span
+                className={`grid size-9 place-items-center rounded-xl text-base text-white shadow-xs transition ${
                   isTransferTest
-                    ? "bg-indigo-600 group-hover:bg-indigo-700"
-                    : "bg-emerald-600 group-hover:bg-emerald-700"
+                    ? "bg-gradient-to-br from-indigo-600 to-violet-500"
+                    : "bg-gradient-to-br from-emerald-500 to-teal-500"
                 }`}
               >
-                أُ
-              </div>
-              <span className="font-extrabold text-lg text-slate-800">
-                أُسُس
+                📚
               </span>
+              <span className="font-black text-lg text-slate-900">أُسُس</span>
             </Link>
             <span className="text-slate-300 font-bold">/</span>
             <Breadcrumbs
@@ -214,19 +221,19 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
                 { label: level.titleAr, href: `/reading/level/${level.id}` },
                 { label: story.titleAr ?? story.title },
               ]}
-              activeItemClassName={`px-2 py-0.5 rounded-lg border max-w-[140px] sm:max-w-none truncate ${
+              activeItemClassName={`rounded-full px-2.5 py-0.5 border max-w-[140px] sm:max-w-none truncate ${
                 isTransferTest
-                  ? "bg-indigo-50 text-indigo-900 border-indigo-200 font-black"
-                  : "bg-emerald-50 text-emerald-800 border-emerald-200"
+                  ? "bg-indigo-50 text-indigo-900 border-indigo-200/80 font-black"
+                  : "bg-emerald-50 text-emerald-800 border-emerald-200/80 font-extrabold"
               }`}
               linkClassName="hover:text-emerald-700 transition"
             />
           </div>
 
-          <div className="hidden sm:flex items-center gap-2">
+          <div className="hidden sm:flex shrink-0 items-center gap-2">
             <button
               onClick={() => setShieldOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-extrabold text-xs transition border border-slate-200"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white hover:bg-slate-50 text-slate-700 font-extrabold text-xs transition border border-slate-900/10 shadow-2xs"
             >
               <span>👩‍🏫</span>
               <span>درع المعلم</span>
@@ -235,7 +242,7 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
               type="button"
               data-reading-print-trigger="true"
               onClick={() => setPrintModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs transition shadow-xs"
+              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs transition shadow-[0_8px_18px_-8px_rgba(5,150,105,0.65)]"
               title="طباعة ورقة العمل"
             >
               <span>🖨️</span>
@@ -243,7 +250,7 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
             </button>
             <Link
               href={`/reading/level/${level.id}`}
-              className="text-xs font-bold text-slate-500 hover:text-slate-800 px-2.5 py-1.5 rounded-lg transition"
+              className="text-xs font-bold text-slate-600 hover:text-slate-900 bg-white/80 hover:bg-white border border-slate-900/10 px-3.5 py-1.5 rounded-full transition"
             >
               ← شبكة القصص
             </Link>
@@ -253,10 +260,10 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
 
       {/* Transfer Test Notice Banner */}
       {isTransferTest && (
-        <section className="bg-indigo-900 text-white px-4 sm:px-8 py-3 no-print">
+        <section className="bg-gradient-to-l from-indigo-950 via-indigo-900 to-violet-900 text-white px-4 sm:px-6 py-3 no-print shadow-xs">
           <div className="max-w-6xl mx-auto flex items-center justify-between text-xs font-bold">
             <div className="flex items-center gap-2">
-              <span className="px-2 py-0.5 rounded bg-indigo-700 text-indigo-100 font-black">
+              <span className="px-2.5 py-0.5 rounded-full bg-indigo-500/30 border border-indigo-400/30 text-indigo-100 font-black">
                 🎯 اختبار النقل
               </span>
               <span className="hidden sm:inline">
@@ -272,7 +279,7 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
       )}
 
       {/* 6-Station Stepper (Mobile Compact Emoji) */}
-      <section className="sm:hidden bg-white border-b border-slate-200 py-2.5 px-4 no-print shadow-2xs">
+      <section className="sm:hidden bg-white/75 backdrop-blur-md border-b border-slate-900/10 py-2.5 px-4 no-print shadow-2xs">
         <div className="flex items-center justify-between max-w-md mx-auto gap-2">
           {STATIONS.map((station) => {
             const isActive = activeStation === station.id;
@@ -299,7 +306,7 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
       </section>
 
       {/* 6-Station Stepper (Desktop) */}
-      <section className="hidden sm:block bg-white border-b border-slate-200 py-3 px-4 sm:px-8 no-print shadow-2xs">
+      <section className="hidden sm:block bg-white/75 backdrop-blur-md border-b border-slate-900/10 py-3 px-4 sm:px-6 no-print shadow-2xs">
         <div className="max-w-6xl mx-auto overflow-x-auto">
           <div className="flex items-center justify-between min-w-[620px] gap-2">
             {STATIONS.map((station) => {
@@ -310,14 +317,14 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
                 <button
                   key={station.id}
                   onClick={() => setActiveStation(station.id)}
-                  className={`flex-1 flex items-center gap-2 px-3 py-2 rounded-xl text-right transition border ${getStationToneClass(
+                  className={`flex-1 flex items-center gap-2 px-3 py-2 rounded-2xl text-right transition border ${getStationToneClass(
                     isActive,
                     isPast,
                     "desktop"
                   )}`}
                 >
                   <span
-                    className={`w-6 h-6 rounded-lg text-xs font-black flex items-center justify-center shrink-0 ${
+                    className={`w-6 h-6 rounded-xl text-xs font-black flex items-center justify-center shrink-0 ${
                       isActive
                         ? "bg-white text-slate-900"
                         : isPast
@@ -402,16 +409,16 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
         )}
 
         {/* Bottom Station Navigation Bar */}
-        <div className="mt-8 pt-4 border-t border-slate-200 hidden sm:flex items-center justify-between no-print">
+        <div className="mt-8 pt-4 border-t border-slate-900/10 hidden sm:flex items-center justify-between rounded-2xl bg-white/80 px-4 pb-3 backdrop-blur-md shadow-xs no-print">
           <button
             disabled={activeStation <= 1}
             onClick={() => setActiveStation((prev) => Math.max(1, prev - 1))}
-            className="px-4 py-2 rounded-xl text-xs font-extrabold transition border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700"
+            className="px-5 py-2 rounded-full text-xs font-extrabold transition border border-slate-900/10 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700"
           >
             → المحطة السابقة
           </button>
 
-          <span className="text-xs font-bold text-slate-400">
+          <span className="text-xs font-bold text-slate-500">
             المحطة {toEasternArabicNumerals(activeStation)} من{" "}
             {toEasternArabicNumerals(6)}
           </span>
@@ -419,7 +426,7 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
           <button
             disabled={activeStation >= 6}
             onClick={() => setActiveStation((prev) => Math.min(6, prev + 1))}
-            className="px-5 py-2 rounded-xl text-xs font-extrabold transition bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed text-white shadow-xs"
+            className="px-5 py-2 rounded-full text-xs font-black transition bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed text-white shadow-[0_8px_18px_-8px_rgba(5,150,105,0.65)]"
           >
             المحطة التالية ←
           </button>
@@ -429,7 +436,7 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
       {/* Fixed Mobile Bottom Bar */}
       <nav
         aria-label="التنقل السريع"
-        className="fixed bottom-0 inset-x-0 z-30 sm:hidden bg-white border-t border-slate-200 pb-[env(safe-area-inset-bottom)] no-print"
+        className="fixed bottom-0 inset-x-0 z-30 sm:hidden rounded-t-2xl bg-white/90 backdrop-blur-md border-t border-slate-900/10 pb-[env(safe-area-inset-bottom)] shadow-[0_-10px_28px_-14px_rgb(30_60_100_/_0.22)] no-print"
       >
         <div className="flex items-center justify-between gap-1 px-2 py-1.5 max-w-md mx-auto">
           <button
@@ -437,7 +444,7 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
             onClick={() => setShieldOpen(true)}
             aria-label="درع المعلم"
             title="درع المعلم"
-            className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 text-base transition shrink-0"
+            className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 text-base transition shrink-0"
           >
             👩‍🏫
           </button>
@@ -446,12 +453,12 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
             type="button"
             disabled={activeStation <= 1}
             onClick={() => setActiveStation((prev) => Math.max(1, prev - 1))}
-            className="min-h-[44px] min-w-[44px] px-2.5 inline-flex items-center justify-center rounded-xl text-xs font-extrabold transition border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 shrink-0"
+            className="min-h-[44px] min-w-[44px] px-3 inline-flex items-center justify-center rounded-full text-xs font-extrabold transition border border-slate-900/10 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-slate-700 shrink-0"
           >
             → السابقة
           </button>
 
-          <span className="text-xs font-bold text-slate-500 text-center whitespace-nowrap px-1">
+          <span className="text-xs font-bold text-slate-600 text-center whitespace-nowrap px-1">
             {`المحطة ${toEasternArabicNumerals(activeStation)} من ${toEasternArabicNumerals(6)}`}
           </span>
 
@@ -459,7 +466,7 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
             type="button"
             disabled={activeStation >= 6}
             onClick={() => setActiveStation((prev) => Math.min(6, prev + 1))}
-            className="min-h-[44px] min-w-[44px] px-2.5 inline-flex items-center justify-center rounded-xl text-xs font-extrabold transition bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed text-white shadow-xs shrink-0"
+            className="min-h-[44px] min-w-[44px] px-3 inline-flex items-center justify-center rounded-full text-xs font-black transition bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed text-white shadow-xs shrink-0"
           >
             التالية ←
           </button>
@@ -469,7 +476,7 @@ export default function StoryCycleRunnerClient({ level, story }: Props) {
             onClick={() => setPrintModalOpen(true)}
             aria-label="طباعة ورقة العمل"
             title="طباعة ورقة العمل"
-            className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-base transition shadow-xs shrink-0"
+            className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-base transition shadow-xs shrink-0"
           >
             🖨️
           </button>

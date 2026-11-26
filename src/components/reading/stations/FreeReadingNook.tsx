@@ -23,24 +23,30 @@ export default function FreeReadingNook({
   onOpenPrintModal,
 }: FreeReadingNookProps) {
   return (
-    <div className="min-h-screen bg-[#fcf9f2] text-slate-900 pb-24" dir="rtl">
+    <div
+      className="home-sky-bg min-h-screen text-slate-900 pb-24"
+      dir="rtl"
+      lang="ar"
+    >
       {/* Top Navigation Bar */}
-      <header className="sticky top-0 z-30 bg-[#fcf9f2]/95 backdrop-blur border-b border-amber-200/80 px-4 sm:px-8 py-3 no-print">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
+      <header className="sticky top-0 z-30 relative bg-white/80 backdrop-blur-md border-b border-slate-900/10 px-4 sm:px-6 py-3 shadow-[0_6px_24px_-14px_rgba(30,60,100,0.18)] no-print">
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-0 h-[3px] bg-gradient-to-l from-amber-500 to-orange-400"
+        />
+        <div className="max-w-5xl mx-auto flex items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
             <Link
               href="/"
-              className="flex items-center gap-2 group focus:outline-none"
+              className="flex shrink-0 items-center gap-2 group focus:outline-none"
               title="العودة إلى بوابة أُسُس"
             >
-              <div className="w-9 h-9 rounded-xl bg-amber-600 flex items-center justify-center text-white font-extrabold shadow-sm group-hover:bg-amber-700 transition">
-                أُ
-              </div>
-              <span className="font-extrabold text-lg text-slate-800">
-                أُسُس
+              <span className="grid size-9 place-items-center rounded-xl bg-gradient-to-br from-amber-500 to-orange-400 text-base text-white shadow-xs">
+                📚
               </span>
+              <span className="font-black text-lg text-slate-900">أُسُس</span>
             </Link>
-            <span className="text-amber-300 font-bold">/</span>
+            <span className="text-slate-300 font-bold">/</span>
             <Breadcrumbs
               segments={[
                 { label: "الرئيسية", href: "/" },
@@ -48,17 +54,17 @@ export default function FreeReadingNook({
                 { label: level.titleAr, href: `/reading/level/${level.id}` },
                 { label: "🌟 ركن القراءة الهادئة" },
               ]}
-              listClassName="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-amber-900/60"
-              activeItemClassName="text-amber-900 bg-amber-100 px-2.5 py-0.5 rounded-lg border border-amber-300 font-bold"
+              listClassName="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-slate-500"
+              activeItemClassName="text-amber-900 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200/80 font-bold"
               linkClassName="hover:text-amber-900 transition"
             />
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             <button
               type="button"
               onClick={() => onSetShieldOpen(true)}
-              className="inline-flex items-center justify-center gap-1.5 min-h-[44px] min-w-[44px] px-3 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-950 font-extrabold text-xs transition border border-amber-300 shadow-2xs"
+              className="inline-flex items-center justify-center gap-1.5 min-h-[44px] min-w-[44px] px-3.5 py-1.5 rounded-full bg-amber-50 hover:bg-amber-100 text-amber-950 font-extrabold text-xs transition border border-amber-200/80 shadow-2xs"
               title="درع المعلم"
               aria-label="درع المعلم"
             >
@@ -71,7 +77,7 @@ export default function FreeReadingNook({
               onClick={() =>
                 onOpenPrintModal ? onOpenPrintModal() : window.print()
               }
-              className="inline-flex items-center justify-center gap-1.5 min-h-[44px] min-w-[44px] px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs transition shadow-xs"
+              className="inline-flex items-center justify-center gap-1.5 min-h-[44px] min-w-[44px] px-4 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs transition shadow-[0_8px_18px_-8px_rgba(5,150,105,0.65)]"
               title="طباعة ورقة العمل"
               aria-label="طباعة ورقة العمل"
             >
@@ -85,16 +91,16 @@ export default function FreeReadingNook({
       {/* Reading Nook Reading Surface */}
       <main className="max-w-3xl mx-auto px-4 sm:px-8 pt-10 text-center">
         <div className="mb-8">
-          <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-100 text-amber-950 text-xs font-black border border-amber-300 mb-3">
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/90 text-amber-900 text-xs font-black border border-amber-200/80 shadow-xs mb-3">
             <span>🌟</span>
             <span>ركن القراءة الهادئة</span>
           </span>
-          <p className="text-xs text-amber-800/80 font-bold">
+          <p className="text-xs text-slate-600 font-bold">
             جلسة استمتاع أدبي حر للمتعة — لا أسئلة، ولا تدريبات، ولا مقاطعات
           </p>
         </div>
 
-        <article className="bg-white/90 border-2 border-amber-200/90 rounded-3xl p-8 sm:p-14 shadow-sm text-center relative overflow-hidden">
+        <article className="bg-white/95 border border-white/90 rounded-[32px] p-8 sm:p-14 shadow-[0_24px_56px_-22px_rgba(180,83,9,0.2)] text-center relative overflow-hidden">
           <div className="w-12 h-12 bg-amber-100 text-amber-800 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-6">
             📖
           </div>
@@ -112,7 +118,7 @@ export default function FreeReadingNook({
                   ? `/reading/level/${level.id}/story/${nextStoryNumber}`
                   : `/reading/level/${level.id}`
               }
-              className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-extrabold text-sm transition shadow-sm"
+              className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-amber-600 hover:bg-amber-700 text-white font-black text-sm transition shadow-[0_12px_22px_-10px_rgba(217,119,6,0.65)]"
             >
               أتممت القراءة 🎉
             </Link>
