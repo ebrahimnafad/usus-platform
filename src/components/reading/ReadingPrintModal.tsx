@@ -6,14 +6,14 @@ import type { TashkeelMode } from "@/lib/reading-scaffold";
 import { toEasternArabicNumerals } from "@/lib/numerals";
 import {
   printHtmlInIframe,
-  type PrintColorMode,
-  type PrintFontId,
   type ReadingPrintScope,
   type ReadingPrintViewOption,
 } from "@/lib/print-html-iframe";
 import { sharePrintContent } from "@/lib/share-print";
+import { usePrintPrefs } from "@/lib/use-print-prefs";
 import { PrintDialogShell } from "@/components/print/PrintDialogShell";
 import { PrintFontSelector } from "@/components/print/PrintFontSelector";
+import { PrintPreviewStrip } from "@/components/print/PrintPreviewStrip";
 
 export type { ReadingPrintScope, ReadingPrintViewOption };
 
@@ -48,8 +48,8 @@ export function ReadingPrintModal({
   const [scope, setScope] = useState<ReadingPrintScope>("story");
   const [viewOption, setViewOption] =
     useState<ReadingPrintViewOption>("student");
-  const [colorMode, setColorMode] = useState<PrintColorMode>("color");
-  const [fontFamily, setFontFamily] = useState<PrintFontId>("cairo");
+  const { fontFamily, colorMode, setFontFamily, setColorMode } =
+    usePrintPrefs();
   const [localTashkeel, setLocalTashkeel] =
     useState<TashkeelMode>(tashkeelMode);
   const [localIncludeStoryText, setLocalIncludeStoryText] =
@@ -296,6 +296,9 @@ export function ReadingPrintModal({
 
       {/* 4. Arabic Print Font */}
       <PrintFontSelector value={fontFamily} onChange={setFontFamily} />
+
+      {/* Live Preview */}
+      <PrintPreviewStrip fontFamily={fontFamily} colorMode={colorMode} />
 
       {/* 5. Tashkeel & Story Text */}
       <div className="space-y-3 rounded-2xl border border-slate-200 bg-slate-50/70 p-3.5">

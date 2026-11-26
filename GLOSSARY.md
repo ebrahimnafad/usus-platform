@@ -305,3 +305,11 @@ _Avoid_: Grammar lesson, grammar drill, deductive grammar
 **Production Ladder**:
 A five-rung progression of expressive output: oral answer → oral sentence → written sentence → connected sentences → alternative scenario.
 _Avoid_: Writing levels, output stages
+
+**Tashkeel**:
+Arabic vowel and consonant diacritics (التشكيل) applied to student-facing reading texts, questions, answers, and grammar examples as a controllable Scaffold.
+_Avoid_: Vocalization marks, vowel signs, harakat (as the umbrella term)
+
+**Text Evidence Snippet**:
+An exact, verbatim substring of a Story's text cited by a QAR Question to anchor the student's answer directly in the passage.
+_Avoid_: Proof quote, citation, evidence line

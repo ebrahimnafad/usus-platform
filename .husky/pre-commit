@@ -1,5 +1,6 @@
 npx lint-staged
 npm run typecheck
 npm run lint:numerals
+npm run lint:reading
 npm run lint:console
 npm run test:fast

@@ -10,14 +10,14 @@ import { formatEasternNumber } from "@/lib/numerals";
 import { mintNextStudioSeed } from "@/lib/studio-state";
 import {
   printHtmlInIframe,
-  type PrintColorMode,
-  type PrintFontId,
   type PrintScope,
   type PrintViewOption,
 } from "@/lib/print-html-iframe";
 import { sharePrintContent } from "@/lib/share-print";
+import { usePrintPrefs } from "@/lib/use-print-prefs";
 import { PrintDialogShell } from "@/components/print/PrintDialogShell";
 import { PrintFontSelector } from "@/components/print/PrintFontSelector";
+import { PrintPreviewStrip } from "@/components/print/PrintPreviewStrip";
 import { RefreshIcon } from "@/components/studio/icons";
 
 export type { PrintScope, PrintViewOption };
@@ -55,8 +55,8 @@ export function PrintModal({
   const [viewOption, setViewOption] = useState<PrintViewOption>(
     activeViewMode === "answer-key" ? "answer-key" : "worksheet"
   );
-  const [colorMode, setColorMode] = useState<PrintColorMode>("color");
-  const [fontFamily, setFontFamily] = useState<PrintFontId>("cairo");
+  const { fontFamily, colorMode, setFontFamily, setColorMode } =
+    usePrintPrefs();
   const [difficulty, setDifficulty] = useState<WorksheetDifficultyMode>(
     bundle.difficultyMode
   );
@@ -308,6 +308,9 @@ export function PrintModal({
 
       {/* Arabic Print Font */}
       <PrintFontSelector value={fontFamily} onChange={setFontFamily} />
+
+      {/* Live Preview */}
+      <PrintPreviewStrip fontFamily={fontFamily} colorMode={colorMode} />
 
       {/* Difficulty & Seed */}
       <div className="grid grid-cols-1 gap-3 rounded-2xl border border-slate-200 bg-slate-50/70 p-3 sm:grid-cols-2">
