@@ -7,45 +7,33 @@ import { formatEasternNumber } from "@/lib/numerals";
 
 export function GradeHubHero(): React.ReactElement {
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-indigo-100 bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-950 p-6 sm:p-10 text-white shadow-xl mb-10">
-      {/* Subtle decorative background shapes */}
-      <div
-        className="pointer-events-none absolute -left-12 -top-12 h-64 w-64 rounded-full bg-indigo-500/10 blur-3xl"
-        aria-hidden="true"
-      />
-      <div
-        className="pointer-events-none absolute -bottom-12 -right-12 h-64 w-64 rounded-full bg-rose-500/10 blur-3xl"
-        aria-hidden="true"
-      />
-
-      <div className="relative z-10">
-        {/* Navigation Breadcrumb Bar */}
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-indigo-800/60 pb-4">
+    <>
+      {/* Glassmorphic Topbar matching Home */}
+      <div className="sticky top-0 z-40 border-b border-slate-900/10 bg-white/75 backdrop-blur-md">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3">
             <Link
               href="/"
-              className="flex items-center gap-2 font-black text-white hover:text-indigo-200 transition"
+              className="flex items-center gap-2.5 text-lg font-black text-slate-900 transition hover:opacity-85"
               title="العودة إلى بوابة أُسُس"
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-indigo-600 text-sm font-black shadow-xs">
-                أُ
-              </div>
-              <span className="text-base font-extrabold tracking-tight">
-                أُسُس
+              <span className="grid size-9 place-items-center rounded-xl bg-gradient-to-br from-indigo-500 to-emerald-500 text-base text-white shadow-sm">
+                📚
               </span>
+              <span>أُسُس</span>
             </Link>
-            <span className="text-indigo-400/60 font-bold">/</span>
+            <span className="font-bold text-slate-300">/</span>
             <Breadcrumbs
               segments={[
                 { label: "الرئيسية", href: "/" },
                 { label: "الرياضيات" },
               ]}
-              listClassName="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-indigo-200/80"
-              activeItemClassName="text-white font-extrabold"
-              linkClassName="hover:text-white transition"
+              listClassName="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-slate-500"
+              activeItemClassName="text-indigo-700 font-extrabold"
+              linkClassName="hover:text-slate-900 transition"
               separator={
                 <span
-                  className="text-indigo-400/60 font-bold select-none"
+                  className="select-none font-bold text-slate-300"
                   aria-hidden="true"
                 >
                   &gt;
@@ -54,34 +42,75 @@ export function GradeHubHero(): React.ReactElement {
             />
           </div>
 
-          <Link
-            href="/"
-            className="text-xs font-bold text-indigo-200 hover:text-white rounded-lg bg-indigo-800/40 hover:bg-indigo-800/70 border border-indigo-700/50 px-3 py-1.5 transition"
+          <nav
+            aria-label="التنقل السريع"
+            className="flex items-center gap-2 text-xs font-bold"
           >
-            ← العودة للرئيسية
-          </Link>
-        </div>
-
-        {/* Hero Title & Subtitle */}
-        <div className="max-w-3xl">
-          <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-indigo-500/20 border border-indigo-400/30 px-3 py-1 text-xs font-extrabold text-indigo-200">
-            <span>✨ استوديو المعلم التفاعلي</span>
-            <span className="text-indigo-400">•</span>
-            <span>{formatEasternNumber(810)} درساً معيارياً</span>
-          </div>
-
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white mb-3">
-            استوديو المعلم
-          </h1>
-
-          <p className="text-sm sm:text-base font-medium text-indigo-100/90 leading-relaxed max-w-2xl">
-            منهج الرياضيات التأسيسي الكامل للصفوف من الروضة حتى الصف الخامس.
-            اختر الصف الدراسي لتصفح الوحدات والمعايير، وتوليد أوراق عمل مخصصة
-            ونماذج الإجابة بدقة متناهية.
-          </p>
+            <Link
+              href="/reading"
+              className="rounded-full px-3.5 py-1.5 text-slate-600 transition hover:bg-emerald-500/10 hover:text-emerald-700"
+            >
+              الفهم القرائي
+            </Link>
+            <Link
+              href="/"
+              className="rounded-full border border-slate-900/10 bg-white px-3.5 py-1.5 text-slate-700 shadow-2xs transition hover:bg-slate-50"
+            >
+              ← الرئيسية
+            </Link>
+          </nav>
         </div>
       </div>
-    </div>
+
+      {/* Airy Hero matching Home */}
+      <header className="mx-auto max-w-4xl px-4 pt-9 pb-6 text-center sm:pt-12 sm:pb-8">
+        <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white px-4 py-1.5 text-xs font-extrabold text-indigo-700 shadow-sm">
+          <span aria-hidden="true">✨</span>
+          <span>استوديو المعلم التفاعلي</span>
+          <span className="text-indigo-300">•</span>
+          <span>{formatEasternNumber(810)} درساً معيارياً</span>
+        </div>
+
+        <h1 className="mb-3 text-3xl font-black tracking-tight text-slate-950 sm:text-5xl">
+          <span className="bg-gradient-to-l from-indigo-600 to-sky-600 bg-clip-text text-transparent">
+            استوديو المعلم
+          </span>
+        </h1>
+
+        <p className="mx-auto max-w-2xl text-sm leading-relaxed font-medium text-slate-600 sm:text-base">
+          منهج الرياضيات التأسيسي الكامل للصفوف من الروضة حتى الصف الخامس. اختر
+          الصف الدراسي لتصفح الوحدات والمعايير، وتوليد أوراق عمل مخصصة ونماذج
+          الإجابة بدقة متناهية.
+        </p>
+
+        <div className="mt-6 flex flex-wrap justify-center gap-3">
+          <div className="min-w-[108px] rounded-2xl border border-slate-900/10 bg-white/90 px-4 py-2 text-center shadow-xs">
+            <b className="block text-base font-black text-indigo-700">
+              {formatEasternNumber(6)}
+            </b>
+            <span className="text-[11px] font-semibold text-slate-500">
+              صفوف دراسية
+            </span>
+          </div>
+          <div className="min-w-[108px] rounded-2xl border border-slate-900/10 bg-white/90 px-4 py-2 text-center shadow-xs">
+            <b className="block text-base font-black text-sky-700">
+              {formatEasternNumber(72)}
+            </b>
+            <span className="text-[11px] font-semibold text-slate-500">
+              وحدة تعليمية
+            </span>
+          </div>
+          <div className="min-w-[108px] rounded-2xl border border-slate-900/10 bg-white/90 px-4 py-2 text-center shadow-xs">
+            <b className="block text-base font-black text-emerald-700">
+              {formatEasternNumber(810)}
+            </b>
+            <span className="text-[11px] font-semibold text-slate-500">
+              درساً معيارياً
+            </span>
+          </div>
+        </div>
+      </header>
+    </>
   );
 }
 

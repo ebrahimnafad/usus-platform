@@ -44,11 +44,11 @@ export default async function MathPage({
     <div
       dir="rtl"
       lang="ar"
-      className="min-h-screen bg-slate-50 text-slate-900 pb-16"
+      className="home-sky-bg min-h-screen text-slate-900 pb-16"
       data-math-grade-hub="true"
     >
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10">
-        <GradeHubHero />
+      <GradeHubHero />
+      <main className="mx-auto max-w-6xl px-4 pt-6 sm:px-6 sm:pt-8">
         <section aria-label="اختيار الصف الدراسي">
           <GradeGrid />
         </section>

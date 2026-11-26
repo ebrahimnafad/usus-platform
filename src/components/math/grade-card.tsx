@@ -15,68 +15,74 @@ export interface GradeCardProps {
 const COLOR_MAP: Record<
   GradeColorToken,
   {
+    artGradient: string;
     badgeBg: string;
     badgeText: string;
     borderHover: string;
     glowShadow: string;
-    pillBg: string;
     buttonBg: string;
-    accentText: string;
+    titleText: string;
   }
 > = {
   rose: {
+    artGradient: "radial-gradient(circle at 50% 40%, #FFE4E6, #E2EEF6)",
     badgeBg: "bg-rose-500",
     badgeText: "text-white",
-    borderHover: "hover:border-rose-400",
-    glowShadow: "hover:shadow-rose-500/15",
-    pillBg: "bg-rose-50 text-rose-700 border-rose-200",
-    buttonBg: "bg-rose-600 hover:bg-rose-700",
-    accentText: "text-rose-700",
+    borderHover: "hover:border-rose-300",
+    glowShadow: "hover:shadow-[0_32px_60px_-24px_rgba(225,29,72,0.35)]",
+    buttonBg:
+      "bg-rose-600 hover:bg-rose-700 shadow-[0_12px_22px_-10px_rgba(225,29,72,0.7)]",
+    titleText: "text-rose-950",
   },
   orange: {
+    artGradient: "radial-gradient(circle at 50% 40%, #FFEDD5, #E2EEF6)",
     badgeBg: "bg-orange-500",
     badgeText: "text-white",
-    borderHover: "hover:border-orange-400",
-    glowShadow: "hover:shadow-orange-500/15",
-    pillBg: "bg-orange-50 text-orange-700 border-orange-200",
-    buttonBg: "bg-orange-600 hover:bg-orange-700",
-    accentText: "text-orange-700",
+    borderHover: "hover:border-orange-300",
+    glowShadow: "hover:shadow-[0_32px_60px_-24px_rgba(234,88,12,0.35)]",
+    buttonBg:
+      "bg-orange-600 hover:bg-orange-700 shadow-[0_12px_22px_-10px_rgba(234,88,12,0.7)]",
+    titleText: "text-orange-950",
   },
   amber: {
+    artGradient: "radial-gradient(circle at 50% 40%, #FEF3C7, #E2EEF6)",
     badgeBg: "bg-amber-500",
     badgeText: "text-white",
-    borderHover: "hover:border-amber-400",
-    glowShadow: "hover:shadow-amber-500/15",
-    pillBg: "bg-amber-50 text-amber-800 border-amber-200",
-    buttonBg: "bg-amber-600 hover:bg-amber-700",
-    accentText: "text-amber-800",
+    borderHover: "hover:border-amber-300",
+    glowShadow: "hover:shadow-[0_32px_60px_-24px_rgba(217,119,6,0.35)]",
+    buttonBg:
+      "bg-amber-600 hover:bg-amber-700 shadow-[0_12px_22px_-10px_rgba(217,119,6,0.7)]",
+    titleText: "text-amber-950",
   },
   emerald: {
+    artGradient: "radial-gradient(circle at 50% 40%, #D1FAE5, #E2EEF6)",
     badgeBg: "bg-emerald-500",
     badgeText: "text-white",
-    borderHover: "hover:border-emerald-400",
-    glowShadow: "hover:shadow-emerald-500/15",
-    pillBg: "bg-emerald-50 text-emerald-700 border-emerald-200",
-    buttonBg: "bg-emerald-600 hover:bg-emerald-700",
-    accentText: "text-emerald-700",
+    borderHover: "hover:border-emerald-300",
+    glowShadow: "hover:shadow-[0_32px_60px_-24px_rgba(5,150,105,0.35)]",
+    buttonBg:
+      "bg-emerald-600 hover:bg-emerald-700 shadow-[0_12px_22px_-10px_rgba(5,150,105,0.7)]",
+    titleText: "text-emerald-950",
   },
   sky: {
+    artGradient: "radial-gradient(circle at 50% 40%, #E0F2FE, #DCEAF5)",
     badgeBg: "bg-sky-500",
     badgeText: "text-white",
-    borderHover: "hover:border-sky-400",
-    glowShadow: "hover:shadow-sky-500/15",
-    pillBg: "bg-sky-50 text-sky-700 border-sky-200",
-    buttonBg: "bg-sky-600 hover:bg-sky-700",
-    accentText: "text-sky-700",
+    borderHover: "hover:border-sky-300",
+    glowShadow: "hover:shadow-[0_32px_60px_-24px_rgba(2,132,199,0.35)]",
+    buttonBg:
+      "bg-sky-600 hover:bg-sky-700 shadow-[0_12px_22px_-10px_rgba(2,132,199,0.7)]",
+    titleText: "text-sky-950",
   },
   violet: {
+    artGradient: "radial-gradient(circle at 50% 40%, #EDE9FE, #E2EEF6)",
     badgeBg: "bg-violet-500",
     badgeText: "text-white",
-    borderHover: "hover:border-violet-400",
-    glowShadow: "hover:shadow-violet-500/15",
-    pillBg: "bg-violet-50 text-violet-700 border-violet-200",
-    buttonBg: "bg-violet-600 hover:bg-violet-700",
-    accentText: "text-violet-700",
+    borderHover: "hover:border-violet-300",
+    glowShadow: "hover:shadow-[0_32px_60px_-24px_rgba(124,58,237,0.35)]",
+    buttonBg:
+      "bg-violet-600 hover:bg-violet-700 shadow-[0_12px_22px_-10px_rgba(124,58,237,0.7)]",
+    titleText: "text-violet-950",
   },
 };
 
@@ -102,79 +108,78 @@ export function GradeCard({ grade }: GradeCardProps): React.ReactElement {
       whileHover={
         !prefersReduced
           ? {
-              y: -4,
+              y: -5,
               transition: { duration: 0.25, ease: "easeOut" },
             }
           : undefined
       }
       data-grade-card={gradeKey}
-      className={`group relative flex flex-col justify-between rounded-3xl border border-slate-200/80 bg-white p-6 shadow-xs transition-all duration-300 hover:shadow-xl ${theme.borderHover} ${theme.glowShadow}`}
+      className={`group relative flex flex-col overflow-hidden rounded-[32px] border border-white/80 bg-white shadow-[0_24px_48px_-24px_rgba(30,60,100,0.38)] transition-all duration-300 ${theme.borderHover} ${theme.glowShadow}`}
     >
-      <div>
-        {/* Top Header: Grade Badge & Model Tag */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <motion.span
-              layoutId={!prefersReduced ? `grade-badge-${gradeKey}` : undefined}
-              data-badge-layout-id={
-                !prefersReduced ? `grade-badge-${gradeKey}` : undefined
-              }
-              className={`inline-flex items-center justify-center rounded-xl px-3 py-1 text-sm font-black shadow-xs ${theme.badgeBg} ${theme.badgeText}`}
-            >
-              {grade.shortLabel}
-            </motion.span>
-            <span className="text-xs font-bold text-slate-500">
-              {grade.label}
-            </span>
-          </div>
-
-          <div
-            className={`inline-flex items-center gap-1 rounded-lg border px-2.5 py-0.5 text-[11px] font-bold ${theme.pillBg}`}
+      {/* Pastel Art Header matching Home Subject Cards */}
+      <div
+        className="relative flex h-40 w-full flex-col justify-between overflow-hidden rounded-t-[32px] px-5 pt-4 pb-8"
+        style={{ background: theme.artGradient }}
+      >
+        <div className="relative z-10 flex items-center justify-between gap-2">
+          <motion.span
+            layoutId={!prefersReduced ? `grade-badge-${gradeKey}` : undefined}
+            data-badge-layout-id={
+              !prefersReduced ? `grade-badge-${gradeKey}` : undefined
+            }
+            className={`inline-flex items-center justify-center rounded-full px-3.5 py-1 text-xs font-black shadow-xs ${theme.badgeBg} ${theme.badgeText}`}
           >
+            {grade.shortLabel}
+          </motion.span>
+
+          <div className="inline-flex items-center gap-1 rounded-full bg-white/90 px-3 py-1 text-[11px] font-extrabold text-slate-700 shadow-2xs">
             <span>{formatEasternNumber(grade.unitCount)} وحدة</span>
             <span className="text-slate-300">•</span>
             <span>{formatEasternNumber(grade.lessonCount)} درساً</span>
           </div>
         </div>
 
-        {/* Visual Model Container */}
-        <div className="mb-5 flex h-28 w-full items-center justify-center rounded-2xl bg-slate-50/70 p-3 border border-slate-100 group-hover:bg-slate-50/90 transition-colors">
-          <motion.div
-            layoutId={!prefersReduced ? `grade-model-${gradeKey}` : undefined}
-            data-model-layout-id={
-              !prefersReduced ? `grade-model-${gradeKey}` : undefined
-            }
-            className="flex h-full w-full items-center justify-center"
-            whileHover={
-              !prefersReduced
-                ? {
-                    scale: 1.05,
-                    transition: { duration: 0.25, ease: "easeOut" },
-                  }
-                : undefined
-            }
-          >
-            <GradeCardVisualModel modelKey={grade.visualModel} />
-          </motion.div>
-        </div>
-
-        {/* Grade Description */}
-        <p className="text-xs font-semibold text-slate-600 leading-relaxed line-clamp-2 mb-6">
-          {grade.descriptionAr}
-        </p>
+        <motion.div
+          layoutId={!prefersReduced ? `grade-model-${gradeKey}` : undefined}
+          data-model-layout-id={
+            !prefersReduced ? `grade-model-${gradeKey}` : undefined
+          }
+          className="relative z-10 flex flex-1 items-center justify-center pt-1"
+          whileHover={
+            !prefersReduced
+              ? {
+                  scale: 1.06,
+                  transition: { duration: 0.25, ease: "easeOut" },
+                }
+              : undefined
+          }
+        >
+          <GradeCardVisualModel modelKey={grade.visualModel} />
+        </motion.div>
       </div>
 
-      {/* Action Button: Enters Studio */}
-      <Link
-        href={`/math/${gradeKey}`}
-        className={`inline-flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-2.5 text-xs sm:text-sm font-black text-white shadow-xs transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${theme.buttonBg}`}
-        aria-label={`دخول استوديو ${grade.label}`}
-      >
-        <span>تصفح استوديو {grade.label}</span>
-        <span aria-hidden="true" className="text-base leading-none">
-          ←
-        </span>
-      </Link>
+      {/* Curved Lip Body */}
+      <div className="home-card-lip relative flex flex-1 flex-col justify-between bg-white px-6 pt-1 pb-6">
+        <div>
+          <h2 className={`mb-1.5 text-xl font-black ${theme.titleText}`}>
+            {grade.label}
+          </h2>
+          <p className="mb-5 line-clamp-2 text-xs leading-relaxed font-semibold text-slate-600">
+            {grade.descriptionAr}
+          </p>
+        </div>
+
+        <Link
+          href={`/math/${gradeKey}`}
+          className={`inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-xs font-black text-white transition-all duration-200 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 sm:text-sm ${theme.buttonBg}`}
+          aria-label={`دخول استوديو ${grade.label}`}
+        >
+          <span>تصفح استوديو {grade.label}</span>
+          <span aria-hidden="true" className="text-base leading-none">
+            ←
+          </span>
+        </Link>
+      </div>
     </motion.div>
   );
 }
