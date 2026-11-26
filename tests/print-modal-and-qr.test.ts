@@ -5,7 +5,7 @@ import { renderWorksheetSurface } from "@/lib/render-worksheet-surface";
 import { buildQuickViewUrl, generateQrSvgPath } from "@/lib/qr";
 import { GET as printHtmlGet } from "@/app/api/print-html/route";
 import { sanitizePrintFilenameTitle } from "@/lib/print-html-iframe";
-import { sharePrintContent } from "@/lib/share-print";
+import { sharePrintContent, sharePrintPdfFile } from "@/lib/share-print";
 import { PrintModal } from "@/components/studio/PrintModal";
 import { generateWorksheet } from "@/engine/worksheet-engine";
 import "@/registry/bootstrap";
@@ -160,6 +160,29 @@ describe("QR codes, Quick View URLs, and Print HTML API", () => {
       });
       expect(copied).toBe("copied");
       expect(writeTextSpy).toHaveBeenCalledWith("https://example.test/print");
+    });
+
+    it("shares a PDF File via navigator.share({ files }) when supported", async () => {
+      const pdfFile = new File(["%PDF-1.4"], "worksheet.pdf", {
+        type: "application/pdf",
+      });
+      const shareSpy = vi.fn().mockResolvedValue(undefined);
+      const canShareSpy = vi.fn().mockReturnValue(true);
+      vi.stubGlobal("navigator", { share: shareSpy, canShare: canShareSpy });
+
+      const result = await sharePrintPdfFile({
+        title: "ورقة عمل",
+        text: "الدرس ١",
+        file: pdfFile,
+      });
+
+      expect(result).toBe("shared");
+      expect(canShareSpy).toHaveBeenCalledWith({ files: [pdfFile] });
+      expect(shareSpy).toHaveBeenCalledWith({
+        title: "ورقة عمل",
+        text: "الدرس ١",
+        files: [pdfFile],
+      });
     });
   });
 });

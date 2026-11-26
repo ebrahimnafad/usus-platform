@@ -6,10 +6,11 @@ import type { TashkeelMode } from "@/lib/reading-scaffold";
 import { toEasternArabicNumerals } from "@/lib/numerals";
 import {
   printHtmlInIframe,
+  renderHtmlToPdfFile,
   type ReadingPrintScope,
   type ReadingPrintViewOption,
 } from "@/lib/print-html-iframe";
-import { sharePrintContent } from "@/lib/share-print";
+import { sharePrintPdfFile } from "@/lib/share-print";
 import { usePrintPrefs } from "@/lib/use-print-prefs";
 import { PrintDialogShell } from "@/components/print/PrintDialogShell";
 import { PrintFontSelector } from "@/components/print/PrintFontSelector";
@@ -91,33 +92,41 @@ export function ReadingPrintModal({
     onIncludeStoryTextChange?.(next);
   };
 
+  const resolvePrintablePayload = async (): Promise<{
+    bodyHtml: string;
+    title: string;
+  }> => {
+    const effectiveView = disableAnswerKeyForSingleFreeReading
+      ? "student"
+      : viewOption;
+    const params = new URLSearchParams({
+      level: level.id,
+      story: String(story.storyNumber),
+      scope,
+      viewOption: effectiveView,
+      tashkeel: localTashkeel,
+      includeStoryText: String(localIncludeStoryText),
+    });
+    const response = await fetch(
+      `/api/reading-print-html?${params.toString()}`
+    );
+    if (!response.ok) {
+      throw new Error(`Print HTML request failed (${response.status})`);
+    }
+    const data = (await response.json()) as {
+      html: string;
+      title: string;
+    };
+    return { bodyHtml: data.html, title: data.title };
+  };
+
   const handlePrint = async () => {
     setIsPrinting(true);
     try {
-      const effectiveView = disableAnswerKeyForSingleFreeReading
-        ? "student"
-        : viewOption;
-      const params = new URLSearchParams({
-        level: level.id,
-        story: String(story.storyNumber),
-        scope,
-        viewOption: effectiveView,
-        tashkeel: localTashkeel,
-        includeStoryText: String(localIncludeStoryText),
-      });
-      const response = await fetch(
-        `/api/reading-print-html?${params.toString()}`
-      );
-      if (!response.ok) {
-        throw new Error(`Print HTML request failed (${response.status})`);
-      }
-      const data = (await response.json()) as {
-        html: string;
-        title: string;
-      };
+      const { bodyHtml, title } = await resolvePrintablePayload();
       await printHtmlInIframe({
-        bodyHtml: data.html,
-        title: data.title,
+        bodyHtml,
+        title,
         colorMode,
         fontFamily,
       });
@@ -131,30 +140,28 @@ export function ReadingPrintModal({
     if (isSharing || typeof window === "undefined") return;
     setIsSharing(true);
     try {
-      const origin = window.location.origin;
-      const effectiveView = disableAnswerKeyForSingleFreeReading
-        ? "student"
-        : viewOption;
-      const storyTitle = story.titleAr ?? story.title;
-      const shareUrl =
-        scope === "level"
-          ? `${origin}/reading/level/${level.id}`
-          : effectiveView === "answer-key"
-            ? `${origin}/reading/q/${level.id}?story=${story.storyNumber}&tashkeel=${localTashkeel}&view=answer-key`
-            : `${origin}/reading/level/${level.id}/story/${story.storyNumber}`;
-      const shareTitle =
-        scope === "level"
-          ? `أُسُس - ${level.titleAr} - كافة القصص`
-          : `أُسُس - ${level.titleAr} - القصة ${storyNumAr} - ${storyTitle}`;
-      const result = await sharePrintContent({
-        title: shareTitle,
-        text: `${level.titleAr}: «${storyTitle}»`,
-        url: shareUrl,
+      const { bodyHtml, title } = await resolvePrintablePayload();
+      const pdfFile = await renderHtmlToPdfFile({
+        bodyHtml,
+        title,
+        colorMode,
+        fontFamily,
       });
-      if (result === "copied") {
-        setShareFeedback("تم نسخ الرابط ✓");
+      const storyTitle = story.titleAr ?? story.title;
+      const result = await sharePrintPdfFile({
+        title,
+        text: `${level.titleAr}: «${storyTitle}»`,
+        file: pdfFile,
+      });
+      if (result === "downloaded" || result === "shared") {
+        setShareFeedback(
+          result === "downloaded" ? "تم تحميل PDF ✓" : "تمت المشاركة ✓"
+        );
         setTimeout(() => setShareFeedback(null), 2500);
       }
+    } catch {
+      setShareFeedback("تعذّرت المشاركة");
+      setTimeout(() => setShareFeedback(null), 2500);
     } finally {
       setIsSharing(false);
     }

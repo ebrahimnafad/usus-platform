@@ -135,30 +135,46 @@ function collectHeadStylesHtml(): string {
   return parts.join("\n");
 }
 
-/**
- * Print clean A4 worksheet HTML via a hidden same-origin iframe (ADR-0017).
- * Avoids any Playwright/server-PDF round-trip so printing opens in milliseconds.
- */
-export async function printHtmlInIframe({
+interface MountedPrintIframe {
+  iframe: HTMLIFrameElement;
+  doc: Document;
+  win: Window;
+  safeTitle: string;
+  cleanup: () => void;
+}
+
+async function mountPrintIframe({
   bodyHtml,
   title,
   colorMode = "color",
   fontFamily = "cairo",
-}: PrintHtmlInIframeOptions): Promise<void> {
+  visibleForCapture = false,
+}: PrintHtmlInIframeOptions & {
+  visibleForCapture?: boolean;
+}): Promise<MountedPrintIframe | null> {
   if (typeof window === "undefined" || typeof document === "undefined") {
-    return;
+    return null;
   }
 
   const iframe = document.createElement("iframe");
   iframe.setAttribute("aria-hidden", "true");
   iframe.setAttribute("data-print-iframe", "true");
   iframe.style.position = "fixed";
-  iframe.style.right = "0";
-  iframe.style.bottom = "0";
-  iframe.style.width = "0";
-  iframe.style.height = "0";
+  if (visibleForCapture) {
+    iframe.style.left = "-10000px";
+    iframe.style.top = "0";
+    iframe.style.width = "794px";
+    iframe.style.height = "1123px";
+    iframe.style.opacity = "0";
+    iframe.style.pointerEvents = "none";
+  } else {
+    iframe.style.right = "0";
+    iframe.style.bottom = "0";
+    iframe.style.width = "0";
+    iframe.style.height = "0";
+    iframe.style.visibility = "hidden";
+  }
   iframe.style.border = "0";
-  iframe.style.visibility = "hidden";
 
   const headStyles = collectHeadStylesHtml();
   const printFontsLink = `<link rel="stylesheet" href="${printFontsConfig.stylesheetHref}" />`;
@@ -200,76 +216,100 @@ html, body, .a4-sheet, .reading-a4-sheet, [data-worksheet-surface="true"], .font
 </html>`;
 
   const previousTitle = document.title;
-  document.title = safeTitle;
+  if (!visibleForCapture) {
+    document.title = safeTitle;
+  }
   document.body.appendChild(iframe);
 
   const cleanup = () => {
-    document.title = previousTitle;
+    if (!visibleForCapture) {
+      document.title = previousTitle;
+    }
     if (iframe.parentNode) {
       iframe.parentNode.removeChild(iframe);
     }
   };
 
+  const doc = iframe.contentDocument ?? iframe.contentWindow?.document;
+  const win = iframe.contentWindow;
+  if (!doc || !win) {
+    cleanup();
+    return null;
+  }
+
+  doc.open();
+  doc.write(docHtml);
+  doc.close();
+
+  // Wait for all stylesheet <link> elements to finish loading before printing/capturing
+  const stylesheetLinks = Array.from(
+    doc.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]')
+  );
+  if (stylesheetLinks.length > 0) {
+    await Promise.race([
+      Promise.all(
+        stylesheetLinks.map((link) =>
+          link.sheet
+            ? Promise.resolve()
+            : new Promise<void>((resolve) => {
+                link.addEventListener("load", () => resolve(), {
+                  once: true,
+                });
+                link.addEventListener("error", () => resolve(), {
+                  once: true,
+                });
+              })
+        )
+      ),
+      new Promise<void>((r) => setTimeout(r, 5000)),
+    ]);
+  }
+
+  // Wait for font/style application on the new document
+  await new Promise<void>((resolve) => {
+    const fontsReady = (doc as Document & { fonts?: FontFaceSet }).fonts?.ready;
+    if (fontsReady && typeof fontsReady.then === "function") {
+      Promise.race([
+        fontsReady.then(() => undefined),
+        new Promise<void>((r) => setTimeout(r, 2000)),
+      ]).then(resolve);
+    } else {
+      setTimeout(resolve, 30);
+    }
+  });
+
+  // Ensure layout has been computed with loaded styles
+  if (typeof win.requestAnimationFrame === "function") {
+    await new Promise<void>((resolve) => {
+      win.requestAnimationFrame(() =>
+        win.requestAnimationFrame(() => resolve())
+      );
+    });
+  }
+
+  return { iframe, doc, win, safeTitle, cleanup };
+}
+
+/**
+ * Print clean A4 worksheet HTML via a hidden same-origin iframe (ADR-0017).
+ * Avoids any Playwright/server-PDF round-trip so printing opens in milliseconds.
+ */
+export async function printHtmlInIframe(
+  options: PrintHtmlInIframeOptions
+): Promise<void> {
+  if (typeof window === "undefined" || typeof document === "undefined") {
+    return;
+  }
+
+  let mounted: MountedPrintIframe | null = null;
   try {
-    const doc = iframe.contentDocument ?? iframe.contentWindow?.document;
-    const win = iframe.contentWindow;
-    if (!doc || !win) {
-      cleanup();
+    mounted = await mountPrintIframe(options);
+    if (!mounted) {
       window.print();
       return;
     }
 
-    doc.open();
-    doc.write(docHtml);
-    doc.close();
-
-    // Wait for all stylesheet <link> elements to finish loading before printing
-    const stylesheetLinks = Array.from(
-      doc.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]')
-    );
-    if (stylesheetLinks.length > 0) {
-      await Promise.race([
-        Promise.all(
-          stylesheetLinks.map((link) =>
-            link.sheet
-              ? Promise.resolve()
-              : new Promise<void>((resolve) => {
-                  link.addEventListener("load", () => resolve(), {
-                    once: true,
-                  });
-                  link.addEventListener("error", () => resolve(), {
-                    once: true,
-                  });
-                })
-          )
-        ),
-        new Promise<void>((r) => setTimeout(r, 5000)),
-      ]);
-    }
-
-    // Wait for font/style application on the new document
-    await new Promise<void>((resolve) => {
-      const fontsReady = (doc as Document & { fonts?: FontFaceSet }).fonts
-        ?.ready;
-      if (fontsReady && typeof fontsReady.then === "function") {
-        Promise.race([
-          fontsReady.then(() => undefined),
-          new Promise<void>((r) => setTimeout(r, 2000)),
-        ]).then(resolve);
-      } else {
-        setTimeout(resolve, 30);
-      }
-    });
-
-    // Ensure layout has been computed with loaded styles before opening print dialog
-    if (typeof win.requestAnimationFrame === "function") {
-      await new Promise<void>((resolve) => {
-        win.requestAnimationFrame(() =>
-          win.requestAnimationFrame(() => resolve())
-        );
-      });
-    }
-
+    const { win, cleanup } = mounted;
     win.addEventListener("afterprint", cleanup, { once: true });
     win.focus();
     win.print();
@@ -277,7 +317,84 @@ html, body, .a4-sheet, .reading-a4-sheet, [data-worksheet-surface="true"], .font
     // Fallback cleanup in case afterprint does not fire in some browsers
     setTimeout(cleanup, 60_000);
   } catch {
-    cleanup();
+    mounted?.cleanup();
     window.print();
+  }
+}
+
+/**
+ * Render printable A4 HTML client-side into a real PDF `File` object so the
+ * Share button can attach an actual `.pdf` via the Web Share API (`files`).
+ */
+export async function renderHtmlToPdfFile(
+  options: PrintHtmlInIframeOptions
+): Promise<File> {
+  const mounted = await mountPrintIframe({
+    ...options,
+    visibleForCapture: true,
+  });
+  if (!mounted) {
+    throw new Error("Could not mount offscreen frame for PDF generation");
+  }
+
+  try {
+    const { doc, safeTitle } = mounted;
+    const [{ toJpeg }, { jsPDF }] = await Promise.all([
+      import("html-to-image"),
+      import("jspdf"),
+    ]);
+
+    const sheetNodes = Array.from(
+      doc.querySelectorAll<HTMLElement>(".a4-sheet, .reading-a4-sheet")
+    );
+    const targets = sheetNodes.length > 0 ? sheetNodes : [doc.body];
+
+    const pdf = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: "a4",
+      compress: true,
+    });
+
+    for (let i = 0; i < targets.length; i++) {
+      const target = targets[i];
+      if (i > 0) {
+        pdf.addPage("a4", "portrait");
+      }
+
+      const dataUrl = await toJpeg(target, {
+        pixelRatio: 2,
+        quality: 0.92,
+        backgroundColor: "#ffffff",
+      });
+
+      const widthPx = target.scrollWidth || 794;
+      const heightPx = target.scrollHeight || 1123;
+      const pageWidthMm = 210;
+      const pageHeightMm = 297;
+      const scaledHeightMm = (heightPx / widthPx) * pageWidthMm;
+      const drawHeightMm = Math.min(pageHeightMm, scaledHeightMm);
+      const drawWidthMm =
+        scaledHeightMm > pageHeightMm
+          ? pageWidthMm * (pageHeightMm / scaledHeightMm)
+          : pageWidthMm;
+      const offsetX = (pageWidthMm - drawWidthMm) / 2;
+
+      pdf.addImage(
+        dataUrl,
+        "JPEG",
+        offsetX,
+        0,
+        drawWidthMm,
+        drawHeightMm,
+        undefined,
+        "FAST"
+      );
+    }
+
+    const blob = pdf.output("blob");
+    return new File([blob], `${safeTitle}.pdf`, { type: "application/pdf" });
+  } finally {
+    mounted.cleanup();
   }
 }

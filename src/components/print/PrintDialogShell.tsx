@@ -124,7 +124,10 @@ export function PrintDialogShell({
                 className="flex min-h-[44px] items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-extrabold text-slate-700 transition-colors hover:bg-slate-100 disabled:opacity-50 sm:min-h-0"
               >
                 <ShareIcon size={15} />
-                <span>{shareFeedbackAr ?? "مشاركة"}</span>
+                <span>
+                  {shareFeedbackAr ??
+                    (isSharing ? "جارٍ تجهيز PDF..." : "مشاركة PDF")}
+                </span>
               </button>
             )}
           </div>

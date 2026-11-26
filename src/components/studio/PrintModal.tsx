@@ -10,10 +10,11 @@ import { formatEasternNumber } from "@/lib/numerals";
 import { mintNextStudioSeed } from "@/lib/studio-state";
 import {
   printHtmlInIframe,
+  renderHtmlToPdfFile,
   type PrintScope,
   type PrintViewOption,
 } from "@/lib/print-html-iframe";
-import { sharePrintContent } from "@/lib/share-print";
+import { sharePrintPdfFile } from "@/lib/share-print";
 import { usePrintPrefs } from "@/lib/use-print-prefs";
 import { PrintDialogShell } from "@/components/print/PrintDialogShell";
 import { PrintFontSelector } from "@/components/print/PrintFontSelector";
@@ -97,52 +98,50 @@ export function PrintModal({
     }
   };
 
-  const handlePrintNow = async () => {
-    if (isPrinting) return;
-    setIsPrinting(true);
-
+  const resolvePrintablePayload = async (): Promise<{
+    bodyHtml: string;
+    title: string;
+  }> => {
     const effectiveSeed = seedInput.trim().toUpperCase() || bundle.seed;
-    const canPrintLiveDom =
+    const canUseLiveDom =
       scope === "lesson" &&
       viewOption !== "both" &&
       viewOption === activeViewMode &&
       difficulty === bundle.difficultyMode &&
       effectiveSeed === bundle.seed;
 
-    try {
-      if (canPrintLiveDom && typeof document !== "undefined") {
-        const surface = document.querySelector(
-          '[data-worksheet-surface="true"]'
-        );
-        if (surface) {
-          const viewSuffix =
-            viewOption === "answer-key" ? " - نموذج الإجابة" : "";
-          const title = `أُسُس - ${bundle.grade.labelAr} - الدرس ${lessonAr} - ${bundle.lesson.titleAr}${viewSuffix} - ${effectiveSeed}`;
-          await printHtmlInIframe({
-            bodyHtml: surface.outerHTML,
-            title,
-            colorMode,
-            fontFamily,
-          });
-          onClose();
-          return;
-        }
+    if (canUseLiveDom && typeof document !== "undefined") {
+      const surface = document.querySelector('[data-worksheet-surface="true"]');
+      if (surface) {
+        const viewSuffix =
+          viewOption === "answer-key" ? " - نموذج الإجابة" : "";
+        const title = `أُسُس - ${bundle.grade.labelAr} - الدرس ${lessonAr} - ${bundle.lesson.titleAr}${viewSuffix} - ${effectiveSeed}`;
+        return { bodyHtml: surface.outerHTML, title };
       }
+    }
 
-      const params = new URLSearchParams({
-        grade: bundle.grade.id,
-        lesson: String(bundle.lesson.lessonNumber),
-        seed: effectiveSeed,
-        difficulty,
-        scope,
-        viewOption,
-      });
-      const res = await fetch(`/api/print-html?${params.toString()}`);
-      if (!res.ok) throw new Error(`Print HTML API failed: ${res.status}`);
-      const data = (await res.json()) as { html: string; title: string };
+    const params = new URLSearchParams({
+      grade: bundle.grade.id,
+      lesson: String(bundle.lesson.lessonNumber),
+      seed: effectiveSeed,
+      difficulty,
+      scope,
+      viewOption,
+    });
+    const res = await fetch(`/api/print-html?${params.toString()}`);
+    if (!res.ok) throw new Error(`Print HTML API failed: ${res.status}`);
+    const data = (await res.json()) as { html: string; title: string };
+    return { bodyHtml: data.html, title: data.title };
+  };
+
+  const handlePrintNow = async () => {
+    if (isPrinting) return;
+    setIsPrinting(true);
+    try {
+      const { bodyHtml, title } = await resolvePrintablePayload();
       await printHtmlInIframe({
-        bodyHtml: data.html,
-        title: data.title,
+        bodyHtml,
+        title,
         colorMode,
         fontFamily,
       });
@@ -158,27 +157,27 @@ export function PrintModal({
     if (isSharing || typeof window === "undefined") return;
     setIsSharing(true);
     try {
-      const origin = window.location.origin;
-      const effectiveSeed = seedInput.trim().toUpperCase() || bundle.seed;
-      const shareUrl =
-        scope === "unit"
-          ? `${origin}/math/${bundle.grade.id}`
-          : viewOption === "answer-key"
-            ? `${origin}/q/${bundle.grade.id}?lesson=${bundle.lesson.lessonNumber}&seed=${effectiveSeed}&difficulty=${difficulty}&view=answer-key`
-            : `${origin}/print?grade=${bundle.grade.id}&lesson=${bundle.lesson.lessonNumber}&seed=${effectiveSeed}&difficulty=${difficulty}&view=${viewOption === "both" ? "worksheet" : viewOption}`;
-      const shareTitle =
-        scope === "unit"
-          ? `أُسُس - ${bundle.grade.labelAr} - الوحدة ${unitAr}`
-          : `أُسُس - ${bundle.grade.labelAr} - الدرس ${lessonAr} - ${bundle.lesson.titleAr}`;
-      const result = await sharePrintContent({
-        title: shareTitle,
-        text: `${bundle.grade.labelAr} — الدرس ${lessonAr}: ${bundle.lesson.titleAr}`,
-        url: shareUrl,
+      const { bodyHtml, title } = await resolvePrintablePayload();
+      const pdfFile = await renderHtmlToPdfFile({
+        bodyHtml,
+        title,
+        colorMode,
+        fontFamily,
       });
-      if (result === "copied") {
-        setShareFeedback("تم نسخ الرابط ✓");
+      const result = await sharePrintPdfFile({
+        title,
+        text: `${bundle.grade.labelAr} — الدرس ${lessonAr}: ${bundle.lesson.titleAr}`,
+        file: pdfFile,
+      });
+      if (result === "downloaded" || result === "shared") {
+        setShareFeedback(
+          result === "downloaded" ? "تم تحميل PDF ✓" : "تمت المشاركة ✓"
+        );
         setTimeout(() => setShareFeedback(null), 2500);
       }
+    } catch {
+      setShareFeedback("تعذّرت المشاركة");
+      setTimeout(() => setShareFeedback(null), 2500);
     } finally {
       setIsSharing(false);
     }
